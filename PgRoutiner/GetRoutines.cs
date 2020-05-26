@@ -83,14 +83,11 @@ namespace PgRoutiner
                                 where
                                     c.table_name = r.type_udt_name and c.table_schema = 'public'
                             )
-                    
-                                
                             else null
                         end
-                ) as ""returns"",
+                ) as returns,
 
                 pgdesc.description
-
 
 
             from
