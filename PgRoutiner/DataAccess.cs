@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Norm.Extensions;
 using Npgsql;
+using NpgsqlTypes;
 
 namespace PgRoutiner
 {
@@ -25,7 +27,7 @@ namespace PgRoutiner
     public static class DataAccess
     {
         public static IEnumerable<(string name, IEnumerable<PgType> parameters, PgReturns returns, string description)> 
-            GetRoutines(this NpgsqlConnection connection)
+            GetRoutines(this NpgsqlConnection connection, Settings settings)
         {
             return connection.Read<string, string, string, string>(@"
 
@@ -81,7 +83,7 @@ namespace PgRoutiner
                                 from
                                     information_schema.columns c
                                 where
-                                    c.table_name = r.type_udt_name and c.table_schema = 'public'
+                                    c.table_name = r.type_udt_name and c.table_schema = @schema
                             )
                             else null
                         end
@@ -98,8 +100,10 @@ namespace PgRoutiner
                 inner join pg_catalog.pg_proc proc on r.routine_name = proc.proname
                 left outer join pg_catalog.pg_description pgdesc on proc.oid = pgdesc.objoid
             where
-                r.specific_schema = 'public'
+                r.specific_schema = @schema
                 and r.external_language <> 'INTERNAL'
+                and (@skipPattern is null or r.routine_name not similar to @skipPattern)
+                
 
             group by
                 r.routine_name,
@@ -107,7 +111,10 @@ namespace PgRoutiner
                 r.type_udt_name,
                 pgdesc.description
 
-            ").Select(t => (
+            ",
+                ("schema", settings.Schema, DbType.AnsiString),
+                ("skipPattern", settings.SkipSimilarTo, DbType.AnsiString)).Select(t => 
+            (
                 t.Item1,
                 JsonConvert.DeserializeObject<IEnumerable<PgType>>(t.Item2),
                 JsonConvert.DeserializeObject<PgReturns>(t.Item3),

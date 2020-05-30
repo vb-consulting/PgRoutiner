@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -8,9 +9,14 @@ using Formatting = Newtonsoft.Json.Formatting;
 
 namespace PgRoutiner
 {
-    class Program
+    partial class Program
     {
         public static readonly string CurrentDir = Directory.GetCurrentDirectory();
+#if DEBUG
+        public static bool IsDebug { get; set; } = true;
+#else
+        public static bool IsDebug { get; set; } = false;
+#endif
 
         static void Main(string[] args)
         {
@@ -30,7 +36,7 @@ namespace PgRoutiner
             bool success = false;
             success = CheckConnectionValue(config);
             success = FindProjFile();
-            success = ParseProjectFile();
+            success = success && ParseProjectFile();
             ShowSettings();
 
             if (!success)
@@ -38,7 +44,27 @@ namespace PgRoutiner
                 return;
             }
 
-            //
+            Run(config);
+
+            if (ArgsInclude(args, "run") || IsDebug)
+            {
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"Running files generation... ");
+                Console.ResetColor();
+                Console.WriteLine();
+
+                Run(config);
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Use run command start files generation: ");
+                Console.WriteLine($"dotnet pgr [settings] run");
+                Console.ResetColor();
+                Console.WriteLine();
+            }
         }
 
         private static bool ParseProjectFile()
@@ -67,6 +93,7 @@ namespace PgRoutiner
             }
 
             Settings.Value.Namespace = ns;
+
             if (string.IsNullOrEmpty(normVersion))
             {
                 DumpError($"Norm.net is not referenced in your project. Reference Norm.net, minimum version 1.5.1. first to use this tool.");
@@ -141,6 +168,7 @@ namespace PgRoutiner
 
             DumpError($"Couldn't find a project to use. Ensure a project exists in {CurrentDir}, or pass the path to the project using project setting.");
             return false;
+
         }
 
         private static void DumpError(string msg)
@@ -163,21 +191,24 @@ namespace PgRoutiner
             Console.WriteLine();
             Console.Write("Usage: ");
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("dotnet pgr [settings]");
+            Console.WriteLine("dotnet pgr [settings] [run]");
             Console.ResetColor();
             Console.WriteLine();
             Console.WriteLine("Settings:");
             WriteSetting("connection", "<connection string name>");
             WriteSetting("project",
-                "<csproj project file name relative to execution dir> - default will search in current dir");
+                "<csproj project file name> - .csproj relative to current dir, default will search for first occurrence in current dir");
             WriteSetting("schema", "<PostgreSQL schema name> - default is public");
-            WriteSetting("skipExisting",
-                "<true|false> - should existing generated source file be skipped (true) or overwritten (false, default)");
+            WriteSetting("overwrite",
+                "<true|false> - should existing generated source file be overwritten (true, default) or skipped (false)");
             WriteSetting("namespace", "<name of the namespace to be used> - default is from project file, use this to override");
+            WriteSetting("skipSimilarTo", "<SQL SIMILAR TO regular expressions> - pattern for skipping routines (default is null, doesn't skip any)");
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(
-                "INFO: Settings can be set in json settings file (under section \"pgr\") or trough command line. Command line will override json settings file.");
+                "INFO: Settings can be set in json settings file (appsettings.json or appsettings.Development.json) under section \"pgr\", or trough command line.");
+            Console.WriteLine(
+                "Command line will take precedence over settings json file.");
             Console.ResetColor();
             Console.WriteLine();
         }
@@ -186,6 +217,7 @@ namespace PgRoutiner
         {
             Console.WriteLine();
             Console.WriteLine("Current settings:");
+            Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(JsonConvert.SerializeObject(Settings.Value, new JsonSerializerSettings
             {
@@ -202,6 +234,24 @@ namespace PgRoutiner
             Console.Write($" {key}");
             Console.ResetColor();
             Console.WriteLine($"={value}");
+        }
+        private static bool ArgsInclude(string[] args, params string[] values)
+        {
+            var lower = values.Select(v => v.ToLower()).ToList();
+            var upper = values.Select(v => v.ToUpper()).ToList();
+            foreach (var arg in args)
+            {
+                if (lower.Contains(arg))
+                {
+                    return true;
+                }
+                if (upper.Contains(arg))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
