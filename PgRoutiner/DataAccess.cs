@@ -2,34 +2,41 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using Newtonsoft.Json;
 using Norm.Extensions;
 using Npgsql;
-using NpgsqlTypes;
 
 namespace PgRoutiner
 {
-    public class PgType
+    public class PgBaseType
     {
-        public int Ordinal { get; set; }
-        public string Name { get; set; }
         public string Type { get; set; }
         public bool Array { get; set; }
     }
 
-    public class PgReturns
+    public class PgType : PgBaseType
     {
-        public string Type { get; set; }
+        public int Ordinal { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class PgReturns : PgBaseType
+    {
         public IEnumerable<PgType> Record { get; set; }
+    }
+
+    public class GetRoutinesResult
+    {
+        public string Name { get; set; }
+        public IEnumerable<PgType> Parameters { get; set; }
+        public PgReturns Returns { get; set; }
+        public string Description { get; set; }
     }
 
     public static class DataAccess
     {
-        public static IEnumerable<(string name, IEnumerable<PgType> parameters, PgReturns returns, string description)> 
-            GetRoutines(this NpgsqlConnection connection, Settings settings)
-        {
-            return connection.Read<string, string, string, string>(@"
+        public static IEnumerable<GetRoutinesResult> GetRoutines(this NpgsqlConnection connection, Settings settings) =>
+            connection.Read<string, string, string, string>(@"
 
             select
                 r.routine_name,
@@ -49,7 +56,8 @@ namespace PgRoutiner
                 ) as parameters,
                 
                 json_build_object(
-                    'type', r.type_udt_name,
+                    'type', regexp_replace(r.type_udt_name, '^[_]', ''),
+                    'array', r.data_type = 'ARRAY',
                     'record',
                         case 
                             when r.type_udt_name = 'record' then 
@@ -113,13 +121,12 @@ namespace PgRoutiner
 
             ",
                 ("schema", settings.Schema, DbType.AnsiString),
-                ("skipPattern", settings.SkipSimilarTo, DbType.AnsiString)).Select(t => 
-            (
-                t.Item1,
-                JsonConvert.DeserializeObject<IEnumerable<PgType>>(t.Item2),
-                JsonConvert.DeserializeObject<PgReturns>(t.Item3),
-                t.Item4
-            ));
-        }
+                ("skipPattern", settings.SkipSimilarTo, DbType.AnsiString)).Select(t => new GetRoutinesResult 
+            {
+                Name = t.Item1,
+                Parameters = JsonConvert.DeserializeObject<IEnumerable<PgType>>(t.Item2),
+                Returns = JsonConvert.DeserializeObject<PgReturns>(t.Item3),
+                Description = t.Item4
+            });
     }
 }

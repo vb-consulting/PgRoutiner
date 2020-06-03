@@ -1,10 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
-using System.Xml;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Npgsql;
 
 
@@ -14,12 +9,14 @@ namespace PgRoutiner
     {
         static void Run(IConfiguration config)
         {
+            var i = 0;
             using var connection = new NpgsqlConnection(config.GetConnectionString(Settings.Value.Connection));
             {
-                foreach (var (name, parameters, returns, description) in connection.GetRoutines(Settings.Value))
+                foreach (var item in connection.GetRoutines(Settings.Value))
                 {
 
-                    Console.WriteLine(name);
+                    Console.WriteLine(new SourceCodeBuilder(Settings.Value, item).Build());
+                    if (i++ > 15) break;
                 }
             }
         }
