@@ -20,6 +20,15 @@ namespace PgRoutiner
 
         static void Main(string[] args)
         {
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine();
+            Console.WriteLine("PgRoutiner dotnet tool");
+            Console.WriteLine("Scaffold your PostgreSQL routines to enable static type checking for your project!");
+            Console.WriteLine("Use -h or --help for help with settings and options...");
+            Console.ResetColor();
+            Console.WriteLine();
+
             var configBuilder = new ConfigurationBuilder()
                 .AddJsonFile(Path.Join(CurrentDir, "appsettings.json"), optional: true, reloadOnChange: false)
                 .AddJsonFile(Path.Join(CurrentDir, "appsettings.Development.json"), optional: true, reloadOnChange: false);
@@ -31,9 +40,27 @@ namespace PgRoutiner
             var cmdLine = cmdLineConfigBuilder.Build();
             cmdLine.Bind(Settings.Value);
 
-            ShowInfo();
+            if (Settings.Value.SimilarTo == "")
+            {
+                Settings.Value.SimilarTo = null;
+            }
+            if (Settings.Value.NotSimilarTo == "")
+            {
+                Settings.Value.NotSimilarTo = null;
+            }
+            if (Settings.Value.ModelDir == "")
+            {
+                Settings.Value.ModelDir = null;
+            }
 
-            
+
+            var help = false;
+            if (ArgsInclude(args, "-h") || ArgsInclude(args, "--help"))
+            {
+                help = true;
+                ShowInfo();
+            }
+
 
             bool success = false;
             success = CheckConnectionValue(config);
@@ -52,25 +79,18 @@ namespace PgRoutiner
             Console.WriteLine(JsonConvert.SerializeObject(Settings.TypeMapping));
             Console.ResetColor();
 
-            if (ArgsInclude(args, "run") || IsDebug)
+            if (help)
             {
-                Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"Running files generation... ");
-                Console.ResetColor();
-                Console.WriteLine();
+                return;
+            }
 
-                Run(config);
-            }
-            else
-            {
-                Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Use run command start files generation: ");
-                Console.WriteLine($"dotnet pgr [settings] run");
-                Console.ResetColor();
-                Console.WriteLine();
-            }
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"Running files generation... ");
+            Console.ResetColor();
+            Console.WriteLine();
+
+            Run(config);
         }
 
         private static bool ParseProjectFile()
@@ -142,9 +162,15 @@ namespace PgRoutiner
                 DumpError($"Connection name {Settings.Value.Connection} could not be found in settings, exiting...");
                 return false;
             }
-            
-            DumpError($"Connection setting is not set, exiting...");
-            return false;
+
+            if (!config.GetSection("ConnectionStrings").GetChildren().Any())
+            {
+                DumpError($"Connection setting is not set and ConnectionStrings section doesn't contain any values, exiting...");
+                return false;
+            }
+
+            Settings.Value.Connection = config.GetSection("ConnectionStrings").GetChildren().First().Key;
+            return true;
 
         }
 
@@ -188,28 +214,25 @@ namespace PgRoutiner
 
         private static void ShowInfo()
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine();
-            Console.WriteLine("PgRoutiner dotnet tool");
-            Console.WriteLine("Scaffold your PostgreSQL routines to enable static type checking for your project!");
-
-            Console.ResetColor();
-            Console.WriteLine();
             Console.Write("Usage: ");
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("dotnet pgr [settings] [run]");
             Console.ResetColor();
             Console.WriteLine();
             Console.WriteLine("Settings:");
-            WriteSetting("connection", "<connection string name>");
+            WriteSetting("connection", "<connection string name> - default will use first available connection string");
             WriteSetting("project",
                 "<csproj project file name> - .csproj relative to current dir, default will search for first occurrence in current dir");
             WriteSetting("schema", "<PostgreSQL schema name> - default is public");
             WriteSetting("overwrite",
                 "<true|false> - should existing generated source file be overwritten (true, default) or skipped (false)");
             WriteSetting("namespace", "<name of the namespace to be used> - default is from project file, use this to override");
-            WriteSetting("skipSimilarTo", "<SQL SIMILAR TO regular expressions> - pattern for skipping routines (default is null, doesn't skip any)");
+            WriteSetting("notSimilarTo", "<NOT SIMILAR TO SQL regular expressions> - not similar to routine sql regular expression (default is null, skip matching)");
+            WriteSetting("similarTo", "<SIMILAR TO SQL regular expressions> - similar to routine sql regular expression (default is null, skip matching)");
             WriteSetting("sourceHeader", "<string comment to insert at first line> - default is \"// <auto-generated />\")");
+
+            WriteSetting("syncMethod", "<true|false) - generate sync method (default is true)");
+            WriteSetting("asyncMethod", "<true|false) - generate async method (default is true)");
 
             WriteSetting("mapping", "<key (PostgreSQL udt type name) - value (c# type name)> - Use this to override default type mapping od add new.");
             Console.WriteLine();

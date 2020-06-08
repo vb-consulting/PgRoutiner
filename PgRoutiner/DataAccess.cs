@@ -22,6 +22,7 @@ namespace PgRoutiner
 
     public class PgReturns : PgBaseType
     {
+        public bool UserDefined { get; set; }
         public IEnumerable<PgType> Record { get; set; }
     }
 
@@ -31,12 +32,14 @@ namespace PgRoutiner
         public IEnumerable<PgType> Parameters { get; set; }
         public PgReturns Returns { get; set; }
         public string Description { get; set; }
+        public string Language { get; set; }
+        public string RoutineType { get; set; }
     }
 
     public static class DataAccess
     {
         public static IEnumerable<GetRoutinesResult> GetRoutines(this NpgsqlConnection connection, Settings settings) =>
-            connection.Read<string, string, string, string>(@"
+            connection.Read<string, string, string, string, string, string>(@"
 
             select
                 r.routine_name,
@@ -58,9 +61,10 @@ namespace PgRoutiner
                 json_build_object(
                     'type', regexp_replace(r.type_udt_name, '^[_]', ''),
                     'array', r.data_type = 'ARRAY',
+                    'userDefined', r.data_type = 'USER-DEFINED',
                     'record',
                         case 
-                            when r.type_udt_name = 'record' then 
+                            when (r.type_udt_name = 'record' or (r.data_type <> 'USER-DEFINED')) then 
                                 coalesce (
                                     json_agg(
                                         json_build_object(
@@ -97,7 +101,9 @@ namespace PgRoutiner
                         end
                 ) as returns,
 
-                pgdesc.description
+                pgdesc.description,
+                lower(r.external_language) as language,
+                lower(r.routine_type) as routine_type
 
 
             from
@@ -110,23 +116,23 @@ namespace PgRoutiner
             where
                 r.specific_schema = @schema
                 and r.external_language <> 'INTERNAL'
-                and (@skipPattern is null or r.routine_name not similar to @skipPattern)
-                
+                and (@notSimilarTo is null or r.routine_name not similar to @notSimilarTo)
+                and (@similarTo is null or r.routine_name similar to @similarTo)
 
             group by
-                r.routine_name,
-                r.data_type,
-                r.type_udt_name,
-                pgdesc.description
+                r.routine_name, r.data_type, r.type_udt_name, pgdesc.description, r.external_language, r.routine_type
 
             ",
                 ("schema", settings.Schema, DbType.AnsiString),
-                ("skipPattern", settings.SkipSimilarTo, DbType.AnsiString)).Select(t => new GetRoutinesResult 
+                ("notSimilarTo", settings.NotSimilarTo, DbType.AnsiString),
+                ("similarTo", settings.SimilarTo, DbType.AnsiString)).Select(t => new GetRoutinesResult 
             {
                 Name = t.Item1,
                 Parameters = JsonConvert.DeserializeObject<IEnumerable<PgType>>(t.Item2),
                 Returns = JsonConvert.DeserializeObject<PgReturns>(t.Item3),
-                Description = t.Item4
+                Description = t.Item4,
+                Language = t.Item5,
+                RoutineType = t.Item6
             });
     }
 }
