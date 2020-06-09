@@ -2,22 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.VisualBasic;
 
 namespace PgRoutiner
 {
     public class SourceCodeBuilder
     {
+        public string Content { get; }
+        public string ModelContent { get; private set; }
+        public string ModelName { get; private set; }
+
         private readonly string NL = Environment.NewLine;
         private readonly Settings _settings;
         private readonly GetRoutinesResult _item;
         private readonly string _namespace;
-        private readonly bool _isVoid;
-        private readonly bool _noRecords;
-        private readonly bool _noParams;
-        private readonly bool _singleRecordResult;
-        private readonly int _recordCount;
+
         private const int MaxRecords = 12;
         private static readonly HashSet<string> Models = new HashSet<string>();
+
+        private IEnumerable<PgType> _parameters;
+        private PgReturns _returns;
+        private bool _isVoid;
+        private bool _noRecords;
+        private bool _noParams;
+        private bool _singleRecordResult;
+        private int _recordCount;
+        private StringBuilder _modelBuilder = new StringBuilder(); 
 
         public SourceCodeBuilder(Settings settings, GetRoutinesResult item)
         {
@@ -25,77 +35,144 @@ namespace PgRoutiner
             _item = item;
             _namespace = settings.Namespace;
 
-            _isVoid = _item.Returns.Type == "void";
-            _noRecords = _item.Returns.Record == null || !_item.Returns.Record.Any();
-            _noParams = _item.Parameters == null || !_item.Parameters.Any();
-            _singleRecordResult = !_noRecords && (_item.Returns.Record != null && _item.Returns.Record.Count() == 1);
-            _recordCount = _item.Returns.Record?.Count() ?? 0;
-
             if (!string.IsNullOrEmpty(settings.OutputDir))
             {
                 _namespace = string.Concat(_namespace, ".", settings.OutputDir.Replace("/", ".").Replace("\\", "."));
             }
+
+            this.Content = this.Build();
         }
 
-        public string Build()
+        private string Build()
         {
+            var modelBuilderTag = "{modelBuilderTag}";
+            var extraNsTag = "{extraNsTag}";
+
             var name = _item.Name.ToUpperCamelCase();
+            var builder = CreateModule(_namespace, extraNsTag);
+
+
+            builder.Append(modelBuilderTag); // result classes placeholder
+
+            OpenClass(builder, $"PgRoutine{name}", true);
+            builder.AppendLine($"        public const string Name = \"{_item.Name}\";");
+            builder.AppendLine();
+
+            var count = _item.Parameters.Count();
+            var i = 0;
+            var modelsCount = 0;
+            var totalModels = _item.Returns.Count(r => r.Record != null && r.Record.Any());
+            foreach (var itemParameter in _item.Parameters)
+            {
+                _parameters = itemParameter;
+                _returns = _item.Returns[i];
+                i++;
+                _isVoid = _returns.Type == "void";
+                _noRecords = _returns.Record == null || !_returns.Record.Any();
+                _noParams = _parameters == null || !_parameters.Any();
+                _singleRecordResult = !_noRecords && (_returns.Record != null && _returns.Record.Count() == 1);
+                _recordCount = _returns.Record?.Count() ?? 0;
+
+                string result;
+                var resultFields = new List<string>();
+                if (!_noRecords && !_singleRecordResult)
+                {
+                    modelsCount++;
+                    result = _returns.UserDefined ? _returns.Type.ToUpperCamelCase() : $"{name}Result{(totalModels == 1 ? "" : modelsCount.ToString())}";
+                    if (ModelName == null)
+                    {
+                        ModelName = result;
+                    }
+                    if (!Models.Contains(result))
+                    {
+
+                        OpenClass(_modelBuilder, result);
+                        foreach (var rec in _returns.Record.OrderBy(r => r.Ordinal))
+                        {
+                            var type = GetType(rec, $"result type \"{rec.Name}\"");
+                            var fieldName = rec.Name.ToUpperCamelCase();
+                            _modelBuilder.AppendLine($"       public {type} {fieldName} {{ get; set; }}");
+                            resultFields.Add(fieldName);
+                        }
+
+                        CloseClass(_modelBuilder);
+                        _modelBuilder.AppendLine();
+                        Models.Add(result);
+                    }
+                    else
+                    {
+                        foreach (var rec in _returns.Record.OrderBy(r => r.Ordinal))
+                        {
+                            resultFields.Add(rec.Name.ToUpperCamelCase());
+                        }
+                    }
+                }
+                else
+                {
+                    result = _isVoid ? "void" : GetType(_returns, "result type");
+                }
+
+
+                BuildSyncMethod(builder, result, name, resultFields);
+                if (i < count)
+                {
+                    builder.AppendLine();
+                }
+            }
+
+            CloseClass(builder);
+            var content = CloseModule(builder);
+            var modelContent = _modelBuilder.ToString();
+            if (_settings.ModelDir != null)
+            {
+                var modelNamespace = "";
+                if (!string.IsNullOrEmpty(modelContent))
+                {
+
+                    modelNamespace = string.Concat(_settings.Namespace, ".", _settings.ModelDir.Replace("/", ".").Replace("\\", "."));
+
+                    var modelBuilder = CreateModule(modelNamespace);
+                    modelNamespace = string.Concat("using ", modelNamespace, ";", NL);
+                    modelContent = TrimEnd(modelContent, NL);
+                    modelBuilder.AppendLine(modelContent);
+                    ModelContent = CloseModule(modelBuilder);
+                }
+                
+                return content.Replace(modelBuilderTag, "").Replace(extraNsTag, modelNamespace); 
+            }
+            return content.Replace(modelBuilderTag, modelContent).Replace(extraNsTag, "");
+        }
+
+        private static void CloseClass(StringBuilder builder)
+        {
+            builder.AppendLine("    }");
+        }
+
+        private static void OpenClass(StringBuilder builder, string className, bool isStatic = false)
+        {
+            builder.AppendLine($@"    public{(isStatic ? " static" : "")} class {className}
+    {{");
+        }
+
+        private static string CloseModule(StringBuilder builder)
+        {
+            builder.AppendLine("}");
+            return builder.ToString();
+        }
+
+        private StringBuilder CreateModule(string ns, string extra = "")
+        {
             var builder = new StringBuilder($@"{_settings.SourceHeader}
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using Norm.Extensions;
 using Npgsql;
-
-namespace {_namespace}
+{extra}
+namespace {ns}
 {{
 ");
-            string result;
-            var resultFields = new List<string>();
-            if (!_noRecords && !_singleRecordResult)
-            {
-                result = _item.Returns.UserDefined ? _item.Returns.Type.ToUpperCamelCase() : $"{name}Result";
-
-                if (!Models.Contains(result))
-                {
-
-                    builder.AppendLine($@"    public class {result}
-    {{");
-                    foreach (var rec in _item.Returns.Record.OrderBy(r => r.Ordinal))
-                    {
-                        var type = GetType(rec, $"result type \"{rec.Name}\"");
-                        var fieldName = rec.Name.ToUpperCamelCase();
-                        builder.AppendLine($"       public {type} {fieldName} {{ get; set; }}");
-                        resultFields.Add(fieldName);
-                    }
-
-                    builder.AppendLine("    }");
-                    builder.AppendLine();
-                    Models.Add(result);
-                }
-                else
-                {
-                    foreach (var rec in _item.Returns.Record.OrderBy(r => r.Ordinal))
-                    {
-                        resultFields.Add(rec.Name.ToUpperCamelCase());
-                    }
-                }
-            }
-            else
-            {
-                result = _isVoid ? "void" : GetType(_item.Returns, "result type");
-            }
-
-            builder.AppendLine($@"    public static class PgRoutine{name}
-    {{");
-            builder.AppendLine($"        public const string Name = \"{_item.Name}\";");
-            builder.AppendLine();
-
-            BuildSyncMethod(builder, result, name, resultFields);
-
-            builder.AppendLine("    }");
-            builder.AppendLine("}");
-            return builder.ToString();
+            return builder;
         }
 
         private void BuildSyncMethod(StringBuilder builder, string result, string name, IList<string> resultFields)
@@ -119,7 +196,7 @@ namespace {_namespace}
             else
             {
                 builder.AppendLine(
-                    $@"        public static {resultType} {name}(this NpgsqlConnection connection, {BuildMethodParams(_item.Parameters)})
+                    $@"        public static {resultType} {name}(this NpgsqlConnection connection, {BuildMethodParams(_parameters)})
         {{");
             }
 
@@ -130,13 +207,13 @@ namespace {_namespace}
                 if (_noRecords)
                 {
                     builder.Append(_singleRecordResult
-                        ? $"return connection{NL}                .Read<{GetType(_item.Returns, "result type")}>("
-                        : $"return connection{NL}                .Single<{GetType(_item.Returns, "result type")}>(");
+                        ? $"return connection{NL}                .Read<{GetType(_returns, "result type")}>("
+                        : $"return connection{NL}                .Single<{GetType(_returns, "result type")}>(");
                 }
                 else
                 {
                     builder.Append(_recordCount <= MaxRecords
-                        ? $"return connection{NL}                .Read<{BuildGenericTypes(_item.Returns.Record)}>("
+                        ? $"return connection{NL}                .Read<{BuildGenericTypes(_returns.Record)}>("
                         : $"return connection{NL}                .Read(");
                 }
             }
@@ -145,7 +222,7 @@ namespace {_namespace}
                 builder.Append($"connection{NL}                .Execute(");
             }
 
-            var parameters = BuildRoutineParams(_item.Parameters);
+            var parameters = BuildRoutineParams(_parameters);
             builder.Append(_noParams ? "Name)" : $"Name, {parameters})");
 
             if (_isVoid || _noRecords || _singleRecordResult)
@@ -184,7 +261,7 @@ namespace {_namespace}
         {
             if (Settings.TypeMapping.TryGetValue(pgType.Type, out var result))
             {
-                return result;
+                return pgType.Array ? string.Concat(result, "[]") : result;
             }
             throw new ArgumentException($"Could not find mapping \"{pgType.Type}\" for {description}, routine \"{_item.Name}\"");
         }
@@ -217,6 +294,19 @@ namespace {_namespace}
             return @$"        /// <summary>
         /// {_item.Language} {_item.RoutineType} ""{_item.Name}""{(string.IsNullOrWhiteSpace(_item.Description) ? "" : string.Concat($"{NL}        /// ", _item.Description))}
         /// </summary>";
+        }
+
+        public string TrimEnd(string inputText, string value, StringComparison comparisonType = StringComparison.CurrentCultureIgnoreCase)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                while (!string.IsNullOrEmpty(inputText) && inputText.EndsWith(value, comparisonType))
+                {
+                    inputText = inputText.Substring(0, (inputText.Length - value.Length));
+                }
+            }
+
+            return inputText;
         }
     }
 }

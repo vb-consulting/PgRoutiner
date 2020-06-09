@@ -27,7 +27,6 @@ namespace PgRoutiner
             Console.WriteLine("Scaffold your PostgreSQL routines to enable static type checking for your project!");
             Console.WriteLine("Use -h or --help for help with settings and options...");
             Console.ResetColor();
-            Console.WriteLine();
 
             var configBuilder = new ConfigurationBuilder()
                 .AddJsonFile(Path.Join(CurrentDir, "appsettings.json"), optional: true, reloadOnChange: false)
@@ -53,7 +52,6 @@ namespace PgRoutiner
                 Settings.Value.ModelDir = null;
             }
 
-
             var help = false;
             if (ArgsInclude(args, "-h") || ArgsInclude(args, "--help"))
             {
@@ -64,8 +62,12 @@ namespace PgRoutiner
 
             bool success = false;
             success = CheckConnectionValue(config);
-            success = FindProjFile();
+            success = success && FindProjFile();
             success = success && ParseProjectFile();
+
+            Settings.MergeTypes(Settings.Value);
+            Settings.Value.Mapping = Settings.TypeMapping;
+
             ShowSettings();
 
             if (!success)
@@ -73,22 +75,14 @@ namespace PgRoutiner
                 return;
             }
 
-            Settings.MergeTypes(Settings.Value);
-            Console.WriteLine("Type mappings:");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine(JsonConvert.SerializeObject(Settings.TypeMapping));
-            Console.ResetColor();
-
             if (help)
             {
                 return;
             }
 
-            Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Running files generation... ");
             Console.ResetColor();
-            Console.WriteLine();
 
             Run(config);
         }
@@ -223,6 +217,12 @@ namespace PgRoutiner
             WriteSetting("connection", "<connection string name> - default will use first available connection string");
             WriteSetting("project",
                 "<csproj project file name> - .csproj relative to current dir, default will search for first occurrence in current dir");
+
+            WriteSetting("outputDir",
+                "<relative path name> - generated source files output path, relative to current (default is current)");
+            WriteSetting("modelDir",
+                "<relative path name> - model classes source file output path, relative to current (default is null, same source file as data access class)");
+
             WriteSetting("schema", "<PostgreSQL schema name> - default is public");
             WriteSetting("overwrite",
                 "<true|false> - should existing generated source file be overwritten (true, default) or skipped (false)");
@@ -234,7 +234,7 @@ namespace PgRoutiner
             WriteSetting("syncMethod", "<true|false) - generate sync method (default is true)");
             WriteSetting("asyncMethod", "<true|false) - generate async method (default is true)");
 
-            WriteSetting("mapping", "<key (PostgreSQL udt type name) - value (c# type name)> - Use this to override default type mapping od add new.");
+            WriteSetting("mapping", "<key (PostgreSQL udt type name) - value (c# type name)> - use this to override default type mapping or add new type mapping.");
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(
@@ -253,7 +253,7 @@ namespace PgRoutiner
             Console.WriteLine(JsonConvert.SerializeObject(Settings.Value, new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                Formatting = Formatting.Indented
+                Formatting = Formatting.None
             }));
             Console.ResetColor();
             Console.WriteLine();

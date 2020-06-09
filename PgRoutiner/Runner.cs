@@ -16,8 +16,19 @@ namespace PgRoutiner
 
             if (!Directory.Exists(dir))
             {
-                Dump($"Creating \"{dir}\" dir..");
+                Dump($"Creating dir: {dir}");
                 Directory.CreateDirectory(dir);
+            }
+
+            var modelDir = Settings.Value.ModelDir;
+            if (modelDir != null)
+            {
+                modelDir = Path.Combine(CurrentDir, modelDir);
+                if (!Directory.Exists(modelDir))
+                {
+                    Dump($"Creating dir: {modelDir}");
+                    Directory.CreateDirectory(modelDir);
+                }
             }
 
             //var i = 1;
@@ -25,17 +36,36 @@ namespace PgRoutiner
             {
                 foreach (var item in connection.GetRoutines(Settings.Value))
                 {
+                    var builder = new SourceCodeBuilder(Settings.Value, item);
                     var name = string.Concat(item.Name.ToUpperCamelCase(), ".cs");
                     var fileName = Path.Join(dir, name);
 
-                    if (Settings.Value.Overwrite == false && File.Exists(fileName))
+
+                    if (Settings.Value.Overwrite || (Settings.Value.Overwrite == false && !File.Exists(fileName)))
+                    {
+                        Dump($"Creating {Settings.Value.OutputDir}/{name} ...");
+                        File.WriteAllText(fileName, builder.Content);
+                    }
+                    else if (File.Exists(fileName) && Settings.Value.Overwrite == false)
                     {
                         Dump($"File {Settings.Value.OutputDir}/{name} exists, overwrite is set to false, skipping ...");
-                        continue;
                     }
 
-                    Dump($"Creating {Settings.Value.OutputDir}/{name} ...");
-                    File.WriteAllText(fileName, new SourceCodeBuilder(Settings.Value, item).Build());
+                    if (modelDir != null && builder.ModelContent != null)
+                    {
+                        var modelName = string.Concat(builder.ModelName, ".cs");
+                        var modelFileName = Path.Join(modelDir, modelName);
+                        
+                        if (Settings.Value.Overwrite || (Settings.Value.Overwrite == false && !File.Exists(modelFileName)))
+                        {
+                            Dump($"Creating {Settings.Value.ModelDir}/{modelName} ...");
+                            File.WriteAllText(modelFileName, builder.ModelContent);
+                        }
+                        else if (File.Exists(modelFileName) && Settings.Value.Overwrite == false)
+                        {
+                            Dump($"File {Settings.Value.ModelDir}/{modelName} exists, overwrite is set to false, skipping ...");
+                        }
+                    }
 
                     //if (++i > Top) break;
                 }
