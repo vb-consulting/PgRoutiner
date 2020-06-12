@@ -342,7 +342,7 @@ namespace PgRoutiner
 
         private StringBuilder CreateModule(string ns, string extra = "")
         {
-            var builder = new StringBuilder($@"{_settings.SourceHeader}
+            var builder = new StringBuilder($@"{string.Format(_settings.SourceHeader, DateTime.Now.ToString("O"))}
 using System;
 using System.Linq;
 using System.Collections.Generic;{(_settings.AsyncMethod ? string.Concat(NL, "using System.Threading.Tasks;") : "")}
