@@ -27,7 +27,7 @@ namespace PgRoutiner
         private bool _noParams;
         private bool _singleRecordResult;
         private int _recordCount;
-        private StringBuilder _modelBuilder = new StringBuilder(); 
+        private readonly StringBuilder _modelBuilder = new StringBuilder(); 
 
         public SourceCodeBuilder(Settings settings, GetRoutinesResult item)
         {
@@ -113,7 +113,20 @@ namespace PgRoutiner
                 }
 
 
-                BuildSyncMethod(builder, result, name, resultFields);
+                if (_settings.SyncMethod)
+                {
+                    BuildSyncMethod(builder, result, name, resultFields);
+                }
+                if (_settings.AsyncMethod)
+                {
+                    if (_settings.SyncMethod)
+                    {
+                        builder.AppendLine();
+                    }
+                    BuildAsyncMethod(builder, result, name, resultFields);
+                }
+
+
                 if (i < count)
                 {
                     builder.AppendLine();
@@ -123,56 +136,26 @@ namespace PgRoutiner
             CloseClass(builder);
             var content = CloseModule(builder);
             var modelContent = _modelBuilder.ToString();
-            if (_settings.ModelDir != null)
+            if (_settings.ModelDir == null)
             {
-                var modelNamespace = "";
-                if (!string.IsNullOrEmpty(modelContent))
-                {
-
-                    modelNamespace = string.Concat(_settings.Namespace, ".", _settings.ModelDir.Replace("/", ".").Replace("\\", "."));
-
-                    var modelBuilder = CreateModule(modelNamespace);
-                    modelNamespace = string.Concat("using ", modelNamespace, ";", NL);
-                    modelContent = TrimEnd(modelContent, NL);
-                    modelBuilder.AppendLine(modelContent);
-                    ModelContent = CloseModule(modelBuilder);
-                }
-                
-                return content.Replace(modelBuilderTag, "").Replace(extraNsTag, modelNamespace); 
+                return content.Replace(modelBuilderTag, modelContent).Replace(extraNsTag, "");
             }
-            return content.Replace(modelBuilderTag, modelContent).Replace(extraNsTag, "");
-        }
 
-        private static void CloseClass(StringBuilder builder)
-        {
-            builder.AppendLine("    }");
-        }
+            var modelNamespace = "";
+            if (string.IsNullOrEmpty(modelContent))
+            {
+                return content.Replace(modelBuilderTag, "").Replace(extraNsTag, modelNamespace);
+            }
 
-        private static void OpenClass(StringBuilder builder, string className, bool isStatic = false)
-        {
-            builder.AppendLine($@"    public{(isStatic ? " static" : "")} class {className}
-    {{");
-        }
+            modelNamespace = string.Concat(_settings.Namespace, ".", _settings.ModelDir.Replace("/", ".").Replace("\\", "."));
 
-        private static string CloseModule(StringBuilder builder)
-        {
-            builder.AppendLine("}");
-            return builder.ToString();
-        }
+            var modelBuilder = CreateModule(modelNamespace);
+            modelNamespace = string.Concat("using ", modelNamespace, ";", NL);
+            modelContent = TrimEnd(modelContent, NL);
+            modelBuilder.AppendLine(modelContent);
+            ModelContent = CloseModule(modelBuilder);
 
-        private StringBuilder CreateModule(string ns, string extra = "")
-        {
-            var builder = new StringBuilder($@"{_settings.SourceHeader}
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using Norm.Extensions;
-using Npgsql;
-{extra}
-namespace {ns}
-{{
-");
-            return builder;
+            return content.Replace(modelBuilderTag, "").Replace(extraNsTag, modelNamespace);
         }
 
         private void BuildSyncMethod(StringBuilder builder, string result, string name, IList<string> resultFields)
@@ -256,6 +239,121 @@ namespace {ns}
             builder.AppendLine("        }");
         }
 
+        private void BuildAsyncMethod(StringBuilder builder, string result, string name, IList<string> resultFields)
+        {
+            builder.AppendLine(BuildMethodComment());
+            string resultType;
+
+            bool enumerable = false;
+            if (!_noRecords || _singleRecordResult)
+            {
+                resultType = $"IAsyncEnumerable<{result}>";
+                enumerable = true;
+            }
+            else
+            {
+                resultType = _isVoid ? "ValueTask" : $"ValueTask<{result}>";
+            }
+
+            if (_noParams)
+            {
+                builder.AppendLine($@"        public static {(!enumerable ? "async" : "")} {resultType} {name}Async(this NpgsqlConnection connection)
+        {{");
+            }
+            else
+            {
+                builder.AppendLine(
+                    $@"        public static {(!enumerable ? "async" : "")} {resultType} {name}Async(this NpgsqlConnection connection, {BuildMethodParams(_parameters)})
+        {{");
+            }
+
+            builder.Append("            ");
+
+            if (!_isVoid)
+            {
+                if (_noRecords)
+                {
+                    builder.Append(_singleRecordResult
+                        ? $"return {(!enumerable ? "await" : "")} connection{NL}                .ReadAsync<{GetType(_returns, "result type")}>("
+                        : $"return {(!enumerable ? "await" : "")} connection{NL}                .SingleAsync<{GetType(_returns, "result type")}>(");
+                }
+                else
+                {
+                    builder.Append(_recordCount <= MaxRecords
+                        ? $"return {(!enumerable ? "await" : "")} connection{NL}                .ReadAsync<{BuildGenericTypes(_returns.Record)}>("
+                        : $"return {(!enumerable ? "await" : "")} connection{NL}                .ReadAsync(");
+                }
+            }
+            else
+            {
+                builder.Append($"await connection{NL}                .ExecuteAsync(");
+            }
+
+            var parameters = BuildRoutineParams(_parameters);
+            builder.Append(_noParams ? "Name)" : $"Name, {parameters})");
+
+            if (_isVoid || _noRecords || _singleRecordResult)
+            {
+                builder.AppendLine(";");
+            }
+            else
+            {
+                builder.AppendLine();
+                builder.Append("                ");
+
+                if (_recordCount <= MaxRecords)
+                {
+
+                    builder.AppendLine($".Select(tuple => new {result}");
+                    builder.AppendLine("                {");
+                    builder.Append(string.Join($",{NL}",
+                            resultFields.Select((r, index) => string.Concat("                    ", r, " = ", "tuple.Item", index + 1))
+                        )
+                    );
+                    builder.AppendLine();
+                    builder.AppendLine("                });");
+                }
+                else
+                {
+                    builder.AppendLine($".Select<{result}>();");
+                }
+
+            }
+
+            builder.AppendLine("        }");
+        }
+
+        private static void CloseClass(StringBuilder builder)
+        {
+            builder.AppendLine("    }");
+        }
+
+        private static void OpenClass(StringBuilder builder, string className, bool isStatic = false)
+        {
+            builder.AppendLine($@"    public{(isStatic ? " static" : "")} class {className}
+    {{");
+        }
+
+        private static string CloseModule(StringBuilder builder)
+        {
+            builder.AppendLine("}");
+            return builder.ToString();
+        }
+
+        private StringBuilder CreateModule(string ns, string extra = "")
+        {
+            var builder = new StringBuilder($@"{_settings.SourceHeader}
+using System;
+using System.Linq;
+using System.Collections.Generic;{(_settings.AsyncMethod ? string.Concat(NL, "using System.Threading.Tasks;") : "")}
+using Norm.Extensions;
+using Npgsql;
+{extra}
+namespace {ns}
+{{
+");
+            return builder;
+        }
 
         private string GetType(PgBaseType pgType, string description)
         {

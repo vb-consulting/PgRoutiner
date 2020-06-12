@@ -56,7 +56,6 @@ namespace PgRoutiner
             {
                 TypeMapping[key] = value;
             }
-
         }
     }
 }

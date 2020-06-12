@@ -12,11 +12,6 @@ namespace PgRoutiner
     partial class Program
     {
         public static readonly string CurrentDir = Directory.GetCurrentDirectory();
-#if DEBUG
-        public static bool IsDebug { get; set; } = true;
-#else
-        public static bool IsDebug { get; set; } = false;
-#endif
 
         static void Main(string[] args)
         {
@@ -91,6 +86,7 @@ namespace PgRoutiner
         {
             var ns = Path.GetFileNameWithoutExtension(Settings.Value.Project);
             string normVersion = null;
+            bool asyncLinqIncluded = false;
 
             using (var fileStream = File.OpenText(Settings.Value.Project))
             {
@@ -105,11 +101,24 @@ namespace PgRoutiner
                         }
                     }
 
-                    if (reader.NodeType == XmlNodeType.Element && reader.Name == "PackageReference" && reader.GetAttribute("Include") == "Norm.net")
+                    if (reader.NodeType == XmlNodeType.Element && reader.Name == "PackageReference")
                     {
-                        normVersion = reader.GetAttribute("Version");
+                        if (reader.GetAttribute("Include") == "Norm.net")
+                        {
+                            normVersion = reader.GetAttribute("Version");
+                        }
+                        if (reader.GetAttribute("Include") == "System.Linq.Async")
+                        {
+                            asyncLinqIncluded = true;
+                        }
                     }
                 }
+            }
+
+            if (Settings.Value.AsyncMethod && asyncLinqIncluded == false)
+            {
+                DumpError($"To generate async methods System.Linq.Async library is required. Include System.Linq.Async package or set asyncMethod option to false.");
+                return false;
             }
 
             Settings.Value.Namespace = ns;
