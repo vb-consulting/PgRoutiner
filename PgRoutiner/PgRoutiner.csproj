@@ -11,6 +11,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/vbilopav/PgRoutiner</PackageProjectUrl>
     <PackageTags>PostgreSQL;ORM;Data Access;Mapping</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
