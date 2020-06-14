@@ -77,7 +77,8 @@ The command-line settings if supplied - **will always override JSON configuratio
 | **AsyncMethod** | Generate a `async` method, true or false. | True. |
 | **Mapping** * | Key-values to override default type mapping. Key is PostgreSQL UDT type name and value is the corresponding C# type name. | See default mapping [here](/PgRoutiner/Settings.cs#L24)  |
 
-* Key-values are JSON object in JSON configuration. For command-line, use following format: `PgRoutiner Mapping:Key=Value`.
+* Key-values are JSON object in JSON configuration. For command-line, use following format: 
+`PgRoutiner Mapping:Key=Value`
 
 ## Simple example
 
