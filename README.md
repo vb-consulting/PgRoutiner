@@ -2,13 +2,13 @@
 
 **.NET Core tool for easy scaffolding of your PostgreSQL server.**
 
-Make your .NET Core project to do a **static type checking** - on your PostgreSQL.
+> Makes your .NET Core project to do a **static type checking** - on your PostgreSQL.
 
 This tool will generate **all the necessary source code files** needed to make a simple execution of your **PostgreSQL routines (functions or procedures):**
 
 - Simple execution - or data retrieval - in C#, sync, or async.
 
-- All the necessary data-access code as **connection object extension.** 
+- All the necessary data-access code as **connection object extension.**
 
 - All related **model classes** (or Data Transfer Object) for data retrieval operations (function returning recordset or physical table returned from a function).
 
@@ -30,18 +30,20 @@ It will take care of things like:
 
 .NET global tool install:
 
-```
+> ```
 > dotnet tool install --global dotnet-pgroutiner
-```
+> ```
 
 You will receive a message:
 
-```
-You can invoke the tool using the following command: PgRoutiner
-Tool 'dotnet-pgroutiner' (version '1.0.0') was successfully installed.
-```
+> ```
+> You can invoke the tool using the following command: PgRoutiner
+> Tool 'dotnet-pgroutiner' (version '1.0.0') was successfully installed.
+> ```
 
 ## Running
+
+Type:
 
 ```
 PgRoutiner
