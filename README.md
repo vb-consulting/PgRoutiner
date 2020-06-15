@@ -24,7 +24,7 @@ It will take care of things like:
 
 - PostgreSQL array types for complex input and output.
 
-- Superfast serialization to generated model classes without any caching. See [serialization section](/PgRoutiner#serialization-and-mapping).
+- Superfast serialization to generated model classes without any caching. See [serialization section](https://github.com/vbilopav/PgRoutiner#serialization-and-mapping).
 
 ## Installation
 
@@ -93,7 +93,7 @@ Or - you may supply additional configuration settings trough either trough:
 
 ## Examples
 
-- [Simple `void` function example with usage](/PgRoutiner/EXAMPLES.md#simple-void-function-example-with-usage)
+- [Simple `void` function example with usage](/PgRoutiner/blob/master/EXAMPLES.md#simple-void-function-example-with-usage)
 - [Function parameter overload example](/PgRoutiner/EXAMPLES.md#function-parameter-overload-example)
 - [Returning value](/PgRoutiner/EXAMPLES.md#returning-value)
 - [Returning anonymous recordset](/PgRoutiner/EXAMPLES.md#returning-anonymous-recordset)
