@@ -43,33 +43,33 @@ You will receive a message:
 
 ## Running
 
-Type:
+Type (case-insensitive):
 
-```
-PgRoutiner
-```
+> ```
+> PgRoutiner
+> ```
 
-It is enough to just type **`PgRoutiner`** (case-insensitive) and it will look for .NET Core project file (`.csproj`) in the current directory - and start source file generation by using first available connection string in your configuration.
+It is enough to just type **`PgRoutiner`** (case-insensitive) - and it will look for .NET Core project file (`.csproj`) in the current directory - and start source file generation by using first available connection string in your configuration.
 
-Or... you may supply additional configuration settings trough either:
+Or - you may supply additional configuration settings trough either trough:
 
 1) Custom **JSON configuration settings** section `PgRoutiner`. It is your standard `appsettings.json` or `appsettings.Development.json` from your project. For example, to configure the connection that will be used:
 
-```json
-{
-  "PgRoutiner": {
-    "Connection": "MyConnection",
-  }
-}
-```
+> ```json
+> {
+>   "PgRoutiner": {
+>     "Connection": "MyConnection",
+>   }
+> }
+> ```
 
 2) Standard command-line interface, by supplying command-line arguments. Example from above, to configure the connection that will be used:
 
-```
-pgroutiner connection=MyConnection
-```
+> ```
+> pgroutiner connection=MyConnection
+> ```
 
-The command-line settings if supplied - **will always override JSON configuration settings.**
+> The command-line settings if supplied - **will always override JSON configuration settings.**
 
 ## Configuration
 
