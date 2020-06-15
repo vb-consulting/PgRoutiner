@@ -93,11 +93,11 @@ Or - you may supply additional configuration settings trough either trough:
 
 ## Examples
 
-- [Simple `void` function example with usage](/PgRoutiner/blob/master/EXAMPLES.md#simple-void-function-example-with-usage)
-- [Function parameter overload example](/PgRoutiner/EXAMPLES.md#function-parameter-overload-example)
-- [Returning value](/PgRoutiner/EXAMPLES.md#returning-value)
-- [Returning anonymous recordset](/PgRoutiner/EXAMPLES.md#returning-anonymous-recordset)
-- [Returning table](/PgRoutiner/EXAMPLES.md#returning-table)
+- [Simple `void` function example with usage](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#simple-void-function-example-with-usage)
+- [Function parameter overload example](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#function-parameter-overload-example)
+- [Returning value](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#returning-value)
+- [Returning anonymous recordset](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#returning-anonymous-recordset)
+- [Returning table](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#returning-table)
 
 ## Serialization and mapping
 
