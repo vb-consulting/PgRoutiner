@@ -120,26 +120,6 @@ comment on function do_some_work(bigint, text) is 'function that does some work 
 
         /// <summary>
         /// plpgsql function "do_some_work"
-        /// function that does some work and receives text
-        /// </summary>
-        public static void DoSomeWork(this NpgsqlConnection connection, string text)
-        {
-            connection
-                .Execute(Name, ("_text", text));
-        }
-
-        /// <summary>
-        /// plpgsql function "add_case_exams"
-        /// function that does some work and receives text
-        /// </summary>
-        public static async ValueTask DoSomeWorkAsync(this NpgsqlConnection connection, string text)
-        {
-            await connection
-                .ExecuteAsync(Name, ("_text", text));
-        }
-
-        /// <summary>
-        /// plpgsql function "do_some_work"
         /// function that does some work overload
         /// </summary>
         public static void DoSomeWork(this NpgsqlConnection connection, long inputParam, string text)
