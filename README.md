@@ -114,7 +114,7 @@ However, the number of returning record fields is limited to 12, more than 12 it
 ## Required dependencies for project
 
 - [Npgsql](https://www.nuget.org/packages/Npgsql/)
-- [Norm.net](https://www.nuget.org/packages/Norm.net/) >= 15.1.
+- [Norm.net](https://www.nuget.org/packages/Norm.net/) >= 1.5.1.
 - [System.Linq.Async](https://www.nuget.org/packages/System.Linq.Async/) (only for async operations)
 
 ## Currently supported platforms
