@@ -51,7 +51,7 @@ Type (case-insensitive):
 
 It is enough to just type **`PgRoutiner`** (case-insensitive) - and it will look for .NET Core project file (`.csproj`) in the current directory - and start source file generation by using first available connection string in your configuration.
 
-Or - you may supply additional configuration settings trough either trough:
+Or - you may supply additional configuration settings either trough:
 
 1) Custom **JSON configuration settings** section `PgRoutiner`. It is your standard `appsettings.json` or `appsettings.Development.json` from your project. For example, to configure the connection that will be used:
 
