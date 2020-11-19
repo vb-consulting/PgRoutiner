@@ -51,6 +51,9 @@ namespace PgRoutiner
             var name = _item.Name.ToUpperCamelCase();
             var builder = CreateModule(_namespace, extraNsTag);
 
+            string customModel = null;
+            _settings.CustomModels.TryGetValue(_item.Name, out customModel);
+
 
             builder.Append(modelBuilderTag); // result classes placeholder
 
@@ -79,39 +82,47 @@ namespace PgRoutiner
                 {
                     modelsCount++;
                     result = _returns.UserDefined ? _returns.Type.ToUpperCamelCase() : $"{name}Result{(totalModels == 1 ? "" : modelsCount.ToString())}";
-                    if (ModelName == null)
+                    if (customModel != null)
                     {
-                        ModelName = result;
-                    }
-                    if (!Models.Contains(result))
-                    {
-
-                        OpenClass(_modelBuilder, result);
-                        foreach (var rec in _returns.Record.OrderBy(r => r.Ordinal))
-                        {
-                            var type = GetType(rec, $"result type \"{rec.Name}\"");
-                            var fieldName = rec.Name.ToUpperCamelCase();
-                            _modelBuilder.AppendLine($"       public {type} {fieldName} {{ get; set; }}");
-                            resultFields.Add(fieldName);
-                        }
-
-                        CloseClass(_modelBuilder);
-                        _modelBuilder.AppendLine();
-                        Models.Add(result);
+                        result = customModel;
                     }
                     else
                     {
-                        foreach (var rec in _returns.Record.OrderBy(r => r.Ordinal))
+                        if (ModelName == null)
                         {
-                            resultFields.Add(rec.Name.ToUpperCamelCase());
+                            ModelName = result;
+                        }
+                        if (!Models.Contains(result))
+                        {
+
+                            OpenClass(_modelBuilder, result);
+                            foreach (var rec in _returns.Record.OrderBy(r => r.Ordinal))
+                            {
+                                var type = GetType(rec, $"result type \"{rec.Name}\"");
+                                var fieldName = rec.Name.ToUpperCamelCase();
+                                _modelBuilder.AppendLine($"        public {type} {fieldName} {{ get; set; }}");
+                                resultFields.Add(fieldName);
+                            }
+
+                            CloseClass(_modelBuilder);
+                            _modelBuilder.AppendLine();
+                            Models.Add(result);
+                        }
+                        else
+                        {
+                            foreach (var rec in _returns.Record.OrderBy(r => r.Ordinal))
+                            {
+                                resultFields.Add(rec.Name.ToUpperCamelCase());
+                            }
                         }
                     }
+
+
                 }
                 else
                 {
                     result = _isVoid ? "void" : GetType(_returns, "result type");
                 }
-
 
                 if (_settings.SyncMethod)
                 {
@@ -359,7 +370,15 @@ namespace {ns}
         {
             if (Settings.TypeMapping.TryGetValue(pgType.Type, out var result))
             {
-                return pgType.Array ? string.Concat(result, "[]") : result;
+                if (pgType.Array)
+                {
+                    return string.Concat(result, "[]");
+                }
+                if (pgType.Nullable && result != "string")
+                {
+                    result = string.Concat(result, "?");
+                }
+                return result;
             }
             throw new ArgumentException($"Could not find mapping \"{pgType.Type}\" for {description}, routine \"{_item.Name}\"");
         }

@@ -19,6 +19,7 @@ namespace PgRoutiner
         public bool AsyncMethod { get; set; } = true;
         public string ModelDir { get; set; } = null;
         public IDictionary<string, string> Mapping { get; set; }
+        public IDictionary<string, string> CustomModels { get; set; }
 
         public static Settings Value { get; set; } = new Settings();
         public static IDictionary<string, string> TypeMapping { get; set; } = new Dictionary<string, string>

@@ -12,10 +12,10 @@ namespace PgRoutiner
     partial class Program
     {
         public static readonly string CurrentDir = Directory.GetCurrentDirectory();
+        public static readonly string Version = "1.1.0";
 
         static void Main(string[] args)
         {
-
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine();
             Console.WriteLine("PgRoutiner dotnet tool");
@@ -24,9 +24,18 @@ namespace PgRoutiner
             Console.ResetColor();
             Console.WriteLine();
 
+            var currentDir = CurrentDir;
+            foreach (var arg in args)
+            {
+                if (arg.ToLower().StartsWith("project") && arg.Contains("="))
+                {
+                    currentDir = Path.Join(currentDir, arg.Split('=').Last());
+                }
+            }
+
             var configBuilder = new ConfigurationBuilder()
-                .AddJsonFile(Path.Join(CurrentDir, "appsettings.json"), optional: true, reloadOnChange: false)
-                .AddJsonFile(Path.Join(CurrentDir, "appsettings.Development.json"), optional: true, reloadOnChange: false);
+                .AddJsonFile(Path.Join(currentDir, "appsettings.json"), optional: true, reloadOnChange: false)
+                .AddJsonFile(Path.Join(currentDir, "appsettings.Development.json"), optional: true, reloadOnChange: false);
 
             var config = configBuilder.Build();
             config.GetSection("PgRoutiner").Bind(Settings.Value);
@@ -228,6 +237,11 @@ namespace PgRoutiner
 
         private static void ShowInfo()
         {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Version {0}", Version);
+            Console.ResetColor();
+            Console.WriteLine();
+
             Console.Write("Usage: ");
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("PgRoutiner [settings]");
@@ -279,6 +293,7 @@ namespace PgRoutiner
             Console.ResetColor();
             Console.WriteLine($"={value}");
         }
+
         private static bool ArgsInclude(string[] args, params string[] values)
         {
             var lower = values.Select(v => v.ToLower()).ToList();

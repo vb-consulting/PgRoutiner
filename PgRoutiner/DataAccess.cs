@@ -12,6 +12,7 @@ namespace PgRoutiner
     {
         public string Type { get; set; }
         public bool Array { get; set; }
+        public bool Nullable { get; set; }
     }
 
     public class PgType : PgBaseType
@@ -72,7 +73,8 @@ namespace PgRoutiner
                                                 'ordinal', p.ordinal_position,
                                                 'name', p.parameter_name,
                                                 'type', regexp_replace(p.udt_name, '^[_]', ''),
-                                                'array', p.data_type = 'ARRAY'
+                                                'array', p.data_type = 'ARRAY',
+                                                'nullable', false
                                             )
                                             order by p.ordinal_position
                                         ) 
@@ -87,7 +89,8 @@ namespace PgRoutiner
                                                     'ordinal', c.ordinal_position,
                                                     'name', c.column_name,
                                                     'type', regexp_replace(c.udt_name, '^[_]', ''),
-                                                    'array', c.data_type = 'ARRAY'
+                                                    'array', c.data_type = 'ARRAY',
+                                                    'nullable', c.is_nullable = 'YES'
                                                 )
                                                 order by c.ordinal_position
                                             ),
@@ -96,7 +99,7 @@ namespace PgRoutiner
                                     from
                                         information_schema.columns c
                                     where
-                                        c.table_name = r.type_udt_name and c.table_schema = @schema
+                                        c.table_name = r.type_udt_name --and c.table_schema = @schema
                                 )
                                 else null
                             end
