@@ -46,7 +46,7 @@ namespace PgRoutiner
                         Dump($"File {Settings.Value.OutputDir}/{name} exists, overwrite is set to false, skipping ...");
                         continue;
                     }
-                    if (exists && Settings.Value.SkipIfExists.Contains(name))
+                    if (exists && Settings.Value.SkipIfExists != null && Settings.Value.SkipIfExists.Contains(name))
                     {
                         Dump($"Skipping {Settings.Value.OutputDir}/{name}, already exists...");
                         continue;
