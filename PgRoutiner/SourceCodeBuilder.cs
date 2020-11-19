@@ -201,19 +201,19 @@ namespace PgRoutiner
                 if (_noRecords)
                 {
                     builder.Append(_singleRecordResult
-                        ? $"return connection{NL}                .Read<{GetType(_returns, "result type")}>("
-                        : $"return connection{NL}                .Single<{GetType(_returns, "result type")}>(");
+                        ? $"return connection{NL}                .AsProcedure(){NL}                .Read<{GetType(_returns, "result type")}>("
+                        : $"return connection{NL}                .AsProcedure(){NL}                .Single<{GetType(_returns, "result type")}>(");
                 }
                 else
                 {
                     builder.Append(_recordCount <= MaxRecords
-                        ? $"return connection{NL}                .Read<{BuildGenericTypes(_returns.Record)}>("
-                        : $"return connection{NL}                .Read(");
+                        ? $"return connection{NL}                .AsProcedure(){NL}                .Read<{BuildGenericTypes(_returns.Record)}>("
+                        : $"return connection{NL}                .AsProcedure(){NL}                .Read(");
                 }
             }
             else
             {
-                builder.Append($"connection{NL}                .Execute(");
+                builder.Append($"connection{NL}                .AsProcedure(){NL}                .Execute(");
             }
 
             var parameters = BuildRoutineParams(_parameters);
@@ -285,19 +285,19 @@ namespace PgRoutiner
                 if (_noRecords)
                 {
                     builder.Append(_singleRecordResult
-                        ? $"return {(!enumerable ? "await" : "")} connection{NL}                .ReadAsync<{GetType(_returns, "result type")}>("
-                        : $"return {(!enumerable ? "await" : "")} connection{NL}                .SingleAsync<{GetType(_returns, "result type")}>(");
+                        ? $"return {(!enumerable ? "await" : "")} connection{NL}                .AsProcedure(){NL}                .ReadAsync<{GetType(_returns, "result type")}>("
+                        : $"return {(!enumerable ? "await" : "")} connection{NL}                .AsProcedure(){NL}                .SingleAsync<{GetType(_returns, "result type")}>(");
                 }
                 else
                 {
                     builder.Append(_recordCount <= MaxRecords
-                        ? $"return {(!enumerable ? "await" : "")} connection{NL}                .ReadAsync<{BuildGenericTypes(_returns.Record)}>("
-                        : $"return {(!enumerable ? "await" : "")} connection{NL}                .ReadAsync(");
+                        ? $"return {(!enumerable ? "await" : "")} connection{NL}                .AsProcedure(){NL}                .ReadAsync<{BuildGenericTypes(_returns.Record)}>("
+                        : $"return {(!enumerable ? "await" : "")} connection{NL}                .AsProcedure(){NL}                .ReadAsync(");
                 }
             }
             else
             {
-                builder.Append($"await connection{NL}                .ExecuteAsync(");
+                builder.Append($"await connection{NL}                .AsProcedure(){NL}                .ExecuteAsync(");
             }
 
             var parameters = BuildRoutineParams(_parameters);
