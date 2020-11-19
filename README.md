@@ -88,6 +88,7 @@ Or - you may supply additional configuration settings either trough:
 | **SyncMethod** | Generate a `sync` method, true or false. |  True. |
 | **AsyncMethod** | Generate a `async` method, true or false. | True. |
 | **Mapping** * | Key-values to override default type mapping. Key is PostgreSQL UDT type name and value is the corresponding C# type name. | See default mapping [here](/PgRoutiner/Settings.cs#L24) |
+| **CustomModels** * | Key-values tell code generation to make function that maps to a custom class. Key is PostgreSQL routine name (withput parameters) and value is full class name with namespace. | none |
 
 * Key-values are JSON objects in JSON configuration. For command-line, use the following format: `pgroutiner mapping:Key=Value`
 
