@@ -52,7 +52,7 @@ namespace PgRoutiner
             var builder = CreateModule(_namespace, extraNsTag);
 
             string customModel = null;
-            _settings.CustomModels.TryGetValue(_item.Name, out customModel);
+            _settings.CustomModels?.TryGetValue(_item.Name, out customModel);
 
 
             builder.Append(modelBuilderTag); // result classes placeholder
@@ -374,7 +374,7 @@ namespace {ns}
                 {
                     return string.Concat(result, "[]");
                 }
-                if (pgType.Nullable && result != "string")
+                if (result != "string")
                 {
                     result = string.Concat(result, "?");
                 }

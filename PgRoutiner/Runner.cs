@@ -39,17 +39,21 @@ namespace PgRoutiner
                     var builder = new SourceCodeBuilder(Settings.Value, item);
                     var name = string.Concat(item.Name.ToUpperCamelCase(), ".cs");
                     var fileName = Path.Join(dir, name);
+                    var exists = File.Exists(fileName);
 
-
-                    if (Settings.Value.Overwrite || (Settings.Value.Overwrite == false && !File.Exists(fileName)))
-                    {
-                        Dump($"Creating {Settings.Value.OutputDir}/{name} ...");
-                        File.WriteAllText(fileName, builder.Content);
-                    }
-                    else if (File.Exists(fileName) && Settings.Value.Overwrite == false)
+                    if (exists && Settings.Value.Overwrite == false)
                     {
                         Dump($"File {Settings.Value.OutputDir}/{name} exists, overwrite is set to false, skipping ...");
+                        continue;
                     }
+                    if (exists && Settings.Value.SkipIfExists.Contains(name))
+                    {
+                        Dump($"Skipping {Settings.Value.OutputDir}/{name}, already exists...");
+                        continue;
+                    }
+
+                    Dump($"Creating {Settings.Value.OutputDir}/{name} ...");
+                    File.WriteAllText(fileName, builder.Content);
 
                     if (modelDir != null && builder.ModelContent != null)
                     {

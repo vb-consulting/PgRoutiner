@@ -20,6 +20,7 @@ namespace PgRoutiner
         public string ModelDir { get; set; } = null;
         public IDictionary<string, string> Mapping { get; set; }
         public IDictionary<string, string> CustomModels { get; set; }
+        public IList<string> SkipIfExists { get; set; }
 
         public static Settings Value { get; set; } = new Settings();
         public static IDictionary<string, string> TypeMapping { get; set; } = new Dictionary<string, string>

@@ -12,7 +12,7 @@ namespace PgRoutiner
     partial class Program
     {
         public static readonly string CurrentDir = Directory.GetCurrentDirectory();
-        public static readonly string Version = "1.1.0";
+        public static readonly string Version = "1.1.1";
 
         static void Main(string[] args)
         {

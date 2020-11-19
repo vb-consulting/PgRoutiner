@@ -52,7 +52,8 @@ namespace PgRoutiner
                                 'ordinal', p.ordinal_position,
                                 'name', p.parameter_name,
                                 'type', regexp_replace(p.udt_name, '^[_]', ''),
-                                'array', p.data_type = 'ARRAY'
+                                'array', p.data_type = 'ARRAY',
+                                'nullable', true
                             ) 
                             order by p.ordinal_position
                         ) 
@@ -74,7 +75,7 @@ namespace PgRoutiner
                                                 'name', p.parameter_name,
                                                 'type', regexp_replace(p.udt_name, '^[_]', ''),
                                                 'array', p.data_type = 'ARRAY',
-                                                'nullable', false
+                                                'nullable', true
                                             )
                                             order by p.ordinal_position
                                         ) 
