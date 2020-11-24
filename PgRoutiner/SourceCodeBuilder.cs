@@ -125,7 +125,7 @@ namespace PgRoutiner
 
                 if (_settings.SyncMethod)
                 {
-                    BuildSyncMethod(builder, result, name, resultFields);
+                    BuildSyncMethod(builder, result, name, resultFields, i-1);
                 }
                 if (_settings.AsyncMethod)
                 {
@@ -133,7 +133,7 @@ namespace PgRoutiner
                     {
                         builder.AppendLine();
                     }
-                    BuildAsyncMethod(builder, result, name, resultFields);
+                    BuildAsyncMethod(builder, result, name, resultFields, i-1);
                 }
 
 
@@ -168,9 +168,9 @@ namespace PgRoutiner
             return content.Replace(modelBuilderTag, "").Replace(extraNsTag, modelNamespace);
         }
 
-        private void BuildSyncMethod(StringBuilder builder, string result, string name, IList<string> resultFields)
+        private void BuildSyncMethod(StringBuilder builder, string result, string name, IList<string> resultFields, int index)
         {
-            builder.AppendLine(BuildMethodComment());
+            builder.AppendLine(BuildMethodComment(index));
             string resultType;
             if (!_noRecords || _singleRecordResult)
             {
@@ -249,9 +249,9 @@ namespace PgRoutiner
             builder.AppendLine("        }");
         }
 
-        private void BuildAsyncMethod(StringBuilder builder, string result, string name, IList<string> resultFields)
+        private void BuildAsyncMethod(StringBuilder builder, string result, string name, IList<string> resultFields, int index)
         {
-            builder.AppendLine(BuildMethodComment());
+            builder.AppendLine(BuildMethodComment(index));
             string resultType;
 
             bool enumerable = false;
@@ -420,10 +420,13 @@ namespace {ns}
             return string.Join(", ", parameters.Select(p => GetType(p, $"parameter for \"{_item.Name}\" at position {p.Ordinal}")));
         }
 
-        private string BuildMethodComment()
+        private string BuildMethodComment(int index)
         {
+            var desc = _item.Description[index];
+            var lan = _item.Language[index];
+            var rt = _item.RoutineType[index];
             return @$"        /// <summary>
-        /// {_item.Language} {_item.RoutineType} ""{_item.Name}""{(string.IsNullOrWhiteSpace(_item.Description) ? "" : string.Concat($"{NL}        /// ", _item.Description))}
+        /// {lan} {rt} ""{_item.Name}""{(string.IsNullOrWhiteSpace(desc) ? "" : string.Concat($"{NL}        /// ", desc))}
         /// </summary>";
         }
 

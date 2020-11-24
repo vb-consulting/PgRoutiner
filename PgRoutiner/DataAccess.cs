@@ -32,15 +32,15 @@ namespace PgRoutiner
         public string Name { get; set; }
         public IEnumerable<IEnumerable<PgType>> Parameters { get; set; }
         public IList<PgReturns> Returns { get; set; }
-        public string Description { get; set; }
-        public string Language { get; set; }
-        public string RoutineType { get; set; }
+        public string[] Description { get; set; }
+        public string[] Language { get; set; }
+        public string[] RoutineType { get; set; }
     }
 
     public static class DataAccess
     {
         public static IEnumerable<GetRoutinesResult> GetRoutines(this NpgsqlConnection connection, Settings settings) =>
-            connection.Read<string, string, string, string, string, string>(@"
+            connection.Read<string, string, string, string[], string[], string[]>(@"
 
             with main as (
                 select
@@ -131,12 +131,12 @@ namespace PgRoutiner
                 routine_name,
                 json_agg(parameters) as parameters,
                 json_agg(returns) as returns,
-                description,
-                language,
-                routine_type
+                array_agg(description) as description,
+                array_agg(language) as language,
+                array_agg(routine_type) as routine_type
             from main
             group by
-                routine_name, description, language, routine_type
+                routine_name
 
             ",
                 ("schema", settings.Schema, DbType.AnsiString),
