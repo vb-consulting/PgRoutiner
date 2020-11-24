@@ -27,7 +27,7 @@ namespace PgRoutiner
             var currentDir = CurrentDir;
             foreach (var arg in args)
             {
-                if (arg.ToLower().StartsWith("project") && arg.Contains("="))
+                if (arg.ToLower().StartsWith("projectUrl") && arg.Contains("="))
                 {
                     currentDir = Path.Join(currentDir, arg.Split('=').Last());
                 }
@@ -67,7 +67,7 @@ namespace PgRoutiner
 
             bool success = false;
             success = CheckConnectionValue(config);
-            success = success && FindProjFile();
+            success = success && FindProjFile(currentDir);
             success = success && ParseProjectFile();
 
             Settings.MergeTypes(Settings.Value);
@@ -197,11 +197,11 @@ namespace PgRoutiner
 
         }
 
-        private static bool FindProjFile()
+        private static bool FindProjFile(string currentDir)
         {
             if (!string.IsNullOrEmpty(Settings.Value.Project))
             {
-                Settings.Value.Project = Path.Combine(CurrentDir, Settings.Value.Project);
+                Settings.Value.Project = Path.Combine(currentDir, Settings.Value.Project);
                 if (File.Exists(Settings.Value.Project))
                 {
                     return true;
@@ -210,7 +210,7 @@ namespace PgRoutiner
                 return false;
             }
   
-            foreach (var file in Directory.EnumerateFiles(CurrentDir))
+            foreach (var file in Directory.EnumerateFiles(currentDir))
             {
                 if (Path.GetExtension(file)?.ToLower() != ".csproj")
                 {

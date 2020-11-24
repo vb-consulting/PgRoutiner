@@ -12,7 +12,7 @@ namespace PgRoutiner
     {
         public string Type { get; set; }
         public bool Array { get; set; }
-        public bool Nullable { get; set; }
+        public bool? Nullable { get; set; }
     }
 
     public class PgType : PgBaseType
@@ -53,7 +53,7 @@ namespace PgRoutiner
                                 'name', p.parameter_name,
                                 'type', regexp_replace(p.udt_name, '^[_]', ''),
                                 'array', p.data_type = 'ARRAY',
-                                'nullable', true
+                                'nullable', null
                             ) 
                             order by p.ordinal_position
                         ) 
@@ -75,7 +75,7 @@ namespace PgRoutiner
                                                 'name', p.parameter_name,
                                                 'type', regexp_replace(p.udt_name, '^[_]', ''),
                                                 'array', p.data_type = 'ARRAY',
-                                                'nullable', true
+                                                'nullable', null
                                             )
                                             order by p.ordinal_position
                                         ) 
@@ -125,7 +125,7 @@ namespace PgRoutiner
                     and (@similarTo is null or r.routine_name similar to @similarTo)
 
                 group by
-                    r.routine_name, r.data_type, r.type_udt_name, pgdesc.description, r.external_language, r.routine_type
+                    r.specific_name, r.routine_name, r.data_type, r.type_udt_name, pgdesc.description, r.external_language, r.routine_type
             )
             select 
                 routine_name,
@@ -141,14 +141,17 @@ namespace PgRoutiner
             ",
                 ("schema", settings.Schema, DbType.AnsiString),
                 ("notSimilarTo", settings.NotSimilarTo, DbType.AnsiString),
-                ("similarTo", settings.SimilarTo, DbType.AnsiString)).Select(t => new GetRoutinesResult 
-            {
-                Name = t.Item1,
-                Parameters = JsonConvert.DeserializeObject<IEnumerable<IEnumerable<PgType>>>(t.Item2),
-                Returns = JsonConvert.DeserializeObject<IList<PgReturns>>(t.Item3),
-                Description = t.Item4,
-                Language = t.Item5,
-                RoutineType = t.Item6
-            });
+                ("similarTo", settings.SimilarTo, DbType.AnsiString)).Select(t => 
+                {
+                    return new GetRoutinesResult
+                    {
+                        Name = t.Item1,
+                        Parameters = JsonConvert.DeserializeObject<IEnumerable<IEnumerable<PgType>>>(t.Item2),
+                        Returns = JsonConvert.DeserializeObject<IList<PgReturns>>(t.Item3),
+                        Description = t.Item4,
+                        Language = t.Item5,
+                        RoutineType = t.Item6
+                    };
+                });
     }
 }

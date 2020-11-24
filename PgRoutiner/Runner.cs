@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 
@@ -34,7 +35,10 @@ namespace PgRoutiner
             //var i = 1;
             using var connection = new NpgsqlConnection(config.GetConnectionString(Settings.Value.Connection));
             {
-                foreach (var item in connection.GetRoutines(Settings.Value))
+                var routines = connection.GetRoutines(Settings.Value);
+                //var l = routines.ToList();
+
+                foreach (var item in routines)
                 {
                     var builder = new SourceCodeBuilder(Settings.Value, item);
                     var name = string.Concat(item.Name.ToUpperCamelCase(), ".cs");

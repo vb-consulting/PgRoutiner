@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.VisualBasic;
 
 namespace PgRoutiner
 {
@@ -358,6 +357,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;{(_settings.AsyncMethod ? string.Concat(NL, "using System.Threading.Tasks;") : "")}
 using Norm.Extensions;
+using NpgsqlTypes;
 using Npgsql;
 {extra}
 namespace {ns}
@@ -374,7 +374,7 @@ namespace {ns}
                 {
                     return string.Concat(result, "[]");
                 }
-                if (result != "string")
+                if (result != "string" && ((pgType.Nullable.HasValue && pgType.Nullable == true) || !pgType.Nullable.HasValue))
                 {
                     result = string.Concat(result, "?");
                 }
@@ -393,12 +393,26 @@ namespace {ns}
 
         private string BuildRoutineParams(IEnumerable<PgType> parameters)
         {
-            return string.Join(", ", parameters.Select(p => string.Concat(
-                "(\"", 
-                p.Name,
-                "\", ",
-                p.Name.ToCamelCase(),
-                ")")));
+            return string.Join(", ", parameters.Select(p => {
+                var type = "NpgsqlDbType.";
+                if (ParamTypeMapping.TryGetValue(p.Type, out var map))
+                {
+                    type = string.Concat(type, map.Item1);
+                    if (p.Array)
+                    {
+                        type = string.Concat("NpgsqlDbType.Array | ", type);
+                    }
+                    if (map.Item2)
+                    {
+                        type = string.Concat("NpgsqlDbType.Range | ", type);
+                    }
+                }
+                else
+                {
+                    type = string.Concat(type, "Unknown");
+                }
+                return string.Concat("(\"", p.Name, "\", ", p.Name.ToCamelCase(), ", ", type, ")");
+            }));
         }
 
         private string BuildGenericTypes(IEnumerable<PgType> parameters)
@@ -425,5 +439,75 @@ namespace {ns}
 
             return inputText;
         }
+
+        private static readonly IDictionary<string, (string, bool)> ParamTypeMapping = new Dictionary<string, (string, bool)>
+        {
+            {"refcursor", ("Refcursor", false)},
+            {"tsvector", ("TsVector", false)},
+            {"cidr", ("Cidr", false)},
+            {"timestamptz", ("TimestampTz", false)},
+            {"name", ("Name", false)},
+            {"inet", ("Inet", false)},
+            {"lseg", ("Lseg", false)},
+            {"int8", ("Bigint", false)},
+            {"_char", ("Char", false)},
+            {"unknown", ("Unknown", false)},
+            {"tsquery", ("TsQuery", false)},
+            {"float4", ("Real", false)},
+            {"timestamp", ("Timestamp", false)},
+            {"gtsvector", ("TsVector", false)},
+            {"circle", ("Circle", false)},
+            {"numeric", ("Numeric", false)},
+            {"pg_type", ("Regtype", false)},
+            {"regconfig", ("Regconfig", false)},
+            {"timetz", ("TimeTZ", false)},
+            {"daterange", ("Date", true)},
+            {"box", ("Box", false)},
+            {"_float4", ("Real", false)},
+            {"int4range", ("Int", true)},
+            {"cid", ("Cid", false)},
+            {"_regtype", ("Regtype", false)},
+            {"_varchar", ("Varchar", false)},
+            {"_text", ("Text", false)},
+            {"date", ("Date", false)},
+            {"xid", ("Xid", false)},
+            {"bool", ("Boolean", false)},
+            {"_oid", ("Oid", false)},
+            {"polygon", ("Polygon", false)},
+            {"time", ("Time", false)},
+            {"int2vector", ("Int2Vector", false)},
+            {"_int4", ("Int", false)},
+            {"int4", ("Int", false)},
+            {"_interval", ("Interval", false)},
+            {"_int8", ("Bigint", false)},
+            {"int8range", ("Bigint", true)},
+            {"interval", ("Interval", false)},
+            {"xml", ("Xml", false)},
+            {"char", ("Char", false)},
+            {"macaddr8", ("MacAddr8", false)},
+            {"varchar", ("Varchar", false)},
+            {"float8", ("Double", false)},
+            {"json", ("Json", false)},
+            {"_name", ("Name", false)},
+            {"money", ("Money", false)},
+            {"text", ("Text", false)},
+            {"_float8", ("Double", false)},
+            {"regtype", ("Regtype", false)},
+            {"bit", ("Bit", false)},
+            {"tid", ("Tid", false)},
+            {"line", ("Line", false)},
+            {"oidvector", ("Oidvector", false)},
+            {"int2", ("Smallint", false)},
+            {"uuid", ("Uuid", false)},
+            {"path", ("Path", false)},
+            {"jsonb", ("Jsonb", false)},
+            {"bytea", ("Bytea", false)},
+            {"_bool", ("Boolean", false)},
+            {"macaddr", ("MacAddr", false)},
+            {"point", ("Point", false)},
+            {"varbit", ("Varbit", false)},
+            {"oid", ("Oid", false)},
+            {"_int2", ("Smallint", false)}
+        };
     }
 }
