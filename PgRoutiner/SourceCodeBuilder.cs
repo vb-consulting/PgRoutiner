@@ -273,7 +273,7 @@ namespace PgRoutiner
             else
             {
                 builder.AppendLine(
-                    $@"        public static {(!enumerable ? "async" : "")} {resultType} {name}Async(this NpgsqlConnection connection, {BuildMethodParams(_parameters)})
+                    $@"        public static{(!enumerable ? " async" : "")} {resultType} {name}Async(this NpgsqlConnection connection, {BuildMethodParams(_parameters)})
         {{");
             }
 
