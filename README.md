@@ -135,8 +135,8 @@ Where index is always zero based.
 | **CustomModels** * | Key-values tell code generation to make a function that maps to a custom class. Key is PostgreSQL routine name (without parameters) and value is the full model name with the namespace. | none |
 | **SkipIfExists** ** | List of file names (without dir) that will be skipped if they already exist. | none |
 
-* Key-values are JSON objects in JSON configuration. For command-line, use the following format: `pgroutiner mapping:Key1=Value1` or `pgroutiner custommodels:Key1=Value1`
-** Lists are JSON arrays in JSON configuration. For command-line, use the following format: `pgroutiner skipifexists:0=Value1`
+* * Key-values are JSON objects in JSON configuration. For command-line, use the following format: `pgroutiner mapping:Key1=Value1` or `pgroutiner custommodels:Key1=Value1`
+* ** Lists are JSON arrays in JSON configuration. For command-line, use the following format: `pgroutiner skipifexists:0=Value1`
 
 ## Examples
 
