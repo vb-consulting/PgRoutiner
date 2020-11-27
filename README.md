@@ -132,11 +132,11 @@ Where index is always zero based.
 | **AsyncMethod** | Generate a `async` method, true or false. | True. |
 | **UseRecordsForModels** | If set to true, all models will be C# 9 `record` types instead of POCO classes. | False. |
 | **Mapping** * | Key-values to override default type mapping. Key is PostgreSQL UDT type name and value is the corresponding C# type name. | See default mapping [here](/PgRoutiner/Settings.cs#L24) |
-| **CustomModels** * | Key-values tell code generation to make a function that maps to a custom class. Key is PostgreSQL routine name (without parameters) and value is the full model name with the namespace. | none |
-| **SkipIfExists** ** | List of file names (without dir) that will be skipped if they already exist. | none |
+| **CustomModels** **`*`** | Key-values tell code generation to make a function that maps to a custom class. Key is PostgreSQL routine name (without parameters) and value is the full model name with the namespace. | none |
+| **SkipIfExists** **`**`** | List of file names (without dir) that will be skipped if they already exist. | none |
 
-* * Key-values are JSON objects in JSON configuration. For command-line, use the following format: `pgroutiner mapping:Key1=Value1` or `pgroutiner custommodels:Key1=Value1`
-* ** Lists are JSON arrays in JSON configuration. For command-line, use the following format: `pgroutiner skipifexists:0=Value1`
+* **`*`** Key-values are JSON objects in JSON configuration. For command-line, use the following format: `pgroutiner mapping:Key1=Value1` or `pgroutiner custommodels:Key1=Value1`
+* **`**`** Lists are JSON arrays in JSON configuration. For command-line, use the following format: `pgroutiner skipifexists:0=Value1`
 
 ## Examples
 
