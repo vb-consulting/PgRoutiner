@@ -122,11 +122,10 @@ Where index is always zero based.
 
 ## Examples
 
-- [Simple `void` function example with usage](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#simple-void-function-example-with-usage)
-- [Function parameter overload example](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#function-parameter-overload-example)
-- [Returning value](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#returning-value)
-- [Returning anonymous recordset](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#returning-anonymous-recordset)
-- [Returning table](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#returning-table)
+- [Simple `void` function example](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#simple-void-function-example)
+- [Function that returns a single value with overload example](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#function-that-returns-a-single-value-with-overload-example)
+- [Function returning anonymous table](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#function-returning-anonymous-table)
+- [Returning existing table](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#returning-existing-table)
 
 ## Serialization and mapping
 
@@ -145,11 +144,6 @@ However, the number of returning record fields is limited to 12, more than 12 it
 - [Npgsql](https://www.nuget.org/packages/Npgsql/)
 - [Norm.net](https://www.nuget.org/packages/Norm.net/) >= 1.7
 - [System.Linq.Async](https://www.nuget.org/packages/System.Linq.Async/) (only for async operations)
-
-## Currently supported platforms
-
-- .NET Core 3.0
-- .NET Core 3.1
 
 ## Support
 
