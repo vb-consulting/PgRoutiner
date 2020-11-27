@@ -11,31 +11,31 @@ namespace PgRoutiner
 {
     partial class Program
     {
-        public static readonly string CurrentDir = Directory.GetCurrentDirectory();
-        public static readonly string Version = "1.2.0";
+        public static string CurrentDir { get; private set; } = Directory.GetCurrentDirectory();
+        public static readonly string Version = "1.4.0";
 
         static void Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine();
-            Console.WriteLine("PgRoutiner dotnet tool");
+            Console.WriteLine("PgRoutiner dotnet tool, version {0}", Version);
             Console.WriteLine("Scaffold your PostgreSQL routines to enable static type checking for your project!");
             Console.WriteLine("Use -h or --help for help with settings and options...");
             Console.ResetColor();
             Console.WriteLine();
 
-            var currentDir = CurrentDir;
             foreach (var arg in args)
             {
-                if (arg.ToLower().StartsWith("projectUrl") && arg.Contains("="))
+                if (!arg.Contains("="))
                 {
-                    currentDir = Path.Join(currentDir, arg.Split('=').Last());
+                    CurrentDir = Path.Join(CurrentDir, arg);
+                    Console.WriteLine("Using: {0}", Path.GetFullPath(CurrentDir));
                 }
             }
 
             var configBuilder = new ConfigurationBuilder()
-                .AddJsonFile(Path.Join(currentDir, "appsettings.json"), optional: true, reloadOnChange: false)
-                .AddJsonFile(Path.Join(currentDir, "appsettings.Development.json"), optional: true, reloadOnChange: false);
+                .AddJsonFile(Path.Join(CurrentDir, "appsettings.json"), optional: true, reloadOnChange: false)
+                .AddJsonFile(Path.Join(CurrentDir, "appsettings.Development.json"), optional: true, reloadOnChange: false);
 
             var config = configBuilder.Build();
             config.GetSection("PgRoutiner").Bind(Settings.Value);
@@ -67,7 +67,7 @@ namespace PgRoutiner
 
             bool success = false;
             success = CheckConnectionValue(config);
-            success = success && FindProjFile(currentDir);
+            success = success && FindProjFile(CurrentDir);
             success = success && ParseProjectFile();
 
             Settings.MergeTypes(Settings.Value);
@@ -145,7 +145,7 @@ namespace PgRoutiner
 
             if (string.IsNullOrEmpty(normVersion))
             {
-                DumpError($"Norm.net is not referenced in your project. Reference Norm.net, minimum version 1.5.1. first to use this tool.");
+                DumpError($"Norm.net is not referenced in your project. Reference Norm.net, minimum version 1.7 first to use this tool.");
                 return false;
             }
 
@@ -156,18 +156,15 @@ namespace PgRoutiner
                 {
                     throw new Exception();
                 }
-                if (Convert.ToInt32(parts[1]) < 5)
+                if (Convert.ToInt32(parts[1]) < 7)
                 {
                     throw new Exception();
                 }
-                if (Convert.ToInt32(parts[1]) == 5 && Convert.ToInt32(parts[2]) < 1)
-                {
-                    throw new Exception();
-                }
+
             }
             catch (Exception)
             {
-                DumpError($"Minimum version for Norm.net is 1.5.1. Please, update your reference.");
+                DumpError($"Minimum version for Norm.net is 1.7 Please, update your reference.");
                 return false; 
             }
 
@@ -237,8 +234,6 @@ namespace PgRoutiner
 
         private static void ShowInfo()
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Version {0}", Version);
             Console.ResetColor();
             Console.WriteLine();
 

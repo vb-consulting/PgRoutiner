@@ -93,17 +93,30 @@ namespace PgRoutiner
                         }
                         if (!Models.Contains(result))
                         {
-
-                            OpenClass(_modelBuilder, result);
-                            foreach (var rec in _returns.Record.OrderBy(r => r.Ordinal))
+                            if (!Settings.Value.UseRecordsForModels)
                             {
-                                var type = GetType(rec, $"result type \"{rec.Name}\"");
-                                var fieldName = rec.Name.ToUpperCamelCase();
-                                _modelBuilder.AppendLine($"        public {type} {fieldName} {{ get; set; }}");
-                                resultFields.Add(fieldName);
-                            }
+                                OpenClass(_modelBuilder, result);
+                                foreach (var rec in _returns.Record.OrderBy(r => r.Ordinal))
+                                {
+                                    var type = GetType(rec, $"result type \"{rec.Name}\"");
+                                    var fieldName = rec.Name.ToUpperCamelCase();
+                                    _modelBuilder.AppendLine($"        public {type} {fieldName} {{ get; set; }}");
+                                    resultFields.Add(fieldName);
+                                }
 
-                            CloseClass(_modelBuilder);
+                                CloseClass(_modelBuilder);
+                            }
+                            else
+                            {
+                                _modelBuilder.Append($"    public record {result}(");
+                                var fields = string.Join(", ", _returns.Record.OrderBy(r => r.Ordinal).Select(rec =>
+                                {
+                                    var type = GetType(rec, $"result type \"{rec.Name}\"");
+                                    var fieldName = rec.Name.ToUpperCamelCase();
+                                    return $"{type} {fieldName}";
+                                }));
+                                _modelBuilder.AppendLine($"{fields});");
+                            }
                             _modelBuilder.AppendLine();
                             Models.Add(result);
                         }
