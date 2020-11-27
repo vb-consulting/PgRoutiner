@@ -88,27 +88,27 @@ or
 
 For key-value settings you can use:
 
-> ```
-> pgroutiner settings:key=value
-> ```
+```
+pgroutiner setting:key=value
+```
 
 or
 
-> ```
-> pgroutiner --settings:key value
-> ```
+```
+pgroutiner --setting:key value
+```
 
 For array settings you can use:
 
-> ```
-> pgroutiner settings:index=value
-> ```
+```
+pgroutiner settings:index=value
+```
 
 or
 
-> ```
-> pgroutiner --settings:index value
-> ```
+```
+pgroutiner --settings:index value
+```
 
 Where index is always zero based.
 
