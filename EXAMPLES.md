@@ -116,7 +116,7 @@ namespace PgRoutiner.Test
 }
 ```
 
-### Function returning anonymous table
+## Function returning anonymous table
 
 PostgreSQL functions can return record set, for example:
 
