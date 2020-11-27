@@ -12,7 +12,7 @@ namespace PgRoutiner
     partial class Program
     {
         public static string CurrentDir { get; private set; } = Directory.GetCurrentDirectory();
-        public static readonly string Version = "1.4.0";
+        public static readonly string Version = "1.4.1";
 
         static void Main(string[] args)
         {
@@ -26,7 +26,7 @@ namespace PgRoutiner
 
             foreach (var arg in args)
             {
-                if (!arg.Contains("="))
+                if (!arg.Contains("=") && !arg.StartsWith("-"))
                 {
                     CurrentDir = Path.Join(CurrentDir, arg);
                     Console.WriteLine("Using: {0}", Path.GetFullPath(CurrentDir));
