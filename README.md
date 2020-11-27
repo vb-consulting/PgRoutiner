@@ -113,7 +113,7 @@ Where index is always zero based.
 | **SyncMethod** | Generate a `sync` method, true or false. |  True. |
 | **AsyncMethod** | Generate a `async` method, true or false. | True. |
 | **UseRecordsForModels** | If set to true, all models will be C# 9 `record` types instead of POCO classes. | False. |
-| **Mapping** * | Key-values to override default type mapping. Key is PostgreSQL UDT type name and value is the corresponding C# type name. | See default mapping [here](/PgRoutiner/Settings.cs#L24) |
+| **Mapping** * | Key-values to override default type mapping. Key is PostgreSQL UDT type name and value is the corresponding C# type name. | See default mapping [here](/PgRoutiner/Settings.cs#L27) |
 | **CustomModels** **`*`** | Key-values tell code generation to make a function that maps to a custom class. Key is PostgreSQL routine name (without parameters) and value is the full model name with the namespace. | none |
 | **SkipIfExists** **`**`** | List of file names (without dir) that will be skipped if they already exist. | none |
 
