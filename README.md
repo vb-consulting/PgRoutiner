@@ -101,7 +101,7 @@ Where index is always zero based.
 | Name | Description | Default |
 | ---- | ----------- | ------- |
 | **Connection** | Connection string name from your configuration connection string to be used. | First available connection string. |
-| **Project** | Relative path to project `.csproj` file. | First available `.csproj` file from the current dir. |
+| **Project** | Relative path to project `.csproj` file. | First available `.csproj` file from defualt dir. |
 | **OutputDir** | Relative path where generated source files will be saved. | Current dir. |
 | **ModelDir** | Relative path where model classes source files will be saved. | Default value saves model classes in the same file as a related data-access code. |
 | **Schema** | PostgreSQL schema name used to search for routines.  | public |
