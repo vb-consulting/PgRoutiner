@@ -26,6 +26,6 @@ jobs:
     - name: Publish
       uses: vb-consulting/publish-nuget@v2.5.2
       with:
-        PROJECT_FILE_PATH: Norm/Norm.csproj
+        PROJECT_FILE_PATH: PgRoutiner/PgRoutiner.csproj
         NUGET_KEY: ${{secrets.NUGET_API_KEY}}
         INCLUDE_SYMBOLS: false
