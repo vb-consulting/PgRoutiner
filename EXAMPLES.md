@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Norm.Extensions;
+using Norm;
 using NpgsqlTypes;
 using Npgsql;
 
@@ -19,26 +19,30 @@ namespace PgRoutiner.Test
         public const string Name = "close_case";
 
         /// <summary>
-        /// sql function "my_function"
+        /// Executes sql function "my_function"
         /// some comment
         /// </summary>
-        public static void MyFunction(this NpgsqlConnection connection, long? userId, long? otherParam)
-        {
-            connection
-                .AsProcedure()
-                .Execute(Name, ("_user_id", userId, NpgsqlDbType.Bigint), ("_other_param", otherParam, NpgsqlDbType.Bigint));
-        }
+        /// <param name="userId">_user_id bigint</param>
+        /// <param name="otherParam">_other_param bigint</param>
+        /// <returns>void</returns>
+        public static void MyFunction(this NpgsqlConnection connection, long? userId, long? otherParam) => connection
+            .AsProcedure()
+            .Execute(Name, 
+                ("_user_id", userId, NpgsqlDbType.Bigint), 
+                ("_other_param", otherParam, NpgsqlDbType.Bigint));
 
         /// <summary>
-        /// sql function "my_function"
+        /// Executes sql function "my_function"
         /// some comment
         /// </summary>
-        public static async ValueTask MyFunctionAsync(this NpgsqlConnection connection, long? userId, long? otherParam)
-        {
-            await connection
-                .AsProcedure()
-                .ExecuteAsync(Name, ("_user_id", userId, NpgsqlDbType.Bigint), ("_other_param", otherParam, NpgsqlDbType.Bigint));
-        }
+        /// <param name="userId">_user_id bigint</param>
+        /// <param name="otherParam">_other_param bigint</param>
+        /// <returns>ValueTask whose Result property is void</returns>
+        public static async ValueTask MyFunctionAsync(this NpgsqlConnection connection, long? userId, long? otherParam) => await connection
+            .AsProcedure()
+            .ExecuteAsync(Name, 
+                ("_user_id", userId, NpgsqlDbType.Bigint), 
+                ("_other_param", otherParam, NpgsqlDbType.Bigint));
     }
 }
 
@@ -61,7 +65,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Norm.Extensions;
+using Norm;
 using NpgsqlTypes;
 using Npgsql;
 
@@ -72,46 +76,58 @@ namespace PgRoutiner.Test
         public const string Name = "add_user_to_role";
 
         /// <summary>
-        /// plpgsql function "add_user_to_role"
+        /// Executes plpgsql function "add_user_to_role"
+        /// add user to user_role by user name and role name
         /// </summary>
-        public static bool? AddUserToRole(this NpgsqlConnection connection, string userName, string roleName)
-        {
-            return connection
-                .AsProcedure()
-                .Single<bool?>(Name, ("_user_name", userName, NpgsqlDbType.Varchar), ("_role_name", roleName, NpgsqlDbType.Varchar));
-        }
+        /// <param name="userName">_user_name character varying</param>
+        /// <param name="roleName">_role_name character varying</param>
+        /// <returns>bool?</returns>
+        public static bool? AddUserToRole(this NpgsqlConnection connection, string userName, string roleName) => connection
+            .AsProcedure()
+            .Read<bool?>(Name,
+                ("_user_name", userName, NpgsqlDbType.Varchar),
+                ("_role_name", roleName, NpgsqlDbType.Varchar))
+            .Single();
 
         /// <summary>
-        /// plpgsql function "add_user_to_role"
+        /// Asynchronously executes plpgsql function "add_user_to_role"
+        /// add user to user_role by user name and role name
         /// </summary>
-        public static async ValueTask<bool?> AddUserToRoleAsync(this NpgsqlConnection connection, string userName, string roleName)
-        {
-            return await connection
-                .AsProcedure()
-                .SingleAsync<bool?>(Name, ("_user_name", userName, NpgsqlDbType.Varchar), ("_role_name", roleName, NpgsqlDbType.Varchar));
-        }
+        /// <param name="userName">_user_name character varying</param>
+        /// <param name="roleName">_role_name character varying</param>
+        /// <returns>ValueTask whose Result property is bool?</returns>
+        public static async ValueTask<bool?> AddUserToRoleAsync(this NpgsqlConnection connection, string userName, string roleName) => await connection
+            .AsProcedure()
+            .ReadAsync<bool?>(Name,
+                ("_user_name", userName, NpgsqlDbType.Varchar),
+                ("_role_name", roleName, NpgsqlDbType.Varchar))
+            .SingleAsync();
 
         /// <summary>
-        /// sql function "add_user_to_role"
+        /// Executes sql function "add_user_to_role"
         /// add user to user_role by user id and role name
         /// </summary>
-        public static void AddUserToRole(this NpgsqlConnection connection, long? userId, string normalizedRoleName)
-        {
-            connection
-                .AsProcedure()
-                .Execute(Name, ("_user_id", userId, NpgsqlDbType.Bigint), ("_normalized_role_name", normalizedRoleName, NpgsqlDbType.Varchar));
-        }
+        /// <param name="userId">_user_id bigint</param>
+        /// <param name="normalizedRoleName">_normalized_role_name character varying</param>
+        /// <returns>void</returns>
+        public static void AddUserToRole(this NpgsqlConnection connection, long? userId, string normalizedRoleName) => connection
+            .AsProcedure()
+            .Execute(Name,
+                ("_user_id", userId, NpgsqlDbType.Bigint),
+                ("_normalized_role_name", normalizedRoleName, NpgsqlDbType.Varchar));
 
         /// <summary>
-        /// sql function "add_user_to_role"
+        /// Asynchronously executes sql function "add_user_to_role"
         /// add user to user_role by user id and role name
         /// </summary>
-        public static async ValueTask AddUserToRoleAsync(this NpgsqlConnection connection, long? userId, string normalizedRoleName)
-        {
-            await connection
-                .AsProcedure()
-                .ExecuteAsync(Name, ("_user_id", userId, NpgsqlDbType.Bigint), ("_normalized_role_name", normalizedRoleName, NpgsqlDbType.Varchar));
-        }
+        /// <param name="userId">_user_id bigint</param>
+        /// <param name="normalizedRoleName">_normalized_role_name character varying</param>
+        /// <returns>ValueTask whose Result property is void</returns>
+        public static async ValueTask AddUserToRoleAsync(this NpgsqlConnection connection, long? userId, string normalizedRoleName) => await connection
+            .AsProcedure()
+            .ExecuteAsync(Name,
+                ("_user_id", userId, NpgsqlDbType.Bigint),
+                ("_normalized_role_name", normalizedRoleName, NpgsqlDbType.Varchar));
     }
 }
 ```
@@ -138,7 +154,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Norm.Extensions;
+using Norm;
 using NpgsqlTypes;
 using Npgsql;
 
@@ -156,38 +172,26 @@ namespace PgRoutiner.Test
         public const string Name = "get_answers";
 
         /// <summary>
-        /// sql function "get_answers"
+        /// Executes sql function "get_answers"
         /// get answers for user
         /// </summary>
-        public static IEnumerable<GetAnswersResult> GetAnswers(this NpgsqlConnection connection, long? userId)
-        {
-            return connection
-                .AsProcedure()
-                .Read<string, string, bool?>(Name, ("_user_id", userId, NpgsqlDbType.Bigint))
-                .Select(tuple => new GetAnswersResult
-                {
-                    Key = tuple.Item1,
-                    Question = tuple.Item2,
-                    Answered = tuple.Item3
-                });
-        }
+        /// <param name="userId">_user_id character varying</param>
+        /// <returns>IEnumerable of PgRoutiner.Test.GetAnswersResult instances</returns>
+        public static IEnumerable<GetAnswersResult> GetAnswers(this NpgsqlConnection connection, long? userId) => connection
+            .AsProcedure()
+            .Read<GetAnswersResult>(Name, 
+                ("_user_id", userId, NpgsqlDbType.Bigint));
 
         /// <summary>
-        /// sql function "get_answers"
+        /// Asynchronously executes sql function "get_answers"
         /// get answers for user
         /// </summary>
-        public static IAsyncEnumerable<GetAnswersResult> GetAnswersAsync(this NpgsqlConnection connection, long? userId)
-        {
-            return  connection
-                .AsProcedure()
-                .ReadAsync<string, string, bool?>(Name, ("_user_id", userId, NpgsqlDbType.Bigint))
-                .Select(tuple => new GetAnswersResult
-                {
-                    Key = tuple.Item1,
-                    Question = tuple.Item2,
-                    Answered = tuple.Item3
-                });
-        }
+        /// <param name="userId">_user_id character varying</param>
+        /// <returns>IAsyncEnumerable of PgRoutiner.Test.GetAnswersResult instances</returns>
+        public static IAsyncEnumerable<GetAnswersResult> GetAnswersAsync(this NpgsqlConnection connection, long? userId) => connection
+            .AsProcedure()
+                .ReadAsync<GetAnswersResult>(Name, 
+                    ("_user_id", userId, NpgsqlDbType.Bigint));
     }
 }
 ```
@@ -203,7 +207,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Norm.Extensions;
+using Norm;
 using NpgsqlTypes;
 using Npgsql;
 
@@ -232,28 +236,36 @@ namespace PgRoutiner.Test
         public const string Name = "find_user";
 
         /// <summary>
-        /// sql function "find_user"
+        /// Executes sql function "find_user"
         /// find user record
         /// </summary>
-        public static IEnumerable<User> FindUser(this NpgsqlConnection connection, long? id, string normalizedUserName, string normalizedEmail)
-        {
-            return connection
-                .AsProcedure()
-                .Read(Name, ("_id", id, NpgsqlDbType.Bigint), ("_normalized_user_name", normalizedUserName, NpgsqlDbType.Varchar), ("_normalized_email", normalizedEmail, NpgsqlDbType.Varchar))
-                .Select<User>();
-        }
+        /// <param name="id">_id bigint</param>
+        /// <param name="normalizedUserName">_normalized_user_name character varying</param>
+        /// <param name="normalizedEmail">_normalized_email character varying</param>
+        /// <param name="dummy">_dummy json</param>
+        /// <returns>IEnumerable of PgRoutiner.Test.User instances</returns>
+        public static IEnumerable<User> FindUser(this NpgsqlConnection connection, long? id, string normalizedUserName, string normalizedEmail) => connection
+            .AsProcedure()
+            .Read<User>(Name, 
+                ("_id", id, NpgsqlDbType.Bigint), 
+                ("_normalized_user_name", normalizedUserName, NpgsqlDbType.Varchar), 
+                ("_normalized_email", normalizedEmail, NpgsqlDbType.Varchar));
 
         /// <summary>
-        /// sql function "find_user"
+        /// Asynchronously executes sql function "find_user"
         /// find user record
         /// </summary>
-        public static IAsyncEnumerable<User> FindUserAsync(this NpgsqlConnection connection, long? id, string normalizedUserName, string normalizedEmail)
-        {
-            return  connection
-                .AsProcedure()
-                .ReadAsync(Name, ("_id", id, NpgsqlDbType.Bigint), ("_normalized_user_name", normalizedUserName, NpgsqlDbType.Varchar), ("_normalized_email", normalizedEmail, NpgsqlDbType.Varchar))
-                .Select<User>();
-        }
+        /// <param name="id">_id bigint</param>
+        /// <param name="normalizedUserName">_normalized_user_name character varying</param>
+        /// <param name="normalizedEmail">_normalized_email character varying</param>
+        /// <param name="dummy">_dummy json</param>
+        /// <returns>IAsyncEnumerable of PgRoutiner.Test.User instances</returns>
+        public static IAsyncEnumerable<User> FindUserAsync(this NpgsqlConnection connection, long? id, string normalizedUserName, string normalizedEmail) => connection
+            .AsProcedure()
+            .ReadAsync<User>(Name, 
+                ("_id", id, NpgsqlDbType.Bigint), 
+                ("_normalized_user_name", normalizedUserName, NpgsqlDbType.Varchar), 
+                ("_normalized_email", normalizedEmail, NpgsqlDbType.Varchar));
     }
 }
 ```

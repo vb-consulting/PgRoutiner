@@ -4,19 +4,19 @@
     <OutputType>Exe</OutputType>
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>PgRoutiner</AssemblyName>
     <Authors>Vedran Bilopavlović</Authors>
     <Company>VB-Software</Company>
     <Copyright>Vedran Bilopavlović</Copyright>
     <Description>Scaffold your PostgreSQL routines</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://github.com/vbilopav/PgRoutiner</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/vb-consulting/PgRoutiner</PackageProjectUrl>
     <PackageTags>PostgreSQL;ORM;Data Access;Mapping</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.4.1</Version>
+    <Version>2.0.0</Version>
     <PackageId>dotnet-pgroutiner</PackageId>
-    <AssemblyVersion>1.4.1.0</AssemblyVersion>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,8 +33,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Norm.net" Version="1.7.0" />
-    <PackageReference Include="Npgsql" Version="5.0.0" />
+    <PackageReference Include="Norm.net" Version="3.1.2" />
+    <PackageReference Include="Npgsql" Version="5.0.1.1" />
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />
   </ItemGroup>
 
@@ -45,6 +45,10 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Test\" />
   </ItemGroup>
 
 </Project>
