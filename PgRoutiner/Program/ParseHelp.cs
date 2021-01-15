@@ -10,6 +10,7 @@ namespace PgRoutiner
             if (ArgsInclude(args, "-h") || ArgsInclude(args, "--help"))
             {
                 ShowInfo();
+                ShowSettings();
                 return true;
             }
             return false;

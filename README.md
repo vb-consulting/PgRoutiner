@@ -14,13 +14,13 @@ This tool will generate **all the necessary source code files** needed to make a
 
 - All the necessary data-access code is automatically implemented for you as **connection object extension.**.
 
-- All related neccessary POC  **model classes** (or `record` structures for C# 9) - for data retrieval operations (function returning recordset or physical table returned from a function).
+- All related necessary POC  **model classes** (or `record` structures for C# 9) - for data retrieval operations (function returning recordset or physical table returned from a function).
 
 See [examples](https://github.com/vbilopav/PgRoutiner#examples)
 
 > Also: can make your .NET Core project to do a **static type checking** - on your PostgreSQL.
 
-You can use this tool to enforce **static type checking** over PostgreSQL programable routines (functions or procedures) - in your .NET Core project.
+You can use this tool to enforce **static type checking** over PostgreSQL programmable routines (functions or procedures) - in your .NET Core project.
 
 Simply add the code generation command with this tool to your pre-build event.
 
@@ -104,7 +104,8 @@ Where index is always zero based.
 | **OutputDir** | Relative path where generated source files will be saved. | Current dir. |
 | **ModelDir** | Relative path where model classes source files will be saved. | Default value saves model classes in the same file as a related data-access code. |
 | **Schema** | PostgreSQL schema name used to search for routines.  | public |
-| **Overwrite** | Should existing generated source file be overwritten (true) or skipped if they exist (false) | true |
+| **Overwrite** | Should existing generated source file be overwritten (true) or skipped if they exist (false) | false |
+| **AskOverwrite** | Should prompt a question should overwrite a file (Y/N). Only if overwrite is set true. | false |
 | **Namespace** |  Root namespace for generated source files. | Project root namespace. |
 | **NotSimilarTo** | `NOT SIMILAR TO` SQL regular expression used to search routine names. | Default skips this matching. |
 | **SimilarTo** | `SIMILAR TO` SQL regular expression used to search routine names. | Default skips this matching. |
@@ -112,9 +113,9 @@ Where index is always zero based.
 | **SyncMethod** | Generate a `sync` method, true or false. |  True. |
 | **AsyncMethod** | Generate a `async` method, true or false. | True. |
 | **UseRecords** | If set to true, all models will be C# 9 `record` types instead of POCO classes. | False. |
-| **Ident** | Number of default identation spaces for the generated code. | 4 |
+| **Ident** | Number of default indentation spaces for the generated code. | 4 |
 | **Mapping** * | Key-values to override default type mapping. Key is PostgreSQL UDT type name and value is the corresponding C# type name. | See default mapping [here](/PgRoutiner/Settings.cs#L27) |
-| **CustomModels** **`*`** | Key-values tell code generation to make a function that maps to a custom class. Key is PostgreSQL routine name (without parameters) and value is the full model name with the namespace. | none |
+| **CustomModels** **`*`** | Key-value dictionary to set custom models name. Key is expected model name and value is the new model name. | none |
 | **SkipIfExists** **`**`** | List of file names (without dir) that will be skipped if they already exist. | none |
 
 * **`*`** Key-values are JSON objects in JSON configuration. For command-line, use the following format: `pgroutiner mapping:Key1=Value1`

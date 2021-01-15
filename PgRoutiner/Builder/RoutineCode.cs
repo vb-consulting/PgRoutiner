@@ -18,7 +18,6 @@ namespace PgRoutiner
         private readonly NpgsqlConnection connection;
  
         public string Name { get; }
-        //public StringBuilder Model { get; private set; } = null;
         public Dictionary<string, StringBuilder> Models { get; private set; } = new();
         public StringBuilder Class { get; } = new();
         public List<Method> Methods { get; } = new();
@@ -271,6 +270,14 @@ namespace PgRoutiner
         private string BuildUserDefinedModel(PgRoutineInfo routine)
         {
             var name = routine.TypeUdtName.ToUpperCamelCase();
+            if (settings.CustomModels.ContainsKey(name))
+            {
+                name = settings.CustomModels[name];
+            }
+            else if (settings.CustomModels.ContainsKey(routine.TypeUdtName))
+            {
+                name = settings.CustomModels[routine.TypeUdtName];
+            }
             BuildModel(name, connection => connection.GetRoutineColumnModel(routine));
             return name;
         }

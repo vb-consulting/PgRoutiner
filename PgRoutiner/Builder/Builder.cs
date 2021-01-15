@@ -22,7 +22,7 @@ namespace PgRoutiner
                 var name = group.Key;
                 var shortFilename = string.Concat(name.ToUpperCamelCase(), ".cs");
                 var fullFileName = Path.Join(outputDir, shortFilename);
-                var shortName = $"{outputDir}{Path.DirectorySeparatorChar}{shortFilename}";
+                var shortName = $"{outputDir.Split(Path.DirectorySeparatorChar).Last()}{Path.DirectorySeparatorChar}{shortFilename}";
                 var exists = File.Exists(fullFileName);
 
                 if (exists && Settings.Value.Overwrite == false)
@@ -35,6 +35,11 @@ namespace PgRoutiner
                     )
                 {
                     Dump($"Skipping {shortName}, already exists...");
+                    continue;
+                }
+                if (exists && Settings.Value.AskOverwrite && Program.Ask($"File {shortName} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
+                {
+                    Dump($"Skipping {shortName}...");
                     continue;
                 }
                 Dump($"Building {shortName}...");
@@ -56,7 +61,7 @@ namespace PgRoutiner
                     {
                         var shortModelFilename = string.Concat(modelName.ToUpperCamelCase(), ".cs");
                         var fullModelFileName = Path.Join(modelDir, shortModelFilename);
-                        var shortModelName = $"{modelDir}{Path.DirectorySeparatorChar}{shortModelFilename}";
+                        var shortModelName = $"{modelDir.Split(Path.DirectorySeparatorChar).Last()}{Path.DirectorySeparatorChar}{shortModelFilename}";
                         var modelExists = File.Exists(fullModelFileName);
 
                         if (modelExists && Settings.Value.Overwrite == false)
@@ -69,6 +74,11 @@ namespace PgRoutiner
                             )
                         {
                             Dump($"Skipping {shortModelName}, already exists...");
+                            continue;
+                        }
+                        if (modelExists && Settings.Value.AskOverwrite && Program.Ask($"File {shortModelName} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
+                        {
+                            Dump($"Skipping {shortModelName}...");
                             continue;
                         }
                         Dump($"Building {shortModelName}...");

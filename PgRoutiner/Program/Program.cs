@@ -9,7 +9,6 @@ namespace PgRoutiner
         {
             ShowStartupInfo();
             SetCurrentDir(args);
-
             var config = Settings.ParseSettings(args);
             var success = ParseProjectFile();
 
@@ -17,9 +16,6 @@ namespace PgRoutiner
             {
                 return;
             }
-
-            ShowSettings();
-
 #if DEBUG
             if (config != null && success)
             {

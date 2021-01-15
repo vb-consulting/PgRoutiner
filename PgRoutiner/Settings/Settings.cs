@@ -12,6 +12,7 @@ namespace PgRoutiner
         public string OutputDir { get; set; } = "";
         public string Schema { get; set; } = "public";
         public bool Overwrite { get; set; } = false;
+        public bool AskOverwrite { get; set; } = false;
         public string Namespace { get; set; }
         public string NotSimilarTo { get; set; } = null;
         public string SimilarTo { get; set; } = null;
@@ -24,6 +25,7 @@ namespace PgRoutiner
         public IList<string> SkipIfExists { get; set; } = new List<string>();
         public bool UseRecords { get; set; } = true;
         public int Ident { get; set; } = 4;
+        public string MinNormVersion { get; set; } = "3.1.2";
 
         public static Settings Value { get; set; } = new Settings();
     }

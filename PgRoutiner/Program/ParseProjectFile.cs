@@ -17,6 +17,7 @@ namespace PgRoutiner
                     DumpError($"Project file {projectFile} does not exists, exiting...");
                     return false;
                 }
+                CurrentDir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(projectFile)));
             }
             else
             {
@@ -74,14 +75,20 @@ namespace PgRoutiner
 
             if (npgsqlIncluded == false)
             {
-                DumpError($"Npgsql package needs to be referenced to to use this tool.");
-                return false;
+                DumpError($"Npgsql package package is required.");
+                if (Ask("Add Npgsql reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                {
+                    RunProcess("dotnet", "add package Npgsql");
+                }
             }
 
             if (Settings.Value.AsyncMethod && asyncLinqIncluded == false)
             {
-                DumpError($"To generate async methods System.Linq.Async library is required. Include System.Linq.Async package or set asyncMethod option to false.");
-                return false;
+                DumpError($"To be able to use async methods, System.Linq.Async package is required.");
+                if (Ask("Add System.Linq.Async package reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                {
+                    RunProcess("dotnet", "add package System.Linq.Async");
+                }
             }
 
             if (string.IsNullOrEmpty(Settings.Value.Namespace))
@@ -91,22 +98,29 @@ namespace PgRoutiner
 
             if (string.IsNullOrEmpty(normVersion))
             {
-                DumpError($"Norm.net is not referenced in your project. Reference Norm.net, minimum version 1.7 first to use this tool.");
-                return false;
+                DumpError($"Norm.net package package is required.");
+                if (Ask("Add Norm.net reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                {
+                    RunProcess("dotnet", "add package Norm.net");
+                }
             }
 
+            var minNormVersion = Convert.ToInt32(Settings.Value.MinNormVersion.Replace(".", ""));
             try
             {
                 var version = Convert.ToInt32(normVersion.Replace(".", ""));
-                if (version < 310)
+                if (version < minNormVersion)
                 {
                     throw new Exception();
                 }
             }
             catch (Exception)
             {
-                DumpError($"Minimum version for Norm.net is 3.1.2 Please, update your reference.");
-                return false;
+                DumpError($"Minimum version for Norm.net package is 3.1.2. Current version in project is {normVersion}.");
+                if (Ask("Update Norm.net package? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                {
+                    RunProcess("dotnet", "add package Norm.net");
+                }
             }
 
             return true;
