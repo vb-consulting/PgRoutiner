@@ -7,10 +7,12 @@ namespace PgRoutiner
 {
     public partial class Settings
     {
-        public string Connection { get; set; }
         [JsonIgnore] public string Project { get; set; }
+        [JsonIgnore] public bool Run { get; set; } = false;
+
+        public string Connection { get; set; }
         public string OutputDir { get; set; } = "";
-        public string Schema { get; set; } = "public";
+        public string Schema { get; set; } = null;
         public bool Overwrite { get; set; } = false;
         public bool AskOverwrite { get; set; } = false;
         public string Namespace { get; set; }
@@ -26,6 +28,17 @@ namespace PgRoutiner
         public bool UseRecords { get; set; } = true;
         public int Ident { get; set; } = 4;
         public string MinNormVersion { get; set; } = "3.1.2";
+        public bool UpdateReferences { get; set; } = true;
+        public bool DisableCodeGen { get; set; } = false;
+
+        public string PgDump { get; set; } = "pg_dump";
+        public bool PgDumpNoOwner { get; set; } = true;
+        public bool PgDumpNoPrivileges { get; set; } = true;
+        public bool PgDumpDropIfExists { get; set; } = true;
+        public string PgDumpAdditionalOptions { get; set; } = "";
+
+        public bool TransactionalSchema { get; set; } = true;
+        public string SchemaDumpFile { get; set; } = null;
 
         public static Settings Value { get; set; } = new Settings();
     }

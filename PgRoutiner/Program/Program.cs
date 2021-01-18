@@ -16,19 +16,12 @@ namespace PgRoutiner
             {
                 return;
             }
-#if DEBUG
-            if (config != null && success)
+            if (config != null && success && Settings.Value.Run)
             {
                 WriteLine(ConsoleColor.Yellow, "", "Running files generation ... ", "");
                 Builder.Run(config.GetConnectionString(Settings.Value.Connection));
             }
-#else
-            if (config != null && success && ArgsInclude(args, "run"))
-            {
-                WriteLine(ConsoleColor.Yellow, "", "Running files generation ... ", "");
-                Builder.Run(config.GetConnectionString(Settings.Value.Connection));
-            }
-#endif
+            WriteLine("");
         }
     }
 }

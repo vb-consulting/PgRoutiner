@@ -63,7 +63,7 @@ namespace PgRoutiner
             }
             else
             {
-                Value.Mapping = DefaultTypeMapping; // new Dictionary<string, string>();
+                Value.Mapping = DefaultTypeMapping;
             }
 
             if (!string.IsNullOrEmpty(Value.Connection))
@@ -83,6 +83,12 @@ namespace PgRoutiner
             }
 
             Value.Connection = config.GetSection("ConnectionStrings").GetChildren().First().Key;
+
+            if (Program.ArgsInclude(args, "-r", "--run"))
+            {
+                Value.Run = true;
+            }
+
             return config;
         }
     }

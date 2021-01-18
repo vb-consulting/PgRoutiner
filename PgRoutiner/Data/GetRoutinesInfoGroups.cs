@@ -77,8 +77,13 @@ namespace PgRoutiner
                     on r.specific_name = p.specific_name and r.specific_schema = p.specific_schema
     
                 where
-                    r.specific_schema = @schema
-                    and r.external_language <> 'INTERNAL'
+                    r.external_language <> 'INTERNAL'
+                    and
+                    (
+                        (   @schema is not null and r.specific_schema similar to @schema   )
+                        or
+                        (   r.specific_schema not like 'pg_%' and r.specific_schema <> 'information_schema' )
+                    )
                     and (@notSimilarTo is null or r.routine_name not similar to @notSimilarTo)
                     and (@similarTo is null or r.routine_name similar to @similarTo)
 

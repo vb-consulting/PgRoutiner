@@ -75,19 +75,25 @@ namespace PgRoutiner
 
             if (npgsqlIncluded == false)
             {
-                DumpError($"Npgsql package package is required.");
-                if (Ask("Add Npgsql reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                if (Settings.Value.UpdateReferences)
                 {
-                    RunProcess("dotnet", "add package Npgsql");
+                    DumpError($"Npgsql package package is required.");
+                    if (Ask("Add Npgsql reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                    {
+                        RunProcess("dotnet", "add package Npgsql");
+                    }
                 }
             }
 
             if (Settings.Value.AsyncMethod && asyncLinqIncluded == false)
             {
-                DumpError($"To be able to use async methods, System.Linq.Async package is required.");
-                if (Ask("Add System.Linq.Async package reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                if (Settings.Value.UpdateReferences)
                 {
-                    RunProcess("dotnet", "add package System.Linq.Async");
+                    DumpError($"To be able to use async methods, System.Linq.Async package is required.");
+                    if (Ask("Add System.Linq.Async package reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                    {
+                        RunProcess("dotnet", "add package System.Linq.Async");
+                    }
                 }
             }
 
@@ -98,10 +104,13 @@ namespace PgRoutiner
 
             if (string.IsNullOrEmpty(normVersion))
             {
-                DumpError($"Norm.net package package is required.");
-                if (Ask("Add Norm.net reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                if (Settings.Value.UpdateReferences)
                 {
-                    RunProcess("dotnet", "add package Norm.net");
+                    DumpError($"Norm.net package package is required.");
+                    if (Ask("Add Norm.net reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                    {
+                        RunProcess("dotnet", "add package Norm.net");
+                    }
                 }
             }
 
@@ -116,10 +125,13 @@ namespace PgRoutiner
             }
             catch (Exception)
             {
-                DumpError($"Minimum version for Norm.net package is 3.1.2. Current version in project is {normVersion}.");
-                if (Ask("Update Norm.net package? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                if (Settings.Value.UpdateReferences)
                 {
-                    RunProcess("dotnet", "add package Norm.net");
+                    DumpError($"Minimum version for Norm.net package is 3.1.2. Current version in project is {normVersion}.");
+                    if (Ask("Update Norm.net package? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                    {
+                        RunProcess("dotnet", "add package Norm.net");
+                    }
                 }
             }
 

@@ -77,7 +77,7 @@ Or - you may supply additional configuration settings either trough:
 2) Standard command-line interface, by supplying command-line arguments. Example from above, to configure the connection that will be used:
 
 > ```
-> pgroutiner connection=MyConnection
+> pgroutiner Connection=MyConnection
 > ```
 
 For key-value settings you can use:

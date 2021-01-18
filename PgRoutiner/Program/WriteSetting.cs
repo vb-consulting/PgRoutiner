@@ -10,7 +10,7 @@ namespace PgRoutiner
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write($" {key}");
             Console.ResetColor();
-            Console.WriteLine($" = {value}");
+            Console.WriteLine($" {value}");
         }
     }
 }
