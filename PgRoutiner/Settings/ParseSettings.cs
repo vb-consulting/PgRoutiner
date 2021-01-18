@@ -9,7 +9,7 @@ namespace PgRoutiner
 {
     public partial class Settings
     {
-        public static IConfigurationRoot ParseSettings(string[] args)
+        public static IConfigurationRoot ParseSettings(string[] args, out string error)
         {
             var settingsFile = Path.Join(Program.CurrentDir, "appsettings.json");
             var devSettingsFile = Path.Join(Program.CurrentDir, "appsettings.Development.json");
@@ -23,7 +23,7 @@ namespace PgRoutiner
             {
                 files.Add(" " + Path.GetFileName(settingsFile));
             }
-            if (files.Count() > 0)
+            if (files.Count > 0)
             {
                 Program.WriteLine("", "Using config files: ");
                 Program.WriteLine(ConsoleColor.Cyan, files.ToArray());
@@ -70,15 +70,16 @@ namespace PgRoutiner
             {
                 if (!string.IsNullOrEmpty(config.GetConnectionString(Value.Connection)))
                 {
+                    error = null;
                     return config;
                 }
-                Program.DumpError($"Connection name {Value.Connection} could not be found in settings, exiting...");
+                error = $"Connection name {Value.Connection} could not be found in settings, exiting...";
                 return null;
             }
 
             if (!config.GetSection("ConnectionStrings").GetChildren().Any())
             {
-                Program.DumpError($"Connection setting is not set and ConnectionStrings section doesn't contain any values, exiting...");
+                error = $"Connection setting is not set and ConnectionStrings section doesn't contain any values, exiting...";
                 return null;
             }
 
@@ -89,6 +90,7 @@ namespace PgRoutiner
                 Value.Run = true;
             }
 
+            error = null;
             return config;
         }
     }

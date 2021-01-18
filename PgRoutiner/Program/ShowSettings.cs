@@ -12,9 +12,6 @@ namespace PgRoutiner
             {
                 Formatting = Formatting.Indented
             });
-                //.Replace(string.Concat("{", Environment.NewLine, "  "), " ")
-                //.Replace("}", " ")
-                //.Replace(string.Concat(Environment.NewLine, "  "), Environment.NewLine + " ");
             WriteLine(ConsoleColor.Cyan, settings);
         }
     }

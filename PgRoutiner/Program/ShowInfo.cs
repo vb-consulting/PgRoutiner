@@ -25,7 +25,7 @@ namespace PgRoutiner
             WriteSetting("namespace", "[name] - Root namespace for generated source files. Default is project root namespace. ");
             WriteSetting("notSimilarTo", "[pattern] - `NOT SIMILAR TO` pattern used to search routine names. Default skips this matching.");
             WriteSetting("similarTo", "[pattern] - `SIMILAR TO` pattern used to search routine names. Default skips this matching.");
-            WriteSetting("sourceHeader", "[string] - Insert the following content to the start of each generated source code file. Default is \"// [auto-generated at timestamp /]\")");
+            WriteSetting("sourceHeader", "[string] - Insert the following content to the start of each generated source code file. Default is \"// [auto-generated /]\")");
             WriteSetting("syncMethod", "[true|false] - Generate a `sync` method, true or false. Default is true.");
             WriteSetting("asyncMethod", "[true|false] - Generate a `async` method, true or false. Default is true.");
             WriteSetting("ident", "[number] - Number of default indentation spaces for the generated code. Tabs are not supported. Default is 4.");
@@ -36,11 +36,26 @@ namespace PgRoutiner
             WriteSetting("minNormVersion", "[version] - Minimal Norm package version. Default is 3.2.2");
             WriteSetting("disableCodeGen", "[true|false] - Disable data access code generation. Default is false.");
             
-            WriteSetting("pgDump", "[name] - pg_dump program name. Use this option if you need pg_dump from different version or location. Default is pg_dump.");
+
+            WriteSetting("pgDumpCommand", "[name] - pg_dump program name. Use this option if you need pg_dump from different version or location. Default is pg_dump.");
+            
             WriteSetting("SchemaDumpFile", "[file] - Creates SQL schema DDL dump file relative to current dir or ignores if NULL. Default is NULL.");
+
+
 
             WriteLine(ConsoleColor.Yellow, "",
                 "Settings can be set in JSON settings files (first appsettings.Development.json, second appsettings.json) under section \"PgRoutiner\", or trough command line. Command line settings will take precedence over settings in JSON files.");
+
+            WriteLine(ConsoleColor.Yellow,
+                "Issues",
+                "   https://github.com/vb-consulting/PgRoutiner/issues",
+                "Donate",
+                "   bitcoincash:qp93skpzyxtvw3l3lqqy7egwv8zrszn3wcfygeg0mv",
+                "   https://www.paypal.com/paypalme/vbsoftware/",
+                "",
+                $"Copyright (c) VB Consulting and VB Software {DateTime.Now.Year} This source code is licensed under the MIT license.",
+                "   https://github.com/vb-consulting/Norm.net/blob/master/LICENSE",
+                "");
         }
     }
 }

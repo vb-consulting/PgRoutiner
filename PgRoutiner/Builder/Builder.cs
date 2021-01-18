@@ -17,15 +17,20 @@ namespace PgRoutiner
             using var connection = new NpgsqlConnection(connectionStr);
 
             BuildDataAccess(connection);
-            BuildPgSchema(connection);
-            
             DumpContent();
+
+            BuildDatabaseDumps(connection);
+
             Dump("Done!");
         }
 
         private static void DumpContent()
         {
-            Dump("Creating files...");
+            if (Content.Count == 0)
+            {
+                return;
+            }
+            Dump("Creating source code files...");
             foreach (var item in Content)
             {
                 File.WriteAllText(item.FullFileName, item.Content);

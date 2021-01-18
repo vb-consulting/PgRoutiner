@@ -14,7 +14,7 @@ namespace PgRoutiner
                 projectFile = Path.Combine(CurrentDir, Settings.Value.Project);
                 if (!File.Exists(projectFile))
                 {
-                    DumpError($"Project file {projectFile} does not exists, exiting...");
+                    DumpError($"Couldn't find a project to run. Ensure that a {Path.GetFullPath(projectFile)} project exists, or pass the path to the project in a first argument (pgroutiner path)");
                     return false;
                 }
                 CurrentDir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(projectFile)));
@@ -31,7 +31,7 @@ namespace PgRoutiner
                 }
                 if (projectFile == null)
                 {
-                    DumpError($"No .csproj or file found in current dir. You can use setting to pass path to .csproj file.");
+                    DumpError($"Couldn't find a project to run. Ensure a project exists in {Path.GetFullPath(CurrentDir)}, or pass the path to the project in a first argument (pgroutiner path)");
                     return false;
                 }
             }

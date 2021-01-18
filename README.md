@@ -158,4 +158,4 @@ bitcoincash:qp93skpzyxtvw3l3lqqy7egwv8zrszn3wcfygeg0mv
 ## Licence
 
 Copyright (c) Vedran Bilopavlović - VB Consulting and VB Software 2020
-This source code is licensed under the [MIT license](https://github.com/vbilopav/NoOrm.Net/blob/master/LICENSE).
+This source code is licensed under the [MIT license](https://github.com/vb-consulting/Norm.net/blob/master/LICENSE).

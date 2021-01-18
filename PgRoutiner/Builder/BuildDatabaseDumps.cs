@@ -9,18 +9,25 @@ namespace PgRoutiner
 {
     partial class Builder
     {
-        private static void BuildPgSchema(NpgsqlConnection connection)
+        private static void BuildDatabaseDumps(NpgsqlConnection connection)
         {
-            if (string.IsNullOrEmpty(Settings.Value.SchemaDumpFile))
+            var builder = new PgDumpBuilder(Settings.Value, connection);
+            BuildDump(connection, Settings.Value.SchemaDumpFile, () => builder.GetSchemaContent());
+            BuildDump(connection, Settings.Value.DataDumpFile, () => builder.GetDataContent());
+        }
+
+        private static void BuildDump(NpgsqlConnection connection, string dumpFile, Func<string> contentFunc)
+        {
+            if (string.IsNullOrEmpty(dumpFile))
             {
                 return;
             }
 
-            var schemaFile = Path.Combine(Program.CurrentDir, Settings.Value.SchemaDumpFile);
-            var shortName = Settings.Value.SchemaDumpFile;
-            var shortFilename = Path.GetFileName(schemaFile);
-            var dir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(schemaFile)));
-            var exists = File.Exists(schemaFile);
+            var file = Path.Combine(Program.CurrentDir, dumpFile);
+            var shortName = dumpFile;
+            var shortFilename = Path.GetFileName(file);
+            var dir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(file)));
+            var exists = File.Exists(file);
 
             if (!Directory.Exists(dir))
             {
@@ -46,11 +53,15 @@ namespace PgRoutiner
                 return;
             }
 
-
-            Dump($"Building {Settings.Value.SchemaDumpFile}...");
-            var builder = new PgSchemaBuilder(Settings.Value, connection);
-
-            Content.Add((builder.GetPgDumpContent(), schemaFile));
+            Dump($"Creating dump file {dumpFile}...");
+            try
+            {
+                File.WriteAllText(file, contentFunc());
+            }
+            catch(Exception e)
+            {
+                Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {file}", $"ERROR: {e.Message}");
+            }
         }
     }
 }
