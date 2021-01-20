@@ -30,7 +30,10 @@ namespace PgRoutiner
         {
             foreach(var ns in namespaces)
             {
-                Namespace = string.Concat(this.Namespace, ".", ns);
+                if (!string.IsNullOrEmpty(ns))
+                {
+                    Namespace = string.Concat(this.Namespace, ".", ns);
+                }
             }
         }
 

@@ -11,7 +11,7 @@ namespace PgRoutiner
     {
         private static void BuildDataAccess(NpgsqlConnection connection)
         {
-            if (Settings.Value.DisableCodeGen)
+            if (string.IsNullOrEmpty(Settings.Value.OutputDir))
             {
                 return;
             }
@@ -19,7 +19,7 @@ namespace PgRoutiner
             var outputDir = GetOutputDir();
             var modelDir = GetModelDir();
 
-            foreach (var group in connection.GetRoutinesInfoGroups())
+            foreach (var group in connection.GetRoutineGroups(Settings.Value))
             {
                 var name = group.Key;
                 var shortFilename = string.Concat(name.ToUpperCamelCase(), ".cs");

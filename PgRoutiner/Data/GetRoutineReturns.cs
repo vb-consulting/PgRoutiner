@@ -7,12 +7,12 @@ using Npgsql;
 
 namespace PgRoutiner
 {
-    public record PgReturnModel(int Ordinal, string Name, string Type, string DataType, bool Array, bool Nullable);
+    public record PgReturns(int Ordinal, string Name, string Type, string DataType, bool Array, bool Nullable);
 
     public static partial class DataAccess
     {
-        public static IEnumerable<PgReturnModel> GetRoutineRecordModel(this NpgsqlConnection connection, PgRoutineInfo routine) =>
-            connection.Read<PgReturnModel>(@"
+        public static IEnumerable<PgReturns> GetRoutineReturnsRecord(this NpgsqlConnection connection, PgRoutine routine) =>
+            connection.Read<PgReturns>(@"
 
             select 
                 p.ordinal_position as ordinal,
@@ -34,8 +34,8 @@ namespace PgRoutiner
                 ("specificName", routine.SpecificName, DbType.AnsiString),
                 ("specificSchema", routine.SpecificSchema, DbType.AnsiString));
 
-        public static IEnumerable<PgReturnModel> GetRoutineColumnModel(this NpgsqlConnection connection, PgRoutineInfo routine) =>
-            connection.Read<PgReturnModel>(@"
+        public static IEnumerable<PgReturns> GetRoutineReturnsTable(this NpgsqlConnection connection, PgRoutine routine) =>
+            connection.Read<PgReturns>(@"
 
             select 
                 c.ordinal_position as ordinal,

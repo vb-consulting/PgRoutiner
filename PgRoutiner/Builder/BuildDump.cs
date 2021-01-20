@@ -9,14 +9,7 @@ namespace PgRoutiner
 {
     partial class Builder
     {
-        private static void BuildDatabaseDumps(NpgsqlConnection connection)
-        {
-            var builder = new PgDumpBuilder(Settings.Value, connection);
-            BuildDump(connection, Settings.Value.SchemaDumpFile, () => builder.GetSchemaContent());
-            BuildDump(connection, Settings.Value.DataDumpFile, () => builder.GetDataContent());
-        }
-
-        private static void BuildDump(NpgsqlConnection connection, string dumpFile, Func<string> contentFunc)
+        private static void BuildDump(string dumpFile, Func<string> contentFunc, Action<string> successFunc)
         {
             if (string.IsNullOrEmpty(dumpFile))
             {
@@ -53,10 +46,11 @@ namespace PgRoutiner
                 return;
             }
 
-            Dump($"Creating dump file {dumpFile}...");
+            Dump($"Creating dump file {shortName}...");
             try
             {
                 File.WriteAllText(file, contentFunc());
+                successFunc(file);
             }
             catch(Exception e)
             {

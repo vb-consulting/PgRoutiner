@@ -20,6 +20,19 @@ namespace PgRoutiner
             }
         }
 
+        public static void Write(ConsoleColor? color, string line)
+        {
+            if (color.HasValue)
+            {
+                Console.ForegroundColor = color.Value;
+            }
+            Console.Write(line);
+            if (color.HasValue)
+            {
+                Console.ResetColor();
+            }
+        }
+
         public static void WriteLine(params string[] lines)
         {
             WriteLine(null, lines);

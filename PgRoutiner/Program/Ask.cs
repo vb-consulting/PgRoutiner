@@ -20,5 +20,23 @@ namespace PgRoutiner
             WriteLine("");
             return answer;
         }
+
+        public static string ReadLine(string prompt, params string[] messages)
+        {
+            foreach(var message in messages)
+            {
+                WriteLine(ConsoleColor.Yellow, message);
+            }
+            if (prompt != null)
+            {
+                Write(ConsoleColor.Yellow, prompt);
+            }
+            var result = Console.ReadLine();
+            if (string.IsNullOrEmpty(result))
+            {
+                return null;
+            }
+            return result;
+        }
     }
 }

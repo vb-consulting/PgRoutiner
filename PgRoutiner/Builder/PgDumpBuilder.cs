@@ -25,6 +25,33 @@ namespace PgRoutiner
             baseArg = $"--dbname=postgresql://{connection.UserName}:{password}@{connection.Host}:{connection.Port}/{connection.Database} --encoding=UTF8";
         }
 
+        public IEnumerable<(string name, string content, PgType type)> GetDatabaseObjects()
+        {
+            var args = string.Concat(
+                baseArg,
+                " --schema-only",
+                settings.DbObjectsNoOwner ? " --no-owner" : "",
+                settings.DbObjectsNoPrivileges ? " --no-acl" : "",
+                settings.DbObjectsDropIfExists ? " --clean --if-exists" : "");
+
+            foreach(var table in connection.GetTables(settings))
+            {
+                var name = $"{table.Name}.sql";
+                if (table.Schema != "public")
+                {
+                    name = $"{table.Schema}.{name}";
+                }
+
+#pragma warning disable CS8509
+                yield return table.Type switch
+#pragma warning restore CS8509
+                {
+                    PgType.Table => (name, GetTableContent(table, args), table.Type),
+                    PgType.View => (name, GetViewContent(table, args), table.Type)
+                };
+            }
+        }
+
         public string GetSchemaContent()
         {
             var args = string.Concat(
@@ -66,11 +93,100 @@ namespace PgRoutiner
             return GetPgDumpContent(args);
         }
 
+        private string GetTableContent(PgTable table, string args)
+        {
+            var name = $"{table.Schema}.{table.Name}";
+            if (settings.DbObjectsRaw)
+            {
+                return GetPgDumpContent($"{args} --table={name}");
+            }
+
+            bool before = true;
+            bool body = false;
+            bool after = false;
+            List<string> beforeContent = new();
+            List<string> bodyContent = new();
+            List<string> afterContent = new();
+            
+            //!!!
+            string sequence = null;
+            
+            string lineFunc(string line)
+            {
+                if (before && line.StartsWith($"CREATE TABLE {name}"))
+                {
+                    before = false;
+                    body = true;
+                    bodyContent.Add(line);
+                }
+                else if (body && line.Equals(");"))
+                {
+                    body = false;
+                    after = true;
+                    bodyContent.Add(line);
+                }
+                else
+                {
+                    if (before)
+                    {
+                        if (line.StartsWith("DROP "))
+                        {
+                            beforeContent.Add(line);
+                        }
+                    }
+                    if (body)
+                    {
+                        bodyContent.Add(line);
+                    }
+                    if (after)
+                    {
+                        if (line.StartsWith("-- ") && line.Contains("SEQUENCE"))
+                        {
+                            sequence = "";
+                        }
+
+                        if (!line.StartsWith("ALTER TABLE ONLY") && line.Contains(name))
+                        {
+                            afterContent.Add(line);
+                        }
+                        else if (line.StartsWith("    ADD CONSTRAINT"))
+                        {
+                            bodyContent[bodyContent.Count - 2] = string.Concat(bodyContent[bodyContent.Count - 2], ",");
+                            bodyContent.Insert(bodyContent.Count - 1, line.Replace("    ADD", "   ").Replace(";", ""));
+                        }
+                    }
+                }
+                return null;
+            }
+            GetPgDumpContent($"{args} --table={name}", lineFunc: lineFunc);
+            StringBuilder sb = new();
+            if (beforeContent.Any())
+            {
+                sb.Append(string.Join(Environment.NewLine, beforeContent));
+                sb.AppendLine();
+                sb.AppendLine();
+            }
+            sb.Append(string.Join(Environment.NewLine, bodyContent));
+            if (afterContent.Any())
+            {
+                sb.AppendLine();
+                sb.AppendLine();
+                sb.Append(string.Join(Environment.NewLine, afterContent));
+            }
+            sb.Append(Environment.NewLine);
+            return sb.ToString();
+        }
+
+        private string GetViewContent(PgTable table, string args)
+        {
+            var content = GetPgDumpContent($"{args} --table={table.Schema}.{table.Name}");
+
+            return content;
+        }
+
         private string GetPgDumpTransactionContent(string args, string name)
         {
-#pragma warning disable CS0219 // Variable is assigned but its value is never used
             var insideBlock = false;
-#pragma warning restore CS0219 // Variable is assigned but its value is never used
             string lineFunc(string line)
             {
                 if (line.Contains("AS $$"))
@@ -81,6 +197,10 @@ namespace PgRoutiner
                 if (line.Contains("$$;"))
                 {
                     insideBlock = false;
+                    return line;
+                }
+                if (insideBlock)
+                {
                     return line;
                 }
                 return line.Replace("SELECT", "PERFORM");
@@ -105,15 +225,19 @@ namespace PgRoutiner
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.RedirectStandardOutput = true;
-            process.OutputDataReceived += (sender, data) =>
+            process.OutputDataReceived += (_, data) =>
             {
                 if (!string.IsNullOrEmpty(data.Data))
                 {
-                    content = string.Concat(content, lineFunc == null ? data.Data : lineFunc(data.Data), Environment.NewLine);
+                    var line = lineFunc == null ? data.Data : lineFunc(data.Data);
+                    if (line != null)
+                    {
+                        content = string.Concat(content, line, Environment.NewLine);
+                    }
                 }
             };
             process.StartInfo.RedirectStandardError = true;
-            process.ErrorDataReceived += (sender, data) =>
+            process.ErrorDataReceived += (_, data) =>
             {
                 if (!string.IsNullOrEmpty(data.Data))
                 {

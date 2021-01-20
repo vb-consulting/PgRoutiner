@@ -14,7 +14,7 @@ namespace PgRoutiner
     {
         private int recordModelCount = 0;
         private readonly string @namespace;
-        private readonly IEnumerable<PgRoutineInfo> routines;
+        private readonly IEnumerable<PgRoutine> routines;
         private readonly NpgsqlConnection connection;
  
         public string Name { get; }
@@ -26,7 +26,7 @@ namespace PgRoutiner
             Settings settings, 
             string name,
             string @namespace,
-            IEnumerable<PgRoutineInfo> routines,
+            IEnumerable<PgRoutine> routines,
             NpgsqlConnection connection) : base(settings)
         {
             this.Name = name;
@@ -57,7 +57,7 @@ namespace PgRoutiner
             Class.AppendLine($"{I1}}}");
         }
 
-        private void BuildSyncMethod(PgRoutineInfo routine, Return @return, List<Param> @params)
+        private void BuildSyncMethod(PgRoutine routine, Return @return, List<Param> @params)
         {
             var name = routine.RoutineName.ToUpperCamelCase();
             Class.AppendLine();
@@ -99,7 +99,7 @@ namespace PgRoutiner
             Methods.Add(new Method(name, @namespace, @params, @return, actualReturns, true));
         }
 
-        private void BuildAsyncMethod(PgRoutineInfo routine, Return @return, List<Param> @params)
+        private void BuildAsyncMethod(PgRoutine routine, Return @return, List<Param> @params)
         {
             var name = $"{routine.RoutineName.ToUpperCamelCase()}Async";
             Class.AppendLine();
@@ -158,7 +158,7 @@ namespace PgRoutiner
             }
         }
 
-        private void BuildCommentHeader(PgRoutineInfo routine, Return @return, List<Param> @params, bool sync)
+        private void BuildCommentHeader(PgRoutine routine, Return @return, List<Param> @params, bool sync)
         {
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// {(sync ? "Executes" : "Asynchronously executes")} {routine.Language} {routine.RoutineType} \"{Name}\"");
@@ -195,9 +195,9 @@ namespace PgRoutiner
             }
         }
 
-        private List<Param> GetParamsInfo(PgRoutineInfo routine)
+        private List<Param> GetParamsInfo(PgRoutine routine)
         {
-            string getType(PgParameterInfo p)
+            string getType(PgParameter p)
             {
                 if (settings.Mapping.TryGetValue(p.Type, out var result))
                 {
@@ -214,7 +214,7 @@ namespace PgRoutiner
                 throw new ArgumentException($"Could not find mapping \"{p.DataType}\" for parameter of routine  \"{this.Name}\"");
 
             }
-            string getDbType(PgParameterInfo p)
+            string getDbType(PgParameter p)
             {
                 var type = "NpgsqlDbType.";
                 if (ParamTypeMapping.TryGetValue(p.Type, out var map))
@@ -238,7 +238,7 @@ namespace PgRoutiner
             return routine.Parameters.Select(p => new Param(p.Name, p.Name.ToCamelCase(), p.DataType, getType(p), getDbType(p))).ToList();
         }
 
-        private Return GetReturnInfo(PgRoutineInfo routine)
+        private Return GetReturnInfo(PgRoutine routine)
         {
             if (routine.DataType == "void")
             {
@@ -267,7 +267,7 @@ namespace PgRoutiner
             throw new ArgumentException($"Could not find mapping \"{routine.DataType}\" for return type of routine \"{routine.RoutineName}\"");
         }
 
-        private string BuildUserDefinedModel(PgRoutineInfo routine)
+        private string BuildUserDefinedModel(PgRoutine routine)
         {
             var name = routine.TypeUdtName.ToUpperCamelCase();
             if (settings.CustomModels.ContainsKey(name))
@@ -278,25 +278,25 @@ namespace PgRoutiner
             {
                 name = settings.CustomModels[routine.TypeUdtName];
             }
-            BuildModel(name, connection => connection.GetRoutineColumnModel(routine));
+            BuildModel(name, connection => connection.GetRoutineReturnsTable(routine));
             return name;
         }
 
-        private string BuildRecordModel(PgRoutineInfo routine)
+        private string BuildRecordModel(PgRoutine routine)
         {
             var suffix = ++recordModelCount == 1 ? "" : recordModelCount.ToString();
             var name = $"{this.Name.ToUpperCamelCase()}{suffix}";
-            BuildModel(name, connection => connection.GetRoutineRecordModel(routine));
+            BuildModel(name, connection => connection.GetRoutineReturnsRecord(routine));
             return name;
         }
 
-        private void BuildModel(string name, Func<NpgsqlConnection, IEnumerable<PgReturnModel>> func)
+        private void BuildModel(string name, Func<NpgsqlConnection, IEnumerable<PgReturns>> func)
         {
             if (Models.ContainsKey(name))
             {
                 return;
             }
-            string getType(PgReturnModel returnModel)
+            string getType(PgReturns returnModel)
             {
                 if (settings.Mapping.TryGetValue(returnModel.Type, out var result))
                 {

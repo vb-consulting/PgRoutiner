@@ -9,12 +9,19 @@ namespace PgRoutiner
 {
     public partial class Settings
     {
+        private const string pgroutinerSettingsFile = "appsettings.PgRoutiner.json";
+
         public static IConfigurationRoot ParseSettings(string[] args, out string error)
         {
+            var pgroutinerFile = Path.Join(Program.CurrentDir, pgroutinerSettingsFile);
             var settingsFile = Path.Join(Program.CurrentDir, "appsettings.json");
             var devSettingsFile = Path.Join(Program.CurrentDir, "appsettings.Development.json");
 
             var files = new List<string>();
+            if (File.Exists(pgroutinerFile))
+            {
+                files.Add(" " + Path.GetFileName(pgroutinerFile));
+            }
             if (File.Exists(devSettingsFile))
             {
                 files.Add(" " + Path.GetFileName(devSettingsFile));
@@ -30,6 +37,7 @@ namespace PgRoutiner
             }
 
             var configBuilder = new ConfigurationBuilder()
+                .AddJsonFile(pgroutinerFile, optional: true, reloadOnChange: false)
                 .AddJsonFile(settingsFile, optional: true, reloadOnChange: false)
                 .AddJsonFile(devSettingsFile, optional: true, reloadOnChange: false);
 
@@ -52,8 +60,12 @@ namespace PgRoutiner
             {
                 Value.ModelDir = null;
             }
+            if (Value.Schema == "")
+            {
+                Value.Schema = null;
+            }
 
-            if (Value.Mapping != null)
+            if (Value.Mapping != null && Value.Mapping.Values.Count > 0)
             {
                 foreach (var (key, value) in Value.Mapping)
                 {
@@ -89,6 +101,8 @@ namespace PgRoutiner
             {
                 Value.Run = true;
             }
+            Program.WriteLine("", "Using connection: ");
+            Program.WriteLine(ConsoleColor.Cyan, " " + Path.GetFileName(Value.Connection));
 
             error = null;
             return config;

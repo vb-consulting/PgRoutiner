@@ -10,20 +10,29 @@ namespace PgRoutiner
             ShowStartupInfo();
             SetCurrentDir(args);
             var config = Settings.ParseSettings(args, out var error);
-            var success = ParseProjectFile();
+            var project = ParseProjectFile();
 
             if (ParseHelp(args))
             {
                 return;
             }
-            if (config != null && success && Settings.Value.Run)
+
+            if (error != null)
+            {
+                DumpError(error);
+                return;
+            }
+            if (project == null)
+            {
+                return;
+            }
+
+            Settings.ParseInitialSettings(config.GetConnectionString(Settings.Value.Connection), project);
+
+            if (Settings.Value.Run)
             {
                 WriteLine(ConsoleColor.Yellow, "", "Running files generation ... ", "");
                 Builder.Run(config.GetConnectionString(Settings.Value.Connection));
-            }
-            else if (success && error != null)
-            {
-                DumpError(error);
             }
             WriteLine("");
         }

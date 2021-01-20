@@ -11,6 +11,8 @@ namespace PgRoutiner
     {
         public static List<(List<Method> Methods, string @namespace)> Modules = new();
         public static List<(string Content, string FullFileName)> Content = new();
+        public static string SchemaFile = null;
+        public static string DataFile = null;
 
         public static void Run(string connectionStr)
         {
@@ -19,7 +21,10 @@ namespace PgRoutiner
             BuildDataAccess(connection);
             DumpContent();
 
-            BuildDatabaseDumps(connection);
+            var builder = new PgDumpBuilder(Settings.Value, connection);
+            BuildDump(Settings.Value.SchemaDumpFile, () => builder.GetSchemaContent(), file => SchemaFile = file);
+            BuildDump(Settings.Value.DataDumpFile, () => builder.GetDataContent(), file => DataFile = file);
+            BuildObjectDumps(builder);
 
             Dump("Done!");
         }

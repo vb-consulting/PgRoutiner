@@ -18,12 +18,19 @@ namespace PgRoutiner
             return string.Concat(result.First().ToString().ToLowerInvariant(), result[1..]);
         }
 
-        public static string PathToNamespace(this string value) => string.Join(".", value
-            .Replace("/", ".")
-            .Replace("\\", ".")
-            .Replace(":", ".")
-            .Split(".")
-            .Select(v => v.ToUpperCamelCase()))
-            .TrimStart('.');
+        public static string PathToNamespace(this string value)
+        {
+            if (value == "." || value == "..")
+            {
+                return "";
+            }
+            return string.Join(".", value
+                .Replace("/", ".")
+                .Replace("\\", ".")
+                .Replace(":", ".")
+                .Split(".")
+                .Select(v => v.ToUpperCamelCase()))
+                .TrimStart('.');
+        }
     }
 }

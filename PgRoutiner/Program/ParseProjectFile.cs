@@ -1,12 +1,20 @@
 ﻿using System;
 using System.IO;
 using System.Xml;
+using Npgsql;
 
 namespace PgRoutiner
 {
+    public class Project
+    {
+        public string NormVersion = null;
+        public bool AsyncLinqIncluded = false;
+        public bool NpgsqlIncluded = false;
+    }
+
     static partial class Program
     {
-        private static bool ParseProjectFile()
+        private static Project ParseProjectFile()
         {
             string projectFile = null;
             if (!string.IsNullOrEmpty(Settings.Value.Project))
@@ -15,7 +23,7 @@ namespace PgRoutiner
                 if (!File.Exists(projectFile))
                 {
                     DumpError($"Couldn't find a project to run. Ensure that a {Path.GetFullPath(projectFile)} project exists, or pass the path to the project in a first argument (pgroutiner path)");
-                    return false;
+                    return null;
                 }
                 CurrentDir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(projectFile)));
             }
@@ -32,16 +40,16 @@ namespace PgRoutiner
                 if (projectFile == null)
                 {
                     DumpError($"Couldn't find a project to run. Ensure a project exists in {Path.GetFullPath(CurrentDir)}, or pass the path to the project in a first argument (pgroutiner path)");
-                    return false;
+                    return null;
                 }
             }
             WriteLine("", "Using project file: ");
             WriteLine(ConsoleColor.Cyan, " " + Path.GetFileName(projectFile));
 
             var ns = Path.GetFileNameWithoutExtension(projectFile);
-            string normVersion = null;
-            bool asyncLinqIncluded = false;
-            bool npgsqlIncluded = false;
+
+            Project result = new Project();
+
             using (var fileStream = File.OpenText(projectFile))
             {
                 using var reader = XmlReader.Create(fileStream, new XmlReaderSettings { IgnoreComments = true, IgnoreWhitespace = true });
@@ -59,40 +67,16 @@ namespace PgRoutiner
                     {
                         if (reader.GetAttribute("Include") == "Norm.net")
                         {
-                            normVersion = reader.GetAttribute("Version");
+                            result.NormVersion = reader.GetAttribute("Version");
                         }
                         if (reader.GetAttribute("Include") == "System.Linq.Async")
                         {
-                            asyncLinqIncluded = true;
+                            result.AsyncLinqIncluded = true;
                         }
                         if (reader.GetAttribute("Include") == "Npgsql")
                         {
-                            npgsqlIncluded = true;
+                            result.NpgsqlIncluded = true;
                         }
-                    }
-                }
-            }
-
-            if (npgsqlIncluded == false)
-            {
-                if (Settings.Value.UpdateReferences)
-                {
-                    DumpError($"Npgsql package package is required.");
-                    if (Ask("Add Npgsql reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
-                    {
-                        RunProcess("dotnet", "add package Npgsql");
-                    }
-                }
-            }
-
-            if (Settings.Value.AsyncMethod && asyncLinqIncluded == false)
-            {
-                if (Settings.Value.UpdateReferences)
-                {
-                    DumpError($"To be able to use async methods, System.Linq.Async package is required.");
-                    if (Ask("Add System.Linq.Async package reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
-                    {
-                        RunProcess("dotnet", "add package System.Linq.Async");
                     }
                 }
             }
@@ -102,40 +86,7 @@ namespace PgRoutiner
                 Settings.Value.Namespace = ns;
             }
 
-            if (string.IsNullOrEmpty(normVersion))
-            {
-                if (Settings.Value.UpdateReferences)
-                {
-                    DumpError($"Norm.net package package is required.");
-                    if (Ask("Add Norm.net reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
-                    {
-                        RunProcess("dotnet", "add package Norm.net");
-                    }
-                }
-            }
-
-            var minNormVersion = Convert.ToInt32(Settings.Value.MinNormVersion.Replace(".", ""));
-            try
-            {
-                var version = Convert.ToInt32(normVersion.Replace(".", ""));
-                if (version < minNormVersion)
-                {
-                    throw new Exception();
-                }
-            }
-            catch (Exception)
-            {
-                if (Settings.Value.UpdateReferences)
-                {
-                    DumpError($"Minimum version for Norm.net package is 3.1.2. Current version in project is {normVersion}.");
-                    if (Ask("Update Norm.net package? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
-                    {
-                        RunProcess("dotnet", "add package Norm.net");
-                    }
-                }
-            }
-
-            return true;
+            return result;
         }
     }
 }
