@@ -10,7 +10,7 @@ namespace PgRoutiner
 {
     public record PgParameter(int Ordinal, string Name, string Type, string DataType, bool Array);
 
-    public record PgRoutine(
+    public record PgRoutineGroup(
         uint Oid, 
         string SpecificSchema, 
         string SpecificName, 
@@ -24,7 +24,7 @@ namespace PgRoutiner
 
     public static partial class DataAccess
     {
-        public static IEnumerable<IGrouping<string, PgRoutine>> GetRoutineGroups(this NpgsqlConnection connection, Settings settings) => 
+        public static IEnumerable<IGrouping<string, PgRoutineGroup>> GetRoutineGroups(this NpgsqlConnection connection, Settings settings) => 
             connection.Read<(
                 uint Oid,
                 string SpecificSchema,
@@ -104,7 +104,7 @@ namespace PgRoutiner
                 ("schema", settings.Schema, DbType.AnsiString),
                 ("notSimilarTo", settings.NotSimilarTo, DbType.AnsiString),
                 ("similarTo", settings.SimilarTo, DbType.AnsiString))
-                .Select(t => new PgRoutine(t.Oid,
+                .Select(t => new PgRoutineGroup(t.Oid,
                     t.SpecificSchema,
                     t.SpecificName,
                     t.RoutineName,

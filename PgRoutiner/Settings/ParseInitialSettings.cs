@@ -5,13 +5,34 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using Npgsql;
+using System.Xml;
 
 namespace PgRoutiner
 {
+    public class Project
+    {
+        public string NormVersion = null;
+        public bool AsyncLinqIncluded = false;
+        public bool NpgsqlIncluded = false;
+    }
+
     public partial class Settings
     {
-        public static void ParseInitialSettings(string connectionStr, Project project)
+        public static bool ParseInitialSettings(string connectionStr)
         {
+            using var connection = new NpgsqlConnection(connectionStr);
+            var count = connection.GetRoutineCount(Value);
+            Project project = null;
+            if (Value.OutputDir != null && count > 0)
+            {
+                project = ParseProjectFile();
+                if (project == null)
+                {
+                    return false;
+                }
+                UpdateProjectReferences(project);
+            }
+
             var pgroutinerFile = Path.Join(Program.CurrentDir, pgroutinerSettingsFile);
             var exists = File.Exists(Path.Join(pgroutinerFile));
             if (exists ||
@@ -20,11 +41,9 @@ namespace PgRoutiner
                 Value.DataDumpFile != null || 
                 Value.DbObjectsDir != null)
             {
-                return;
+                return true;
             }
 
-            using var connection = new NpgsqlConnection(connectionStr);
-            var count = connection.GetRoutineCount(Value);
             if (count > 0)
             {
                 Console.WriteLine();
@@ -35,65 +54,6 @@ namespace PgRoutiner
                     " - Type the name of the output directory (relative to he current) and press enter.",
                     " - Use dot for current directory",
                     " - Leave the name empty and press enter to skip this.");
-            }
-            if (Value.OutputDir != null && count > 0)
-            {
-                if (project.NpgsqlIncluded == false)
-                {
-                    if (Value.UpdateReferences)
-                    {
-                        Program.DumpError($"Npgsql package package is required.");
-                        if (Program.Ask("Add Npgsql reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
-                        {
-                            Program.RunProcess("dotnet", "add package Npgsql");
-                        }
-                    }
-                }
-
-                if (Value.AsyncMethod && project.AsyncLinqIncluded == false)
-                {
-                    if (Value.UpdateReferences)
-                    {
-                        Program.DumpError($"To be able to use async methods, System.Linq.Async package is required.");
-                        if (Program.Ask("Add System.Linq.Async package reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
-                        {
-                            Program.RunProcess("dotnet", "add package System.Linq.Async");
-                        }
-                    }
-                }
-
-                if (string.IsNullOrEmpty(project.NormVersion))
-                {
-                    if (Value.UpdateReferences && count > 0)
-                    {
-                        Program.DumpError($"Norm.net package package is required.");
-                        if (Program.Ask("Add Norm.net reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
-                        {
-                            Program.RunProcess("dotnet", "add package Norm.net");
-                        }
-                    }
-                }
-
-                var minNormVersion = Convert.ToInt32(Value.MinNormVersion.Replace(".", ""));
-                try
-                {
-                    var version = Convert.ToInt32(project.NormVersion.Replace(".", ""));
-                    if (version < minNormVersion)
-                    {
-                        throw new Exception();
-                    }
-                }
-                catch (Exception)
-                {
-                    if (Value.UpdateReferences)
-                    {
-                        Program.DumpError($"Minimum version for Norm.net package is {Settings.Value.MinNormVersion}. Current version in project is {project.NormVersion}.");
-                        if (Program.Ask("Update Norm.net package? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
-                        {
-                            Program.RunProcess("dotnet", "add package Norm.net");
-                        }
-                    }
-                }
             }
 
             Console.WriteLine();
@@ -129,6 +89,141 @@ namespace PgRoutiner
             }
 
             BuildSettingsFile(pgroutinerFile);
+            return true;
+        }
+
+        private static void UpdateProjectReferences(Project project)
+        {
+            if (project.NpgsqlIncluded == false)
+            {
+                if (Value.UpdateReferences)
+                {
+                    Program.DumpError($"Npgsql package package is required.");
+                    if (Program.Ask("Add Npgsql reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                    {
+                        Program.RunProcess("dotnet", "add package Npgsql");
+                    }
+                }
+            }
+
+            if (Value.AsyncMethod && project.AsyncLinqIncluded == false)
+            {
+                if (Value.UpdateReferences)
+                {
+                    Program.DumpError($"To be able to use async methods, System.Linq.Async package is required.");
+                    if (Program.Ask("Add System.Linq.Async package reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                    {
+                        Program.RunProcess("dotnet", "add package System.Linq.Async");
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(project.NormVersion))
+            {
+                if (Value.UpdateReferences)
+                {
+                    Program.DumpError($"Norm.net package package is required.");
+                    if (Program.Ask("Add Norm.net reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                    {
+                        Program.RunProcess("dotnet", "add package Norm.net");
+                    }
+                }
+            }
+
+            var minNormVersion = Convert.ToInt32(Value.MinNormVersion.Replace(".", ""));
+            try
+            {
+                var version = Convert.ToInt32(project.NormVersion.Replace(".", ""));
+                if (version < minNormVersion)
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception)
+            {
+                if (Value.UpdateReferences)
+                {
+                    Program.DumpError($"Minimum version for Norm.net package is {Settings.Value.MinNormVersion}. Current version in project is {project.NormVersion}.");
+                    if (Program.Ask("Update Norm.net package? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
+                    {
+                        Program.RunProcess("dotnet", "add package Norm.net");
+                    }
+                }
+            }
+        }
+
+        private static Project ParseProjectFile()
+        {
+            string projectFile = null;
+            if (!string.IsNullOrEmpty(Value.Project))
+            {
+                projectFile = Path.Combine(Program.CurrentDir, Path.GetFileName(Value.Project));
+                if (!File.Exists(projectFile))
+                {
+                    Program.DumpError($"Couldn't find a project to run. Ensure that a {Path.GetFullPath(projectFile)} project exists, or pass the path to the project in a first argument (pgroutiner path)");
+                    return null;
+                }
+            }
+            else
+            {
+                foreach (var file in Directory.EnumerateFiles(Program.CurrentDir))
+                {
+                    if (Path.GetExtension(file)?.ToLower() == ".csproj")
+                    {
+                        projectFile = file;
+                        break;
+                    }
+                }
+                if (projectFile == null)
+                {
+                    Program.DumpError($"Couldn't find a project to run. Ensure a project exists in {Path.GetFullPath(Program.CurrentDir)}, or pass the path to the project in a first argument (pgroutiner path)");
+                    return null;
+                }
+            }
+            Program.WriteLine("", "Using project file: ");
+            Program.WriteLine(ConsoleColor.Cyan, " " + Path.GetFileName(projectFile));
+
+            var ns = Path.GetFileNameWithoutExtension(projectFile);
+
+            Project result = new Project();
+
+            using (var fileStream = File.OpenText(projectFile))
+            {
+                using var reader = XmlReader.Create(fileStream, new XmlReaderSettings { IgnoreComments = true, IgnoreWhitespace = true });
+                while (reader.Read())
+                {
+                    if (reader.NodeType == XmlNodeType.Element && reader.Name == "RootNamespace")
+                    {
+                        if (reader.Read())
+                        {
+                            ns = reader.Value;
+                        }
+                    }
+
+                    if (reader.NodeType == XmlNodeType.Element && reader.Name == "PackageReference")
+                    {
+                        if (reader.GetAttribute("Include") == "Norm.net")
+                        {
+                            result.NormVersion = reader.GetAttribute("Version");
+                        }
+                        if (reader.GetAttribute("Include") == "System.Linq.Async")
+                        {
+                            result.AsyncLinqIncluded = true;
+                        }
+                        if (reader.GetAttribute("Include") == "Npgsql")
+                        {
+                            result.NpgsqlIncluded = true;
+                        }
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(Settings.Value.Namespace))
+            {
+                Value.Namespace = ns;
+            }
+
+            return result;
         }
 
         private static void BuildSettingsFile(string file)

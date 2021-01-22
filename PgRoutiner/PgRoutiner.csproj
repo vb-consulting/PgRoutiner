@@ -14,9 +14,9 @@
     <PackageProjectUrl>https://github.com/vb-consulting/PgRoutiner</PackageProjectUrl>
     <PackageTags>PostgreSQL;ORM;Data Access;Mapping</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.1</Version>
+    <Version>3.0.0</Version>
     <PackageId>dotnet-pgroutiner</PackageId>
-    <AssemblyVersion>2.0.1.0</AssemblyVersion>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,6 +42,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.PgRoutiner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

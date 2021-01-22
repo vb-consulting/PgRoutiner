@@ -20,5 +20,13 @@ namespace PgRoutiner
             WriteLine("", "Using dir: ");
             WriteLine(ConsoleColor.Cyan, " " + Path.GetFullPath(CurrentDir));
         }
+
+        public static void ParseProjectSetting(Settings settings)
+        {
+            if (!string.IsNullOrEmpty(settings.Project))
+            {
+                CurrentDir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(Path.Combine(CurrentDir, settings.Project))));
+            }
+        }
     }
 }

@@ -80,16 +80,13 @@ namespace PgRoutiner
 
             if (!string.IsNullOrEmpty(Value.Connection))
             {
-                if (!string.IsNullOrEmpty(config.GetConnectionString(Value.Connection)))
+                if (string.IsNullOrEmpty(config.GetConnectionString(Value.Connection)))
                 {
-                    error = null;
-                    return config;
+                    error = $"Connection name {Value.Connection} could not be found in settings, exiting...";
+                    return null;
                 }
-                error = $"Connection name {Value.Connection} could not be found in settings, exiting...";
-                return null;
             }
-
-            if (!config.GetSection("ConnectionStrings").GetChildren().Any())
+            else if (!config.GetSection("ConnectionStrings").GetChildren().Any())
             {
                 error = $"Connection setting is not set and ConnectionStrings section doesn't contain any values, exiting...";
                 return null;
@@ -97,13 +94,14 @@ namespace PgRoutiner
 
             Value.Connection = config.GetSection("ConnectionStrings").GetChildren().First().Key;
 
+            Program.ParseProjectSetting(Value);
+
             if (Program.ArgsInclude(args, "-r", "--run"))
             {
                 Value.Run = true;
             }
             Program.WriteLine("", "Using connection: ");
             Program.WriteLine(ConsoleColor.Cyan, " " + Path.GetFileName(Value.Connection));
-
             error = null;
             return config;
         }

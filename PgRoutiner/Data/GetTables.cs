@@ -7,12 +7,9 @@ using Npgsql;
 
 namespace PgRoutiner
 {
-    public enum PgType { Table, View, Unknown }
-    public record PgTable(string Schema, string Name, PgType Type);
-
     public static partial class DataAccess
     {
-        public static IEnumerable<PgTable> GetTables(this NpgsqlConnection connection, Settings settings) => 
+        public static IEnumerable<PgItem> GetTables(this NpgsqlConnection connection, Settings settings) => 
             connection.Read<(string Schema, string Name, string Type)>(@"
 
             select 
@@ -25,6 +22,17 @@ namespace PgRoutiner
                 (   table_schema not like 'pg_%' and table_schema <> 'information_schema' )
 
             ", ("schema", settings.Schema, DbType.AnsiString))
-            .Select(t => new PgTable(t.Schema, t.Name, t.Type switch { "BASE TABLE" => PgType.Table, "VIEW" => PgType.View, _ => PgType.Unknown }  ));
+            .Select(t => new PgItem
+            {
+                Schema = t.Schema,
+                Name = t.Name,
+                TypeName = t.Type,
+                Type = t.Type switch
+                {
+                    "BASE TABLE" => PgType.Table,
+                    "VIEW" => PgType.View,
+                    _ => PgType.Unknown
+                }
+            });
     }
 }

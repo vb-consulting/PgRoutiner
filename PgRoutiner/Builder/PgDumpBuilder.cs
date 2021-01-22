@@ -36,19 +36,42 @@ namespace PgRoutiner
 
             foreach(var table in connection.GetTables(settings))
             {
-                var name = $"{table.Name}.sql";
-                if (table.Schema != "public")
+                var name = table.GetFileName();
+                string content = null;
+                try
                 {
-                    name = $"{table.Schema}.{name}";
+#pragma warning disable CS8509
+                    content = table.Type switch
+#pragma warning restore CS8509
+                    {
+                        PgType.Table => GetTableContent(table, args),
+                        PgType.View => GetViewContent(table, args)
+                    };
+                }
+                catch (Exception e)
+                {
+                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
                 }
 
-#pragma warning disable CS8509
-                yield return table.Type switch
-#pragma warning restore CS8509
+                yield return (name, content, table.Type);
+            }
+
+            var lines = GetDumpLines(args, "--exclude-table=*");
+            foreach (var routine in connection.GetRoutines(settings))
+            {
+                var name = routine.GetFileName();
+                string content = null;
+
+                try
                 {
-                    PgType.Table => (name, GetTableContent(table, args), table.Type),
-                    PgType.View => (name, GetViewContent(table, args), table.Type)
-                };
+                    content = DumpTransformer.TransformRoutine(routine, lines);
+                }
+                catch (Exception e)
+                {
+                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                }
+
+                yield return (name, content, routine.Type);
             }
         }
 
@@ -60,7 +83,7 @@ namespace PgRoutiner
                 settings.SchemaDumpNoOwner ? " --no-owner" : "",
                 settings.SchemaDumpNoPrivileges ? " --no-acl" : "",
                 settings.SchemaDumpDropIfExists ? " --clean --if-exists" : "",
-                settings.Schema != null ? $" --schema={settings.Schema}" : "",
+                settings.Schema != null ? $" --schema=\\\"{settings.Schema}\\\"" : "",
                 string.IsNullOrEmpty(settings.SchemaDumpAdditionalOptions) ? "" :
                     (settings.SchemaDumpAdditionalOptions.StartsWith(" ") ? 
                     settings.SchemaDumpAdditionalOptions : 
@@ -78,7 +101,7 @@ namespace PgRoutiner
             var args = string.Concat(
                 baseArg,
                 " --data-only --inserts",
-                settings.Schema != null ? $" --schema={settings.Schema}" : "",
+                settings.Schema != null ? $" --schema=\\\"{settings.Schema}\\\"" : "",
                 settings.DataDumpTables == null || settings.DataDumpTables.Count == 0 ? "" :
                     $" {string.Join(" ", settings.DataDumpTables.Select(t => $"--table={t}"))}",
                 string.IsNullOrEmpty(settings.DataDumpAdditionalOptions) ? "" :
@@ -93,95 +116,35 @@ namespace PgRoutiner
             return GetPgDumpContent(args);
         }
 
-        private string GetTableContent(PgTable table, string args)
+        private string GetTableContent(PgItem table, string args)
         {
-            var name = $"{table.Schema}.{table.Name}";
+            var tableArg = table.GetTableArg();
             if (settings.DbObjectsRaw)
             {
-                return GetPgDumpContent($"{args} --table={name}");
+                return GetPgDumpContent($"{args} {tableArg}");
             }
-
-            bool before = true;
-            bool body = false;
-            bool after = false;
-            List<string> beforeContent = new();
-            List<string> bodyContent = new();
-            List<string> afterContent = new();
-            
-            //!!!
-            string sequence = null;
-            
-            string lineFunc(string line)
-            {
-                if (before && line.StartsWith($"CREATE TABLE {name}"))
-                {
-                    before = false;
-                    body = true;
-                    bodyContent.Add(line);
-                }
-                else if (body && line.Equals(");"))
-                {
-                    body = false;
-                    after = true;
-                    bodyContent.Add(line);
-                }
-                else
-                {
-                    if (before)
-                    {
-                        if (line.StartsWith("DROP "))
-                        {
-                            beforeContent.Add(line);
-                        }
-                    }
-                    if (body)
-                    {
-                        bodyContent.Add(line);
-                    }
-                    if (after)
-                    {
-                        if (line.StartsWith("-- ") && line.Contains("SEQUENCE"))
-                        {
-                            sequence = "";
-                        }
-
-                        if (!line.StartsWith("ALTER TABLE ONLY") && line.Contains(name))
-                        {
-                            afterContent.Add(line);
-                        }
-                        else if (line.StartsWith("    ADD CONSTRAINT"))
-                        {
-                            bodyContent[bodyContent.Count - 2] = string.Concat(bodyContent[bodyContent.Count - 2], ",");
-                            bodyContent.Insert(bodyContent.Count - 1, line.Replace("    ADD", "   ").Replace(";", ""));
-                        }
-                    }
-                }
-                return null;
-            }
-            GetPgDumpContent($"{args} --table={name}", lineFunc: lineFunc);
-            StringBuilder sb = new();
-            if (beforeContent.Any())
-            {
-                sb.Append(string.Join(Environment.NewLine, beforeContent));
-                sb.AppendLine();
-                sb.AppendLine();
-            }
-            sb.Append(string.Join(Environment.NewLine, bodyContent));
-            if (afterContent.Any())
-            {
-                sb.AppendLine();
-                sb.AppendLine();
-                sb.Append(string.Join(Environment.NewLine, afterContent));
-            }
-            sb.Append(Environment.NewLine);
-            return sb.ToString();
+            return DumpTransformer.TransformTable(table, GetDumpLines(args, tableArg));
         }
 
-        private string GetViewContent(PgTable table, string args)
+        private string GetViewContent(PgItem table, string args)
         {
-            var content = GetPgDumpContent($"{args} --table={table.Schema}.{table.Name}");
+            var tableArg = table.GetTableArg();
+            if (settings.DbObjectsRaw)
+            {
+                return GetPgDumpContent($"{args} {tableArg}");
+            }
+            return DumpTransformer.TransformView(GetDumpLines(args, tableArg));
+        }
 
-            return content;
+        private List<string> GetDumpLines(string args, string tableArg)
+        {
+            List<string> lines = new();
+            GetPgDumpContent($"{args} {tableArg}", lineFunc: line =>
+            {
+                lines.Add(line);
+                return null;
+            });
+            return lines;
         }
 
         private string GetPgDumpTransactionContent(string args, string name)

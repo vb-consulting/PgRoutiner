@@ -7,25 +7,26 @@ namespace PgRoutiner
         public static IDictionary<string, string> DefaultTypeMapping { get; set; } = new Dictionary<string, string>
         {
             {"text", "string"},
-            {"bpchar", "string"},
+            {"character", "string"},
             {"xml", "string"},
             {"inet", "string"},
             {"daterange", "TimeSpan"},
-            {"float8", "double"},
-            {"bool", "bool"},
-            {"int2", "short"},
-            {"timestamptz", "DateTime"},
-            {"int8", "long"},
-            {"timetz", "DateTime"},
-            {"time", "DateTime"},
+            {"double precision", "double"},
+            {"boolean", "bool"},
+            {"smallint", "short"},
+            {"timestamp with time zone", "DateTime"},
+            {"timestamp without time zone", "DateTime"},
+            {"bigint", "long"},
+            {"time with time zone", "DateTime"},
+            {"time without time zone", "DateTime"},
             {"char", "string"},
             {"date", "DateTime"},
             {"numeric", "decimal"},
-            {"varchar", "string"},
+            {"character varying", "string"},
             {"jsonb", "string"},
-            {"float4", "float"},
+            {"real", "float"},
             {"json", "string"},
-            {"int4", "int"}
+            {"integer", "int"}
         };
     }
 }

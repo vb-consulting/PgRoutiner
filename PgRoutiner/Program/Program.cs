@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Microsoft.Extensions.Configuration;
 
 namespace PgRoutiner
@@ -10,7 +11,6 @@ namespace PgRoutiner
             ShowStartupInfo();
             SetCurrentDir(args);
             var config = Settings.ParseSettings(args, out var error);
-            var project = ParseProjectFile();
 
             if (ParseHelp(args))
             {
@@ -22,12 +22,11 @@ namespace PgRoutiner
                 DumpError(error);
                 return;
             }
-            if (project == null)
+
+            if (!Settings.ParseInitialSettings(config.GetConnectionString(Settings.Value.Connection)))
             {
                 return;
             }
-
-            Settings.ParseInitialSettings(config.GetConnectionString(Settings.Value.Connection), project);
 
             if (Settings.Value.Run)
             {

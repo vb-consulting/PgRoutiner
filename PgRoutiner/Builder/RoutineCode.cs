@@ -14,7 +14,7 @@ namespace PgRoutiner
     {
         private int recordModelCount = 0;
         private readonly string @namespace;
-        private readonly IEnumerable<PgRoutine> routines;
+        private readonly IEnumerable<PgRoutineGroup> routines;
         private readonly NpgsqlConnection connection;
  
         public string Name { get; }
@@ -26,7 +26,7 @@ namespace PgRoutiner
             Settings settings, 
             string name,
             string @namespace,
-            IEnumerable<PgRoutine> routines,
+            IEnumerable<PgRoutineGroup> routines,
             NpgsqlConnection connection) : base(settings)
         {
             this.Name = name;
@@ -57,7 +57,7 @@ namespace PgRoutiner
             Class.AppendLine($"{I1}}}");
         }
 
-        private void BuildSyncMethod(PgRoutine routine, Return @return, List<Param> @params)
+        private void BuildSyncMethod(PgRoutineGroup routine, Return @return, List<Param> @params)
         {
             var name = routine.RoutineName.ToUpperCamelCase();
             Class.AppendLine();
@@ -99,7 +99,7 @@ namespace PgRoutiner
             Methods.Add(new Method(name, @namespace, @params, @return, actualReturns, true));
         }
 
-        private void BuildAsyncMethod(PgRoutine routine, Return @return, List<Param> @params)
+        private void BuildAsyncMethod(PgRoutineGroup routine, Return @return, List<Param> @params)
         {
             var name = $"{routine.RoutineName.ToUpperCamelCase()}Async";
             Class.AppendLine();
@@ -158,7 +158,7 @@ namespace PgRoutiner
             }
         }
 
-        private void BuildCommentHeader(PgRoutine routine, Return @return, List<Param> @params, bool sync)
+        private void BuildCommentHeader(PgRoutineGroup routine, Return @return, List<Param> @params, bool sync)
         {
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// {(sync ? "Executes" : "Asynchronously executes")} {routine.Language} {routine.RoutineType} \"{Name}\"");
@@ -195,11 +195,11 @@ namespace PgRoutiner
             }
         }
 
-        private List<Param> GetParamsInfo(PgRoutine routine)
+        private List<Param> GetParamsInfo(PgRoutineGroup routine)
         {
             string getType(PgParameter p)
             {
-                if (settings.Mapping.TryGetValue(p.Type, out var result))
+                if (TryGetMapping(p, out var result)) //(settings.Mapping.TryGetValue(p.Type, out var result))
                 {
                     if (p.Array)
                     {
@@ -238,13 +238,13 @@ namespace PgRoutiner
             return routine.Parameters.Select(p => new Param(p.Name, p.Name.ToCamelCase(), p.DataType, getType(p), getDbType(p))).ToList();
         }
 
-        private Return GetReturnInfo(PgRoutine routine)
+        private Return GetReturnInfo(PgRoutineGroup routine)
         {
             if (routine.DataType == "void")
             {
                 return new Return("void", "void", true, false);
             }
-            if (settings.Mapping.TryGetValue(routine.TypeUdtName, out var result))
+            if (TryGetMapping(routine, out var result)) //(settings.Mapping.TryGetValue(routine.TypeUdtName, out var result))
             {
                 if (routine.DataType == "ARRAY")
                 {
@@ -267,7 +267,7 @@ namespace PgRoutiner
             throw new ArgumentException($"Could not find mapping \"{routine.DataType}\" for return type of routine \"{routine.RoutineName}\"");
         }
 
-        private string BuildUserDefinedModel(PgRoutine routine)
+        private string BuildUserDefinedModel(PgRoutineGroup routine)
         {
             var name = routine.TypeUdtName.ToUpperCamelCase();
             if (settings.CustomModels.ContainsKey(name))
@@ -282,7 +282,7 @@ namespace PgRoutiner
             return name;
         }
 
-        private string BuildRecordModel(PgRoutine routine)
+        private string BuildRecordModel(PgRoutineGroup routine)
         {
             var suffix = ++recordModelCount == 1 ? "" : recordModelCount.ToString();
             var name = $"{this.Name.ToUpperCamelCase()}{suffix}";
@@ -298,7 +298,7 @@ namespace PgRoutiner
             }
             string getType(PgReturns returnModel)
             {
-                if (settings.Mapping.TryGetValue(returnModel.Type, out var result))
+                if (TryGetMapping(returnModel, out var result)) //(settings.Mapping.TryGetValue(returnModel.Type, out var result))
                 {
                     if (returnModel.Array)
                     {
@@ -330,6 +330,33 @@ namespace PgRoutiner
                 model.AppendLine($");");
             }
             Models.Add(name, model);
+        }
+
+        private bool TryGetMapping(PgParameter p, out string value)
+        {
+            if (settings.Mapping.TryGetValue(p.Type, out value))
+            {
+                return true;
+            }
+            return settings.Mapping.TryGetValue(p.DataType, out value);
+        }
+
+        private bool TryGetMapping(PgRoutineGroup r, out string value)
+        {
+            if (settings.Mapping.TryGetValue(r.TypeUdtName, out value))
+            {
+                return true;
+            }
+            return settings.Mapping.TryGetValue(r.DataType, out value);
+        }
+
+        private bool TryGetMapping(PgReturns r, out string value)
+        {
+            if (settings.Mapping.TryGetValue(r.Type, out value))
+            {
+                return true;
+            }
+            return settings.Mapping.TryGetValue(r.DataType, out value);
         }
     }
 }

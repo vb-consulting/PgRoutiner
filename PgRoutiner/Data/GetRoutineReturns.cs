@@ -11,7 +11,7 @@ namespace PgRoutiner
 
     public static partial class DataAccess
     {
-        public static IEnumerable<PgReturns> GetRoutineReturnsRecord(this NpgsqlConnection connection, PgRoutine routine) =>
+        public static IEnumerable<PgReturns> GetRoutineReturnsRecord(this NpgsqlConnection connection, PgRoutineGroup routine) =>
             connection.Read<PgReturns>(@"
 
             select 
@@ -34,7 +34,7 @@ namespace PgRoutiner
                 ("specificName", routine.SpecificName, DbType.AnsiString),
                 ("specificSchema", routine.SpecificSchema, DbType.AnsiString));
 
-        public static IEnumerable<PgReturns> GetRoutineReturnsTable(this NpgsqlConnection connection, PgRoutine routine) =>
+        public static IEnumerable<PgReturns> GetRoutineReturnsTable(this NpgsqlConnection connection, PgRoutineGroup routine) =>
             connection.Read<PgReturns>(@"
 
             select 
