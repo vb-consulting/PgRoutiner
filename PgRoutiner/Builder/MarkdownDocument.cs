@@ -76,7 +76,7 @@ namespace PgRoutiner
                     content.AppendLine(StartTag(result.Type, $"{schema}.{result.Signature.Replace(result.Name, $"\"{result.Name}\"")}"));
                     if (result.Comment != null)
                     {
-                        content.AppendLine(result.Comment);
+                        content.AppendLine(string.Join($"{Environment.NewLine}{Environment.NewLine}", result.Comment.Split("\n")));
                     }
 
                     content.AppendLine(EndTag);
@@ -113,6 +113,11 @@ namespace PgRoutiner
                         viewsHeader = true;
                     }
 
+                    string comment = null;
+                    if (result.Comment != null)
+                    {
+                        comment = string.Join(" ", result.Comment.Split("\n"));
+                    }
                     if (result.Column == null)
                     {
                         content.AppendLine();
@@ -135,9 +140,9 @@ namespace PgRoutiner
                         header.AppendLine($"- View [`{schema}.{result.Table}`](#view-{schema.ToLower()}{result.Table.ToLower()})");
                         content.AppendLine();
                         content.AppendLine(StartTag("view", $"{schema}.\"{result.Table}\""));
-                        if (result.Comment != null)
+                        if (comment != null)
                         {
-                            content.AppendLine(result.Comment);
+                            content.AppendLine(comment);
                         }
 
                         content.AppendLine(EndTag);
@@ -150,7 +155,7 @@ namespace PgRoutiner
                         content.AppendLine(
                             $"| `{result.Column}` " +
                             $"| `{result.ColumnType}` " +
-                            $"| {StartTag("column", $"{schema}.\"{result.Table}\".\"{result.Column}\"")}{result.Comment}{EndTag} |");
+                            $"| {StartTag("column", $"{schema}.\"{result.Table}\".\"{result.Column}\"")}{comment}{EndTag} |");
                     }
                 }
             }
@@ -176,6 +181,11 @@ namespace PgRoutiner
                         tablesHeader = true;
                     }
 
+                    string comment = null;
+                    if (result.Comment != null)
+                    {
+                        comment = string.Join(" ", result.Comment.Split("\n"));
+                    }
                     if (result.Column == null)
                     {
                         content.AppendLine();
@@ -194,9 +204,9 @@ namespace PgRoutiner
                         header.AppendLine($"- Table [`{schema}.{result.Table}`](#table-{schema.ToLower()}{result.Table.ToLower()})");
                         content.AppendLine();
                         content.AppendLine(StartTag("table", $"{schema}.\"{result.Table}\""));
-                        if (result.Comment != null)
+                        if (comment != null)
                         {
-                            content.AppendLine(result.Comment);
+                            content.AppendLine(comment);
                         }
 
                         if (!anyTables)
@@ -217,7 +227,7 @@ namespace PgRoutiner
                             $"| `{result.ColumnType}` " +
                             $"| {result.Nullable} " +
                             $"| {result.DefaultMarkup} " +
-                            $"| {StartTag("column", $"{schema}.\"{result.Table}\".\"{result.Column}\"")}{result.Comment}{EndTag} |");
+                            $"| {StartTag("column", $"{schema}.\"{result.Table}\".\"{result.Column}\"")}{comment}{EndTag} |");
                     }
                 }
             }
