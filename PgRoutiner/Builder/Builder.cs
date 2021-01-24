@@ -25,6 +25,7 @@ namespace PgRoutiner
             BuildDump(Settings.Value.SchemaDumpFile, () => builder.GetSchemaContent(), file => SchemaFile = file);
             BuildDump(Settings.Value.DataDumpFile, () => builder.GetDataContent(), file => DataFile = file);
             BuildObjectDumps(builder);
+            BuilMd(connection);
 
             Dump("Done!");
         }

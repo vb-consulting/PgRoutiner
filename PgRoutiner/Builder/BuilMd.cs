@@ -9,15 +9,15 @@ namespace PgRoutiner
 {
     partial class Builder
     {
-        private static void BuildDump(string dumpFile, Func<string> contentFunc, Action<string> successFunc)
+        private static void BuilMd(NpgsqlConnection connection)
         {
-            if (string.IsNullOrEmpty(dumpFile))
+            if (string.IsNullOrEmpty(Settings.Value.CommentsMdFile))
             {
                 return;
             }
 
-            var file = Path.GetFullPath(Path.Combine(Program.CurrentDir, dumpFile));
-            var shortName = dumpFile;
+            var file = Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.CommentsMdFile));
+            var shortName = Settings.Value.CommentsMdFile;
             var shortFilename = Path.GetFileName(file);
             var dir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(file)));
             var exists = File.Exists(file);
@@ -46,15 +46,15 @@ namespace PgRoutiner
                 return;
             }
 
-            Dump($"Creating dump file {shortName}...");
+            Dump($"Creating markdown file {shortName}...");
             try
             {
-                File.WriteAllText(file, contentFunc());
-                successFunc(file);
+                var builder = new MarkdownDocument(Settings.Value, connection);
+                File.WriteAllText(file, builder.Build());
             }
             catch(Exception e)
             {
-                Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {file}", $"ERROR: {e.Message}");
+                Program.WriteLine(ConsoleColor.Red, $"Could not write markdown file {file}", $"ERROR: {e.Message}");
             }
         }
     }

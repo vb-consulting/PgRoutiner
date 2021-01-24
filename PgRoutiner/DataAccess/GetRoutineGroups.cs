@@ -8,23 +8,9 @@ using Newtonsoft.Json;
 
 namespace PgRoutiner
 {
-    public record PgParameter(int Ordinal, string Name, string Type, string DataType, bool Array);
-
-    public record PgRoutineGroup(
-        uint Oid, 
-        string SpecificSchema, 
-        string SpecificName, 
-        string RoutineName,
-        string Description,
-        string Language, 
-        string RoutineType, 
-        string TypeUdtName, 
-        string DataType,
-        IList<PgParameter> Parameters);
-
     public static partial class DataAccess
     {
-        public static IEnumerable<IGrouping<string, PgRoutineGroup>> GetRoutineGroups(this NpgsqlConnection connection, Settings settings) => 
+        public static IEnumerable<IGrouping<string, PgRoutineGroup>> GetRoutineGroups(this NpgsqlConnection connection, Settings settings) =>
             connection.Read<(
                 uint Oid,
                 string SpecificSchema,
@@ -104,16 +90,19 @@ namespace PgRoutiner
                 ("schema", settings.Schema, DbType.AnsiString),
                 ("notSimilarTo", settings.NotSimilarTo, DbType.AnsiString),
                 ("similarTo", settings.SimilarTo, DbType.AnsiString))
-                .Select(t => new PgRoutineGroup(t.Oid,
-                    t.SpecificSchema,
-                    t.SpecificName,
-                    t.RoutineName,
-                    t.Description,
-                    t.Language,
-                    t.RoutineType,
-                    t.TypeUdtName,
-                    t.DataType,
-                    JsonConvert.DeserializeObject<IList<PgParameter>>(t.Parameters)))
+                .Select(t => new PgRoutineGroup
+                {
+                    Oid = t.Oid,
+                    SpecificSchema = t.SpecificSchema,
+                    SpecificName = t.SpecificName,
+                    RoutineName = t.RoutineName,
+                    Description = t.Description,
+                    Language = t.Language,
+                    RoutineType = t.RoutineType,
+                    TypeUdtName = t.TypeUdtName,
+                    DataType = t.DataType,
+                    Parameters = JsonConvert.DeserializeObject<IList<PgParameter>>(t.Parameters)
+                })
                 .GroupBy(i => i.RoutineName);
     }
 }

@@ -53,8 +53,16 @@ namespace PgRoutiner
         public bool DbObjectsDirClearIfNotEmpty { get; set; } = true;
         public bool DbObjectsNoOwner { get; set; } = true;
         public bool DbObjectsNoPrivileges { get; set; } = true;
-        public bool DbObjectsDropIfExists { get; set; } = true;
+        public bool DbObjectsDropIfExists { get; set; } = false;
+        public bool DbObjectsCreateOrReplaceRoutines { get; set; } = true;
         public bool DbObjectsRaw { get; set; } = false;
+
+        /*comments markdown file*/
+        public string CommentsMdFile { get; set; } = null;
+        public bool CommentsMdRoutines { get; set; } = true;
+        public bool CommentsMdViews { get; set; } = true;
+        public string CommentsMdNotSimilarTo { get; set; } = null;
+        public string CommentsMdSimilarTo { get; set; } = null;
 
         public static Settings Value { get; set; } = new Settings();
     }

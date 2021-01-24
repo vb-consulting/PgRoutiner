@@ -64,7 +64,7 @@ namespace PgRoutiner
 
                 try
                 {
-                    content = DumpTransformer.TransformRoutine(routine, lines);
+                    content = DumpTransformer.TransformRoutine(routine, lines, settings);
                 }
                 catch (Exception e)
                 {

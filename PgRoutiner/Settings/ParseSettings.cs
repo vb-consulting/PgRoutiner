@@ -64,6 +64,14 @@ namespace PgRoutiner
             {
                 Value.Schema = null;
             }
+            if (Value.CommentsMdSimilarTo == "")
+            {
+                Value.CommentsMdSimilarTo = null;
+            }
+            if (Value.CommentsMdNotSimilarTo == "")
+            {
+                Value.CommentsMdNotSimilarTo = null;
+            }
 
             if (Value.Mapping != null && Value.Mapping.Values.Count > 0)
             {

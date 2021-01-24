@@ -9,23 +9,6 @@ namespace PgRoutiner
 {
     partial class Builder
     {
-        private static void CreateDir(string dir, bool clean = false)
-        {
-            if (!Directory.Exists(dir))
-            {
-                Dump($"Creating dir: {dir}");
-                Directory.CreateDirectory(dir);
-            }
-            else if (clean && Directory.GetFiles(dir).Length > 0)
-            {
-                Dump($"Deleting all existing files in dir: {dir}...");
-                foreach (FileInfo fi in new DirectoryInfo(dir).GetFiles())
-                {
-                    fi.Delete();
-                }
-            }
-        }
-
         private static void BuildObjectDumps(PgDumpBuilder builder)
         {
             if (string.IsNullOrEmpty(Settings.Value.DbObjectsDir))
@@ -43,8 +26,6 @@ namespace PgRoutiner
             CreateDir(functionsDir, true);
             CreateDir(proceduresDir, true);
 
-            HashSet<string> cleared = new();
-
             foreach(var (shortFilename, content, type) in builder.GetDatabaseObjects())
             {
                 var dir = type switch 
@@ -60,7 +41,7 @@ namespace PgRoutiner
                     continue;
                 }
 
-                var file = Path.Combine(dir, shortFilename);
+                var file = Path.GetFullPath(Path.Combine(dir, shortFilename));
                 var shortName = $"{dir.Split(Path.DirectorySeparatorChar).Last()}{Path.DirectorySeparatorChar}{shortFilename}";
                 var exists = File.Exists(file);
 
@@ -84,6 +65,23 @@ namespace PgRoutiner
 
                 Dump($"Creating dump file {shortName}...");
                 File.WriteAllText(file, content);
+            }
+        }
+
+        private static void CreateDir(string dir, bool clean = false)
+        {
+            if (!Directory.Exists(dir))
+            {
+                Dump($"Creating dir: {dir}");
+                Directory.CreateDirectory(dir);
+            }
+            else if (clean && Directory.GetFiles(dir).Length > 0)
+            {
+                Dump($"Deleting all existing files in dir: {dir}...");
+                foreach (FileInfo fi in new DirectoryInfo(dir).GetFiles())
+                {
+                    fi.Delete();
+                }
             }
         }
     }

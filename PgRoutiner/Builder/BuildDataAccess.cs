@@ -23,7 +23,7 @@ namespace PgRoutiner
             {
                 var name = group.Key;
                 var shortFilename = string.Concat(name.ToUpperCamelCase(), ".cs");
-                var fullFileName = Path.Join(outputDir, shortFilename);
+                var fullFileName = Path.GetFullPath(Path.Join(outputDir, shortFilename));
                 var shortName = $"{outputDir.Split(Path.DirectorySeparatorChar).Last()}{Path.DirectorySeparatorChar}{shortFilename}";
                 var exists = File.Exists(fullFileName);
 
