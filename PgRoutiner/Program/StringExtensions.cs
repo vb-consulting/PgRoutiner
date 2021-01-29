@@ -7,19 +7,45 @@ namespace PgRoutiner
 {
     public static class StringExtensions
     {
-        public static string ToUpperCamelCase(this string value) =>
-            value.Split(new[] {"_"}, StringSplitOptions.RemoveEmptyEntries)
+        public static string ToUpperCamelCase(this string value)
+        {
+            if (value is null)
+            {
+                return null;
+            }
+            if (value.Length == 0)
+            {
+                return string.Empty;
+            }
+            return value.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(s => string.Concat(char.ToUpperInvariant(s[0]), s[1..]))
                 .Aggregate(string.Empty, string.Concat);
+        }
 
         public static string ToCamelCase(this string value)
         {
+            if (value is null)
+            {
+                return null;
+            }
+            if (value.Length == 0)
+            {
+                return string.Empty;
+            }
             var result = value.ToUpperCamelCase();
             return string.Concat(result.First().ToString().ToLowerInvariant(), result[1..]);
         }
 
         public static string PathToNamespace(this string value)
         {
+            if (value is null)
+            {
+                return null;
+            }
+            if (value.Length == 0)
+            {
+                return string.Empty;
+            }
             if (value == "." || value == "..")
             {
                 return "";
@@ -35,6 +61,14 @@ namespace PgRoutiner
 
         public static string FirstWordAfter(this string value, string word, char character = ' ')
         {
+            if (value is null)
+            {
+                return null;
+            }
+            if (value.Length == 0)
+            {
+                return string.Empty;
+            }
             var index = value.IndexOf(word);
             if (index == -1)
             {
@@ -61,6 +95,14 @@ namespace PgRoutiner
 
         public static string Between(this string value, char start, char end)
         {
+            if (value is null)
+            {
+                return null;
+            }
+            if (value.Length == 0)
+            {
+                return string.Empty;
+            }
             var index = value.IndexOf(start);
             if (index == -1)
             {
@@ -78,6 +120,55 @@ namespace PgRoutiner
                 len = lastindex - index;
             }
             return value.Substring(index, len).Trim();
+        }
+
+        public static string ToKebabCase(this string value)
+        {
+            if (value is null)
+            {
+                return null;
+            }
+            if (value.Length == 0)
+            {
+                return string.Empty;
+            }
+            StringBuilder builder = new();
+            for (var i = 0; i < value.Length; i++)
+            {
+                var ch = value[i];
+                if (char.IsLower(ch) || ch == '-')
+                {
+                    builder.Append(ch);
+                }
+                else if (i == 0) 
+                {
+                    builder.Append(char.ToLower(ch));
+                }
+                else if (char.IsDigit(ch) && !char.IsDigit(value[i - 1]))
+                {
+                    builder.Append('-');
+                    builder.Append(ch);
+                }
+                else if (char.IsDigit(ch))
+                {
+                    builder.Append(ch);
+                }
+                else if (char.IsLower(value[i - 1]))
+                {
+                    builder.Append('-');
+                    builder.Append(char.ToLower(ch));
+                }
+                else if (i + 1 == value.Length || char.IsUpper(value[i + 1]))
+                {
+                    builder.Append(char.ToLower(ch));
+                }
+                else
+                {
+                    builder.Append('-');
+                    builder.Append(char.ToLower(ch));
+                }
+            }
+            return builder.ToString();
         }
     }
 }

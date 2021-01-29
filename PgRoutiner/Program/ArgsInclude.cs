@@ -5,19 +5,25 @@ namespace PgRoutiner
 {
     static partial class Program
     {
-        public static bool ArgsInclude(string[] args, params string[] values)
+        public static bool ArgsInclude(string[] args, Arg value)
         {
-            var lower = values.Select(v => v.ToLower()).ToList();
-            var upper = values.Select(v => v.ToUpper()).ToList();
             foreach (var arg in args)
             {
-                if (lower.Contains(arg))
-                {
-                    return true;
+                var lower = arg.ToLower();
+                if (lower.Contains("="))
+                { 
+                    var left = lower.Split('=', 2, StringSplitOptions.RemoveEmptyEntries).First();
+                    if (string.Equals(left, value.Alias) || string.Equals(left, value.Name))
+                    {
+                        return true;
+                    }
                 }
-                if (upper.Contains(arg))
+                else
                 {
-                    return true;
+                    if (string.Equals(lower, value.Alias) || string.Equals(lower, value.Name))
+                    {
+                        return true;
+                    }
                 }
             }
             return false;

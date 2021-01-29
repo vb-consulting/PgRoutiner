@@ -47,7 +47,7 @@ namespace PgRoutiner
                     left outer join information_schema.parameters p 
                     on r.specific_name = p.specific_name and r.specific_schema = p.specific_schema
 
-                    inner join pg_catalog.pg_proc proc on r.routine_name = proc.proname
+                    inner join pg_catalog.pg_proc proc on r.specific_name = proc.proname || '_' || proc.oid
                     left outer join pg_catalog.pg_description pgdesc on proc.oid = pgdesc.objoid
                 where
                     r.specific_schema = @schema

@@ -5,7 +5,11 @@ namespace PgRoutiner
     static partial class Program
     {
         public static void WriteLine(ConsoleColor? color, params string[] lines)
-        { 
+        {
+            if (Mute)
+            {
+                return;
+            }
             if (color.HasValue)
             {
                 Console.ForegroundColor = color.Value;
@@ -22,6 +26,10 @@ namespace PgRoutiner
 
         public static void Write(ConsoleColor? color, string line)
         {
+            if (Mute)
+            {
+                return;
+            }
             if (color.HasValue)
             {
                 Console.ForegroundColor = color.Value;
@@ -33,8 +41,21 @@ namespace PgRoutiner
             }
         }
 
+        public static void Write(string line)
+        {
+            if (Mute)
+            {
+                return;
+            }
+            Write(null, line);
+        }
+
         public static void WriteLine(params string[] lines)
         {
+            if (Mute)
+            {
+                return;
+            }
             WriteLine(null, lines);
         }
     }

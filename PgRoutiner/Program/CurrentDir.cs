@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace PgRoutiner
 {
@@ -7,18 +9,33 @@ namespace PgRoutiner
     {
         public static string CurrentDir { get; private set; } = Directory.GetCurrentDirectory();
 
-        public static void SetCurrentDir(string[] args)
+        private class DirSettings
         {
-            foreach (var arg in args)
+            public string Dir { get; set; } = null;
+        }
+
+        public static bool SetCurrentDir(string[] args)
+        {
+            var configBuilder = new ConfigurationBuilder().AddCommandLine(args, 
+                new Dictionary<string, string> {
+                    { Settings.DirArgs.Alias, Settings.DirArgs.Name.Replace("--", "") } 
+                });
+            var config = configBuilder.Build();
+            var ds = new DirSettings();
+            config.Bind(ds);
+            if (!string.IsNullOrEmpty(ds.Dir))
             {
-                if (!arg.Contains("=") && !arg.StartsWith("-") && arg.ToLower() != "run")
-                {
-                    CurrentDir = Path.Join(CurrentDir, arg);
-                    break;
-                }
+                CurrentDir = Path.Join(CurrentDir, ds.Dir);
+            }
+            var dir = Path.GetFullPath(CurrentDir);
+            if (!Directory.Exists(dir))
+            {
+                DumpError($"Directory {dir} does not exists!");
+                return false;
             }
             WriteLine("", "Using dir: ");
-            WriteLine(ConsoleColor.Cyan, " " + Path.GetFullPath(CurrentDir));
+            WriteLine(ConsoleColor.Cyan, " " + dir);
+            return true;
         }
 
         public static void ParseProjectSetting(Settings settings)

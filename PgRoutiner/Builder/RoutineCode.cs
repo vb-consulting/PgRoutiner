@@ -45,11 +45,11 @@ namespace PgRoutiner
             {
                 var @return = GetReturnInfo(routine);
                 var @params = GetParamsInfo(routine);
-                if (settings.SyncMethod)
+                if (!settings.SkipSyncMethods)
                 {
                     BuildSyncMethod(routine, @return, @params);
                 }
-                if (settings.AsyncMethod)
+                if (!settings.SkipAsyncMethods)
                 {
                     BuildAsyncMethod(routine, @return, @params);
                 }

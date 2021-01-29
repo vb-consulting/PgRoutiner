@@ -30,8 +30,8 @@ namespace PgRoutiner
             var args = string.Concat(
                 baseArg,
                 " --schema-only",
-                settings.DbObjectsNoOwner ? " --no-owner" : "",
-                settings.DbObjectsNoPrivileges ? " --no-acl" : "",
+                settings.DbObjectsOwners ? "" : " --no-owner",
+                settings.DbObjectsPrivileges ? "" : " --no-acl",
                 settings.DbObjectsDropIfExists ? " --clean --if-exists" : "");
 
             foreach(var table in connection.GetTables(settings))
@@ -51,27 +51,39 @@ namespace PgRoutiner
                 catch (Exception e)
                 {
                     Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                    continue;
                 }
 
                 yield return (name, content, table.Type);
             }
 
-            var lines = GetDumpLines(args, "--exclude-table=*");
-            foreach (var routine in connection.GetRoutines(settings))
+            List<string> lines = null;
+            try
             {
-                var name = routine.GetFileName();
-                string content = null;
+                lines = GetDumpLines(args, "--exclude-table=*");
+            }
+            catch (Exception e)
+            {
+                Program.WriteLine(ConsoleColor.Red, $"Could not create pg_dump for functions and procedures", $"ERROR: {e.Message}");
+            }
 
-                try
+            if (lines != null)
+            {
+                foreach (var routine in connection.GetRoutines(settings))
                 {
-                    content = DumpTransformer.TransformRoutine(routine, lines, settings);
+                    var name = routine.GetFileName();
+                    string content;
+                    try
+                    {
+                        content = DumpTransformer.TransformRoutine(routine, lines, settings);
+                    }
+                    catch (Exception e)
+                    {
+                        Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                        continue;
+                    }
+                    yield return (name, content, routine.Type);
                 }
-                catch (Exception e)
-                {
-                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
-                }
-
-                yield return (name, content, routine.Type);
             }
         }
 
@@ -80,16 +92,16 @@ namespace PgRoutiner
             var args = string.Concat(
                 baseArg,
                 " --schema-only",
-                settings.SchemaDumpNoOwner ? " --no-owner" : "",
-                settings.SchemaDumpNoPrivileges ? " --no-acl" : "",
-                settings.SchemaDumpDropIfExists ? " --clean --if-exists" : "",
+                settings.SchemaDumpOwners ? "" : " --no-owner",
+                settings.SchemaDumpPrivileges ? "" : " --no-acl",
+                settings.SchemaDumpNoDropIfExists ? "" : " --clean --if-exists",
                 settings.Schema != null ? $" --schema=\\\"{settings.Schema}\\\"" : "",
-                string.IsNullOrEmpty(settings.SchemaDumpAdditionalOptions) ? "" :
-                    (settings.SchemaDumpAdditionalOptions.StartsWith(" ") ? 
-                    settings.SchemaDumpAdditionalOptions : 
-                    string.Concat(" ", settings.SchemaDumpAdditionalOptions)));
+                string.IsNullOrEmpty(settings.SchemaDumpOptions) ? "" :
+                    (settings.SchemaDumpOptions.StartsWith(" ") ? 
+                    settings.SchemaDumpOptions : 
+                    string.Concat(" ", settings.SchemaDumpOptions)));
 
-            if (settings.SchemaDumpUnderTransaction)
+            if (!settings.SchemaDumpNoTransaction)
             {
                 return GetPgDumpTransactionContent(args, $"{settings.Connection}_schema");
             }
@@ -104,16 +116,21 @@ namespace PgRoutiner
                 settings.Schema != null ? $" --schema=\\\"{settings.Schema}\\\"" : "",
                 settings.DataDumpTables == null || settings.DataDumpTables.Count == 0 ? "" :
                     $" {string.Join(" ", settings.DataDumpTables.Select(t => $"--table={t}"))}",
-                string.IsNullOrEmpty(settings.DataDumpAdditionalOptions) ? "" :
-                    (settings.DataDumpAdditionalOptions.StartsWith(" ") ?
-                    settings.DataDumpAdditionalOptions :
-                    string.Concat(" ", settings.DataDumpAdditionalOptions)));
+                string.IsNullOrEmpty(settings.DataDumpOptions) ? "" :
+                    (settings.DataDumpOptions.StartsWith(" ") ?
+                    settings.DataDumpOptions :
+                    string.Concat(" ", settings.DataDumpOptions)));
 
-            if (settings.DataDumpUnderTransaction)
+            if (!settings.DataDumpNoTransaction)
             {
                 return GetPgDumpTransactionContent(args, $"{settings.Connection}_data");
             }
             return GetPgDumpContent(args);
+        }
+
+        public string GetDumpVersion()
+        {
+            return GetPgDumpContent("--version").Replace("pg_dump (PostgreSQL) ", "").Split(' ').First();
         }
 
         private string GetTableContent(PgItem table, string args)
@@ -133,7 +150,7 @@ namespace PgRoutiner
             {
                 return GetPgDumpContent($"{args} {tableArg}");
             }
-            return DumpTransformer.TransformView(GetDumpLines(args, tableArg));
+            return DumpTransformer.TransformView(GetDumpLines(args, tableArg), settings);
         }
 
         private List<string> GetDumpLines(string args, string tableArg)
@@ -183,7 +200,7 @@ namespace PgRoutiner
             }
             var error = "";
             using var process = new Process();
-            process.StartInfo.FileName = settings.PgDumpCommand;
+            process.StartInfo.FileName = settings.PgDump;
             process.StartInfo.Arguments = args;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;

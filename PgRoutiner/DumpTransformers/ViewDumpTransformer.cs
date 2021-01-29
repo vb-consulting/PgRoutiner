@@ -8,7 +8,7 @@ namespace PgRoutiner
 {
     public partial class DumpTransformer
     {
-        public static string TransformView(List<string> lines)
+        public static string TransformView(List<string> lines, Settings settings)
         {
             List<string> prepend = new();
             List<string> create = new();
@@ -23,8 +23,9 @@ namespace PgRoutiner
 
             string statement = "";
 
-            foreach(var line in lines)
+            foreach(var l in lines)
             {
+                var line = l;
                 if (line.StartsWith("--") || line.StartsWith("SET ") || (!isCreate && line.StartsWith("SELECT ")))
                 {
                     continue;
@@ -34,6 +35,10 @@ namespace PgRoutiner
                 var createEnd = line.EndsWith(endSequence);
                 if (createStart)
                 {
+                    if (!settings.DbObjectsNoCreateOrReplace)
+                    {
+                        line = line.Replace("CREATE", "CREATE OR REPLACE");
+                    }
                     isPrepend = false;
                     isCreate = true;
                     isAppend = false;

@@ -15,18 +15,28 @@ namespace PgRoutiner
             {
                 return;
             }
-            var baseDir = Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.DbObjectsDir));
-            CreateDir(baseDir);
-            var tablesDir = Path.GetFullPath(Path.Combine(baseDir, "Tables"));
-            var viewsDir = Path.GetFullPath(Path.Combine(baseDir, "Views"));
-            var functionsDir = Path.GetFullPath(Path.Combine(baseDir, "Functions"));
-            var proceduresDir = Path.GetFullPath(Path.Combine(baseDir, "Procedures"));
-            CreateDir(tablesDir, true);
-            CreateDir(viewsDir, true);
-            CreateDir(functionsDir, true);
-            CreateDir(proceduresDir, true);
 
-            foreach(var (shortFilename, content, type) in builder.GetDatabaseObjects())
+            static string GetOrDefault(string name, string @default)
+            {
+                if (Settings.Value.DbObjectsDirNames.TryGetValue(name, out var value))
+                {
+                    return value;
+                }
+                return @default;
+            }
+            var baseDir = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.DbObjectsDir)), Settings.Value.Connection);
+            CreateDir(baseDir, true);
+            var tablesDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Tables", "Tables"))), Settings.Value.Connection);
+            var viewsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Views", "Views"))), Settings.Value.Connection);
+            var functionsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Functions", "Functions"))), Settings.Value.Connection);
+            var proceduresDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Procedures", "Procedures"))), Settings.Value.Connection);
+
+            var tableCreated = false;
+            var viewCreated = false;
+            var functionCreated = false;
+            var proceduresCreated = false;
+
+            foreach (var (shortFilename, content, type) in builder.GetDatabaseObjects())
             {
                 var dir = type switch 
                 { 
@@ -36,14 +46,47 @@ namespace PgRoutiner
                     PgType.Procedure => proceduresDir,
                     _ => null 
                 };
+
                 if (dir == null)
                 {
                     continue;
                 }
 
-                var file = Path.GetFullPath(Path.Combine(dir, shortFilename));
-                var shortName = $"{dir.Split(Path.DirectorySeparatorChar).Last()}{Path.DirectorySeparatorChar}{shortFilename}";
+                var file = string.Format(Path.GetFullPath(Path.Combine(dir, shortFilename)), Settings.Value.Connection);
+                var shortName = string.Format($"{dir.Split(Path.DirectorySeparatorChar).Last()}{Path.DirectorySeparatorChar}{shortFilename}", Settings.Value.Connection);
                 var exists = File.Exists(file);
+
+                switch (type)
+                {
+                    case PgType.Table:
+                        if (!tableCreated)
+                        {
+                            CreateDir(tablesDir);
+                        }
+                        tableCreated = true;
+                        break;
+                    case PgType.View:
+                        if (!viewCreated)
+                        {
+                            CreateDir(viewsDir);
+                        };
+                        viewCreated = true;
+                        break;
+                    case PgType.Function:
+                        if (!functionCreated)
+                        {
+                            CreateDir(functionsDir);
+                        }
+                        functionCreated = true;
+                        break;
+                    case PgType.Procedure:
+                        if (!proceduresCreated)
+                        {
+                            CreateDir(proceduresDir);
+                        }
+                        proceduresCreated = true;
+                        break;
+                }
 
                 if (exists && Settings.Value.Overwrite == false)
                 {
@@ -64,24 +107,67 @@ namespace PgRoutiner
                 }
 
                 Dump($"Creating dump file {shortName}...");
-                File.WriteAllText(file, content);
+                try
+                {
+                    Program.WriteFile(file, content);
+                }
+                catch (Exception e)
+                {
+                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {file}", $"ERROR: {e.Message}");
+                }
+
+                if (!tableCreated)
+                {
+                    RemoveDir(tablesDir);
+                }
+                if (!viewCreated)
+                {
+                    RemoveDir(viewsDir);
+                }
+                if (!functionCreated)
+                {
+                    RemoveDir(functionsDir);
+                }
+                if (!proceduresCreated)
+                {
+                    RemoveDir(proceduresDir);
+                }
             }
         }
 
-        private static void CreateDir(string dir, bool clean = false)
+        private static void CreateDir(string dir, bool skipDelete = false)
         {
-            if (!Directory.Exists(dir))
+            if (!Settings.Value.Dump && !Directory.Exists(dir))
             {
                 Dump($"Creating dir: {dir}");
                 Directory.CreateDirectory(dir);
             }
-            else if (clean && Directory.GetFiles(dir).Length > 0)
+            else if (!skipDelete && !Settings.Value.Dump && !Settings.Value.DbObjectsSkipDelete)
             {
-                Dump($"Deleting all existing files in dir: {dir}...");
-                foreach (FileInfo fi in new DirectoryInfo(dir).GetFiles())
+                if (Directory.GetFiles(dir).Length > 0)
                 {
-                    fi.Delete();
+                    Dump($"Deleting all existing files in dir: {dir}...");
+                    foreach (FileInfo fi in new DirectoryInfo(dir).GetFiles())
+                    {
+                        fi.Delete();
+                    }
                 }
+            }
+        }
+
+        private static void RemoveDir(string dir)
+        {
+            if (!Settings.Value.Dump && !Settings.Value.DbObjectsSkipDelete && Directory.Exists(dir))
+            {
+                Dump($"Removing dir: {dir}...");
+                if (Directory.GetFiles(dir).Length > 0)
+                {
+                    foreach (FileInfo fi in new DirectoryInfo(dir).GetFiles())
+                    {
+                        fi.Delete();
+                    }
+                }
+                Directory.Delete(dir);
             }
         }
     }

@@ -22,25 +22,25 @@ namespace PgRoutiner
             var dir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(file)));
             var exists = File.Exists(file);
 
-            if (!Directory.Exists(dir))
+            if (!Settings.Value.Dump && !Directory.Exists(dir))
             {
                 Dump($"Creating dir: {dir}");
                 Directory.CreateDirectory(dir);
             }
 
-            if (exists && Settings.Value.Overwrite == false)
+            if (!Settings.Value.Dump && exists && Settings.Value.Overwrite == false)
             {
                 Dump($"File {shortName} exists, overwrite is set to false, skipping ...");
                 return;
             }
-            if (exists && Settings.Value.SkipIfExists != null && (
+            if (!Settings.Value.Dump && exists && Settings.Value.SkipIfExists != null && (
                 Settings.Value.SkipIfExists.Contains(shortName) || Settings.Value.SkipIfExists.Contains(shortFilename))
                 )
             {
                 Dump($"Skipping {shortName}, already exists...");
                 return;
             }
-            if (exists && Settings.Value.AskOverwrite && Program.Ask($"File {shortName} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
+            if (!Settings.Value.Dump && exists && Settings.Value.AskOverwrite && Program.Ask($"File {shortName} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
             {
                 Dump($"Skipping {shortName}...");
                 return;
@@ -50,7 +50,7 @@ namespace PgRoutiner
             try
             {
                 var builder = new MarkdownDocument(Settings.Value, connection);
-                File.WriteAllText(file, builder.Build());
+                Program.WriteFile(file, builder.Build());
             }
             catch(Exception e)
             {

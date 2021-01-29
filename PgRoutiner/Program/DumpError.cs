@@ -7,7 +7,10 @@ namespace PgRoutiner
     {
         public static void DumpError(string msg)
         {
-            WriteLine(ConsoleColor.Red, "", $"ERROR: {msg}");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine();
+            Console.WriteLine($"ERROR: {msg}");
+            Console.ResetColor();
         }
     }
 }

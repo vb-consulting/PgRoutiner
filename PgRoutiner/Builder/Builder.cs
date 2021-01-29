@@ -17,14 +17,18 @@ namespace PgRoutiner
         public static void Run(string connectionStr)
         {
             using var connection = new NpgsqlConnection(connectionStr);
-
+            connection.Open();
             BuildDataAccess(connection);
             DumpContent();
 
             var builder = new PgDumpBuilder(Settings.Value, connection);
-            BuildDump(Settings.Value.SchemaDumpFile, () => builder.GetSchemaContent(), file => SchemaFile = file);
-            BuildDump(Settings.Value.DataDumpFile, () => builder.GetDataContent(), file => DataFile = file);
-            BuildObjectDumps(builder);
+            if (Settings.CheckPgDumpVersion(connection, builder, false))
+            {
+                BuildDump(Settings.Value.SchemaDumpFile, () => builder.GetSchemaContent(), file => SchemaFile = file);
+                BuildDump(Settings.Value.DataDumpFile, () => builder.GetDataContent(), file => DataFile = file);
+                BuildObjectDumps(builder);
+            }
+            
             BuilMd(connection);
 
             Dump("Done!");
@@ -39,12 +43,16 @@ namespace PgRoutiner
             Dump("Creating source code files...");
             foreach (var item in Content)
             {
-                File.WriteAllText(item.FullFileName, item.Content);
+                Program.WriteFile(item.FullFileName, item.Content);
             }
         }
 
         private static void Dump(params string[] lines)
         {
+            if (Settings.Value.Dump)
+            {
+                return;
+            }
             Program.WriteLine(ConsoleColor.Yellow, lines);
         }
 

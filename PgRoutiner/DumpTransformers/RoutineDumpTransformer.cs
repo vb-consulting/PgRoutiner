@@ -48,7 +48,7 @@ namespace PgRoutiner
                 var createEnd = line.EndsWith(endSequence);
                 if (createStart)
                 {
-                    if (settings.DbObjectsCreateOrReplaceRoutines)
+                    if (!settings.DbObjectsNoCreateOrReplace)
                     {
                         line = line.Replace("CREATE", "CREATE OR REPLACE");
                     }

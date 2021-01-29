@@ -21,6 +21,7 @@ namespace PgRoutiner
         public static bool ParseInitialSettings(string connectionStr)
         {
             using var connection = new NpgsqlConnection(connectionStr);
+            
             var count = connection.GetRoutineCount(Value);
             Project project = null;
             if (Value.OutputDir != null && count > 0)
@@ -52,36 +53,71 @@ namespace PgRoutiner
                 Value.OutputDir = Program.ReadLine("Data access code output directory: ",
                     $"Found {count} routines in connection {Value.Connection}",
                     "Would you like to generate data access extensions code for those routines?", 
-                    " - Type the name of the output directory (relative to he current) and press enter.",
-                    " - Use dot for current directory",
+                    " - Type the name of the output directory, relative to the current path, and press enter.",
+                    " - For example \"DataAcess\" or \"Functions\".",
+                    " - Use dot (\".\" or \"./\") to use the current directory.",
                     " - Leave the name empty and press enter to skip this.");
             }
 
             Console.WriteLine();
             Value.SchemaDumpFile = Program.ReadLine("Schema dump file: ",
                 $"Would you like to create a schema dump file for the connection {Value.Connection}?",
-                " - Type the name of the schema dump file path (relative to he current path) and press enter.",
+                " - Type the name of the schema dump file, relative to he current path and press enter.",
+                " - For example \"Scripts/schema.sql\".",
                 " - Leave the name empty and press enter to skip this.");
 
 
             Console.WriteLine();
             Value.DataDumpFile = Program.ReadLine("Data dump file: ",
                 $"Would you like to create a data dump file for the connection {Value.Connection}?",
-                " - Type the name of the data dump file path (relative to he current path) and press enter.",
+                " - Type the name of the data dump file path, relative to he current path, and press enter.",
+                " - For example \"Scripts/data.sql\".",
                 " - Leave the name empty and press enter to skip this.");
-            
+
+            if (Value.DataDumpFile != null)
+            {
+                Console.WriteLine();
+                var tables = Program.ReadLine("Data dump tables: ",
+                $"Please type the table names for your data dump file \"{Value.DataDumpFile}\", separated by comma.",
+                " - For example \"table1, table2, table3\".",
+                " - Leave this value empty and press enter to use all available tables in your database.");
+                if (tables != null)
+                {
+                    try
+                    {
+                        Value.DataDumpTables = new List<string>(tables.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()));
+                    }
+                    catch
+                    {
+                        Value.DataDumpTables = new List<string>();
+                    }
+                }
+            }
+
             Console.WriteLine();
             Value.DbObjectsDir = Program.ReadLine("Database objects tree directory: ",
-            $"Would you like to create an database objects tree directory for the {Value.Connection}?",
-            " - Type the name of the objects tree directory (relative to he current) and press enter.",
-            " - Use dot for current directory",
+            $"Would you like to create a database objects tree directory for the {Value.Connection}?",
+            " - Type the name of the objects tree directory, relative to he current path, and press enter.",
+            " - For example \"Database\" or \"Scripts\".",
+            " - Use dot (\".\" or \"./\") to use the current directory.",
             " - Leave the name empty and press enter to skip this.");
 
+            if (Value.SchemaDumpFile != null || Value.DataDumpFile != null || Value.DbObjectsDir != null)
+            {
+                var builder = new PgDumpBuilder(Value, connection);
+                if (!CheckPgDumpVersion(connection, builder))
+                {
+                    Value.SchemaDumpFile = null;
+                    Value.DataDumpFile = null;
+                    Value.DbObjectsDir = null;
+                }
+            }
 
             Console.WriteLine();
             Value.CommentsMdFile = Program.ReadLine("Comments markdown (MD) file: ",
             $"Would you like to markdown documentation file from objects settings for the {Value.Connection}?",
-                " - Type the name of the markdown file path (relative to he current path) and press enter.",
+                " - Type the name of the markdown file path, relative to he current path, and press enter.",
+                " - For example \"database-dictionary.md\" or \"../db-dictionary.md\".",
                 " - Leave the name empty and press enter to skip this.");
 
             Console.WriteLine();
@@ -91,34 +127,43 @@ namespace PgRoutiner
                 Value.DbObjectsDir == null &&
                 Value.CommentsMdFile == null)
             {
-                Program.WriteLine(ConsoleColor.Yellow, 
-                    $"Settings file {pgroutinerSettingsFile} will be created for you!",
-                    "You can change this file to update settings and run \"pgroutiner --run\" command again.",
-                    "Press any key to continue...");
-                Console.ReadKey(false);
                 Value.Run = false;
             }
             else
             {
-                var answer = Program.Ask($"Settings file {pgroutinerSettingsFile} will be created for you based on your selection:{Environment.NewLine}" +
-                    $"- data access code output directory: {(Value.OutputDir == null ? "<skip>" : Value.OutputDir)}{Environment.NewLine}" +
-                    $"- schema dump file: {(Value.SchemaDumpFile == null ? "<skip>" : Value.SchemaDumpFile)}{Environment.NewLine}" +
-                    $"- data dump file: {(Value.DataDumpFile == null ? "<skip>" : Value.DataDumpFile)}{Environment.NewLine}" +
-                    $"- database objects tree directory: {(Value.DbObjectsDir == null ? "<skip>" : Value.DbObjectsDir)}{Environment.NewLine}" +
-                    $"- comments markdown (MD) file: {(Value.CommentsMdFile == null ? "<skip>" : Value.CommentsMdFile)}{Environment.NewLine}" +
-                    $"{Environment.NewLine}" +
-                    $"You can change this file to update settings and run \"pgroutiner --run\" command again.{Environment.NewLine}{Environment.NewLine}" +
-                    "Run code files generation immediately based on your current settings. Yes or No? [Y/N]",
-                    ConsoleKey.Y, ConsoleKey.N); ;
+                Program.Write(ConsoleColor.Yellow, "Settings file ");
+                Program.Write(ConsoleColor.Cyan, pgroutinerSettingsFile);
+                Program.WriteLine(ConsoleColor.Yellow, " will be created for you based on your selection:");
 
-                if (answer == ConsoleKey.Y)
+                Program.Write(ConsoleColor.Yellow, "- data access code output directory: ");
+                Program.WriteLine(ConsoleColor.Cyan, Value.OutputDir ?? "<skip>");
+
+                Program.Write(ConsoleColor.Yellow, "- schema dump file: ");
+                Program.WriteLine(ConsoleColor.Cyan, Value.SchemaDumpFile ?? "<skip>");
+
+                Program.Write(ConsoleColor.Yellow, "- data dump file: ");
+                if (Value.DataDumpTables.Count == 0)
                 {
-                    Value.Run = true;
+                    Program.WriteLine(ConsoleColor.Cyan, Value.DataDumpFile ?? "<skip>");
                 }
                 else
                 {
-                    Value.Run = false;
+                    Program.WriteLine(ConsoleColor.Cyan, $"{(Value.DataDumpFile ?? "<skip>")} for tables: {string.Join(",", Value.DataDumpTables)}");
                 }
+
+                Program.Write(ConsoleColor.Yellow, "- database objects tree directory: ");
+                Program.WriteLine(ConsoleColor.Cyan, Value.DbObjectsDir ?? "<skip>");
+
+                Program.Write(ConsoleColor.Yellow, "- comments markdown (MD) file: ");
+                Program.WriteLine(ConsoleColor.Cyan, Value.CommentsMdFile ?? "<skip>");
+
+                Program.WriteLine("");
+                Program.Write(ConsoleColor.Yellow, "You can change this file to update to new settings and run ");
+                Program.Write(ConsoleColor.Cyan, $"pgroutiner --{RunArgs.Name}");
+                Program.WriteLine(ConsoleColor.Yellow, " command to start file generation.");
+
+                var answer = Program.Ask("Run code files generation immediately based on your current settings. Yes or No? [Y/N]", ConsoleKey.Y, ConsoleKey.N);
+                Value.Run = answer == ConsoleKey.Y;
             }
 
             BuildSettingsFile(pgroutinerFile);
@@ -129,7 +174,7 @@ namespace PgRoutiner
         {
             if (project.NpgsqlIncluded == false)
             {
-                if (Value.UpdateReferences)
+                if (!Value.SkipUpdateReferences)
                 {
                     Program.DumpError($"Npgsql package package is required.");
                     if (Program.Ask("Add Npgsql reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
@@ -139,9 +184,9 @@ namespace PgRoutiner
                 }
             }
 
-            if (Value.AsyncMethod && project.AsyncLinqIncluded == false)
+            if (!Value.SkipAsyncMethods && project.AsyncLinqIncluded == false)
             {
-                if (Value.UpdateReferences)
+                if (!Value.SkipUpdateReferences)
                 {
                     Program.DumpError($"To be able to use async methods, System.Linq.Async package is required.");
                     if (Program.Ask("Add System.Linq.Async package reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
@@ -153,7 +198,7 @@ namespace PgRoutiner
 
             if (string.IsNullOrEmpty(project.NormVersion))
             {
-                if (Value.UpdateReferences)
+                if (!Value.SkipUpdateReferences)
                 {
                     Program.DumpError($"Norm.net package package is required.");
                     if (Program.Ask("Add Norm.net reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
@@ -174,7 +219,7 @@ namespace PgRoutiner
             }
             catch (Exception)
             {
-                if (Value.UpdateReferences)
+                if (!Value.SkipUpdateReferences)
                 {
                     Program.DumpError($"Minimum version for Norm.net package is {Settings.Value.MinNormVersion}. Current version in project is {project.NormVersion}.");
                     if (Program.Ask("Update Norm.net package? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
@@ -261,130 +306,30 @@ namespace PgRoutiner
 
         private static void BuildSettingsFile(string file)
         {
-            StringBuilder sb = new();
-            void AddComment(string comment)
-            {
-                sb.AppendLine($"    /* {comment} */");
-            }
-            void AddEntry(string field, object fieldValue, string last = ",")
-            {
-                string v = null;
-                if (fieldValue == null)
-                {
-                    v = "null";
-                }
-                else if (fieldValue is string)
-                {
-                    v = $"\"{fieldValue}\"";
-                }
-                else if (fieldValue is bool)
-                {
-                    v = (bool)fieldValue == true ? "true" : "false";
-                }
-                else if (fieldValue is List<string>)
-                {
-                    if (((List<string>)fieldValue).Count == 0)
-                    {
-                        v = "[ ]";
-                    }
-                    else
-                    {
-                        v = $"[{Environment.NewLine}      {string.Join($",{Environment.NewLine}      ", ((List<string>)fieldValue).Select(i => $"\"{i}\""))}{Environment.NewLine}    ]";
-                    }
-                }
-                else if (fieldValue is int)
-                {
-                    v = $"{fieldValue}";
-                }
-                else if (fieldValue is Dictionary<string, string>)
-                {
-                    if (((Dictionary<string, string>)fieldValue).Values.Count == 0)
-                    {
-                        v = "{ }";
-                    }
-                    else
-                    {
-                        v = $"{{{Environment.NewLine}      {string.Join($",{Environment.NewLine}      ", ((Dictionary<string, string>)fieldValue).Select(d => $"\"{d.Key}\": \"{d.Value}\""))}{Environment.NewLine}    }}";
-                    }
-                }
-                sb.AppendLine($"    \"{field}\": {v}{last}");
-                
-            }
-
-            sb.AppendLine("{");
-            sb.AppendLine("  /* PgRoutiner settings */");
-            sb.AppendLine("  /* see https://github.com/vb-consulting/PgRoutiner/SETTINGS.MD for more info */");
-            sb.AppendLine("  \"PgRoutiner\": {");
-
-            sb.AppendLine();
-            AddComment("general settings");
-            AddEntry("Connection", Value.Connection);
-            AddEntry("Schema", Value.Schema);
-            AddEntry("Overwrite", Value.Overwrite);
-            AddEntry("AskOverwrite", Value.AskOverwrite);
-            AddEntry("SkipIfExists", Value.SkipIfExists);
-            AddEntry("MinNormVersion", Value.MinNormVersion);
-            AddEntry("UpdateReferences", Value.UpdateReferences);
-            AddEntry("Ident", Value.Ident);
-            AddEntry("PgDumpCommand", Value.PgDumpCommand);
-
-            sb.AppendLine();
-            AddComment("routines data-access extensions settings");
-            AddEntry("OutputDir", Value.OutputDir);
-            AddEntry("Namespace", Value.Namespace);
-            AddEntry("NotSimilarTo", Value.NotSimilarTo);
-            AddEntry("SimilarTo", Value.SimilarTo);
-            AddEntry("SourceHeader", Value.SourceHeader);
-            AddEntry("SyncMethod", Value.SyncMethod);
-            AddEntry("AsyncMethod", Value.AsyncMethod);
-            AddEntry("ModelDir", Value.ModelDir);
-            AddEntry("Mapping", Value.Mapping);
-            AddEntry("CustomModels", Value.CustomModels);
-            AddEntry("UseRecords", Value.UseRecords);
-
-            sb.AppendLine();
-            AddComment("schema dump settings");
-            AddEntry("SchemaDumpFile", Value.SchemaDumpFile);
-            AddEntry("SchemaDumpNoOwner", Value.SchemaDumpNoOwner);
-            AddEntry("SchemaDumpNoPrivileges", Value.SchemaDumpNoPrivileges);
-            AddEntry("SchemaDumpDropIfExists", Value.SchemaDumpDropIfExists);
-            AddEntry("SchemaDumpAdditionalOptions", Value.SchemaDumpAdditionalOptions);
-            AddEntry("SchemaDumpUnderTransaction", Value.SchemaDumpUnderTransaction);
-
-            sb.AppendLine();
-            AddComment("data dump settings");
-            AddEntry("DataDumpFile", Value.DataDumpFile);
-            AddEntry("DataDumpTables", Value.DataDumpTables);
-            AddEntry("DataDumpAdditionalOptions", Value.DataDumpAdditionalOptions);
-            AddEntry("DataDumpUnderTransaction", Value.DataDumpUnderTransaction);
-
-            sb.AppendLine();
-            AddComment("database object tree settings");
-            AddEntry("DbObjectsDir", Value.DbObjectsDir);
-            AddEntry("DbObjectsDirClearIfNotEmpty", Value.DbObjectsDirClearIfNotEmpty);
-            AddEntry("DbObjectsNoOwner", Value.DbObjectsNoOwner);
-            AddEntry("DbObjectsNoPrivileges", Value.DbObjectsNoPrivileges);
-            AddEntry("DbObjectsDropIfExists", Value.DbObjectsDropIfExists);
-            AddEntry("DbObjectsCreateOrReplaceRoutines", Value.DbObjectsCreateOrReplaceRoutines);
-            AddEntry("DbObjectsRaw", Value.DbObjectsRaw);
-
-            sb.AppendLine();
-            AddComment("comments markdown documentation file settings");
-            AddEntry("CommentsMdFile", Value.CommentsMdFile);
-            AddEntry("CommentsMdRoutines", Value.CommentsMdRoutines);
-            AddEntry("CommentsMdViews", Value.CommentsMdViews);
-            AddEntry("CommentsMdNotSimilarTo", Value.CommentsMdNotSimilarTo);
-            AddEntry("CommentsMdSimilarTo", Value.CommentsMdSimilarTo, "");
-
-            sb.AppendLine("  }");
-            sb.AppendLine("}");
-
-            File.WriteAllText(file, sb.ToString());
+            File.WriteAllText(file, BuildFormatedSettings());
             Console.WriteLine();
-            Program.WriteLine(ConsoleColor.Yellow, $"Settings file {pgroutinerSettingsFile} created.");
+            Program.Write(ConsoleColor.Yellow, $"Settings file ");
+            Program.Write(ConsoleColor.Cyan, pgroutinerSettingsFile);
+            Program.WriteLine(ConsoleColor.Yellow, $" successfully created!");
             if (!Value.Run)
             {
-                Program.WriteLine(ConsoleColor.Yellow, $"Use -r or --run switch to start code generation.");
+                Program.Write(ConsoleColor.Yellow, "- Change this file and run ");
+                Program.Write(ConsoleColor.Cyan, $"pgroutiner {RunArgs.Alias}");
+                Program.Write(ConsoleColor.Yellow, " or ");
+                Program.Write(ConsoleColor.Cyan, $"pgroutiner {RunArgs.Name}");
+                Program.WriteLine(ConsoleColor.Yellow, " command to start file generation.");
+
+                Program.Write(ConsoleColor.Yellow, "- Run ");
+                Program.Write(ConsoleColor.Cyan, $"pgroutiner {SettingsArgs.Alias}");
+                Program.Write(ConsoleColor.Yellow, " or ");
+                Program.Write(ConsoleColor.Cyan, $"pgroutiner {SettingsArgs.Name}");
+                Program.WriteLine(ConsoleColor.Yellow, " to see current settings.");
+
+                Program.Write(ConsoleColor.Yellow, "- Run ");
+                Program.Write(ConsoleColor.Cyan, $"pgroutiner {HelpArgs.Alias}");
+                Program.Write(ConsoleColor.Yellow, " or ");
+                Program.Write(ConsoleColor.Cyan, $"pgroutiner {HelpArgs.Name}");
+                Program.WriteLine(ConsoleColor.Yellow, " to see help on available commands.");
             }
         }
     }

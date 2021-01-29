@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace PgRoutiner
 {
     public class MarkdownDocument
     {
+        private string I1 => string.Join("", Enumerable.Repeat(" ", settings.Ident));
         private readonly Settings settings;
         private readonly NpgsqlConnection connection;
 
@@ -45,11 +47,111 @@ namespace PgRoutiner
             return string.Concat(header.ToString(), content.ToString());
         }
 
+        public string BuildDiff(string file)
+        {
+            StringBuilder result = new();
+            var content = File.ReadAllText(file);
+            var schemas = connection.GetSchemas(settings).ToList();
+            var comments = new Dictionary<string, string>();
+            
+            foreach (var schema in schemas)
+            {
+                var dict = connection
+                    .GetTableComments(settings, schema, isTable: true)
+                    .Where(t => t.Comment != null)
+                    .ToDictionary(
+                        t => $"\"{schema}\".\"{t.Table}\"{(t.Column == null ? "" : $".\"{t.Column}\"")}",
+                        t => t.Comment);
+                dict.ToList().ForEach(x => comments.Add(x.Key, x.Value));
+
+                dict = connection
+                    .GetTableComments(settings, schema, isTable: false)
+                    .Where(t => t.Comment != null)
+                    .ToDictionary(
+                        t => $"\"{schema}\".\"{t.Table}\"{(t.Column == null ? "" : $".\"{t.Column}\"")}",
+                        t => t.Comment);
+                dict.ToList().ForEach(x => comments.Add(x.Key, x.Value));
+
+                dict = connection
+                    .GetRoutineComments(settings, schema)
+                    .Where(t => t.Comment != null)
+                    .ToDictionary(
+                        t => $"\"{schema}\".{t.Signature.Replace(t.Name, $"\"{t.Name}\"")}",
+                        t => t.Comment);
+                dict.ToList().ForEach(x => comments.Add(x.Key, x.Value));
+            }
+
+            var scriptName = $"${settings.Connection}_comments_update$";
+            result.AppendLine($"do {scriptName}");
+            result.AppendLine("begin");
+            result.AppendLine("");
+
+            var start = 0;
+            var search = $"{Open}{CommentStatement}";
+            var close = Close;
+            var endTag = EndTag;
+            while (true)
+            {
+                start = content.IndexOf(search, start, StringComparison.Ordinal);
+                if (start == -1)
+                {
+                    break;
+                }
+                var end = content.IndexOf(close, start, StringComparison.Ordinal);
+                if (end == -1)
+                {
+                    break;
+                }
+                var commentTag = content.Substring(start, end - start + close.Length);
+                start = end + close.Length;
+                end = content.IndexOf(endTag, start, StringComparison.Ordinal);
+                if (end == -1)
+                {
+                    break;
+                }
+                var comment = content[start..end].Trim();
+                start = end;
+
+                var statement = commentTag
+                    .Replace(Open, "")
+                    .Replace(Close, "");
+                var part = statement
+                    .Replace(CommentStatement, "")
+                    .Replace(CommentIs, "");
+                var sep = part.IndexOf(" ", StringComparison.Ordinal) + 1;
+                var entry = part[sep..];
+                if (comments.TryGetValue(entry, out var old))
+                {
+                    var old1 = string.Join(" ", old.Split("\n")).Trim();
+                    var old2 = string.Join($"{Environment.NewLine}", old.Split("\n")).Trim();
+                    var old3 = string.Join($"{Environment.NewLine}{Environment.NewLine}", old.Split("\n")).Trim();
+                    
+                    if (!string.Equals(comment, old1) && !string.Equals(comment, old2) && !string.Equals(comment, old3))
+                    {
+                        result.AppendLine($"{I1}{statement.Replace(Param, $"$${comment}$$")}");
+                    }
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(comment))
+                    {
+                        result.AppendLine($"{I1}{statement.Replace(Param, $"$${comment}$$")}");
+                    }
+                }
+            }
+
+            result.AppendLine();
+            result.AppendLine("end");
+            result.AppendLine($"{scriptName};");
+
+            return result.ToString();
+        }
+
         private void BuildRoutines(StringBuilder content, StringBuilder header, List<string> schemas, bool writeToc)
         {
             foreach (var schema in schemas)
             {
-                if (!settings.CommentsMdRoutines)
+                if (settings.CommentsMdSkipRoutines)
                 {
                     break;
                 }
@@ -73,7 +175,7 @@ namespace PgRoutiner
                     content.AppendLine();
                     content.AppendLine($"- Language is `{result.Language}`");
                     content.AppendLine();
-                    content.AppendLine(StartTag(result.Type, $"{schema}.{result.Signature.Replace(result.Name, $"\"{result.Name}\"")}"));
+                    content.AppendLine(StartTag(result.Type, $"\"{schema}\".{result.Signature.Replace(result.Name, $"\"{result.Name}\"")}"));
                     if (result.Comment != null)
                     {
                         content.AppendLine(string.Join($"{Environment.NewLine}{Environment.NewLine}", result.Comment.Split("\n")));
@@ -99,7 +201,7 @@ namespace PgRoutiner
 
             foreach (var schema in schemas)
             {
-                if (!settings.CommentsMdViews)
+                if (settings.CommentsMdSkipViews)
                 {
                     break;
                 }
@@ -114,12 +216,12 @@ namespace PgRoutiner
                     }
 
                     string comment = null;
-                    if (result.Comment != null)
-                    {
-                        comment = string.Join(" ", result.Comment.Split("\n"));
-                    }
                     if (result.Column == null)
                     {
+                        if (result.Comment != null)
+                        {
+                            comment = string.Join($"{Environment.NewLine}{Environment.NewLine}", result.Comment.Split("\n"));
+                        }
                         content.AppendLine();
 
                         if (writeToc)
@@ -139,7 +241,7 @@ namespace PgRoutiner
                         content.AppendLine($"### View `{schema}.{result.Table}`");
                         header.AppendLine($"- View [`{schema}.{result.Table}`](#view-{schema.ToLower()}{result.Table.ToLower()})");
                         content.AppendLine();
-                        content.AppendLine(StartTag("view", $"{schema}.\"{result.Table}\""));
+                        content.AppendLine(StartTag("view", $"\"{schema}\".\"{result.Table}\""));
                         if (comment != null)
                         {
                             content.AppendLine(comment);
@@ -152,10 +254,14 @@ namespace PgRoutiner
                     }
                     else
                     {
+                        if (result.Comment != null)
+                        {
+                            comment = string.Join(" ", result.Comment.Split("\n"));
+                        }
                         content.AppendLine(
                             $"| `{result.Column}` " +
                             $"| `{result.ColumnType}` " +
-                            $"| {StartTag("column", $"{schema}.\"{result.Table}\".\"{result.Column}\"")}{comment}{EndTag} |");
+                            $"| {StartTag("column", $"\"{schema}\".\"{result.Table}\".\"{result.Column}\"")}{comment}{EndTag} |");
                     }
                 }
             }
@@ -182,12 +288,12 @@ namespace PgRoutiner
                     }
 
                     string comment = null;
-                    if (result.Comment != null)
-                    {
-                        comment = string.Join(" ", result.Comment.Split("\n"));
-                    }
                     if (result.Column == null)
                     {
+                        if (result.Comment != null)
+                        {
+                            comment = string.Join($"{Environment.NewLine}{Environment.NewLine}", result.Comment.Split("\n"));
+                        }
                         content.AppendLine();
 
                         if (writeToc)
@@ -203,7 +309,7 @@ namespace PgRoutiner
                         content.AppendLine($"### Table `{schema}.{result.Table}`");
                         header.AppendLine($"- Table [`{schema}.{result.Table}`](#table-{schema.ToLower()}{result.Table.ToLower()})");
                         content.AppendLine();
-                        content.AppendLine(StartTag("table", $"{schema}.\"{result.Table}\""));
+                        content.AppendLine(StartTag("table", $"\"{schema}\".\"{result.Table}\""));
                         if (comment != null)
                         {
                             content.AppendLine(comment);
@@ -220,6 +326,10 @@ namespace PgRoutiner
                     }
                     else
                     {
+                        if (result.Comment != null)
+                        {
+                            comment = string.Join(" ", result.Comment.Split("\n"));
+                        }
                         var name = $"{schema.ToLower()}-{result.Table.ToLower()}-{result.Column.ToLower()}";
                         content.AppendLine(
                             $"| {Hashtag(name)}`{result.Column}` " +
@@ -227,7 +337,7 @@ namespace PgRoutiner
                             $"| `{result.ColumnType}` " +
                             $"| {result.Nullable} " +
                             $"| {result.DefaultMarkup} " +
-                            $"| {StartTag("column", $"{schema}.\"{result.Table}\".\"{result.Column}\"")}{comment}{EndTag} |");
+                            $"| {StartTag("column", $"\"{schema}\".\"{result.Table}\".\"{result.Column}\"")}{comment}{EndTag} |");
                     }
                 }
             }

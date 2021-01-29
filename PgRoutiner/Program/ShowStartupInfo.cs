@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace PgRoutiner
 {
@@ -9,15 +10,29 @@ namespace PgRoutiner
             WriteLine(ConsoleColor.Yellow,
                 "***************************************",
                 "** PostgreSQL Tool For .NET Projects **",
-                $"**        Version: {Version}           **",
+                $"**     PgRoutiner: {Version}           **",
                 "***************************************",
-                "",
-                "Usage: PgRoutiner [dir] [-h,--help] [-r,--run] [settings]",
-                "",
-                "- Use \"dir\" parameter to set working directory for your project other than current.",
-                "- Use \"-h\" or \"--help\" to show help, available settings, their current  values and exit immediately.",
-                "- Use \"-r\" or \"--run\" to start source code generation.",
                 "");
+            Write(ConsoleColor.Yellow, "- Type ");
+            Write(ConsoleColor.Cyan, $"pgroutiner {Settings.HelpArgs.Alias}");
+            Write(ConsoleColor.Yellow, " or ");
+            Write(ConsoleColor.Cyan, $"pgroutiner {Settings.HelpArgs.Name}");
+            Write(ConsoleColor.Yellow, " to see help on available commands and settings.");
+            WriteLine("");
+            Write(ConsoleColor.Yellow, "- Type ");
+            Write(ConsoleColor.Cyan, $"pgroutiner {Settings.SettingsArgs.Alias}");
+            Write(ConsoleColor.Yellow, " or ");
+            Write(ConsoleColor.Cyan, $"pgroutiner {Settings.SettingsArgs.Name}");
+            Write(ConsoleColor.Yellow, " to see the currently selected settings.");
+            WriteLine("");
+
+            WriteLine(ConsoleColor.Yellow, "", "Issues");
+            WriteLine(ConsoleColor.Cyan, "   https://github.com/vb-consulting/PgRoutiner/issues");
+            WriteLine(ConsoleColor.Yellow, "Donate");
+            WriteLine(ConsoleColor.Cyan, "   bitcoincash:qp93skpzyxtvw3l3lqqy7egwv8zrszn3wcfygeg0mv");
+            WriteLine(ConsoleColor.Cyan, "   https://www.paypal.com/paypalme/vbsoftware/", "");
+            WriteLine(ConsoleColor.Yellow, $"Copyright (c) VB Consulting and VB Software {DateTime.Now.Year}. This program and source code is licensed under the MIT license.");
+            WriteLine(ConsoleColor.Cyan, "   https://github.com/vb-consulting/PgRoutiner/blob/master/LICENSE", "");
         }
     }
 }

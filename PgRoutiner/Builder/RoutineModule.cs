@@ -4,7 +4,7 @@
     {
         public RoutineModule(Settings settings) : base(settings)
         {
-            if (settings.AsyncMethod)
+            if (!settings.SkipAsyncMethods)
             {
                 AddUsing("System.Threading.Tasks");
             }
