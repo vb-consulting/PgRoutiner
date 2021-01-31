@@ -36,27 +36,25 @@ namespace PgRoutiner
             {
                 return;
             }
-            var config = Settings.ParseSettings(args, out var error);
+            var config = Settings.ParseSettings(args);
             if (ShowDebug())
             {
                 return;
             }
-            if (error != null)
-            {
-                DumpError(error);
-                return;
-            }
-            if (!Settings.ParseInitialSettings(config.GetConnectionString(Settings.Value.Connection)))
+            using var connection = Settings.ParseConnectionString(config);
+            if (connection == null)
             {
                 return;
             }
-            var connectionStr = config.GetConnectionString(Settings.Value.Connection);
-            
-            if (Builder.BuilMdDiff(connectionStr))
+            if (!Settings.ParseInitialSettings(connection))
             {
                 return;
             }
-            if (Builder.ExecuteFile(connectionStr))
+            if (Builder.BuilMdDiff(connection))
+            {
+                return;
+            }
+            if (Builder.ExecuteFile(connection))
             {
                 return;
             }
@@ -64,7 +62,7 @@ namespace PgRoutiner
             if (Settings.Value.Run)
             {
                 WriteLine(ConsoleColor.Yellow, "", "Running files generation ... ", "");
-                Builder.Run(connectionStr);
+                Builder.Run(connection);
             }
             WriteLine("");
         }

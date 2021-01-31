@@ -37,7 +37,7 @@ namespace PgRoutiner
             WriteLine(ConsoleColor.Cyan, " " + dir);
             return true;
         }
-
+#if DEBUG
         public static void ParseProjectSetting(Settings settings)
         {
             if (!string.IsNullOrEmpty(settings.Project))
@@ -45,5 +45,6 @@ namespace PgRoutiner
                 CurrentDir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(Path.Combine(CurrentDir, settings.Project))));
             }
         }
+#endif
     }
 }

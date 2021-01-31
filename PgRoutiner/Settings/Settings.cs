@@ -54,8 +54,9 @@ namespace PgRoutiner
         public static readonly Arg DataDumpFileArgs = new("-ddf", nameof(DataDumpFile));
         public static readonly Arg DbObjectsDirArgs = new("-dbd", nameof(DbObjectsDir));
         public static readonly Arg CommentsMdFileArgs = new("-mdf", nameof(CommentsMdFile));
-
+#if DEBUG
         [JsonIgnore] public string Project { get; set; }
+#endif
         [JsonIgnore] public bool Run { get; set; } = false;
         [JsonIgnore] public bool Dump { get; set; } = false;
         [JsonIgnore] public string Execute { get; set; } = null;

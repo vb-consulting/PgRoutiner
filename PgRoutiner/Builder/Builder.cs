@@ -14,10 +14,8 @@ namespace PgRoutiner
         public static string SchemaFile = null;
         public static string DataFile = null;
 
-        public static void Run(string connectionStr)
+        public static void Run(NpgsqlConnection connection)
         {
-            using var connection = new NpgsqlConnection(connectionStr);
-            connection.Open();
             BuildDataAccess(connection);
             DumpContent();
 

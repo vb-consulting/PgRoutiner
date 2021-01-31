@@ -9,7 +9,7 @@ namespace PgRoutiner
 {
     partial class Builder
     {
-        public static bool BuilMdDiff(string connectionStr)
+        public static bool BuilMdDiff(NpgsqlConnection connection)
         {
             if (!Settings.Value.CommitComments)
             {
@@ -20,8 +20,6 @@ namespace PgRoutiner
                 Program.WriteLine(ConsoleColor.Red,  $"ERROR: Markdown file setting is not set (CommentsMdFile setting). Can't commit comments.");
                 return true;
             }
-
-            using var connection = new NpgsqlConnection(connectionStr);
             var file = Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.CommentsMdFile));
             if (!File.Exists(file))
             {

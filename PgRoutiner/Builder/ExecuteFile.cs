@@ -9,13 +9,12 @@ namespace PgRoutiner
 {
     partial class Builder
     {
-        public static bool ExecuteFile(string connectionStr)
+        public static bool ExecuteFile(NpgsqlConnection connection)
         {
             if (Settings.Value.Execute == null)
             {
                 return false;
             }
-            using var connection = new NpgsqlConnection(connectionStr);
             var file = Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.Execute));
             if (!File.Exists(file))
             {

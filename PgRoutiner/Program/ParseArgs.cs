@@ -53,7 +53,7 @@ namespace PgRoutiner
                     }
                     var from = arg.StartsWith("--") ? 2 : 1;
                     var to = arg.IndexOfAny(new[] { ':', '=' });
-                    result.Add(string.Concat(arg.Substring(0, from), name, arg.Substring(to == -1 ? arg.Length : to)));
+                    result.Add(string.Concat(arg.Substring(0, from), name, arg[(to == -1 ? arg.Length : to)..]));
                 }
                 else
                 {

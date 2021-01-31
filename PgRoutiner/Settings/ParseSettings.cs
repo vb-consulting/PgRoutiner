@@ -11,7 +11,7 @@ namespace PgRoutiner
     {
         private const string pgroutinerSettingsFile = "appsettings.PgRoutiner.json";
 
-        public static IConfigurationRoot ParseSettings(string[] args, out string error)
+        public static IConfigurationRoot ParseSettings(string[] args)
         {
             var argsList = args.ToList();
 
@@ -134,27 +134,9 @@ namespace PgRoutiner
             {
                 Value.Mapping = DefaultTypeMapping;
             }
-
-            if (!string.IsNullOrEmpty(Value.Connection))
-            {
-                if (string.IsNullOrEmpty(config.GetConnectionString(Value.Connection)))
-                {
-                    error = $"Connection name {Value.Connection} could not be found in settings, exiting...";
-                    return null;
-                }
-            }
-            else if (!config.GetSection("ConnectionStrings").GetChildren().Any())
-            {
-                error = $"Connection setting is not set and ConnectionStrings section doesn't contain any values, exiting...";
-                return null;
-            }
-
-            Value.Connection = config.GetSection("ConnectionStrings").GetChildren().First().Key;
-
+#if DEBUG
             Program.ParseProjectSetting(Value);
-            Program.WriteLine("", "Using connection: ");
-            Program.WriteLine(ConsoleColor.Cyan, " " + Path.GetFileName(Value.Connection));
-            error = null;
+#endif
             return config;
         }
     }

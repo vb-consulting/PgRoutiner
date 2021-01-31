@@ -66,14 +66,13 @@ namespace PgRoutiner
 
             if (wrap)
             {
+                sb.AppendLine($"/* PgRoutiner ({Program.Version}) settings */");
                 sb.AppendLine("{");
+                sb.AppendLine($"  /* see https://github.com/vb-consulting/PgRoutiner/CONNECTIONS.MD for more info */");
                 sb.AppendLine("  \"ConnectionStrings\": {");
                 sb.AppendLine("    //\"Connection1\": \"Server={server};Db={database};Port={port};User Id={user};Password={password};\"");
-                sb.AppendLine("    //\"Connection2\": \"Server={server};Db={database};Port={port};User Id={user};\" // prompts for password or uses PGPASSWORD env var ");
-                sb.AppendLine("    //\"Connection3\": \"postgresql://{user}:{password}@{server}:{port}/{database}\" ");
-                sb.AppendLine("    //\"Connection4\": \"postgresql://{user}:@{server}:{port}/{database}\" // prompts for password or uses PGPASSWORD env var ");
+                sb.AppendLine("    //\"Connection2\": \"postgresql://{user}:{password}@{server}:{port}/{database}\" ");
                 sb.AppendLine("  },");
-                sb.AppendLine($"  /* PgRoutiner ({Program.Version}) settings */");
                 sb.AppendLine("  /* see https://github.com/vb-consulting/PgRoutiner/SETTINGS.MD for more info */");
                 sb.AppendLine("  \"PgRoutiner\": {");
                 sb.AppendLine();

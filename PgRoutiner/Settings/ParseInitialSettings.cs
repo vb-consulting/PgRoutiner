@@ -18,10 +18,8 @@ namespace PgRoutiner
 
     public partial class Settings
     {
-        public static bool ParseInitialSettings(string connectionStr)
+        public static bool ParseInitialSettings(NpgsqlConnection connection)
         {
-            using var connection = new NpgsqlConnection(connectionStr);
-            
             var count = connection.GetRoutineCount(Value);
             Project project = null;
             if (Value.OutputDir != null && count > 0)
