@@ -31,7 +31,6 @@ namespace PgRoutiner
             WriteSetting(nameof(Settings.SkipIfExists), 
                 "List of file names without path to be skipped. Default is empty list.", 
                 "NAME", "INDEX");
-            WriteSetting(nameof(Settings.MinNormVersion),"Minimum Norm package version that works with generated code. Default is 3.1.2.");
             WriteSetting(nameof(Settings.SkipUpdateReferences), "Don't ask to update project references required by generated code.");
             WriteSetting(nameof(Settings.Ident),"Number of indentations spaces for generated code. Default is 4.", "NUMBER");
             WriteSetting(Settings.PgDumpArgs, "File path for pg_dump command. Default is pg_dump.", "FILEPATH");
@@ -42,6 +41,7 @@ namespace PgRoutiner
             WriteSetting(nameof(Settings.Namespace), "Namespace for generated source code. Default is project default.", "NAME");
             WriteSetting(Settings.NotSimilarToArgs, "Include routines not similar to expression. Default is null (disabled).", "EXP");
             WriteSetting(Settings.SimilarToArgs, "Include routines similar to expression. Default is null (disabled).", "EXP");
+            WriteSetting(nameof(Settings.MinNormVersion), "Minimum Norm package version that works with generated code. Default is 3.1.2.");
             WriteSetting(Settings.SkipSyncMethodsArgs, "Do not generate synchronous methods.");
             WriteSetting(Settings.SkipAsyncMethodsArgs, "Do not generate asynchronous methods.");
             WriteSetting(nameof(Settings.ModelDir), "Directory for model classes files. Default is null (models in source files).", "DIR");
@@ -81,6 +81,12 @@ namespace PgRoutiner
             WriteSetting(nameof(Settings.CommentsMdNotSimilarTo), "Include objects not similar to expression in markdown (MD) file. Default is null (disabled).", "EXP");
             WriteSetting(nameof(Settings.CommentsMdSimilarTo), "Include objects similar to expression in markdown (MD) file. Default is null (disabled).", "EXP");
             WriteSetting(Settings.CommitCommentsArgs, "Commit manual changes in comments inside markdown (MD) file back to database and exits.", "FILE");
+            Console.WriteLine();
+            Console.WriteLine("The \"psql\" interactive terminal options:");
+            WriteSetting(Settings.PsqlArgs, "Run \"psql\" interactive terminal for the connection and open in new terminal window.");
+            WriteSetting(nameof(Settings.PsqlTerminal), "Default terminal program for \"psql\" interactive terminal. Default is \"wt\" (windows terminal).");
+            WriteSetting(nameof(Settings.PsqlCommand), "Default \"psql\" command or file path to \"psql\" program. Default is \"psql\"");
+            WriteSetting(nameof(Settings.PsqlOptions), "Additional options passed to \"psql\" command. Default is null (not used).");
             ShowSettingsLink();
         }
 

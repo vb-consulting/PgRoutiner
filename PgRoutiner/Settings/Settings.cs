@@ -54,6 +54,7 @@ namespace PgRoutiner
         public static readonly Arg DataDumpFileArgs = new("-ddf", nameof(DataDumpFile));
         public static readonly Arg DbObjectsDirArgs = new("-dbd", nameof(DbObjectsDir));
         public static readonly Arg CommentsMdFileArgs = new("-mdf", nameof(CommentsMdFile));
+        public static readonly Arg PsqlArgs = new("-psql", nameof(Psql));
 #if DEBUG
         [JsonIgnore] public string Project { get; set; }
 #endif
@@ -67,7 +68,6 @@ namespace PgRoutiner
         public bool Overwrite { get; set; } = false;
         public bool AskOverwrite { get; set; } = false;
         public IList<string> SkipIfExists { get; set; } = new List<string>();
-        public string MinNormVersion { get; set; } = "3.1.2";
         public bool SkipUpdateReferences { get; set; } = false;
         public int Ident { get; set; } = 4;
         public string PgDump { get; set; } = "pg_dump";
@@ -78,6 +78,7 @@ namespace PgRoutiner
         public string Namespace { get; set; } = null;
         public string NotSimilarTo { get; set; } = null;
         public string SimilarTo { get; set; } = null;
+        public string MinNormVersion { get; set; } = "3.1.2";
         public bool SkipSyncMethods { get; set; } = false;
         public bool SkipAsyncMethods { get; set; } = false;
         public string ModelDir { get; set; } = null;
@@ -119,6 +120,12 @@ namespace PgRoutiner
         public string CommentsMdNotSimilarTo { get; set; } = null;
         public string CommentsMdSimilarTo { get; set; } = null;
         [JsonIgnore] public bool CommitComments { get; set; } = false;
+
+        /*psql interactive terminal*/
+        public bool Psql { get; set; } = false;
+        public string PsqlTerminal { get; set; } = "wt";
+        public string PsqlCommand { get; set; } = "psql";
+        public string PsqlOptions { get; set; } = null;
 
         public static readonly Settings Value = new Settings();
     }

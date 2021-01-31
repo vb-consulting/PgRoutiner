@@ -15,12 +15,7 @@ namespace PgRoutiner
         {
             var argsList = args.ToList();
 
-            void Remove(Arg value)
-            {
-                argsList.Remove(value.Alias);
-                argsList.Remove(value.Name);
-            }
-            void ParseSwitches(object instance)
+            void ParseSwitches(object instance, bool setValue = false)
             {
                 foreach(var prop in instance.GetType().GetProperties())
                 {
@@ -28,24 +23,32 @@ namespace PgRoutiner
                     {
                         continue;
                     }
+                    Arg argNames;
                     var argField = typeof(Settings).GetField($"{prop.Name}Args");
-                    if (argField == null)
+                    if (argField != null)
                     {
-                        continue;
+                        argNames = (Arg)argField.GetValue(null);
                     }
-                    var argNames = (Arg) argField.GetValue(null);
-
+                    else
+                    {
+                        argNames = new Arg($"--{prop.Name.ToLower()}", prop.Name);
+                    }
                     if (Program.ArgsInclude(args, argNames))
                     {
                         prop.SetValue(instance, true);
-                        Remove(argNames);
+                        argsList.Remove(argNames.Alias);
+                        argsList.Remove(argNames.Name);
+                        if (setValue)
+                        {
+                            argsList.Add(argNames.Name);
+                            argsList.Add("True");
+                        }
                     }
                 }
             }
-
             ParseSwitches(Switches.Value);
-            ParseSwitches(Value);
-          
+            ParseSwitches(Value, true);
+
             var pgroutinerFile = Path.Join(Program.CurrentDir, pgroutinerSettingsFile);
             var settingsFile = Path.Join(Program.CurrentDir, "appsettings.json");
             var devSettingsFile = Path.Join(Program.CurrentDir, "appsettings.Development.json");
@@ -69,59 +72,57 @@ namespace PgRoutiner
                 Program.WriteLine(ConsoleColor.Cyan, files.ToArray());
             }
 
-            var configBuilder = new ConfigurationBuilder()
-                .AddJsonFile(pgroutinerFile, optional: true, reloadOnChange: false)
-                .AddJsonFile(settingsFile, optional: true, reloadOnChange: false)
-                .AddJsonFile(devSettingsFile, optional: true, reloadOnChange: false);
-            var config = configBuilder.Build();
-            config.GetSection("PgRoutiner").Bind(Value);
-            config.Bind(Value);
-
-            new ConfigurationBuilder()
-                .AddCommandLine(argsList.ToArray(), new Dictionary<string, string> {
-                    {ExecuteArgs.Alias, ExecuteArgs.Original},
-                    {ConnectionArgs.Alias, ConnectionArgs.Original},
-                    {SchemaArgs.Alias, SchemaArgs.Original},
-                    {PgDumpArgs.Alias, PgDumpArgs.Original},
-                    {OutputDirArgs.Alias, OutputDirArgs.Original},
-                    {NotSimilarToArgs.Alias, NotSimilarToArgs.Original},
-                    {SimilarToArgs.Alias, SimilarToArgs.Original},
-                    {ModelDirArgs.Alias, ModelDirArgs.Original},
-                    {UseRecordsArgs.Alias, UseRecordsArgs.Original},
-                    {SchemaDumpFileArgs.Alias, SchemaDumpFileArgs.Original},
-                    {DataDumpFileArgs.Alias, DataDumpFileArgs.Original},
-                    {DbObjectsDirArgs.Alias, DbObjectsDirArgs.Original},
-                    {CommentsMdFileArgs.Alias, CommentsMdFileArgs.Original},
-                    {DirArgs.Alias, DirArgs.Original}
-                })
-                .Build()
-                .Bind(Value);
-
-            static void NullIfEmpty(params string[] names)
+            IConfigurationRoot config = null;
+            try
             {
-                foreach(var n in names)
+                var configBuilder = new ConfigurationBuilder()
+                    .AddJsonFile(pgroutinerFile, optional: true, reloadOnChange: false)
+                    .AddJsonFile(settingsFile, optional: true, reloadOnChange: false)
+                    .AddJsonFile(devSettingsFile, optional: true, reloadOnChange: false);
+                config = configBuilder.Build();
+                config.GetSection("PgRoutiner").Bind(Value);
+                config.Bind(Value);
+
+                new ConfigurationBuilder()
+                    .AddCommandLine(argsList.ToArray(), new Dictionary<string, string> {
+                        {ExecuteArgs.Alias, ExecuteArgs.Original},
+                        {ConnectionArgs.Alias, ConnectionArgs.Original},
+                        {SchemaArgs.Alias, SchemaArgs.Original},
+                        {PgDumpArgs.Alias, PgDumpArgs.Original},
+                        {OutputDirArgs.Alias, OutputDirArgs.Original},
+                        {NotSimilarToArgs.Alias, NotSimilarToArgs.Original},
+                        {SimilarToArgs.Alias, SimilarToArgs.Original},
+                        {ModelDirArgs.Alias, ModelDirArgs.Original},
+                        {UseRecordsArgs.Alias, UseRecordsArgs.Original},
+                        {SchemaDumpFileArgs.Alias, SchemaDumpFileArgs.Original},
+                        {DataDumpFileArgs.Alias, DataDumpFileArgs.Original},
+                        {DbObjectsDirArgs.Alias, DbObjectsDirArgs.Original},
+                        {CommentsMdFileArgs.Alias, CommentsMdFileArgs.Original},
+                        {DirArgs.Alias, DirArgs.Original},
+                        {PsqlArgs.Alias, PsqlArgs.Original}
+                    })
+                    .Build()
+                    .Bind(Value);
+            }
+            catch (Exception e)
+            {
+                Program.DumpError($"Failed to bind configuration: {e.Message}");
+                return null;
+            }
+
+            foreach (var prop in typeof(Settings).GetProperties())
+            {
+                if (prop.PropertyType != typeof(string))
                 {
-                    var prop = typeof(Settings).GetProperty(n);
-                    var value = prop.GetValue(Value) as string;
-                    if (value == "")
-                    {
-                        prop.SetValue(Value, null);
-                    }
+                    continue;
+                }
+                var value = prop.GetValue(Value) as string;
+                if (value == "")
+                {
+                    prop.SetValue(Value, null);
                 }
             }
-            NullIfEmpty(
-                nameof(SimilarTo), 
-                nameof(NotSimilarTo), 
-                nameof(ModelDir), 
-                nameof(Schema), 
-                nameof(SchemaDumpFile),
-                nameof(DataDumpFile), 
-                nameof(DbObjectsDir), 
-                nameof(CommentsMdFile), 
-                nameof(CommentsMdSimilarTo), 
-                nameof(CommentsMdNotSimilarTo), 
-                nameof(Execute));
-
+ 
             if (Value.Mapping != null && Value.Mapping.Values.Count > 0)
             {
                 foreach (var (key, value) in Value.Mapping)

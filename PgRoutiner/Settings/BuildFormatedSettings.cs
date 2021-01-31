@@ -84,10 +84,10 @@ namespace PgRoutiner
             AddEntry(nameof(Overwrite), Value.Overwrite);
             AddEntry(nameof(AskOverwrite), Value.AskOverwrite);
             AddEntry(nameof(SkipIfExists), Value.SkipIfExists);
-            AddEntry(nameof(MinNormVersion), Value.MinNormVersion);
             AddEntry(nameof(SkipUpdateReferences), Value.SkipUpdateReferences);
             AddEntry(nameof(Ident), Value.Ident);
             AddEntry(nameof(PgDump), Value.PgDump);
+            AddEntry(nameof(SourceHeader), Value.SourceHeader);
 
             sb.AppendLine();
             AddComment("routines data-access extensions settings");
@@ -95,7 +95,7 @@ namespace PgRoutiner
             AddEntry(nameof(Namespace), Value.Namespace);
             AddEntry(nameof(NotSimilarTo), Value.NotSimilarTo);
             AddEntry(nameof(SimilarTo), Value.SimilarTo);
-            AddEntry(nameof(SourceHeader), Value.SourceHeader);
+            AddEntry(nameof(MinNormVersion), Value.MinNormVersion);
             AddEntry(nameof(SkipSyncMethods), Value.SkipSyncMethods);
             AddEntry(nameof(SkipAsyncMethods), Value.SkipAsyncMethods);
             AddEntry(nameof(ModelDir), Value.ModelDir);
@@ -136,7 +136,14 @@ namespace PgRoutiner
             AddEntry(nameof(CommentsMdSkipRoutines), Value.CommentsMdSkipRoutines);
             AddEntry(nameof(CommentsMdSkipViews), Value.CommentsMdSkipViews);
             AddEntry(nameof(CommentsMdNotSimilarTo), Value.CommentsMdNotSimilarTo);
-            AddEntry(nameof(CommentsMdSimilarTo), Value.CommentsMdSimilarTo, "");
+            AddEntry(nameof(CommentsMdSimilarTo), Value.CommentsMdSimilarTo);
+
+            sb.AppendLine();
+            AddComment("psql interactive terminal settings");
+            AddEntry(nameof(Psql), Value.Psql);
+            AddEntry(nameof(PsqlTerminal), Value.PsqlTerminal);
+            AddEntry(nameof(PsqlCommand), Value.PsqlCommand);
+            AddEntry(nameof(PsqlOptions), Value.PsqlOptions, "");
 
             if (wrap)
             {

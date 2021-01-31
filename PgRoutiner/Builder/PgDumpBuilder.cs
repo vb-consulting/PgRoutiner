@@ -130,7 +130,7 @@ namespace PgRoutiner
 
         public string GetDumpVersion()
         {
-            return GetPgDumpContent("--version").Replace("pg_dump (PostgreSQL) ", "").Split(' ').First();
+            return GetPgDumpContent("--version").Replace("pg_dump (PostgreSQL) ", "").Split(' ').First().Trim();
         }
 
         private string GetTableContent(PgItem table, string args)

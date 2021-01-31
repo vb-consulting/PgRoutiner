@@ -57,7 +57,7 @@ namespace PgRoutiner
                 }
                 else
                 {
-                    var connectionStr = GetConnStringFromConsole();
+                    var connectionStr = GetConnectionString();
                     try
                     {
                         return CreateAndOpen(connectionStr);
@@ -164,67 +164,102 @@ namespace PgRoutiner
             }
             if (string.IsNullOrEmpty(server))
             {
-                server = GetServerFromConsole();
+                server = GetServer();
             }
             if (string.IsNullOrEmpty(port))
             {
-                port = GetPortFromConsole();
+                port = GetPort();
             }
             if (string.IsNullOrEmpty(database))
             {
-                database = GetDatabaseFromConsole();
+                database = GetDatabase();
             }
             if (string.IsNullOrEmpty(user))
             {
-                user = GetUserFromConsole();
+                user = GetUser();
             }
             if (string.IsNullOrEmpty(pass))
             {
-                pass = GetPasswordFromConsole();
+                pass = GetPassword();
             }
             return $"Server={server};Db={database};Port={port};User Id={user};Password={pass};";
         }
 
-        private static string GetConnStringFromConsole()
+        private static string GetConnectionString()
         {
-            var server = GetServerFromConsole();
-            var port = GetPortFromConsole();
-            var database = GetDatabaseFromConsole();
-            var user = GetUserFromConsole();
-            var pass = GetPasswordFromConsole();
+            var server = GetServer();
+            var port = GetPort();
+            var database = GetDatabase();
+            var user = GetUser();
+            var pass = GetPassword();
             return $"Server={server};Db={database};Port={port};User Id={user};Password={pass};";
         }
 
-        private static string GetUserFromConsole()
+        private static string GetUser()
         {
+            var env = Environment.GetEnvironmentVariable("PGUSER");
+            if (env != null)
+            {
+                return env;
+            }
             Console.WriteLine();
             Console.WriteLine("User:");
             return Console.ReadLine();
         }
 
-        private static string GetServerFromConsole()
+        private static string GetServer()
         {
+            var env = Environment.GetEnvironmentVariable("PGHOST");
+            if (env != null)
+            {
+                return env;
+            }
+            env = Environment.GetEnvironmentVariable("PGSERVER");
+            if (env != null)
+            {
+                return env;
+            }
             Console.WriteLine();
             Console.WriteLine("Server:");
             return Console.ReadLine();
         }
 
-        private static string GetPortFromConsole()
+        private static string GetPort()
         {
+            var env = Environment.GetEnvironmentVariable("PGPORT");
+            if (env != null)
+            {
+                return env;
+            }
             Console.WriteLine();
             Console.WriteLine("Port:");
             return Console.ReadLine();
         }
 
-        private static string GetDatabaseFromConsole()
+        private static string GetDatabase()
         {
+            var env = Environment.GetEnvironmentVariable("PGDATABASE");
+            if (env != null)
+            {
+                return env;
+            }
+            env = Environment.GetEnvironmentVariable("PGDB");
+            if (env != null)
+            {
+                return env;
+            }
             Console.WriteLine();
             Console.WriteLine("Database:");
             return Console.ReadLine();
         }
 
-        private static string GetPasswordFromConsole()
+        private static string GetPassword()
         {
+            var env = Environment.GetEnvironmentVariable("PGPASSWORD");
+            if (env != null)
+            {
+                return env;
+            }
             Console.WriteLine();
             Console.WriteLine("Password:");
             var pass = string.Empty;

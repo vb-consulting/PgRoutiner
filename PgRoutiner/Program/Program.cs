@@ -37,6 +37,10 @@ namespace PgRoutiner
                 return;
             }
             var config = Settings.ParseSettings(args);
+            if (config == null)
+            {
+                return;
+            }
             if (ShowDebug())
             {
                 return;
@@ -58,7 +62,11 @@ namespace PgRoutiner
             {
                 return;
             }
-
+            if (Settings.Value.Psql)
+            {
+                new PsqlRunner(Settings.Value, connection).Run();
+                return;
+            }
             if (Settings.Value.Run)
             {
                 WriteLine(ConsoleColor.Yellow, "", "Running files generation ... ", "");
