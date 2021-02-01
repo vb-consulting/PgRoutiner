@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -72,7 +71,7 @@ namespace PgRoutiner
                 Program.WriteLine(ConsoleColor.Cyan, files.ToArray());
             }
 
-            IConfigurationRoot config = null;
+            IConfigurationRoot config;
             try
             {
                 var configBuilder = new ConfigurationBuilder()

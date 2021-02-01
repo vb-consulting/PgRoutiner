@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Linq;
 using Npgsql;
-using System.Xml;
 
 namespace PgRoutiner
 {
@@ -15,8 +10,8 @@ namespace PgRoutiner
         public static bool CheckPgDumpVersion(NpgsqlConnection connection, PgDumpBuilder builder, bool ask = true)
         {
             var connVersion = connection.ServerVersion.Split(".").First();
-            string fullDumpVersion = null;
-            string dumpVersion = null;
+            string fullDumpVersion;
+            string dumpVersion;
             try
             {
                 fullDumpVersion = builder.GetDumpVersion();

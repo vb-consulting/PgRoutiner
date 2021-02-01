@@ -1,10 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using Norm;
 using Npgsql;
-using Newtonsoft.Json;
 
 namespace PgRoutiner
 {

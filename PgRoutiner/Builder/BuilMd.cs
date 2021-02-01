@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Npgsql;
 
 namespace PgRoutiner
@@ -50,7 +47,7 @@ namespace PgRoutiner
             try
             {
                 var builder = new MarkdownDocument(Settings.Value, connection);
-                Program.WriteFile(file, builder.Build());
+                WriteFile(file, builder.Build());
             }
             catch(Exception e)
             {

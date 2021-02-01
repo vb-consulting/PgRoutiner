@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Linq;
 using Npgsql;
 using System.Xml;
@@ -21,7 +19,7 @@ namespace PgRoutiner
         public static bool ParseInitialSettings(NpgsqlConnection connection)
         {
             var count = connection.GetRoutineCount(Value);
-            Project project = null;
+            Project project;
             if (Value.OutputDir != null && count > 0)
             {
                 project = ParseProjectFile();

@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Linq;
-using Npgsql;
-using System.Xml;
 
 namespace PgRoutiner
 {

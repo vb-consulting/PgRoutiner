@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using Npgsql;
 
 namespace PgRoutiner
@@ -41,7 +38,7 @@ namespace PgRoutiner
             Dump("Creating source code files...");
             foreach (var item in Content)
             {
-                Program.WriteFile(item.FullFileName, item.Content);
+                WriteFile(item.FullFileName, item.Content);
             }
         }
 

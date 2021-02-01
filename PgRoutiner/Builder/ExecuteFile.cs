@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Npgsql;
 
 namespace PgRoutiner
@@ -23,7 +20,7 @@ namespace PgRoutiner
             }
             try
             {
-                Program.Execute(connection, File.ReadAllText(file));
+                Execute(connection, File.ReadAllText(file));
                 Dump("Executed successfully!");
             }
             catch(Exception e)

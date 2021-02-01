@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace PgRoutiner
@@ -46,7 +45,7 @@ namespace PgRoutiner
             Dump($"Creating dump file {shortName}...");
             try
             {
-                Program.WriteFile(file, contentFunc());
+                WriteFile(file, contentFunc());
                 successFunc(file);
             }
             catch(Exception e)

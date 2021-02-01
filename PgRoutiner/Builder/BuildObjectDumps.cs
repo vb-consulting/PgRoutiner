@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using Npgsql;
 
 namespace PgRoutiner
 {
@@ -109,7 +106,7 @@ namespace PgRoutiner
                 Dump($"Creating dump file {shortName}...");
                 try
                 {
-                    Program.WriteFile(file, content);
+                    WriteFile(file, content);
                 }
                 catch (Exception e)
                 {
