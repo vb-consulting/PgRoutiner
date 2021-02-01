@@ -150,7 +150,7 @@ namespace PgRoutiner
         {
             foreach (var schema in schemas)
             {
-                if (settings.CommentsMdSkipRoutines)
+                if (settings.MdSkipRoutines)
                 {
                     break;
                 }
@@ -200,7 +200,7 @@ namespace PgRoutiner
 
             foreach (var schema in schemas)
             {
-                if (settings.CommentsMdSkipViews)
+                if (settings.MdSkipViews)
                 {
                     break;
                 }

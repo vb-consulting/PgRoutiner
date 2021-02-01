@@ -135,8 +135,8 @@ namespace PgRoutiner
                     c.ordinal_position
             ",
                 ("schema", schema, DbType.AnsiString),
-                ("notSimilarTo", settings.CommentsMdNotSimilarTo, DbType.AnsiString),
-                ("similarTo", settings.CommentsMdSimilarTo, DbType.AnsiString),
+                ("notSimilarTo", settings.MdNotSimilarTo, DbType.AnsiString),
+                ("similarTo", settings.MdSimilarTo, DbType.AnsiString),
                 ("type", isTable ? "BASE TABLE" : "VIEW", DbType.AnsiString))
 
             .Select(t => new TableComment

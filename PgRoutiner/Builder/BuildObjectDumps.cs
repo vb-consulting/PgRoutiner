@@ -21,12 +21,12 @@ namespace PgRoutiner
                 }
                 return @default;
             }
-            var baseDir = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.DbObjectsDir)), Settings.Value.Connection);
+            var baseDir = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.DbObjectsDir)), ConnectionName);
             CreateDir(baseDir, true);
-            var tablesDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Tables", "Tables"))), Settings.Value.Connection);
-            var viewsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Views", "Views"))), Settings.Value.Connection);
-            var functionsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Functions", "Functions"))), Settings.Value.Connection);
-            var proceduresDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Procedures", "Procedures"))), Settings.Value.Connection);
+            var tablesDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Tables", "Tables"))), ConnectionName);
+            var viewsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Views", "Views"))), ConnectionName);
+            var functionsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Functions", "Functions"))), ConnectionName);
+            var proceduresDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Procedures", "Procedures"))), ConnectionName);
 
             var tableCreated = false;
             var viewCreated = false;
@@ -49,8 +49,8 @@ namespace PgRoutiner
                     continue;
                 }
 
-                var file = string.Format(Path.GetFullPath(Path.Combine(dir, shortFilename)), Settings.Value.Connection);
-                var shortName = string.Format($"{dir.Split(Path.DirectorySeparatorChar).Last()}{Path.DirectorySeparatorChar}{shortFilename}", Settings.Value.Connection);
+                var file = string.Format(Path.GetFullPath(Path.Combine(dir, shortFilename)), ConnectionName);
+                var shortName = string.Format($"{dir.Split(Path.DirectorySeparatorChar).Last()}{Path.DirectorySeparatorChar}{shortFilename}", ConnectionName);
                 var exists = File.Exists(file);
 
                 switch (type)

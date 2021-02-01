@@ -14,7 +14,14 @@ namespace PgRoutiner
                 Console.ResetColor();
                 return;
             }
-            File.WriteAllText(path, content);
+            try
+            {
+                File.WriteAllText(path, content);
+            }
+            catch(Exception e)
+            {
+                Program.DumpError($"File {path} could not be written: {e.Message}");
+            }
         }
     }
 }

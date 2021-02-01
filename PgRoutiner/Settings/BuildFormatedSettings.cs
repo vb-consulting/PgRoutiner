@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Npgsql;
 
 namespace PgRoutiner
 {
     public partial class Settings
     {
-        public static string BuildFormatedSettings(bool wrap = true)
+        public static string BuildFormatedSettings(bool wrap = true, NpgsqlConnection connection = null)
         {
             StringBuilder sb = new();
 
@@ -66,8 +67,15 @@ namespace PgRoutiner
                 sb.AppendLine("{");
                 sb.AppendLine($"  /* see https://github.com/vb-consulting/PgRoutiner/CONNECTIONS.MD for more info */");
                 sb.AppendLine("  \"ConnectionStrings\": {");
-                sb.AppendLine("    //\"Connection1\": \"Server={server};Db={database};Port={port};User Id={user};Password={password};\"");
-                sb.AppendLine("    //\"Connection2\": \"postgresql://{user}:{password}@{server}:{port}/{database}\" ");
+                if (connection == null)
+                {
+                    sb.AppendLine("    //\"Connection1\": \"Server={server};Db={database};Port={port};User Id={user};Password={password};\"");
+                    sb.AppendLine("    //\"Connection2\": \"postgresql://{user}:{password}@{server}:{port}/{database}\" ");
+                }
+                else if (Value.Connection == null && connection != null)
+                {
+                    sb.AppendLine($"    \"{connection.Database.ToUpperCamelCase()}Connection\": \"{connection.ConnectionString}\"");
+                }
                 sb.AppendLine("  },");
                 sb.AppendLine("  /* see https://github.com/vb-consulting/PgRoutiner/SETTINGS.MD for more info */");
                 sb.AppendLine("  \"PgRoutiner\": {");
@@ -87,6 +95,7 @@ namespace PgRoutiner
 
             sb.AppendLine();
             AddComment("routines data-access extensions settings");
+            AddEntry(nameof(Routines), Value.Routines);
             AddEntry(nameof(OutputDir), Value.OutputDir);
             AddEntry(nameof(Namespace), Value.Namespace);
             AddEntry(nameof(NotSimilarTo), Value.NotSimilarTo);
@@ -101,6 +110,7 @@ namespace PgRoutiner
 
             sb.AppendLine();
             AddComment("schema dump settings");
+            AddEntry(nameof(SchemaDump), Value.SchemaDump);
             AddEntry(nameof(SchemaDumpFile), Value.SchemaDumpFile);
             AddEntry(nameof(SchemaDumpOwners), Value.SchemaDumpOwners);
             AddEntry(nameof(SchemaDumpPrivileges), Value.SchemaDumpPrivileges);
@@ -110,6 +120,7 @@ namespace PgRoutiner
 
             sb.AppendLine();
             AddComment("data dump settings");
+            AddEntry(nameof(DataDump), Value.DataDump);
             AddEntry(nameof(DataDumpFile), Value.DataDumpFile);
             AddEntry(nameof(DataDumpTables), Value.DataDumpTables);
             AddEntry(nameof(DataDumpOptions), Value.DataDumpOptions);
@@ -117,6 +128,7 @@ namespace PgRoutiner
 
             sb.AppendLine();
             AddComment("database object tree settings");
+            AddEntry(nameof(DbObjects), Value.DbObjects);
             AddEntry(nameof(DbObjectsDir), Value.DbObjectsDir);
             AddEntry(nameof(DbObjectsDirNames), Value.DbObjectsDirNames);
             AddEntry(nameof(DbObjectsSkipDelete), Value.DbObjectsSkipDelete);
@@ -128,11 +140,13 @@ namespace PgRoutiner
 
             sb.AppendLine();
             AddComment("comments markdown documentation file settings");
-            AddEntry(nameof(CommentsMdFile), Value.CommentsMdFile);
-            AddEntry(nameof(CommentsMdSkipRoutines), Value.CommentsMdSkipRoutines);
-            AddEntry(nameof(CommentsMdSkipViews), Value.CommentsMdSkipViews);
-            AddEntry(nameof(CommentsMdNotSimilarTo), Value.CommentsMdNotSimilarTo);
-            AddEntry(nameof(CommentsMdSimilarTo), Value.CommentsMdSimilarTo);
+            AddEntry(nameof(Markdown), Value.Markdown);
+            AddEntry(nameof(MdFile), Value.MdFile);
+            AddEntry(nameof(MdSkipRoutines), Value.MdSkipRoutines);
+            AddEntry(nameof(MdSkipViews), Value.MdSkipViews);
+            AddEntry(nameof(MdNotSimilarTo), Value.MdNotSimilarTo);
+            AddEntry(nameof(MdSimilarTo), Value.MdSimilarTo);
+            AddEntry(nameof(CommitMd), Value.CommitMd);
 
             sb.AppendLine();
             AddComment("psql interactive terminal settings");

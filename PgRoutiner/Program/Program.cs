@@ -20,13 +20,7 @@ namespace PgRoutiner
                 ShowInfo();
                 return;
             }
-
-            var dump = ArgsInclude(args, Settings.DumpArgs);
-            if ((dump && ArgsInclude(args, Settings.CommitCommentsArgs)) ||
-                (dump && ArgsInclude(args, Settings.ExecuteArgs)))
-            {
-                Mute = true;
-            }
+            Mute = ArgsInclude(args, Settings.DumpArgs);
             if (!help)
             {
                 ShowStartupInfo();
@@ -53,24 +47,7 @@ namespace PgRoutiner
             {
                 return;
             }
-            if (Builder.BuilMdDiff(connection))
-            {
-                return;
-            }
-            if (Builder.ExecuteFile(connection))
-            {
-                return;
-            }
-            if (Settings.Value.Psql)
-            {
-                new PsqlRunner(Settings.Value, connection).Run();
-                return;
-            }
-            if (Settings.Value.Run)
-            {
-                WriteLine(ConsoleColor.Yellow, "", "Running files generation ... ", "");
-                Builder.Run(connection);
-            }
+            Builder.Run(connection);
             WriteLine("");
         }
 
@@ -91,9 +68,9 @@ namespace PgRoutiner
                 WriteLine("OS: ");
                 WriteLine(ConsoleColor.Cyan, " " + Environment.OSVersion);
                 WriteLine("Run: ");
-                WriteLine(ConsoleColor.Cyan, $" {Settings.Value.Run}");
+                WriteLine(ConsoleColor.Cyan, $" {Settings.Value.Routines}");
                 WriteLine("CommitComments: ");
-                WriteLine(ConsoleColor.Cyan, $" {Settings.Value.CommitComments}");
+                WriteLine(ConsoleColor.Cyan, $" {Settings.Value.CommitMd}");
                 WriteLine("Dump: ");
                 WriteLine(ConsoleColor.Cyan, $" {Settings.Value.Dump}");
                 WriteLine("Execute: ");

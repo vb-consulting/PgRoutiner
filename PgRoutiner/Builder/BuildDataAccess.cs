@@ -9,7 +9,7 @@ namespace PgRoutiner
     {
         private static void BuildDataAccess(NpgsqlConnection connection)
         {
-            if (string.IsNullOrEmpty(Settings.Value.OutputDir))
+            if (Settings.Value.OutputDir == null)
             {
                 return;
             }
@@ -25,7 +25,6 @@ namespace PgRoutiner
                 var shortName = outputDir.Contains("/") ?
                                 $"{outputDir.Split("/").Last()}{"/"}{shortFilename}" :
                                 $"{outputDir.Split("\\").Last()}{"\\"}{shortFilename}";
-                    //$"{outputDir.Split(Path.DirectorySeparatorChar).Last()}{Path.DirectorySeparatorChar}{shortFilename}";
                 var exists = File.Exists(fullFileName);
 
                 if (!Settings.Value.Dump && exists && Settings.Value.Overwrite == false)
@@ -54,7 +53,7 @@ namespace PgRoutiner
                 }
                 catch (ArgumentException e)
                 {
-                    Error($"File {shortName} could not be written. {e.Message}");
+                    Error($"File {shortName} could not be generated. {e.Message}");
                     continue;
                 }
                 var models = code.Models.Values.ToArray();
@@ -106,6 +105,32 @@ namespace PgRoutiner
                 Modules.Add((code.Methods, module.Namespace));
                 Content.Add((module.ToString(), fullFileName));
             }
+        }
+
+        private static string GetOutputDir()
+        {
+            var dir = Path.Combine(Program.CurrentDir, Settings.Value.OutputDir);
+            if (!Directory.Exists(dir))
+            {
+                Dump($"Creating dir: {dir}");
+                Directory.CreateDirectory(dir);
+            }
+            return dir;
+        }
+
+        private static string GetModelDir()
+        {
+            var dir = Settings.Value.ModelDir;
+            if (dir != null)
+            {
+                dir = Path.Combine(Program.CurrentDir, dir);
+                if (!Directory.Exists(dir))
+                {
+                    Dump($"Creating dir: {dir}");
+                    Directory.CreateDirectory(dir);
+                }
+            }
+            return dir;
         }
     }
 }

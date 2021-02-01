@@ -8,7 +8,7 @@ namespace PgRoutiner
         private static void ShowSettings()
         {
             WriteLine("", "Current settings:");
-            foreach(var l in Settings.BuildFormatedSettings(false).Split(Environment.NewLine))
+            foreach(var l in Settings.BuildFormatedSettings(wrap: false).Split(Environment.NewLine))
             {
                 var line = l;
                 var trim = l.Trim();

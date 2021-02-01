@@ -82,24 +82,18 @@ namespace PgRoutiner
                 config.GetSection("PgRoutiner").Bind(Value);
                 config.Bind(Value);
 
+                Dictionary<string, string> switchMappings = new();
+                foreach (var f in typeof(Settings).GetFields())
+                {
+                    if (f.FieldType != typeof(Arg))
+                    {
+                        continue;
+                    }
+                    var arg = (Arg)f.GetValue(null);
+                    switchMappings[arg.Alias] = arg.Original;
+                }
                 new ConfigurationBuilder()
-                    .AddCommandLine(argsList.ToArray(), new Dictionary<string, string> {
-                        {ExecuteArgs.Alias, ExecuteArgs.Original},
-                        {ConnectionArgs.Alias, ConnectionArgs.Original},
-                        {SchemaArgs.Alias, SchemaArgs.Original},
-                        {PgDumpArgs.Alias, PgDumpArgs.Original},
-                        {OutputDirArgs.Alias, OutputDirArgs.Original},
-                        {NotSimilarToArgs.Alias, NotSimilarToArgs.Original},
-                        {SimilarToArgs.Alias, SimilarToArgs.Original},
-                        {ModelDirArgs.Alias, ModelDirArgs.Original},
-                        {UseRecordsArgs.Alias, UseRecordsArgs.Original},
-                        {SchemaDumpFileArgs.Alias, SchemaDumpFileArgs.Original},
-                        {DataDumpFileArgs.Alias, DataDumpFileArgs.Original},
-                        {DbObjectsDirArgs.Alias, DbObjectsDirArgs.Original},
-                        {CommentsMdFileArgs.Alias, CommentsMdFileArgs.Original},
-                        {DirArgs.Alias, DirArgs.Original},
-                        {PsqlArgs.Alias, PsqlArgs.Original}
-                    })
+                    .AddCommandLine(argsList.ToArray(), switchMappings)
                     .Build()
                     .Bind(Value);
             }

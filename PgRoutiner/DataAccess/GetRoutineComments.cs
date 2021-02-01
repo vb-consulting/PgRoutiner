@@ -60,8 +60,8 @@ namespace PgRoutiner
                     pgdesc.description
             ",
                 ("schema", schema, DbType.AnsiString),
-                ("notSimilarTo", settings.CommentsMdNotSimilarTo, DbType.AnsiString),
-                ("similarTo", settings.CommentsMdSimilarTo, DbType.AnsiString))
+                ("notSimilarTo", settings.MdNotSimilarTo, DbType.AnsiString),
+                ("similarTo", settings.MdSimilarTo, DbType.AnsiString))
 
             .Select(t => new RoutineComment
             {

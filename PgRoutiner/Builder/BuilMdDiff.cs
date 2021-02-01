@@ -6,21 +6,21 @@ namespace PgRoutiner
 {
     partial class Builder
     {
-        public static bool BuilMdDiff(NpgsqlConnection connection)
+        public static bool BuildMdDiff(NpgsqlConnection connection)
         {
-            if (!Settings.Value.CommitComments)
+            if (!Settings.Value.CommitMd)
             {
                 return false;
             }
-            if (Settings.Value.CommentsMdFile == null)
+            if (Settings.Value.MdFile == null)
             {
                 Program.WriteLine(ConsoleColor.Red,  $"ERROR: Markdown file setting is not set (CommentsMdFile setting). Can't commit comments.");
                 return true;
             }
-            var file = Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.CommentsMdFile));
+            var file = Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.MdFile));
             if (!File.Exists(file))
             {
-                Program.WriteLine(ConsoleColor.Red, $"ERROR: Markdown file {Settings.Value.CommentsMdFile} does not exists. Can't commit comments.");
+                Program.WriteLine(ConsoleColor.Red, $"ERROR: Markdown file {Settings.Value.MdFile} does not exists. Can't commit comments.");
                 return true;
             }
 
@@ -32,7 +32,7 @@ namespace PgRoutiner
             }
             catch (Exception e)
             {
-                Program.WriteLine(ConsoleColor.Red, $"Could not parse {Settings.Value.CommentsMdFile} file.", $"ERROR: {e.Message}");
+                Program.WriteLine(ConsoleColor.Red, $"Could not parse {Settings.Value.MdFile} file.", $"ERROR: {e.Message}");
             }
 
             try

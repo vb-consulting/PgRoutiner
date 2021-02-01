@@ -8,13 +8,12 @@ namespace PgRoutiner
     {
         private static void BuilMd(NpgsqlConnection connection)
         {
-            if (string.IsNullOrEmpty(Settings.Value.CommentsMdFile))
+            if (string.IsNullOrEmpty(Settings.Value.MdFile))
             {
                 return;
             }
-
-            var file = Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.CommentsMdFile));
-            var shortName = Settings.Value.CommentsMdFile;
+            var file = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.MdFile)), ConnectionName);
+            var shortName = string.Format(Settings.Value.MdFile, ConnectionName);
             var shortFilename = Path.GetFileName(file);
             var dir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(file)));
             var exists = File.Exists(file);
