@@ -50,6 +50,12 @@ namespace PgRoutiner
             WriteSetting(nameof(Settings.UseRecords), "Use records instead of classes for generated models.");
 
             Console.WriteLine();
+            Console.WriteLine("Unit tests project code generation options:");
+            WriteSetting(Settings.UnitTestsArgs, "Run unit test project code generation.");
+            WriteSetting(Settings.UnitTestsDirArgs, "Output dir for unit test project. {0} placeholder is for namespace or main project name. Default is \"../{0}Tests\".", "DIR");
+            WriteSetting(nameof(Settings.UnitTestsAskRecreate), "Ask should the project file be recreated. Default is false.");
+
+            Console.WriteLine();
             Console.WriteLine("Schema SQL script options:");
             WriteSetting(Settings.SchemaDumpArgs, "Run schema dump file creation.");
             WriteSetting(Settings.SchemaDumpFileArgs, "Schema dump script file name. Format placeholder {0} is replaced with connection name. Default is \"./Database/{0}/Schema.sql\".", "FILE");

@@ -19,7 +19,7 @@ namespace PgRoutiner
             process.OutputDataReceived += (sender, data) => WriteLine(data.Data);
             process.StartInfo.RedirectStandardError = true;
             process.ErrorDataReceived += (sender, data) => WriteLine(data.Data);
-            WriteLine($"{file}{args ?? ""}");
+            WriteLine($"{file} {args ?? ""}");
             process.Start();
             process.BeginErrorReadLine();
             process.BeginOutputReadLine();

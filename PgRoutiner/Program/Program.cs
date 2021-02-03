@@ -47,6 +47,8 @@ namespace PgRoutiner
             {
                 return;
             }
+            Settings.ShowSettings();
+            WriteLine("");
             Builder.Run(connection);
             WriteLine("");
         }

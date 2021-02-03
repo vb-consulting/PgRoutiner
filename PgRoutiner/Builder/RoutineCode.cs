@@ -63,6 +63,7 @@ namespace PgRoutiner
             Class.AppendLine();
             BuildCommentHeader(routine, @return, @params, true);
             var actualReturns = @return.IsInstance ? $"IEnumerable<{@return.Name}>" : @return.Name;
+            void AddMethod() => Methods.Add(new Method(name, @namespace, @params, @return, actualReturns, true));
             Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
             BuildMethodParams(@params);
             Class.AppendLine(") => connection");
@@ -73,6 +74,7 @@ namespace PgRoutiner
                 if (@params.Count == 0)
                 {
                     Class.AppendLine(");");
+                    AddMethod();
                     return;
                 }
                 else
@@ -92,11 +94,12 @@ namespace PgRoutiner
             if (@return.IsVoid || @return.IsInstance)
             {
                 Class.AppendLine(");");
+                AddMethod();
                 return;
             }
             Class.AppendLine(")");
             Class.AppendLine($"{I3}.Single();");
-            Methods.Add(new Method(name, @namespace, @params, @return, actualReturns, true));
+            AddMethod();
         }
 
         private void BuildAsyncMethod(PgRoutineGroup routine, Return @return, List<Param> @params)
@@ -105,6 +108,7 @@ namespace PgRoutiner
             Class.AppendLine();
             BuildCommentHeader(routine, @return, @params, false);
             var actualReturns = @return.IsInstance ? $"IAsyncEnumerable<{@return.Name}>" : (@return.IsVoid ? "async ValueTask" : $"async ValueTask<{@return.Name}>");
+            void AddMethod() => Methods.Add(new Method(name, @namespace, @params, @return, actualReturns, false));
             Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
             BuildMethodParams(@params);
             Class.AppendLine(@return.IsInstance ? ") => connection" : ") => await connection");
@@ -115,6 +119,7 @@ namespace PgRoutiner
                 if (@params.Count == 0)
                 {
                     Class.AppendLine(");");
+                    AddMethod();
                     return;
                 }
                 else
@@ -134,11 +139,12 @@ namespace PgRoutiner
             if (@return.IsVoid || @return.IsInstance)
             {
                 Class.AppendLine(");");
+                AddMethod();
                 return;
             }
             Class.AppendLine(")");
             Class.AppendLine($"{I3}.SingleAsync();");
-            Methods.Add(new Method(name, @namespace, @params, @return, actualReturns, false));
+            AddMethod();
         }
 
         private void BuildMethodParams(List<Param> @params)
@@ -201,7 +207,7 @@ namespace PgRoutiner
         {
             string getType(PgParameter p)
             {
-                if (TryGetMapping(p, out var result)) //(settings.Mapping.TryGetValue(p.Type, out var result))
+                if (TryGetMapping(p, out var result))
                 {
                     if (p.Array)
                     {
@@ -246,7 +252,7 @@ namespace PgRoutiner
             {
                 return new Return("void", "void", true, false);
             }
-            if (TryGetMapping(routine, out var result)) //(settings.Mapping.TryGetValue(routine.TypeUdtName, out var result))
+            if (TryGetMapping(routine, out var result))
             {
                 if (routine.DataType == "ARRAY")
                 {
@@ -300,7 +306,7 @@ namespace PgRoutiner
             }
             string getType(PgReturns returnModel)
             {
-                if (TryGetMapping(returnModel, out var result)) //(settings.Mapping.TryGetValue(returnModel.Type, out var result))
+                if (TryGetMapping(returnModel, out var result))
                 {
                     if (returnModel.Array)
                     {

@@ -67,14 +67,15 @@ namespace PgRoutiner
                 sb.AppendLine("{");
                 sb.AppendLine($"  /* see https://github.com/vb-consulting/PgRoutiner/CONNECTIONS.MD for more info */");
                 sb.AppendLine("  \"ConnectionStrings\": {");
-                if (connection == null)
+                if (Value.Connection == null && connection != null)
+                {
+                    sb.AppendLine($"    \"{connection.Database.ToUpperCamelCase()}Connection\": \"{connection.ConnectionString}\"");
+                }
+                else
                 {
                     sb.AppendLine("    //\"Connection1\": \"Server={server};Db={database};Port={port};User Id={user};Password={password};\"");
                     sb.AppendLine("    //\"Connection2\": \"postgresql://{user}:{password}@{server}:{port}/{database}\" ");
-                }
-                else if (Value.Connection == null && connection != null)
-                {
-                    sb.AppendLine($"    \"{connection.Database.ToUpperCamelCase()}Connection\": \"{connection.ConnectionString}\"");
+
                 }
                 sb.AppendLine("  },");
                 sb.AppendLine("  /* see https://github.com/vb-consulting/PgRoutiner/SETTINGS.MD for more info */");
@@ -107,6 +108,12 @@ namespace PgRoutiner
             AddEntry(nameof(Mapping), Value.Mapping);
             AddEntry(nameof(CustomModels), Value.CustomModels);
             AddEntry(nameof(UseRecords), Value.UseRecords);
+
+            sb.AppendLine();
+            AddComment("unit tests settings");
+            AddEntry(nameof(UnitTests), Value.UnitTests);
+            AddEntry(nameof(UnitTestsDir), Value.UnitTestsDir);
+            AddEntry(nameof(UnitTestsAskRecreate), Value.UnitTestsAskRecreate);
 
             sb.AppendLine();
             AddComment("schema dump settings");

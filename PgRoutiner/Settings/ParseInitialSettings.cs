@@ -9,13 +9,16 @@ namespace PgRoutiner
 {
     public class Project
     {
-        public string NormVersion = null;
-        public bool AsyncLinqIncluded = false;
-        public bool NpgsqlIncluded = false;
+        public string ProjectFile { get; set; } = null;
+        public string NormVersion { get; set; } = null;
+        public bool AsyncLinqIncluded { get; set; } = false;
+        public bool NpgsqlIncluded { get; set; } = false;
     }
 
     public partial class Settings
     {
+        public static Project ProjectInfo = null;
+
         public static bool ParseInitialSettings(NpgsqlConnection connection)
         {
             var pgroutinerFile = Path.Join(Program.CurrentDir, pgroutinerSettingsFile);
@@ -42,15 +45,18 @@ namespace PgRoutiner
             }
 
             var count = connection.GetRoutineCount(Value);
-            Project project;
             if ((Value.Routines && Value.OutputDir != null && count > 0) || (Value.UnitTests && Value.UnitTestsDir != null))
             {
-                project = ParseProjectFile();
-                if (project == null)
+                ProjectInfo = ParseProjectFile();
+                if (ProjectInfo == null)
                 {
                     return false;
                 }
-                UpdateProjectReferences(project);
+
+                if (Value.Routines)
+                {
+                    UpdateProjectReferences(ProjectInfo);
+                }
             }
             return true;
         }
@@ -129,7 +135,7 @@ namespace PgRoutiner
             }
             else
             {
-                foreach (var file in Directory.EnumerateFiles(Program.CurrentDir))
+                foreach (var file in Directory.EnumerateFiles(Program.CurrentDir, "*.csproj", SearchOption.TopDirectoryOnly))
                 {
                     if (Path.GetExtension(file)?.ToLower() == ".csproj")
                     {
@@ -148,7 +154,7 @@ namespace PgRoutiner
 
             var ns = Path.GetFileNameWithoutExtension(projectFile);
 
-            Project result = new Project();
+            Project result = new Project { ProjectFile = projectFile };
 
             using (var fileStream = File.OpenText(projectFile))
             {

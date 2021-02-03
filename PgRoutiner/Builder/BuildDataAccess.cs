@@ -102,8 +102,33 @@ namespace PgRoutiner
                     module.AddItems(models);
                 }
                 module.AddItems(code.Class);
-                Modules.Add((code.Methods, module.Namespace));
+                if (code.Methods.Count > 0)
+                {
+                    Extensions.Add(new Extension { Methods = code.Methods, Namespace = module.Namespace, Name = code.Methods.First().Name });
+                }
                 Content.Add((module.ToString(), fullFileName));
+            }
+        }
+
+        private static void BuildDataAccessExtensions(NpgsqlConnection connection)
+        {
+            foreach (var group in connection.GetRoutineGroups(Settings.Value))
+            {
+                var name = group.Key;
+                var module = new RoutineModule(Settings.Value);
+                RoutineCode code;
+                try
+                {
+                    code = new RoutineCode(Settings.Value, name, module.Namespace, group, connection);
+                }
+                catch
+                {
+                    continue;
+                }
+                if (code.Methods.Count > 0)
+                {
+                    Extensions.Add(new Extension { Methods = code.Methods, Namespace = module.Namespace, Name = code.Methods.First().Name });
+                }
             }
         }
 

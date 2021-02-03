@@ -163,6 +163,7 @@ namespace PgRoutiner
         private string GetPgDumpTransactionContent(string args, string name)
         {
             var insideBlock = false;
+            var insideView = false;
             string lineFunc(string line)
             {
                 if (line.Contains("AS $$"))
@@ -170,12 +171,22 @@ namespace PgRoutiner
                     insideBlock = true;
                     return line;
                 }
-                if (line.Contains("$$;"))
+                if (insideBlock && line.Contains("$$;"))
                 {
                     insideBlock = false;
                     return line;
                 }
-                if (insideBlock)
+                if (line.StartsWith("CREATE VIEW "))
+                {
+                    insideView = true;
+                    return line;
+                }
+                if (insideView && line.Contains(";"))
+                {
+                    insideView = false;
+                    return line;
+                }
+                if (insideBlock || insideView)
                 {
                     return line;
                 }

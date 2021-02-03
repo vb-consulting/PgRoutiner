@@ -49,6 +49,7 @@ namespace PgRoutiner
         public static readonly Arg SkipAsyncMethodsArgs = new("-sa", nameof(SkipAsyncMethods));
         public static readonly Arg ModelDirArgs = new("-md", nameof(ModelDir));
         public static readonly Arg UnitTestsArgs = new("-ut", nameof(UnitTests));
+        public static readonly Arg UnitTestsDirArgs = new("-utd", nameof(UnitTestsDir));
         public static readonly Arg SchemaDumpArgs = new("-sd", nameof(SchemaDump));
         public static readonly Arg SchemaDumpFileArgs = new("-sdf", nameof(SchemaDumpFile));
         public static readonly Arg DataDumpArgs = new("-dd", nameof(DataDump));
@@ -92,6 +93,7 @@ namespace PgRoutiner
         /*unit tests*/
         public bool UnitTests { get; set; } = false;
         public string UnitTestsDir { get; set; } = "../{0}Tests";
+        public bool UnitTestsAskRecreate { get; set; } = false;
 
         /*schema dump*/
         public bool SchemaDump { get; set; } = false;

@@ -1,21 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Npgsql;
 
 namespace PgRoutiner
 {
+    public class Extension
+    {
+        public List<Method> Methods { get; set; }
+        public string Namespace { get; set; }
+        public string Name { get; set; }
+    }
+
     partial class Builder
     {
-        public static List<(List<Method> Methods, string @namespace)> Modules = new();
+        public static List<Extension> Extensions = new();
         public static List<(string Content, string FullFileName)> Content = new();
+        
         public static string SchemaFile = null;
         public static string DataFile = null;
+
         public static string ConnectionName = null;
 
         public static void Run(NpgsqlConnection connection)
         {
             ConnectionName = Settings.Value.Connection ?? connection.Database.ToUpperCamelCase();
-            if (Settings.Value.Execute == null)
+            if (Settings.Value.SchemaDumpFile != null)
+            {
+                SchemaFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.SchemaDumpFile)), ConnectionName);
+            }
+            if (Settings.Value.DataDumpFile != null)
+            {
+                DataFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.DataDumpFile)), ConnectionName);
+            }
+
+            if (Settings.Value.Execute != null)
             {
                 Dump("Running file execution...");
                 ExecuteFile(connection);
@@ -24,6 +43,29 @@ namespace PgRoutiner
             {
                 Dump("Running psql terminal...");
                 new PsqlRunner(Settings.Value, connection).Run();
+            }
+
+            if (Settings.Value.DbObjects || Settings.Value.SchemaDump || Settings.Value.DataDump)
+            {
+                var builder = new PgDumpBuilder(Settings.Value, connection);
+                if (Settings.CheckPgDumpVersion(connection, builder, false))
+                {
+                    if (Settings.Value.SchemaDump)
+                    {
+                        Dump("Running schema dump file generation...");
+                        BuildDump(Settings.Value.SchemaDumpFile, SchemaFile, () => builder.GetSchemaContent());
+                    }
+                    if (Settings.Value.DataDump)
+                    {
+                        Dump("Running data dump file generation...");
+                        BuildDump(Settings.Value.DataDumpFile, DataFile, () => builder.GetDataContent());
+                    }
+                    if (Settings.Value.DbObjects)
+                    {
+                        Dump("Running schema dump file generation...");
+                        BuildObjectDumps(builder);
+                    }
+                }
             }
 
             if (Settings.Value.Routines)
@@ -38,28 +80,6 @@ namespace PgRoutiner
                 BuildUnitTests(connection);
             }
 
-            if (Settings.Value.DbObjects || Settings.Value.SchemaDump || Settings.Value.DataDump)
-            {
-                var builder = new PgDumpBuilder(Settings.Value, connection);
-                if (Settings.CheckPgDumpVersion(connection, builder, false))
-                {
-                    if (Settings.Value.SchemaDump)
-                    {
-                        Dump("Running schema dump file generation...");
-                        BuildDump(Settings.Value.SchemaDumpFile, () => builder.GetSchemaContent(), file => SchemaFile = file);
-                    }
-                    if (Settings.Value.DataDump)
-                    {
-                        Dump("Running data dump file generation...");
-                        BuildDump(Settings.Value.DataDumpFile, () => builder.GetDataContent(), file => DataFile = file);
-                    }
-                    if (Settings.Value.DbObjects)
-                    {
-                        Dump("Running schema dump file generation...");
-                        BuildObjectDumps(builder);
-                    }
-                }
-            }
             if (Settings.Value.CommitMd)
             {
                 Dump("Running commit markdown edits to database...");

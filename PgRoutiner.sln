@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PgRoutiner", "PgRoutiner\PgRoutiner.csproj", "{BCCC67BF-188D-4107-902A-5930CBDD8688}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PgRoutinerTests", "PgRoutinerTests\PgRoutinerTests.csproj", "{884A6287-CF9C-4281-9254-12F8975E3577}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3DE97662-9335-4526-B256-C70980C9CED8}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\build-publish.yml = .github\workflows\build-publish.yml
@@ -25,10 +23,6 @@ Global
 		{BCCC67BF-188D-4107-902A-5930CBDD8688}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCCC67BF-188D-4107-902A-5930CBDD8688}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCCC67BF-188D-4107-902A-5930CBDD8688}.Release|Any CPU.Build.0 = Release|Any CPU
-		{884A6287-CF9C-4281-9254-12F8975E3577}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{884A6287-CF9C-4281-9254-12F8975E3577}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{884A6287-CF9C-4281-9254-12F8975E3577}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{884A6287-CF9C-4281-9254-12F8975E3577}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
