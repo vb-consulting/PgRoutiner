@@ -92,6 +92,7 @@ namespace PgRoutiner
             AddEntry(nameof(SkipUpdateReferences), Value.SkipUpdateReferences);
             AddEntry(nameof(Ident), Value.Ident);
             AddEntry(nameof(PgDump), Value.PgDump);
+            AddEntry(nameof(PgDumpFallback), Value.PgDumpFallback);
             AddEntry(nameof(SourceHeader), Value.SourceHeader);
 
             sb.AppendLine();
@@ -160,7 +161,14 @@ namespace PgRoutiner
             AddEntry(nameof(Psql), Value.Psql);
             AddEntry(nameof(PsqlTerminal), Value.PsqlTerminal);
             AddEntry(nameof(PsqlCommand), Value.PsqlCommand);
-            AddEntry(nameof(PsqlOptions), Value.PsqlOptions, "");
+            AddEntry(nameof(PsqlOptions), Value.PsqlOptions);
+
+            sb.AppendLine();
+            AddComment("diff script settings");
+            AddEntry(nameof(Diff), Value.Diff);
+            AddEntry(nameof(DiffTarget), Value.DiffTarget);
+            AddEntry(nameof(DiffFilePattern), Value.DiffFilePattern);
+            AddEntry(nameof(DiffPgDump), Value.DiffPgDump, "");
 
             if (wrap)
             {

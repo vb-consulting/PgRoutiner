@@ -114,8 +114,7 @@ namespace PgRoutiner
                 {
                     prop.SetValue(Value, null);
                 }
-            }
- 
+            } 
             if (Value.Mapping != null && Value.Mapping.Values.Count > 0)
             {
                 foreach (var (key, value) in Value.Mapping)

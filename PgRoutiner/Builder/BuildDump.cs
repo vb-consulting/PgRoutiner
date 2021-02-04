@@ -44,7 +44,6 @@ namespace PgRoutiner
             try
             {
                 WriteFile(file, contentFunc());
-                //successFunc(file);
             }
             catch(Exception e)
             {

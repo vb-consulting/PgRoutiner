@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace PgRoutiner
 {
@@ -168,6 +170,13 @@ namespace PgRoutiner
                 }
             }
             return builder.ToString();
+        }
+
+        public static string SanitazePath(this string name, string replacement = "_")
+        {
+            string invalidChars = Regex.Escape(new string(Path.GetInvalidPathChars()));
+            string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
+            return Regex.Replace(name, invalidRegStr, replacement);
         }
     }
 }

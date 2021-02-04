@@ -8,7 +8,6 @@ namespace PgRoutiner
         {
             WriteLine(ConsoleColor.Yellow,
                 "***************************************",
-                "** PostgreSQL Tool For .NET Projects **",
                 $"**     PgRoutiner: {Version}           **",
                 "***************************************",
                 "");

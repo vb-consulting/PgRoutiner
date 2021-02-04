@@ -10,15 +10,26 @@ namespace PgRoutiner
     public class PgDumpBuilder
     {
         private readonly Settings settings;
-        private readonly NpgsqlConnection connection;
         private readonly string baseArg;
+        private string pgDumpCmd;
 
-        public PgDumpBuilder(Settings settings, NpgsqlConnection connection)
+        public NpgsqlConnection Connection { get; }
+        public string PgDumpName { get; }
+
+        public PgDumpBuilder(Settings settings, NpgsqlConnection connection, string dumpName = nameof(Settings.PgDump))
         {
             this.settings = settings;
-            this.connection = connection;
+            this.Connection = connection;
             var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
             baseArg = $"--dbname=postgresql://{connection.UserName}:{password}@{connection.Host}:{connection.Port}/{connection.Database} --encoding=UTF8";
+            PgDumpName = dumpName;
+            pgDumpCmd = typeof(Settings).GetProperty(dumpName).GetValue(settings) as string;
+        }
+
+        public void SetPgDumpName(string name)
+        {
+            typeof(Settings).GetProperty(PgDumpName).SetValue(Settings.Value, name);
+            pgDumpCmd = name;
         }
 
         public IEnumerable<(string name, string content, PgType type)> GetDatabaseObjects()
@@ -30,7 +41,7 @@ namespace PgRoutiner
                 settings.DbObjectsPrivileges ? "" : " --no-acl",
                 settings.DbObjectsDropIfExists ? " --clean --if-exists" : "");
 
-            foreach(var table in connection.GetTables(settings))
+            foreach(var table in Connection.GetTables(settings))
             {
                 var name = table.GetFileName();
                 string content = null;
@@ -65,7 +76,7 @@ namespace PgRoutiner
 
             if (lines != null)
             {
-                foreach (var routine in connection.GetRoutines(settings))
+                foreach (var routine in Connection.GetRoutines(settings))
                 {
                     var name = routine.GetFileName();
                     string content;
@@ -207,7 +218,7 @@ namespace PgRoutiner
             }
             var error = "";
             using var process = new Process();
-            process.StartInfo.FileName = settings.PgDump;
+            process.StartInfo.FileName = pgDumpCmd;
             process.StartInfo.Arguments = args;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;

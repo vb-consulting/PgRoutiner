@@ -5,9 +5,15 @@ namespace PgRoutiner
     public partial class Settings
     {
         public static void ShowSettings()
-        {
-            static void WriteSetting(string name, object value)
+        { 
+            bool settingsWritten = false;
+            void WriteSetting(string name, object value)
             {
+                if (!settingsWritten)
+                {
+                    Program.WriteLine("");
+                    Program.WriteLine("Using settings: ");
+                }
                 if (value.GetType() == typeof(bool) && (bool)value)
                 {
                     Program.WriteLine(ConsoleColor.Yellow, $" {name.ToKebabCase()}");
@@ -17,11 +23,10 @@ namespace PgRoutiner
                     Program.Write(ConsoleColor.Yellow, $" {name.ToKebabCase()} = ");
                     Program.WriteLine(ConsoleColor.Cyan, $"{value}");
                 }
+                settingsWritten = true;
             }
 
             var defaultValue = new Settings();
-            Program.WriteLine("");
-            Program.WriteLine("Using settings: ");
             foreach (var prop in Value.GetType().GetProperties())
             {
                 var name = prop.Name;

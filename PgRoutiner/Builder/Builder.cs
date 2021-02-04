@@ -24,7 +24,8 @@ namespace PgRoutiner
 
         public static void Run(NpgsqlConnection connection)
         {
-            ConnectionName = Settings.Value.Connection ?? connection.Database.ToUpperCamelCase();
+            ConnectionName = (Settings.Value.Connection ?? $"{connection.Host}_{connection.Port}_{connection.Database}").SanitazePath();
+
             if (Settings.Value.SchemaDumpFile != null)
             {
                 SchemaFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.SchemaDumpFile)), ConnectionName);
@@ -48,7 +49,7 @@ namespace PgRoutiner
             if (Settings.Value.DbObjects || Settings.Value.SchemaDump || Settings.Value.DataDump)
             {
                 var builder = new PgDumpBuilder(Settings.Value, connection);
-                if (Settings.CheckPgDumpVersion(connection, builder, false))
+                if (Settings.CheckPgDumpVersion(builder))
                 {
                     if (Settings.Value.SchemaDump)
                     {
@@ -66,6 +67,12 @@ namespace PgRoutiner
                         BuildObjectDumps(builder);
                     }
                 }
+            }
+
+            if (Settings.Value.Diff)
+            {
+                Dump("Running diff script file generation...");
+                BuildDiffScript(connection);
             }
 
             if (Settings.Value.Routines)

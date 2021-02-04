@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace PgRoutiner
 {
     static partial class Program
     {
         public static bool Mute = false;
+        public static IConfigurationRoot Config;
 
         static void Main(string[] rawArgs)
         {
@@ -29,8 +31,8 @@ namespace PgRoutiner
             {
                 return;
             }
-            var config = Settings.ParseSettings(args);
-            if (config == null)
+            Config = Settings.ParseSettings(args);
+            if (Config == null)
             {
                 return;
             }
@@ -38,7 +40,7 @@ namespace PgRoutiner
             {
                 return;
             }
-            using var connection = Settings.ParseConnectionString(config);
+            using var connection = new ConnectionManager(Config).ParseConnectionString();
             if (connection == null)
             {
                 return;
