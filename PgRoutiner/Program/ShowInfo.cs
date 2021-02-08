@@ -104,7 +104,7 @@ namespace PgRoutiner
             WriteSetting(nameof(Settings.PsqlCommand), "Default \"psql\" command or file path to \"psql\" program. Default is \"psql\"");
             WriteSetting(nameof(Settings.PsqlOptions), "Additional options passed to \"psql\" command. Default is null (not used).");
             Console.WriteLine();
-            Console.WriteLine("Difference script options:");
+            Console.WriteLine("Difference script options (beta):");
             WriteSetting(Settings.DiffArgs, "Run a difference script creation.");
             WriteSetting(Settings.DiffTargetArgs, "Name of the target connection to create a difference for. Default is null (not used).", "NAME", newLine: true);
             WriteSetting(nameof(Settings.DiffFilePattern), "Difference script file pattern. {0} is source name, {1} is target name and {2} is script number. Default is \"./Database/{0}-{1}/{3}-diff.sql\".", "FILEPATH");

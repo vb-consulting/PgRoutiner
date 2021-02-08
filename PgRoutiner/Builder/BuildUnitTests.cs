@@ -35,46 +35,51 @@ namespace PgRoutiner
             var shortDir = string.Format(Settings.Value.UnitTestsDir, sufix);
             var dir = Path.GetFullPath(Path.Join(Program.CurrentDir, shortDir));
             var name = Path.GetFileName(dir);
+            var relativeDir = dir.GetRelativePath();
 
             var exists = Directory.Exists(dir);
             if (exists && Settings.Value.UnitTestsAskRecreate)
             {
-                var answer = Program.Ask($"Directory {dir} already exists. Do you want to recreate this dir? This will delete all existing files. [Y/N]", ConsoleKey.Y, ConsoleKey.N);
+                var answer = Program.Ask($"Directory {relativeDir} already exists. Do you want to recreate this dir? This will delete all existing files. [Y/N]", ConsoleKey.Y, ConsoleKey.N);
                 if (answer == ConsoleKey.Y)
                 {
                     if (Directory.GetFiles(dir).Length > 0)
                     {
-                        Dump($"Deleting all existing files in dir: {dir}...");
+                        DumpPath("Deleting all existing files in dir: {0} ...", relativeDir);
                         foreach (FileInfo fi in new DirectoryInfo(dir).GetFiles())
                         {
                             fi.Delete();
                         }
                     }
-                    Dump($"Removing dir: {dir}...");
+                    DumpPath("Removing dir: {0} ...", relativeDir);
                     Directory.Delete(dir, true);
                     exists = false;
                 }
             }
             if (!exists)
             {
-                Dump($"Creating dir: {dir}");
+                DumpPath("Creating dir: {0} ...", relativeDir);
                 Directory.CreateDirectory(dir);
             }
            
             var settingsFile = Path.GetFullPath(Path.Join(dir, "testsettings.json"));
             if (!File.Exists(settingsFile))
             {
-                Dump($"Creating file: {settingsFile}");
+                DumpRelativePath("Creating file: {0} ...", settingsFile);
                 if (!WriteFile(settingsFile, GetTestSettingsContent(connection, dir)))
                 {
                     return;
                 }
             }
+            else
+            {
+                DumpRelativePath("Skipping {0}, already exists ...", settingsFile);
+            }
 
             var projectFile = Path.GetFullPath(Path.Join(dir, $"{name}.csproj"));
             if (!File.Exists(projectFile))
             {
-                Dump($"Creating file: {projectFile}");
+                DumpRelativePath("Creating file: {0} ...", projectFile);
                 if (!WriteFile(projectFile, GetTestCsprojContent(dir)))
                 {
                     return;
@@ -86,16 +91,23 @@ namespace PgRoutiner
                 Program.RunProcess("dotnet", "add package xunit.runner.visualstudio", dir);
                 Program.RunProcess("dotnet", "add package coverlet.collector", dir);
             }
-
+            else
+            {
+                DumpRelativePath("Skipping {0}, already exists ...", projectFile);
+            }
 
             var fixtureFile = Path.GetFullPath(Path.Join(dir, "TestFixtures.cs"));
             if (!File.Exists(fixtureFile))
             {
-                Dump($"Creating file: {fixtureFile}");
+                DumpRelativePath("Creating file: {0} ...", fixtureFile);
                 if (!WriteFile(fixtureFile, GetTestFixturesFile(name)))
                 {
                     return;
                 }
+            }
+            else
+            {
+                DumpRelativePath("Skipping {0}, already exists ...", fixtureFile);
             }
 
             if (Extensions.Count == 0)
@@ -111,6 +123,7 @@ namespace PgRoutiner
                     var moduleFile = Path.GetFullPath(Path.Join(dir, $"{className}.cs"));
                     if (File.Exists(moduleFile))
                     {
+                        DumpRelativePath("Skipping {0}, already exists ...", moduleFile);
                         continue;
                     }
                     var module = new Module(new Settings { Namespace = name });
@@ -124,7 +137,7 @@ namespace PgRoutiner
 
                     var code = new UnitTestCode(Settings.Value, className, ext);
                     module.AddItems(code.Class);
-                    Dump($"Creating file: {moduleFile}");
+                    DumpRelativePath("Creating file: {0} ...", moduleFile);
                     WriteFile(moduleFile, module.ToString());
                 }
             }
@@ -134,6 +147,7 @@ namespace PgRoutiner
                 var moduleFile = Path.GetFullPath(Path.Join(dir, $"{className}.cs"));
                 if (File.Exists(moduleFile))
                 {
+                    DumpRelativePath("Skipping {0}, already exists ...", moduleFile);
                     return;
                 }
                 var module = new Module(new Settings { Namespace = name });
@@ -142,7 +156,7 @@ namespace PgRoutiner
 
                 var code = new UnitTestCode(Settings.Value, className, null);
                 module.AddItems(code.Class);
-                Dump($"Creating file: {moduleFile}");
+                DumpRelativePath("Creating file: {0} ...", moduleFile);
                 WriteFile(moduleFile, module.ToString());
             }
         }

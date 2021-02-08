@@ -140,6 +140,13 @@ namespace PgRoutiner
             return GetPgDumpContent("--version").Replace("pg_dump (PostgreSQL) ", "").Split(' ').First().Trim();
         }
 
+        public List<string> GetRawTableDumpLines(PgItem table, bool withPrivileges)
+        {
+            var tableArg = table.GetTableArg();
+            var args = string.Concat(baseArg, " --schema-only  --no-owner", withPrivileges ? "" : " --no-acl");
+            return GetDumpLines(args, tableArg);
+        }
+
         private string GetTableContent(PgItem table, string args)
         {
             var tableArg = table.GetTableArg();
@@ -147,7 +154,7 @@ namespace PgRoutiner
             {
                 return GetPgDumpContent($"{args} {tableArg}");
             }
-            return DumpTransformer.TransformTable(table, GetDumpLines(args, tableArg));
+            return new TableDumpTransformer(table, GetDumpLines(args, tableArg)).BuildLines().ToCreateString();
         }
 
         private string GetViewContent(PgItem table, string args)

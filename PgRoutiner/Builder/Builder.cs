@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Npgsql;
 
 namespace PgRoutiner
@@ -15,8 +16,6 @@ namespace PgRoutiner
     partial class Builder
     {
         public static List<Extension> Extensions = new();
-        public static List<(string Content, string FullFileName)> Content = new();
-        
         public static string SchemaFile = null;
         public static string DataFile = null;
 
@@ -35,14 +34,9 @@ namespace PgRoutiner
                 DataFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.DataDumpFile)), ConnectionName);
             }
 
-            if (Settings.Value.Execute != null)
-            {
-                Dump("Running file execution...");
-                ExecuteFile(connection);
-            }
             if (Settings.Value.Psql)
             {
-                Dump("Running psql terminal...");
+                DumpTitle("** PSQL TERMINAL **");
                 new PsqlRunner(Settings.Value, connection).Run();
             }
 
@@ -53,17 +47,17 @@ namespace PgRoutiner
                 {
                     if (Settings.Value.SchemaDump)
                     {
-                        Dump("Running schema dump file generation...");
+                        DumpTitle("** SCHEMA DUMP SCRIPT GENERATION **");
                         BuildDump(Settings.Value.SchemaDumpFile, SchemaFile, () => builder.GetSchemaContent());
                     }
                     if (Settings.Value.DataDump)
                     {
-                        Dump("Running data dump file generation...");
+                        DumpTitle("** DATA DUMP SCRIPT GENERATION **");
                         BuildDump(Settings.Value.DataDumpFile, DataFile, () => builder.GetDataContent());
                     }
                     if (Settings.Value.DbObjects)
                     {
-                        Dump("Running schema dump file generation...");
+                        DumpTitle("** DATA OBJECTS SCRIPTS TREE GENERATION **");
                         BuildObjectDumps(builder);
                     }
                 }
@@ -71,45 +65,39 @@ namespace PgRoutiner
 
             if (Settings.Value.Diff)
             {
-                Dump("Running diff script file generation...");
+                DumpTitle("** DIFF  SCRIPT GENERATION **");
                 BuildDiffScript(connection);
             }
 
             if (Settings.Value.Routines)
             {
-                Dump("Running routine source code generation...");
+                DumpTitle("** ROUTINE SOURCE CODE GENERATION **");
                 BuildDataAccess(connection);
-                DumpContent();
             }
             if (Settings.Value.UnitTests)
             {
-                Dump("Running unit test project source code generation...");
+                DumpTitle("** UNIT TEST PROJECT TEMPLATE CODE GENERATION **");
                 BuildUnitTests(connection);
             }
 
             if (Settings.Value.CommitMd)
             {
-                Dump("Running commit markdown edits to database...");
+                DumpTitle("** COMMIT MARKDOWN (MD) EDITS **");
                 BuildMdDiff(connection);
             }
             if (Settings.Value.Markdown)
             {
-                Dump("Running markdown file generation...");
+                DumpTitle("** MARKDOWN (MD) GENERATION **");
                 BuilMd(connection);
             }
-        }
 
-        private static void DumpContent()
-        {
-            if (Content.Count == 0)
+            if (Settings.Value.Execute != null)
             {
-                return;
+                DumpTitle("** FILE EXECUTION **");
+                ExecuteFile(connection);
             }
-            Dump("Creating source code files...");
-            foreach (var item in Content)
-            {
-                WriteFile(item.FullFileName, item.Content);
-            }
+
+            DumpTitle("", "", "**** FINISHED ****");
         }
 
         private static void Dump(params string[] lines)
@@ -119,6 +107,43 @@ namespace PgRoutiner
                 return;
             }
             Program.WriteLine(ConsoleColor.Yellow, lines);
+        }
+
+        private static void DumpTitle(params string[] lines)
+        {
+            if (Settings.Value.Dump)
+            {
+                return;
+            }
+            Program.WriteLine(ConsoleColor.Green, lines);
+        }
+
+        private static void DumpPath(string msg, string path)
+        {
+            if (Settings.Value.Dump)
+            {
+                return;
+            }
+            msg = string.Format(msg, $"`{path}`");
+            foreach(var (line, i) in msg.Split('`').Select((l, i) => (l, i)))
+            {
+                if (i % 2 == 0)
+                {
+                    Program.Write(ConsoleColor.Yellow, line);
+                }
+                else
+                {
+                    Program.Write(ConsoleColor.Cyan, line);
+                }
+
+            }
+            
+            Program.WriteLine("");
+        }
+
+        private static void DumpRelativePath(string msg, string path)
+        {
+            DumpPath(msg, path.GetRelativePath());
         }
 
         private static void Error(string msg)

@@ -50,7 +50,7 @@ namespace PgRoutiner
                 }
 
                 var file = string.Format(Path.GetFullPath(Path.Combine(dir, shortFilename)), ConnectionName);
-                var shortName = string.Format($"{dir.Split(Path.DirectorySeparatorChar).Last()}{Path.DirectorySeparatorChar}{shortFilename}", ConnectionName);
+                var relative = file.GetRelativePath();
                 var exists = File.Exists(file);
 
                 switch (type)
@@ -87,30 +87,31 @@ namespace PgRoutiner
 
                 if (exists && Settings.Value.Overwrite == false)
                 {
-                    Dump($"File {shortName} exists, overwrite is set to false, skipping ...");
+                    DumpPath("File {0} exists, overwrite is set to false, skipping ...", relative);
                     continue;
                 }
-                if (exists && Settings.Value.SkipIfExists != null && (
-                    Settings.Value.SkipIfExists.Contains(shortName) || Settings.Value.SkipIfExists.Contains(shortFilename))
-                    )
+                if (exists && Settings.Value.SkipIfExists != null && 
+                    (Settings.Value.SkipIfExists.Contains(shortFilename) || 
+                    Settings.Value.SkipIfExists.Contains(relative)))
                 {
-                    Dump($"Skipping {shortName}, already exists...");
+                    DumpPath("Skipping {0}, already exists ...", relative);
                     continue;
                 }
-                if (exists && Settings.Value.AskOverwrite && Program.Ask($"File {shortName} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
+                if (exists && Settings.Value.AskOverwrite && 
+                    Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
                 {
-                    Dump($"Skipping {shortName}...");
+                    DumpPath("Skipping {0} ...", relative);
                     continue;
                 }
 
-                Dump($"Creating dump file {shortName}...");
+                DumpPath("Creating dump file {0} ...", relative);
                 try
                 {
                     WriteFile(file, content);
                 }
                 catch (Exception e)
                 {
-                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {file}", $"ERROR: {e.Message}");
+                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {relative}", $"ERROR: {e.Message}");
                 }
 
                 if (!tableCreated)
@@ -136,14 +137,14 @@ namespace PgRoutiner
         {
             if (!Settings.Value.Dump && !Directory.Exists(dir))
             {
-                Dump($"Creating dir: {dir}");
+                DumpRelativePath("Creating dir: {0} ...", dir);
                 Directory.CreateDirectory(dir);
             }
             else if (!skipDelete && !Settings.Value.Dump && !Settings.Value.DbObjectsSkipDelete)
             {
                 if (Directory.GetFiles(dir).Length > 0)
                 {
-                    Dump($"Deleting all existing files in dir: {dir}...");
+                    DumpRelativePath("Deleting all existing files in dir: {0} ...", dir);
                     foreach (FileInfo fi in new DirectoryInfo(dir).GetFiles())
                     {
                         fi.Delete();
@@ -156,7 +157,7 @@ namespace PgRoutiner
         {
             if (!Settings.Value.Dump && !Settings.Value.DbObjectsSkipDelete && Directory.Exists(dir))
             {
-                Dump($"Removing dir: {dir}...");
+                DumpRelativePath("Removing dir: {0} ...", dir);
                 if (Directory.GetFiles(dir).Length > 0)
                 {
                     foreach (FileInfo fi in new DirectoryInfo(dir).GetFiles())

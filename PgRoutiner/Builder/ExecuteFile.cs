@@ -20,8 +20,8 @@ namespace PgRoutiner
             }
             try
             {
+                DumpRelativePath("Executing file {0} ...", file);
                 Execute(connection, File.ReadAllText(file));
-                Dump("Executed successfully!");
             }
             catch(Exception e)
             {

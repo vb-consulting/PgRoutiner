@@ -172,11 +172,33 @@ namespace PgRoutiner
             return builder.ToString();
         }
 
+        public static string SanitazeName(this string name, string allowed = "_", string replacement = "_")
+        {
+            StringBuilder sb = new();
+            foreach(var ch in name)
+            {
+                if (char.IsLetterOrDigit(ch) || allowed.Contains(ch))
+                {
+                    sb.Append(ch);
+                }
+                else
+                {
+                    sb.Append(replacement);
+                }
+            }
+            return sb.ToString();
+        }
+
         public static string SanitazePath(this string name, string replacement = "_")
         {
             string invalidChars = Regex.Escape(new string(Path.GetInvalidPathChars()));
             string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
             return Regex.Replace(name, invalidRegStr, replacement);
+        }
+
+        public static string GetRelativePath(this string path)
+        {
+            return Path.GetRelativePath(Program.CurrentDir, path).Replace("\\", "/");
         }
     }
 }

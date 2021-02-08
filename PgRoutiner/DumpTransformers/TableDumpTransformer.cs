@@ -5,14 +5,30 @@ using System.Text;
 
 namespace PgRoutiner
 {
-    public partial class DumpTransformer
+    public class TableDumpTransformer
     {
-        public static string TransformTable(PgItem table, List<string> lines)
+        private readonly PgItem table;
+        private readonly List<string> lines;
+
+        public enum EntryType { Field, Contraint }
+
+        public List<string> Prepend { get; } = new();
+        public List<string> Create { get; } = new();
+        public Dictionary<string, (int position, string content, EntryType entryType)> Names { get; } = new();
+        public List<string> Append { get; } = new();
+
+        public TableDumpTransformer(PgItem table, List<string> lines)
         {
-            List<string> prepend = new();
-            List<string> create = new();
-            Dictionary<string, int> names = new();
-            List<string> append = new();
+            this.table = table;
+            this.lines = lines;
+        }
+
+        public TableDumpTransformer BuildLines()
+        {
+            Prepend.Clear();
+            Create.Clear();
+            Names.Clear();
+            Append.Clear();
 
             bool isPrepend = true;
             bool isCreate = false;
@@ -24,7 +40,7 @@ namespace PgRoutiner
             string statement = "";
             int i = 0;
 
-            foreach(var line in lines)
+            foreach (var line in lines)
             {
                 if (line.StartsWith("--") || line.StartsWith("SET ") || line.StartsWith("SELECT "))
                 {
@@ -41,10 +57,20 @@ namespace PgRoutiner
                 }
                 if (isCreate)
                 {
-                    create.Add(line);
+                    Create.Add(line);
                     if (!createStart && !createEnd)
                     {
-                        names.Add(line.Trim().Split(" ").First(), i);
+                        var trimmed = line.Trim();
+                        if (trimmed.StartsWith("CONSTRAINT"))
+                        {
+                            var parts = trimmed.Split(" ", 3);
+                            Names.Add(parts[1], (i, parts[2], EntryType.Contraint));
+                        }
+                        else
+                        {
+                            var parts = trimmed.Split(" ", 2);
+                            Names.Add(parts[0], (i, parts[1], EntryType.Field));
+                        }
                     }
                     i++;
                     if (createEnd)
@@ -63,45 +89,50 @@ namespace PgRoutiner
                         {
                             if (!statement.Contains("DROP CONSTRAINT"))
                             {
-                                prepend.Add(statement);
+                                Prepend.Add(statement);
                             }
                         }
                         else if (isAppend)
                         {
-                            append.Add(statement);
+                            Append.Add(statement);
                         }
                         statement = "";
                     }
                 }
             }
 
+            return this;
+        }
+
+        public string ToCreateString()
+        {
             List<string> appendResult = new();
-            foreach(var line in append)
+            foreach(var line in Append)
             {
                 string field = null;
                 string fieldStatement = null;
                 if (line.Contains("GENERATED"))
                 {
-                    (field, fieldStatement) = ParseGenerated(table, line);
+                    (field, fieldStatement) = ParseGenerated(line);
                 }
                 else if (line.Contains("PRIMARY KEY"))
                 {
-                    (field, fieldStatement) = ParsePk(table, line);
+                    (field, fieldStatement) = ParsePk(line);
                 }
                 else if (line.Contains("FOREIGN KEY"))
                 {
-                    (field, fieldStatement) = ParseFk(table, line);
+                    (field, fieldStatement) = ParseFk(line);
                 }
                 else if (line.Contains("UNIQUE"))
                 {
-                    (field, fieldStatement) = ParseUnique(table, line);
+                    (field, fieldStatement) = ParseUnique(line);
                 }
 
                 if (field != null && fieldStatement != null)
                 {
-                    if (names.TryGetValue(field, out var fieldIndex))
+                    if (Names.TryGetValue(field, out var entry))
                     {
-                        var createLine = create[fieldIndex];
+                        var createLine = Create[entry.position];
                         if (createLine.EndsWith(","))
                         {
                             createLine = createLine.Remove(createLine.Length - 1);
@@ -111,7 +142,7 @@ namespace PgRoutiner
                         {
                             createLine = string.Concat(createLine, " ", fieldStatement);
                         }
-                        create[fieldIndex] = createLine;
+                        Create[entry.position] = createLine;
                     }
                     else
                     {
@@ -120,10 +151,10 @@ namespace PgRoutiner
                 }
                 else if (field == null && fieldStatement != null)
                 {
-                    var len = create.Count;
-                    create.Insert(len - 1, string.Concat("    ", fieldStatement));
-                    var prev = create[len - 2];
-                    create[len - 2] = string.Concat(prev, ",");
+                    var len = Create.Count;
+                    Create.Insert(len - 1, string.Concat("    ", fieldStatement));
+                    var prev = Create[len - 2];
+                    Create[len - 2] = string.Concat(prev, ",");
                 }
                 else
                 {
@@ -132,13 +163,13 @@ namespace PgRoutiner
             }
 
             StringBuilder sb = new();
-            if (prepend.Count > 0)
+            if (Prepend.Count > 0)
             {
-                sb.Append(string.Join(Environment.NewLine, prepend));
+                sb.Append(string.Join(Environment.NewLine, Prepend));
                 sb.AppendLine();
                 sb.AppendLine();
             }
-            sb.Append(string.Join(Environment.NewLine, create));
+            sb.Append(string.Join(Environment.NewLine, Create));
             sb.AppendLine();
             if (appendResult.Count > 0)
             {
@@ -149,7 +180,64 @@ namespace PgRoutiner
             return sb.ToString();
         }
 
-        private static (string name, string statement) ParseGenerated(PgItem table, string line)
+        public bool Equals(TableDumpTransformer to)
+        {
+            return false;
+            if (Create.Count != to.Create.Count)
+            {
+                return false;
+            }
+            if (Append.Count != to.Append.Count)
+            {
+                return false;
+            }
+            foreach (var (line, idx) in Create.Select((l, idx) => (l, idx)))
+            {
+                if (!string.Equals(line, Create[idx]))
+                {
+                    return false;
+                }
+            }
+            foreach (var (line, idx) in Append.Select((l, idx) => (l, idx)))
+            {
+                if (!line.StartsWith("CONSTRAINT"))
+                {
+                    continue;
+                }
+                if (!string.Equals(line, to.Append[idx]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public string ToDiffString(TableDumpTransformer source)
+        {
+            StringBuilder sb = new();
+              /*
+            var names = Names.ToDictionary(n => n.Value, n => n.Key);
+            var sourceNames = source.Names.ToDictionary(n => n.Value, n => n.Key);
+            
+            
+            foreach (var (line, idx) in Create.Select((l, idx) => (l, idx)))
+            {
+                var sourceLine = source.Create[idx];
+                if (string.Equals(line, sourceLine))
+                {
+                    continue;
+                }
+            }
+
+            if (sb.Length == 0)
+            {
+                return null;
+            }
+            */
+            return sb.ToString();
+        }
+
+        private (string name, string statement) ParseGenerated(string line)
         {
             var name = line.FirstWordAfter("COLUMN");
             var exp = line.FirstWordAfter("ADD", '(');
@@ -202,7 +290,7 @@ namespace PgRoutiner
             return (name, exp);
         }
 
-        private static (string name, string statement) ParsePk(PgItem table, string line)
+        private (string name, string statement) ParsePk(string line)
         {
             var defaultName = $"{table.Name}_pkey";
             var segment = line.FirstWordAfter("ADD CONSTRAINT");
@@ -226,7 +314,7 @@ namespace PgRoutiner
             return (null, null);
         }
 
-        private static (string name, string statement) ParseFk(PgItem table, string line)
+        private (string name, string statement) ParseFk(string line)
         {
             var segment = line.FirstWordAfter("FOREIGN KEY");
             var field = segment.Between('(', ')');
@@ -246,7 +334,7 @@ namespace PgRoutiner
             return (null, statement);
         }
 
-        private static (string name, string statement) ParseUnique(PgItem table, string line)
+        private (string name, string statement) ParseUnique(string line)
         {
             var segment = line.FirstWordAfter("UNIQUE");
             var field = segment.Between('(', ')');

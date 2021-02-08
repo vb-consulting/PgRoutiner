@@ -44,11 +44,12 @@ namespace PgRoutiner
 
             if (!Directory.Exists(dir))
             {
-                Dump($"Creating dir: {dir}");
+                DumpPath("Creating dir: {0}", dir);
                 Directory.CreateDirectory(dir);
             }
 
-            var builder = new PgDiffBuilder(Settings.Value, connection, target, sourceBuilder, targetBuilder);
+            var title = string.Format("{0}__diff__{1}", ConnectionName, targetName).SanitazeName();
+            var builder = new PgDiffBuilder(Settings.Value, connection, target, sourceBuilder, targetBuilder, title);
             var content = builder.Build();
 
             Console.WriteLine(content);

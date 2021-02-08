@@ -61,7 +61,7 @@ namespace PgRoutiner
         private string GetPort()
         {
             var env = Environment.GetEnvironmentVariable("PGPORT");
-            var msg = "";
+            string msg;
             if (env != null)
             {
                 msg = " (empty for PG env. var.)";

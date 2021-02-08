@@ -164,7 +164,7 @@ namespace PgRoutiner
             AddEntry(nameof(PsqlOptions), Value.PsqlOptions);
 
             sb.AppendLine();
-            AddComment("diff script settings");
+            AddComment("diff script settings (beta)");
             AddEntry(nameof(Diff), Value.Diff);
             AddEntry(nameof(DiffTarget), Value.DiffTarget);
             AddEntry(nameof(DiffFilePattern), Value.DiffFilePattern);

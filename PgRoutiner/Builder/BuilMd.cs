@@ -13,36 +13,37 @@ namespace PgRoutiner
                 return;
             }
             var file = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.MdFile)), ConnectionName);
-            var shortName = string.Format(Settings.Value.MdFile, ConnectionName);
+            var relative = file.GetRelativePath();
             var shortFilename = Path.GetFileName(file);
             var dir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(file)));
             var exists = File.Exists(file);
 
             if (!Settings.Value.Dump && !Directory.Exists(dir))
             {
-                Dump($"Creating dir: {dir}");
+                DumpRelativePath("Creating dir: {0} ...", dir);
                 Directory.CreateDirectory(dir);
             }
 
             if (!Settings.Value.Dump && exists && Settings.Value.Overwrite == false)
             {
-                Dump($"File {shortName} exists, overwrite is set to false, skipping ...");
+                DumpPath("File {0} exists, overwrite is set to false, skipping ...", relative);
                 return;
             }
             if (!Settings.Value.Dump && exists && Settings.Value.SkipIfExists != null && (
-                Settings.Value.SkipIfExists.Contains(shortName) || Settings.Value.SkipIfExists.Contains(shortFilename))
+                Settings.Value.SkipIfExists.Contains(shortFilename) || Settings.Value.SkipIfExists.Contains(relative))
                 )
             {
-                Dump($"Skipping {shortName}, already exists...");
+                DumpPath("Skipping {0}, already exists ...", relative);
                 return;
             }
-            if (!Settings.Value.Dump && exists && Settings.Value.AskOverwrite && Program.Ask($"File {shortName} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
+            if (!Settings.Value.Dump && exists && Settings.Value.AskOverwrite && 
+                Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
             {
-                Dump($"Skipping {shortName}...");
+                DumpPath("Skipping {0} ...", relative);
                 return;
             }
 
-            Dump($"Creating markdown file {shortName}...");
+            DumpPath("Creating markdown file {0} ...", relative);
             try
             {
                 var builder = new MarkdownDocument(Settings.Value, connection);
@@ -50,7 +51,7 @@ namespace PgRoutiner
             }
             catch(Exception e)
             {
-                Program.WriteLine(ConsoleColor.Red, $"Could not write markdown file {file}", $"ERROR: {e.Message}");
+                Program.WriteLine(ConsoleColor.Red, $"Could not write markdown file {relative}", $"ERROR: {e.Message}");
             }
         }
     }
