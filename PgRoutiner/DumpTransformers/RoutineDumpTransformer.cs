@@ -6,20 +6,29 @@ namespace PgRoutiner
 {
     public partial class DumpTransformer
     {
-        public static string TransformRoutine(PgItem routine, List<string> lines, Settings settings)
+        public static string TransformRoutine(PgItem routine, List<string> lines, 
+            string paramsString = null,
+            bool dbObjectsNoCreateOrReplace = false,
+            bool ignorePrepend = false,
+            Action<string> lineCallback = null)
         {
             List<string> prepend = new();
             List<string> create = new();
             List<string> append = new();
 
+            if (lineCallback == null)
+            {
+                lineCallback = s => { };
+            }
+
             bool isPrepend = true;
             bool isCreate = false;
             bool isAppend = true;
 
-            var name1 = $"{routine.Schema}.{routine.Name}";
-            var name2 = $"{routine.Schema}.\"{routine.Name}\"";
-            var name3 = $"\"{routine.Schema}\".\"{routine.Name}\"";
-            var name4 = $"\"{routine.Schema}\".{routine.Name}";
+            var name1 = $"{routine.Schema}.{routine.Name}{paramsString ?? ""}";
+            var name2 = $"{routine.Schema}.\"{routine.Name}\"{paramsString ?? ""}";
+            var name3 = $"\"{routine.Schema}\".\"{routine.Name}\"{paramsString ?? ""}";
+            var name4 = $"\"{routine.Schema}\".{routine.Name}{paramsString ?? ""}";
             
             var startSequence1 = $"CREATE {routine.TypeName} {name1}";
             var startSequence2 = $"CREATE {routine.TypeName} {name2}";
@@ -46,7 +55,7 @@ namespace PgRoutiner
                 var createEnd = line.EndsWith(endSequence);
                 if (createStart)
                 {
-                    if (!settings.DbObjectsNoCreateOrReplace)
+                    if (!dbObjectsNoCreateOrReplace)
                     {
                         line = line.Replace("CREATE", "CREATE OR REPLACE");
                     }
@@ -67,13 +76,17 @@ namespace PgRoutiner
                         isCreate = false;
                         isAppend = true;
                     }
+                    if (!createStart && !createEnd && !isAppend)
+                    {
+                        lineCallback(line);
+                    }
                 }
                 else
                 {
                     statement = string.Concat(statement, statement == "" ? "" : Environment.NewLine, line);
                     if (statement.EndsWith(";"))
                     {
-                        if (isPrepend)
+                        if (isPrepend && !ignorePrepend)
                         {
                             prepend.Add(statement);
                         }
@@ -87,7 +100,7 @@ namespace PgRoutiner
             }
 
             StringBuilder sb = new();
-            if (prepend.Count > 0)
+            if (!ignorePrepend && prepend.Count > 0)
             {
                 sb.Append(string.Join(Environment.NewLine, prepend));
                 sb.AppendLine();

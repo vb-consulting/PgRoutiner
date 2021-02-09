@@ -12,6 +12,7 @@ namespace PgRoutiner
         private readonly Settings settings;
         private readonly string baseArg;
         private string pgDumpCmd;
+        private const string excludeTables = "--exclude-table=*";
 
         public NpgsqlConnection Connection { get; }
         public string PgDumpName { get; }
@@ -67,7 +68,7 @@ namespace PgRoutiner
             List<string> lines = null;
             try
             {
-                lines = GetDumpLines(args, "--exclude-table=*");
+                lines = GetDumpLines(args, excludeTables);
             }
             catch (Exception e)
             {
@@ -82,7 +83,7 @@ namespace PgRoutiner
                     string content;
                     try
                     {
-                        content = DumpTransformer.TransformRoutine(routine, lines, settings);
+                        content = DumpTransformer.TransformRoutine(routine, lines, dbObjectsNoCreateOrReplace: settings.DbObjectsNoCreateOrReplace);
                     }
                     catch (Exception e)
                     {
@@ -147,6 +148,12 @@ namespace PgRoutiner
             return GetDumpLines(args, tableArg);
         }
 
+        public List<string> GetRawRoutinesDumpLines(bool withPrivileges)
+        {
+            var args = string.Concat(baseArg, " --schema-only  --no-owner", withPrivileges ? "" : " --no-acl");
+            return GetDumpLines(args, excludeTables);
+        }
+
         private string GetTableContent(PgItem table, string args)
         {
             var tableArg = table.GetTableArg();
@@ -164,7 +171,7 @@ namespace PgRoutiner
             {
                 return GetPgDumpContent($"{args} {tableArg}");
             }
-            return DumpTransformer.TransformView(GetDumpLines(args, tableArg), settings);
+            return DumpTransformer.TransformView(GetDumpLines(args, tableArg), settings.DbObjectsNoCreateOrReplace);
         }
 
         private List<string> GetDumpLines(string args, string tableArg)

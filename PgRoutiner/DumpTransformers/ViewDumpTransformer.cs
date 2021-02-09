@@ -6,11 +6,19 @@ namespace PgRoutiner
 {
     public partial class DumpTransformer
     {
-        public static string TransformView(List<string> lines, Settings settings)
+        public static string TransformView(List<string> lines, 
+            bool dbObjectsNoCreateOrReplace = false,
+            bool ignorePrepend = false,
+            Action<string> lineCallback = null)
         {
             List<string> prepend = new();
             List<string> create = new();
             List<string> append = new();
+
+            if (lineCallback == null)
+            {
+                lineCallback = s => { };
+            }
 
             bool isPrepend = true;
             bool isCreate = false;
@@ -33,7 +41,7 @@ namespace PgRoutiner
                 var createEnd = line.EndsWith(endSequence);
                 if (createStart)
                 {
-                    if (!settings.DbObjectsNoCreateOrReplace)
+                    if (!dbObjectsNoCreateOrReplace)
                     {
                         line = line.Replace("CREATE", "CREATE OR REPLACE");
                     }
@@ -50,13 +58,17 @@ namespace PgRoutiner
                         isCreate = false;
                         isAppend = true;
                     }
+                    if (!createStart)
+                    {
+                        lineCallback(line);
+                    }
                 }
                 else
                 {
                     statement = string.Concat(statement, statement == "" ? "" : Environment.NewLine, line);
                     if (statement.EndsWith(";"))
                     {
-                        if (isPrepend)
+                        if (isPrepend && !ignorePrepend)
                         {
                             prepend.Add(statement);
                         }

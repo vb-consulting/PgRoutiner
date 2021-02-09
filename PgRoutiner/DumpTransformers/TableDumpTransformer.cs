@@ -182,7 +182,6 @@ namespace PgRoutiner
 
         public bool Equals(TableDumpTransformer to)
         {
-            return false;
             if (Create.Count != to.Create.Count)
             {
                 return false;
@@ -212,9 +211,12 @@ namespace PgRoutiner
             return true;
         }
 
-        public string ToDiffString(TableDumpTransformer source)
+        public (
+            Dictionary<string, string> constraints, 
+            Dictionary<string, string> fields
+            ) ToDiff(TableDumpTransformer source)
         {
-            StringBuilder sb = new();
+            //StringBuilder sb = new();
               /*
             var names = Names.ToDictionary(n => n.Value, n => n.Key);
             var sourceNames = source.Names.ToDictionary(n => n.Value, n => n.Key);
@@ -234,7 +236,7 @@ namespace PgRoutiner
                 return null;
             }
             */
-            return sb.ToString();
+            return (new(), new());
         }
 
         private (string name, string statement) ParseGenerated(string line)
