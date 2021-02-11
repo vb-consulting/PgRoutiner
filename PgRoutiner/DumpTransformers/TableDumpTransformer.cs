@@ -5,11 +5,11 @@ using System.Text;
 
 namespace PgRoutiner
 {
-    public class TableDumpTransformer
+    public partial class TableDumpTransformer
     {
-        private readonly PgItem table;
         private readonly List<string> lines;
 
+        public PgItem Table { get; }
         public enum EntryType { Field, Contraint }
 
         public List<string> Prepend { get; } = new();
@@ -19,7 +19,7 @@ namespace PgRoutiner
 
         public TableDumpTransformer(PgItem table, List<string> lines)
         {
-            this.table = table;
+            this.Table = table;
             this.lines = lines;
         }
 
@@ -180,63 +180,25 @@ namespace PgRoutiner
             return sb.ToString();
         }
 
-        public bool Equals(TableDumpTransformer to)
+        private static (string type, string defaultValue, bool notNull) ParseFieldContent(string content)
         {
-            if (Create.Count != to.Create.Count)
+            string type;
+            string defaultValue = null;
+            bool notNull = false;
+            if (content.EndsWith(" NOT NULL"))
             {
-                return false;
+                notNull = true;
+                content = content.Substring(0, content.Length - " NOT NULL".Length);
             }
-            if (Append.Count != to.Append.Count)
+            var searchIndex = content.IndexOf(" DEFAULT ");
+            if (searchIndex > -1)
             {
-                return false;
+                var defaultPosition = searchIndex + " DEFAULT ".Length;
+                defaultValue = content[defaultPosition..];
+                content = content.Substring(0, searchIndex);
             }
-            foreach (var (line, idx) in Create.Select((l, idx) => (l, idx)))
-            {
-                if (!string.Equals(line, Create[idx]))
-                {
-                    return false;
-                }
-            }
-            foreach (var (line, idx) in Append.Select((l, idx) => (l, idx)))
-            {
-                if (!line.StartsWith("CONSTRAINT"))
-                {
-                    continue;
-                }
-                if (!string.Equals(line, to.Append[idx]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public (
-            Dictionary<string, string> constraints, 
-            Dictionary<string, string> fields
-            ) ToDiff(TableDumpTransformer source)
-        {
-            //StringBuilder sb = new();
-              /*
-            var names = Names.ToDictionary(n => n.Value, n => n.Key);
-            var sourceNames = source.Names.ToDictionary(n => n.Value, n => n.Key);
-            
-            
-            foreach (var (line, idx) in Create.Select((l, idx) => (l, idx)))
-            {
-                var sourceLine = source.Create[idx];
-                if (string.Equals(line, sourceLine))
-                {
-                    continue;
-                }
-            }
-
-            if (sb.Length == 0)
-            {
-                return null;
-            }
-            */
-            return (new(), new());
+            type = content;
+            return (type, defaultValue, notNull);
         }
 
         private (string name, string statement) ParseGenerated(string line)
@@ -247,7 +209,7 @@ namespace PgRoutiner
             if (par != null)
             {
                 var opts = "";
-                var defaultName = $"{table.Schema}.{table.Name}_{name}_seq";
+                var defaultName = $"{Table.Schema}.{Table.Name}_{name}_seq";
                 var segment = par.FirstWordAfter("SEQUENCE NAME");
                 if (!string.Equals(defaultName, segment))
                 {
@@ -294,7 +256,7 @@ namespace PgRoutiner
 
         private (string name, string statement) ParsePk(string line)
         {
-            var defaultName = $"{table.Name}_pkey";
+            var defaultName = $"{Table.Name}_pkey";
             var segment = line.FirstWordAfter("ADD CONSTRAINT");
             if (!string.Equals(defaultName, segment))
             {
@@ -324,7 +286,7 @@ namespace PgRoutiner
             {
                 return (null, null);
             }
-            var defaultName = $"{table.Name}_{field.Replace("\"", "")}_fkey";
+            var defaultName = $"{Table.Name}_{field.Replace("\"", "")}_fkey";
             segment = line.FirstWordAfter("ADD CONSTRAINT");
             string statement;
             if (!string.Equals(defaultName, segment))
@@ -344,7 +306,7 @@ namespace PgRoutiner
             {
                 return (null, null);
             }
-            var defaultName = $"{table.Name}_{field.Replace("\"", "")}_key";
+            var defaultName = $"{Table.Name}_{field.Replace("\"", "")}_key";
             segment = line.FirstWordAfter("ADD CONSTRAINT");
 
             if (!string.Equals(defaultName, segment))

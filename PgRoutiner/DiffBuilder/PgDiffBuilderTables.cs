@@ -10,7 +10,7 @@ namespace PgRoutiner
 {
     public partial class PgDiffBuilder
     {
-        private (string dropConstraints, string dropTables) GetDropTablesNotInSource()
+        private string GetDropTablesNotInSource(Statements statements)
         {
             StringBuilder dropConstraints = new();
             StringBuilder dropTables = new();
@@ -25,14 +25,15 @@ namespace PgRoutiner
             {
                 dropTables.AppendLine($"DROP TABLE {tableKey.Schema}.\"{tableKey.Name}\";");
             }
-            return (dropConstraints.ToString(), dropTables.ToString());
+            statements.Drop.Append(dropConstraints);
+            return dropTables.ToString();
         }
 
-        private (string dropConstraints, string addConstraints, string alterTables) GetAlterTargetTables()
+        private string GetAlterTargetTables(Statements statements)
         {
             StringBuilder dropConstraints = new();
-            StringBuilder addConstraints = new();
-            StringBuilder alterTables = new();
+            StringBuilder createConstraints = new();
+            StringBuilder alters = new();
             foreach (var tableKey in targetTables.Keys.Where(k => sourceTables.Keys.Contains(k)))
             {
                 var tableValue = targetTables[tableKey];
@@ -42,22 +43,16 @@ namespace PgRoutiner
                 {
                     continue;
                 }
-                var (constraints, fields) = targetTransformer.ToDiff(sourceTransformer);
-                foreach(var c in constraints)
+                var tableAlters = targetTransformer.ToDiff(sourceTransformer, statements);
+                if (tableAlters.Length > 0)
                 {
-                    dropConstraints.AppendLine($"ALTER TABLE ONLY {tableKey.Schema}.\"{tableKey.Name}\" DROP CONSTRAINT \"{c.Key}\";");
-                    // TODO primary keys and uniques first!!!
-                    addConstraints.AppendLine($"ALTER TABLE ONLY {tableKey.Schema}.\"{tableKey.Name}\" ADD CONSTRAINT \"{c.Key}\" {c.Value};");
-                }
-                foreach (var f in fields)
-                {
-                    alterTables.AppendLine($"ALTER TABLE ONLY {tableKey.Schema}.\"{tableKey.Name}\" {f.Value};");
+                    alters.Append(tableAlters);
                 }
             }
-            return (dropConstraints.ToString(), addConstraints.ToString(), alterTables.ToString());
+            return alters.ToString();
         }
 
-        private void BuildCreateTablesNotInTarget(StringBuilder sb)
+        private void BuildCreateTablesNotInTarget(StringBuilder sb, Statements statements)
         {
             StringBuilder first = new();
             StringBuilder appends = new();
@@ -71,29 +66,21 @@ namespace PgRoutiner
                     header = true;
                 }
                 var transformer = new TableDumpTransformer(tableValue, sourceBuilder.GetRawTableDumpLines(tableValue, true)).BuildLines();
-                foreach(var line in transformer.Create)
+                foreach (var line in transformer.Create)
                 {
                     sb.AppendLine(line);
                 }
                 foreach (var line in transformer.Append)
                 {
-                    if (line.Contains("PRIMARY KEY") || line.Contains("UNIQUE"))
+                    if (line.IsUniqueStatemnt())
                     {
-                        first.AppendLine(line);
+                        statements.Unique.AppendLine(line);
                     }
                     else
                     {
-                        appends.AppendLine(line);
+                        statements.Create.AppendLine(line);
                     }
                 }
-            }
-            if (first.Length > 0)
-            {
-                sb.Append(first);
-            }
-            if (appends.Length > 0)
-            {
-                sb.Append(appends);
             }
             if (header)
             {

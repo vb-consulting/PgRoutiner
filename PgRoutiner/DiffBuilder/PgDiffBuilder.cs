@@ -8,15 +8,21 @@ using System.Text;
 
 namespace PgRoutiner
 {
+    public record Table(string Schema, string Name);
+    public record Routine(string Schema, string Name, string Params);
+    public class Statements
+    {
+        public StringBuilder Drop { get; } = new();
+        public StringBuilder Unique { get; } = new();
+        public StringBuilder Create { get; } = new();
+    }
+
     public partial class PgDiffBuilder : CodeHelpers
     {
         private readonly NpgsqlConnection target;
         private readonly PgDumpBuilder sourceBuilder;
         private readonly string title;
         private readonly PgDumpBuilder targetBuilder;
-
-        private record Table(string Schema, string Name);
-        private record Routine(string Schema, string Name, string Params);
 
         private readonly Dictionary<Table, PgItem> sourceTables;
         private readonly Dictionary<Table, PgItem> sourceViews;
@@ -73,30 +79,24 @@ namespace PgRoutiner
         public string Build()
         {
             StringBuilder sb = new();
-            
+            Statements statements = new();
+
             BuildDropRoutinesNotInSource(sb);
             BuildDropViewsNotInSource(sb);
+            BuildCreateTablesNotInTarget(sb, statements);
+            var dropTables = GetDropTablesNotInSource(statements);
+            var alters = GetAlterTargetTables(statements);
 
-            var (dropConstraints1, dropTables) = GetDropTablesNotInSource();
-            var (dropConstraints2, addConstraints, alterTables) = GetAlterTargetTables();
-
-            if (!string.IsNullOrEmpty(dropConstraints1) || !string.IsNullOrEmpty(dropConstraints2))
+            if (statements.Drop.Length > 0)
             {
-                AddComment(sb, "#region DROP CONSTRAINTS");
-                if (!string.IsNullOrEmpty(dropConstraints1))
-                {
-                    sb.Append(dropConstraints1);
-                }
-                if (!string.IsNullOrEmpty(dropConstraints2))
-                {
-                    sb.Append(dropConstraints2);
-                }
-                AddComment(sb, "#endregion DROP CONSTRAINTS");
+                AddComment(sb, "#region DROP ARTIFACTS");
+                sb.Append(statements.Drop);
+                AddComment(sb, "#endregion DROP ARTIFACTS");
             }
-            if (!string.IsNullOrEmpty(alterTables) )
+            if (!string.IsNullOrEmpty(alters))
             {
                 AddComment(sb, "#region ALTER TABLES");
-                sb.Append(alterTables);
+                sb.Append(alters);
                 AddComment(sb, "#endregion ALTER TABLES");
             }
             if (!string.IsNullOrEmpty(dropTables))
@@ -105,14 +105,19 @@ namespace PgRoutiner
                 sb.Append(dropTables);
                 AddComment(sb, "#endregion DROP TABLES");
             }
-            if (!string.IsNullOrEmpty(addConstraints))
+            if (statements.Unique.Length > 0 || statements.Create.Length > 0)
             {
-                AddComment(sb, "#region ADD CONSTRAINTS");
-                sb.Append(addConstraints);
-                AddComment(sb, "#endregion ADD CONSTRAINTS");
+                AddComment(sb, "#region CREATE ARTIFACTS");
+                if (statements.Unique.Length > 0)
+                {
+                    sb.Append(statements.Unique);
+                }
+                if (statements.Create.Length > 0)
+                {
+                    sb.Append(statements.Create);
+                }
+                AddComment(sb, "#endregion CREATE ARTIFACTS");
             }
-
-            BuildCreateTablesNotInTarget(sb);
             BuildCreateViewsNotInTarget(sb);
             BuildCreateRoutinesNotInTarget(sb);
 

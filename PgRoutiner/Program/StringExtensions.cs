@@ -200,5 +200,14 @@ namespace PgRoutiner
         {
             return Path.GetRelativePath(Program.CurrentDir, path).Replace("\\", "/");
         }
+
+        public static bool IsUniqueStatemnt(this string value)
+        {
+            return 
+                value.Contains("PRIMARY") || 
+                value.Contains("UNIQUE") ||
+                value.Contains("primary") ||
+                value.Contains("unique");
+        }
     }
 }
