@@ -7,6 +7,19 @@ namespace PgRoutiner
 {
     public partial class TableDumpTransformer
     {
+        private class DiffEntries
+        {
+            public Dictionary<string, (string statement, EntryType type)> Statements { get; } = new();
+            public Dictionary<string, string> Indexes { get; } = new();
+            public Dictionary<string, string> Comments { get; } = new();
+        }
+
+        private class DiffStatements
+        {
+            public DiffEntries Source { get; } = new();
+            public DiffEntries Target { get; } = new();
+        }
+
         public bool Equals(TableDumpTransformer to)
         {
             if (Create.Count != to.Create.Count)
@@ -26,12 +39,6 @@ namespace PgRoutiner
             }
             foreach (var (line, idx) in Append.Select((l, idx) => (l, idx)))
             {
-                /*
-                if (!line.StartsWith("CONSTRAINT"))
-                {
-                    continue;
-                }
-                */
                 if (!string.Equals(line, to.Append[idx]))
                 {
                     return false;
@@ -48,119 +55,168 @@ namespace PgRoutiner
             BuildCreateColumnsDiff(source, alters);
             BuildDropColumnsDiff(source, alters);
 
-            var (sourceStatements, targetStatements) = BuildStatementsDicts(source);
+            var diffStatements = BuildStatementsDicts(source);
 
-            BuildDropStatementsDiff(sourceStatements, targetStatements, statements);
-            BuildAlterStatementsDiff(sourceStatements, targetStatements, statements);
-            BuildCreateStatementsDiff(sourceStatements, targetStatements, statements);
+            BuildAlterIndexesDiff(diffStatements, statements);
+            BuildDropStatementsDiff(diffStatements, statements);
+            BuildAlterStatementsDiff(diffStatements, statements);
+            BuildCreateStatementsDiff(diffStatements, statements);
+            BuildCommentsDiff(diffStatements, statements);
 
             return alters;
         }
 
-        private void BuildDropStatementsDiff(
-            Dictionary<string, string> sourceStatements, 
-            Dictionary<string, string> targetStatements,
-            Statements statements)
+        private static void BuildAlterIndexesDiff(DiffStatements diffStatements, Statements statements)
         {
-            foreach(var targetKey in targetStatements.Keys.Where(c => !sourceStatements.Keys.Contains(c)))
+            foreach (var (sourceKey, sourceValue) in diffStatements.Source.Indexes)
             {
-                var name = targetKey.StartsWith('"') ? $"\"{targetKey}\"" : targetKey;
-                statements.Drop.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" DROP CONSTRAINT {name};");
+                foreach (var (targetKey, targetValue) in diffStatements.Target.Indexes)
+                {
+                    if (Equals(sourceValue, targetValue) && !Equals(sourceKey, targetKey))
+                    {
+                        statements.AlterIndexes.AppendLine($"ALTER INDEX {targetKey} RENAME TO {sourceKey};");
+                        diffStatements.Source.Statements.Remove(sourceKey);
+                        diffStatements.Target.Statements.Remove(targetKey);
+                    }
+                }
             }
         }
 
-        private void BuildAlterStatementsDiff(
-            Dictionary<string, string> sourceStatements,
-            Dictionary<string, string> targetStatements,
-            Statements statements)
+        private static void BuildCommentsDiff(DiffStatements diffStatements, Statements statements)
         {
-            foreach (var (sourceKey, sourceValue) in sourceStatements)
+            foreach (var (targetKey, targetValue) in diffStatements.Target.Comments)
             {
-                if (!targetStatements.TryGetValue(sourceKey, out var targetValue))
+                if (!diffStatements.Source.Comments.TryGetValue(targetKey, out var sourceValue))
                 {
-                    continue;
-                }
-                if (string.Equals(sourceValue, targetValue))
-                {
-                    continue;
-                }
-                var name = sourceKey.StartsWith('"') ? sourceKey : $"\"{sourceKey}\"";
-                statements.Drop.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" DROP CONSTRAINT {name};");
-                var value = sourceValue.TrimEnd(';');
-                if (value.Contains("PRIMARY KEY") || value.Contains("UNIQUE"))
-                {
-                    statements.Unique.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" ADD CONSTRAINT {name} {value};{Environment.NewLine}");
+                    statements.TableComments.AppendLine($"{targetValue.Split(" IS ", 2).First()} IS NULL;");
                 }
                 else
                 {
-                    statements.Create.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" ADD CONSTRAINT {name} {value};");
+                    statements.TableComments.AppendLine(sourceValue);
                 }
+            }
+            foreach (var (sourceKey, sourceValue) in diffStatements.Source.Comments.Where(c => !diffStatements.Target.Comments.Keys.Contains(c.Key)))
+            {
+                statements.TableComments.AppendLine(sourceValue);
             }
         }
 
-        private void BuildCreateStatementsDiff(
-            Dictionary<string, string> sourceStatements,
-            Dictionary<string, string> targetStatements,
-            Statements statements)
+        private void BuildDropStatementsDiff(DiffStatements diffStatements, Statements statements)
         {
-            foreach (var sourceKey in sourceStatements.Keys.Where(c => !targetStatements.Keys.Contains(c)))
+            foreach(var (targetKey, targetValue) in diffStatements.Target.Statements.Where(c => !diffStatements.Source.Statements.Keys.Contains(c.Key)))
             {
-                var sourceValue = sourceStatements[sourceKey];
-                var name = sourceKey.StartsWith('"') ? sourceKey : $"\"{sourceKey}\"";
-                var value = sourceValue.TrimEnd(';');
-                if (value.IsUniqueStatemnt())
+                if (targetValue.type != EntryType.Contraint && targetValue.type != EntryType.Index)
                 {
-                    statements.Unique.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" ADD CONSTRAINT {name} {value};{Environment.NewLine}");
+                    continue;
+                }
+                string element = targetValue.type == EntryType.Contraint ? "CONSTRAINT" : "INDEX";
+                statements.Drop.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" DROP {element} \"{targetKey.Trim('"')}\";");
+            }
+        }
+
+        private void BuildAlterStatementsDiff(DiffStatements diffStatements, Statements statements)
+        {
+            foreach (var (sourceKey, sourceValue) in diffStatements.Source.Statements)
+            {
+                if (!diffStatements.Target.Statements.TryGetValue(sourceKey, out var targetValue))
+                {
+                    continue;
+                }
+                if (Equals(sourceValue, targetValue))
+                {
+                    continue;
+                }
+                if (sourceValue.type == EntryType.Contraint || sourceValue.type == EntryType.Index)
+                {
+                    string element = sourceValue.type == EntryType.Contraint ? "CONSTRAINT" : "INDEX";
+                    statements.Drop.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" DROP {element} \"{sourceKey.Trim('"')}\";");
+                }
+                if (sourceValue.statement.IsUniqueStatemnt())
+                {
+                    statements.Unique.AppendLine(sourceValue.statement);
                 }
                 else
                 {
-                    statements.Create.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" ADD CONSTRAINT {name} {value};");
+                    statements.Create.AppendLine(sourceValue.statement);
                 }
             }
         }
 
-        private (Dictionary<string, string> sourceStatements, Dictionary<string, string> targetStatements) 
-            BuildStatementsDicts(TableDumpTransformer source)
+        private static void BuildCreateStatementsDiff(DiffStatements diffStatements, Statements statements)
         {
-            Dictionary<string, string> sourceStatements = new(); 
-            Dictionary<string, string> targetStatements = new();
-
-            static void AddEntry(string entry, Dictionary<string, string> dict)
+            foreach (var sourceKey in diffStatements.Source.Statements.Keys.Where(c => !diffStatements.Target.Statements.Keys.Contains(c)))
             {
-                var searchIndex = entry.IndexOf("CONSTRAINT ");
-                if (searchIndex == -1)
+                var (statement, type) = diffStatements.Source.Statements[sourceKey];
+                if (statement.IsUniqueStatemnt())
                 {
-                    return;
+                    statements.Unique.AppendLine(statement);
                 }
-                var statements = entry[(searchIndex + "CONSTRAINT ".Length)..];
-                var parts = statements.Split(' ', 2, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length == 2)
+                else
                 {
-                    dict.Add(parts[0], parts[1]);
+                    statements.Create.AppendLine(statement);
+                }
+            }
+        }
+
+        private DiffStatements BuildStatementsDicts(TableDumpTransformer source)
+        {
+            var result = new DiffStatements();
+
+            static void AddEntry(string entry, DiffEntries diffEntries)
+            {
+                var name = entry.FirstWordAfter(" CONSTRAINT");
+                var type = EntryType.Contraint;
+                if (name == null)
+                {
+                    name = entry.FirstWordAfter(" INDEX");
+                    type = EntryType.Index;
+                    if (name != null)
+                    {
+                        diffEntries.Indexes.Add(name, entry.Split(" ON ").Last());
+                    }
+                }
+                if (name == null)
+                {
+                    name = entry.FirstWordAfter("SEQUENCE NAME");
+                    type = EntryType.Sequence;
+                }
+                if (name != null)
+                {
+                    diffEntries.Statements.Add(name, (entry, type));
+                }
+                else
+                {
+                    name = entry.FirstWordAfter("COMMENT ON TABLE");
+                    if (name == null)
+                    {
+                        name = entry.FirstWordAfter("COMMENT ON COLUMN");
+                    }
+                    if (name != null)
+                    {
+                        diffEntries.Comments.Add(name, entry);
+                    }
                 }
             }
 
             foreach(var entry in source.Names.Where(n => n.Value.entryType == EntryType.Contraint))
             {
-                //ALTER TABLE ONLY public.users ADD CONSTRAINT energy_type_check
-                //CHECK(((type = 0) OR(type = 181) OR(type = 182) OR(type = 280) OR(type = 380) OR(type = 480)))
-                sourceStatements.Add(entry.Key, entry.Value.content);
+                result.Source.Statements.Add(entry.Key, 
+                    ($"ALTER TABLE ONLY {source.Table.Schema}.\"{source.Table.Name}\" ADD CONSTRAINT {entry.Key.Trim('"')} {entry.Value.content};", EntryType.Contraint));
             }
             foreach (var entry in source.Append)
             {
-                AddEntry(entry, sourceStatements);
+                AddEntry(entry, result.Source);
             }
-
             foreach (var entry in Names.Where(n => n.Value.entryType == EntryType.Contraint))
             {
-                targetStatements.Add(entry.Key, entry.Value.content);
+                result.Target.Statements.Add(entry.Key,
+                    ($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" ADD CONSTRAINT {entry.Key.Trim('"')} {entry.Value.content};", EntryType.Contraint));
             }
             foreach (var entry in Append)
             {
-                AddEntry(entry, targetStatements);
+                AddEntry(entry, result.Target);
             }
-
-            return (sourceStatements, targetStatements);
+            return result;
         }
 
         private void BuildDropColumnsDiff(TableDumpTransformer source, StringBuilder sb)

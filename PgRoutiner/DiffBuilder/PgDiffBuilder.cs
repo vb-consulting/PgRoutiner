@@ -15,6 +15,8 @@ namespace PgRoutiner
         public StringBuilder Drop { get; } = new();
         public StringBuilder Unique { get; } = new();
         public StringBuilder Create { get; } = new();
+        public StringBuilder AlterIndexes { get; } = new();
+        public StringBuilder TableComments { get; } = new();
     }
 
     public partial class PgDiffBuilder : CodeHelpers
@@ -107,7 +109,7 @@ namespace PgRoutiner
             }
             if (statements.Unique.Length > 0 || statements.Create.Length > 0)
             {
-                AddComment(sb, "#region CREATE ARTIFACTS");
+                AddComment(sb, "#region CREATE TABLE ARTIFACTS");
                 if (statements.Unique.Length > 0)
                 {
                     sb.Append(statements.Unique);
@@ -116,7 +118,19 @@ namespace PgRoutiner
                 {
                     sb.Append(statements.Create);
                 }
-                AddComment(sb, "#endregion CREATE ARTIFACTS");
+                AddComment(sb, "#endregion CREATE TABLE ARTIFACTS");
+            }
+            if (statements.AlterIndexes.Length > 0)
+            {
+                AddComment(sb, "#region ALTER INDEXES");
+                sb.Append(statements.AlterIndexes);
+                AddComment(sb, "#endregion ALTER INDEXES");
+            }
+            if (statements.TableComments.Length > 0)
+            {
+                AddComment(sb, "#region TABLE COMMENTS");
+                sb.Append(statements.TableComments);
+                AddComment(sb, "#endregion TABLE COMMENTS");
             }
             BuildCreateViewsNotInTarget(sb);
             BuildCreateRoutinesNotInTarget(sb);
@@ -128,6 +142,7 @@ namespace PgRoutiner
             sb.Insert(0, $"DO ${title}${NL}BEGIN{NL}{NL}");
             sb.AppendLine();
             sb.AppendLine();
+            sb.AppendLine("--ROLLBACK; /* uncomment this line to test this script */");
             sb.AppendLine("END");
             sb.AppendLine($"${title}$");
             sb.AppendLine("LANGUAGE plpgsql;");

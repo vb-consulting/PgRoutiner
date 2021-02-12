@@ -10,7 +10,7 @@ namespace PgRoutiner
         private readonly List<string> lines;
 
         public PgItem Table { get; }
-        public enum EntryType { Field, Contraint }
+        public enum EntryType { Field, Contraint, Index, Sequence }
 
         public List<string> Prepend { get; } = new();
         public List<string> Create { get; } = new();
