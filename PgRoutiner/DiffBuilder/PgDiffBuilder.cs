@@ -155,7 +155,7 @@ namespace PgRoutiner
 
             stage("scanning views not in target to create...", 6, total);
             BuildCreateViewsNotInTarget(sb);
-            stage("scanning routines no in target to create...", 97 total);
+            stage("scanning routines no in target to create...", 9, total);
             BuildCreateRoutinesNotInTarget(sb);
 
             if (sb.Length == 0)
