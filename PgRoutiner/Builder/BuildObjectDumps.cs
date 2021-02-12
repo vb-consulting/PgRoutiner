@@ -87,32 +87,26 @@ namespace PgRoutiner
 
                 if (exists && Settings.Value.Overwrite == false)
                 {
-                    DumpPath("File {0} exists, overwrite is set to false, skipping ...", relative);
+                    DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
                     continue;
                 }
                 if (exists && Settings.Value.SkipIfExists != null && 
                     (Settings.Value.SkipIfExists.Contains(shortFilename) || 
                     Settings.Value.SkipIfExists.Contains(relative)))
                 {
-                    DumpPath("Skipping {0}, already exists ...", relative);
+                    DumpFormat("Skipping {0}, already exists ...", relative);
                     continue;
                 }
                 if (exists && Settings.Value.AskOverwrite && 
                     Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
                 {
-                    DumpPath("Skipping {0} ...", relative);
+                    DumpFormat("Skipping {0} ...", relative);
                     continue;
                 }
 
-                DumpPath("Creating dump file {0} ...", relative);
-                try
-                {
-                    WriteFile(file, content);
-                }
-                catch (Exception e)
-                {
-                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {relative}", $"ERROR: {e.Message}");
-                }
+                DumpFormat("Creating dump file {0} ...", relative);
+                WriteFile(file, content);
+                
 
                 if (!tableCreated)
                 {

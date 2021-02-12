@@ -49,7 +49,7 @@ namespace PgRoutiner
             {
                 return;
             }
-            Settings.ShowSettings();
+            Settings.ShowUpdatedSettings();
             WriteLine("");
             Builder.Run(connection);
             WriteLine("");
@@ -59,7 +59,7 @@ namespace PgRoutiner
         {
             if (Switches.Value.Settings)
             {
-                ShowSettings();
+                Settings.ShowSettings();
                 return true;
             }
 

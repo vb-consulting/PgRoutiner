@@ -107,17 +107,11 @@ namespace PgRoutiner
             Console.WriteLine("Difference script options (beta):");
             WriteSetting(Settings.DiffArgs, "Run a difference script creation.");
             WriteSetting(Settings.DiffTargetArgs, "Name of the target connection to create a difference for. Default is null (not used).", "NAME", newLine: true);
-            WriteSetting(nameof(Settings.DiffFilePattern), "Difference script file pattern. {0} is source name, {1} is target name and {2} is script number. Default is \"./Database/{0}-{1}/{3}-diff.sql\".", "FILEPATH");
+            WriteSetting(nameof(Settings.DiffFilePattern), "Difference script file pattern. {0} is source connection name, {1} is target connection name and {2} is script number. Set to null or empty to dump difference script content to console. Default is \"./Database/{0}-{1}/{3}-diff.sql\".", "FILEPATH");
             WriteSetting(Settings.DiffPgDumpArgs, "File path for pg_dump command for the target connection. Default is pg_dump.", "FILEPATH");
             WriteSetting(nameof(Settings.DiffPrivileges), "Include object privileges in difference script file. Default is false.");
 
-            ShowSettingsLink();
-        }
-
-        private static void ShowSettingsLink()
-        {
-            WriteLine("", "To learn how to work with settings, visit: ");
-            WriteLine(ConsoleColor.Cyan, " https://github.com/vb-consulting/PgRoutiner/blob/master/SETTINGS.MD", "");
+            Settings.ShowSettingsLink();
         }
 
         private static void WriteSetting(Arg setting, string value, string parameter = null, string key = null, bool newLine = false)

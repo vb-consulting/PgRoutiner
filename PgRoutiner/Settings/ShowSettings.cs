@@ -5,6 +5,50 @@ namespace PgRoutiner
     public partial class Settings
     {
         public static void ShowSettings()
+        {
+            Program.WriteLine("", "Current settings:");
+            foreach (var l in Settings.BuildFormatedSettings(wrap: false).Split(Environment.NewLine))
+            {
+                var line = l;
+                var trim = l.Trim();
+
+                if (trim.StartsWith("/*"))
+                {
+                    Program.WriteLine(ConsoleColor.Green, $" {line.Replace("    ", "")}");
+                }
+                else if (trim.StartsWith("\""))
+                {
+                    var split = line.Split(':', 2, StringSplitOptions.RemoveEmptyEntries);
+                    var key = split.Length == 2 ? split[0].Replace("\"", "") : null;
+                    var value = split.Length == 2 ? split[1].Trim() : split[0].Trim();
+
+                    if (key != null)
+                    {
+                        Program.Write(ConsoleColor.Yellow, key.Replace("    ", " "));
+                        Program.Write(": ");
+                        Program.WriteLine(ConsoleColor.Cyan, value);
+                    }
+                    else
+                    {
+                        Program.WriteLine(ConsoleColor.Cyan, $"  {value}");
+                    }
+                }
+                else
+                {
+                    Program.WriteLine(ConsoleColor.Cyan, line.Replace("    ", " "));
+                }
+            }
+
+            ShowSettingsLink();
+        }
+
+        public static void ShowSettingsLink()
+        {
+            Program.WriteLine("", "To learn how to work with settings, visit: ");
+            Program.WriteLine(ConsoleColor.Cyan, " https://github.com/vb-consulting/PgRoutiner/blob/master/SETTINGS.MD", "");
+        }
+
+        public static void ShowUpdatedSettings()
         { 
             bool settingsWritten = false;
             void WriteSetting(string name, object value)
@@ -14,7 +58,12 @@ namespace PgRoutiner
                     Program.WriteLine("");
                     Program.WriteLine("Using settings: ");
                 }
-                if (value.GetType() == typeof(bool) && (bool)value)
+                if (value == null)
+                {
+                    Program.Write(ConsoleColor.Yellow, $" {name.ToKebabCase()} = ");
+                    Program.WriteLine(ConsoleColor.Cyan, "null");
+                }
+                else if (value.GetType() == typeof(bool) && (bool)value)
                 {
                     Program.WriteLine(ConsoleColor.Yellow, $" {name.ToKebabCase()}");
                 }

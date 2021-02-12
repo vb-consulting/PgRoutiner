@@ -26,33 +26,26 @@ namespace PgRoutiner
 
             if (!Settings.Value.Dump && exists && Settings.Value.Overwrite == false)
             {
-                DumpPath("File {0} exists, overwrite is set to false, skipping ...", relative);
+                DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
                 return;
             }
             if (!Settings.Value.Dump && exists && Settings.Value.SkipIfExists != null && (
                 Settings.Value.SkipIfExists.Contains(shortFilename) || Settings.Value.SkipIfExists.Contains(relative))
                 )
             {
-                DumpPath("Skipping {0}, already exists ...", relative);
+                DumpFormat("Skipping {0}, already exists ...", relative);
                 return;
             }
             if (!Settings.Value.Dump && exists && Settings.Value.AskOverwrite && 
                 Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
             {
-                DumpPath("Skipping {0} ...", relative);
+                DumpFormat("Skipping {0} ...", relative);
                 return;
             }
 
-            DumpPath("Creating markdown file {0} ...", relative);
-            try
-            {
-                var builder = new MarkdownDocument(Settings.Value, connection);
-                WriteFile(file, builder.Build());
-            }
-            catch(Exception e)
-            {
-                Program.WriteLine(ConsoleColor.Red, $"Could not write markdown file {relative}", $"ERROR: {e.Message}");
-            }
+            DumpFormat("Creating markdown file {0} ...", relative);
+            var builder = new MarkdownDocument(Settings.Value, connection);
+            WriteFile(file, builder.Build());
         }
     }
 }

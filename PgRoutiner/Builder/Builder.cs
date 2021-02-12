@@ -118,13 +118,13 @@ namespace PgRoutiner
             Program.WriteLine(ConsoleColor.Green, lines);
         }
 
-        private static void DumpPath(string msg, string path)
+        private static void DumpFormat(string msg, string value)
         {
             if (Settings.Value.Dump)
             {
                 return;
             }
-            msg = string.Format(msg, $"`{path}`");
+            msg = string.Format(msg, $"`{value}`");
             foreach(var (line, i) in msg.Split('`').Select((l, i) => (l, i)))
             {
                 if (i % 2 == 0)
@@ -143,7 +143,7 @@ namespace PgRoutiner
 
         private static void DumpRelativePath(string msg, string path)
         {
-            DumpPath(msg, path.GetRelativePath());
+            DumpFormat(msg, path.GetRelativePath());
         }
 
         private static void Error(string msg)

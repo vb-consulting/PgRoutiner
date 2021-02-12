@@ -45,20 +45,20 @@ namespace PgRoutiner
                 {
                     if (Directory.GetFiles(dir).Length > 0)
                     {
-                        DumpPath("Deleting all existing files in dir: {0} ...", relativeDir);
+                        DumpFormat("Deleting all existing files in dir: {0} ...", relativeDir);
                         foreach (FileInfo fi in new DirectoryInfo(dir).GetFiles())
                         {
                             fi.Delete();
                         }
                     }
-                    DumpPath("Removing dir: {0} ...", relativeDir);
+                    DumpFormat("Removing dir: {0} ...", relativeDir);
                     Directory.Delete(dir, true);
                     exists = false;
                 }
             }
             if (!exists)
             {
-                DumpPath("Creating dir: {0} ...", relativeDir);
+                DumpFormat("Creating dir: {0} ...", relativeDir);
                 Directory.CreateDirectory(dir);
             }
            

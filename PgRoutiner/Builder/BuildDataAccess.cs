@@ -27,7 +27,7 @@ namespace PgRoutiner
 
                 if (!Settings.Value.Dump && exists && Settings.Value.Overwrite == false)
                 {
-                    DumpPath("File {0} exists, overwrite is set to false, skipping ...", fullFileName);
+                    DumpFormat("File {0} exists, overwrite is set to false, skipping ...", fullFileName);
                     continue;
                 }
                 if (!Settings.Value.Dump && exists && Settings.Value.SkipIfExists != null && (
@@ -36,13 +36,13 @@ namespace PgRoutiner
                     Settings.Value.SkipIfExists.Contains(relative))
                     )
                 {
-                    DumpPath("Skipping {0}, already exists ... ", relative);
+                    DumpFormat("Skipping {0}, already exists ... ", relative);
                     continue;
                 }
                 if (!Settings.Value.Dump && exists && Settings.Value.AskOverwrite && 
                     Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
                 {
-                    DumpPath("Skipping {0} ... ", relative);
+                    DumpFormat("Skipping {0} ... ", relative);
                     continue;
                 }
 
@@ -69,7 +69,7 @@ namespace PgRoutiner
 
                         if (!Settings.Value.Dump && modelExists && Settings.Value.Overwrite == false)
                         {
-                            DumpPath("File {0} exists, overwrite is set to false, skipping ...", relativeModelName);
+                            DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relativeModelName);
                             continue;
                         }
                         if (!Settings.Value.Dump && modelExists && Settings.Value.SkipIfExists != null && (
@@ -78,16 +78,16 @@ namespace PgRoutiner
                             Settings.Value.SkipIfExists.Contains(relativeModelName))
                             )
                         {
-                            DumpPath("Skipping {0}, already exists ...", relativeModelName);
+                            DumpFormat("Skipping {0}, already exists ...", relativeModelName);
                             continue;
                         }
                         if (!Settings.Value.Dump && modelExists && Settings.Value.AskOverwrite && 
                             Program.Ask($"File {relativeModelName} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
                         {
-                            DumpPath("Skipping {0} ...", relativeModelName);
+                            DumpFormat("Skipping {0} ...", relativeModelName);
                             continue;
                         }
-                        DumpPath("Building {0}...", relativeModelName);
+                        DumpFormat("Building {0}...", relativeModelName);
                         var modelModule = new Module(Settings.Value);
                         modelModule.AddNamespace(Settings.Value.ModelDir.PathToNamespace());
                         modelModule.AddItems(modelContent);

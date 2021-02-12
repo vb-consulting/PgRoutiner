@@ -79,15 +79,24 @@ namespace PgRoutiner
                     r => r);
         }
 
-        public string Build()
+        public string Build(Action<string, int, int> stage = null)
         {
             StringBuilder sb = new();
             Statements statements = new();
-
+            if (stage == null)
+            {
+                stage = (_, _, _) => { };
+            }
+            var total = 7;
+            stage("scanning routines not in source to drop...", 1, total);
             BuildDropRoutinesNotInSource(sb);
+            stage("scanning views not in source to drop...", 2, total);
             BuildDropViewsNotInSource(sb);
+            stage("scanning tables not in target to create...", 3, total);
             BuildCreateTablesNotInTarget(sb, statements);
+            stage("scanning tables not in source to drop...", 4, total);
             var dropTables = GetDropTablesNotInSource(statements);
+            stage("scanning tables in source different from target to alter...", 5, total);
             var alters = GetAlterTargetTables(statements);
 
             if (statements.Drop.Length > 0)
@@ -139,7 +148,14 @@ namespace PgRoutiner
                 sb.Append(statements.TableComments);
                 AddComment(sb, "#endregion TABLE COMMENTS");
             }
+
+            //stage("scanning views in source different from target to replace...", 6, total);
+
+            //stage("scanning routines in source different from target to replace...", 7, total);
+
+            stage("scanning views not in target to create...", 6, total);
             BuildCreateViewsNotInTarget(sb);
+            stage("scanning routines no in target to create...", 97 total);
             BuildCreateRoutinesNotInTarget(sb);
 
             if (sb.Length == 0)
