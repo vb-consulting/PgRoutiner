@@ -151,6 +151,7 @@ namespace PgRoutiner
         public string DiffPgDump { get; set; } = "pg_dump";
         public string DiffTarget { get; set; } = null;
         public string DiffFilePattern { get; set; } = "./Database/{0}-{1}/{2}-diff.sql";
+        public bool DiffPrivileges { get; set; } = false;
 
         public static readonly Settings Value = new Settings();
     }

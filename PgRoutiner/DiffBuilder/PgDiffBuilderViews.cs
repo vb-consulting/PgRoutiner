@@ -21,7 +21,7 @@ namespace PgRoutiner
                 HashSet<Table> references = new();
 
                 DumpTransformer.TransformView(
-                    targetBuilder.GetRawTableDumpLines(viewValue, true),
+                    targetBuilder.GetRawTableDumpLines(viewValue, settings.DiffPrivileges),
                     dbObjectsNoCreateOrReplace: true,
                     ignorePrepend: true,
                     lineCallback: line => LineCallback(line, viewKey, viewsToInclude, references));
@@ -76,7 +76,7 @@ namespace PgRoutiner
                 HashSet<Table> references = new();
 
                 var content = DumpTransformer.TransformView(
-                    sourceBuilder.GetRawTableDumpLines(viewValue, true), 
+                    sourceBuilder.GetRawTableDumpLines(viewValue, settings.DiffPrivileges), 
                     dbObjectsNoCreateOrReplace: true,
                     ignorePrepend: true,
                     lineCallback: line => LineCallback(line, viewKey, viewsToInclude, references));

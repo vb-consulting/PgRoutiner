@@ -83,7 +83,7 @@ namespace PgRoutiner
             WriteSetting(nameof(Settings.DbObjectsDirNames), "Database object subdirectory names mapping. Default is Tables, Views, Function and Procedures", "VALUE", "KEY", newLine: true);
             WriteSetting(nameof(Settings.DbObjectsSkipDelete), "Don't delete any existing file in tree sub directories (Tables, Views, Functions, Procedures).");
             WriteSetting(nameof(Settings.DbObjectsOwners), "Include object owners in each object file.");
-            WriteSetting(nameof(Settings.DbObjectsPrivileges), "Include object privileges in each object file.");
+            WriteSetting(nameof(Settings.DbObjectsPrivileges), "Include object privileges in each object file. Default is false.");
             WriteSetting(nameof(Settings.DbObjectsDropIfExists), "Include drop \"drop object if exists\" for each object in a file.");
             WriteSetting(nameof(Settings.DbObjectsNoCreateOrReplace), "Use \"create or replace\" for views and routines in object files.", newLine: true);
             WriteSetting(nameof(Settings.DbObjectsRaw), "Use raw dump without any parsing for each object file.");
@@ -109,6 +109,7 @@ namespace PgRoutiner
             WriteSetting(Settings.DiffTargetArgs, "Name of the target connection to create a difference for. Default is null (not used).", "NAME", newLine: true);
             WriteSetting(nameof(Settings.DiffFilePattern), "Difference script file pattern. {0} is source name, {1} is target name and {2} is script number. Default is \"./Database/{0}-{1}/{3}-diff.sql\".", "FILEPATH");
             WriteSetting(Settings.DiffPgDumpArgs, "File path for pg_dump command for the target connection. Default is pg_dump.", "FILEPATH");
+            WriteSetting(nameof(Settings.DiffPrivileges), "Include object privileges in difference script file. Default is false.");
 
             ShowSettingsLink();
         }

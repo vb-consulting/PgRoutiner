@@ -17,6 +17,7 @@ namespace PgRoutiner
         public StringBuilder Create { get; } = new();
         public StringBuilder AlterIndexes { get; } = new();
         public StringBuilder TableComments { get; } = new();
+        public StringBuilder TableGrants { get; } = new();
     }
 
     public partial class PgDiffBuilder : CodeHelpers
@@ -125,6 +126,12 @@ namespace PgRoutiner
                 AddComment(sb, "#region ALTER INDEXES");
                 sb.Append(statements.AlterIndexes);
                 AddComment(sb, "#endregion ALTER INDEXES");
+            }
+            if (statements.TableGrants.Length > 0)
+            {
+                AddComment(sb, "#region TABLE PRIVILEGES");
+                sb.Append(statements.TableGrants);
+                AddComment(sb, "#endregion TABLE PRIVILEGES");
             }
             if (statements.TableComments.Length > 0)
             {

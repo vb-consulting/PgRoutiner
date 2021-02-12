@@ -37,8 +37,8 @@ namespace PgRoutiner
             foreach (var tableKey in targetTables.Keys.Where(k => sourceTables.Keys.Contains(k)))
             {
                 var tableValue = targetTables[tableKey];
-                var sourceTransformer = new TableDumpTransformer(tableValue, sourceBuilder.GetRawTableDumpLines(tableValue, true)).BuildLines();
-                var targetTransformer = new TableDumpTransformer(tableValue, targetBuilder.GetRawTableDumpLines(tableValue, true)).BuildLines();
+                var sourceTransformer = new TableDumpTransformer(tableValue, sourceBuilder.GetRawTableDumpLines(tableValue, settings.DiffPrivileges)).BuildLines();
+                var targetTransformer = new TableDumpTransformer(tableValue, targetBuilder.GetRawTableDumpLines(tableValue, settings.DiffPrivileges)).BuildLines();
                 if (targetTransformer.Equals(sourceTransformer))
                 {
                     continue;

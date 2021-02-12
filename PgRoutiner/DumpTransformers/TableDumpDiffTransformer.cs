@@ -12,6 +12,7 @@ namespace PgRoutiner
             public Dictionary<string, (string statement, EntryType type)> Statements { get; } = new();
             public Dictionary<string, string> Indexes { get; } = new();
             public Dictionary<string, string> Comments { get; } = new();
+            public Dictionary<string, List<string>> Grants { get; } = new();
         }
 
         private class DiffStatements
@@ -62,8 +63,58 @@ namespace PgRoutiner
             BuildAlterStatementsDiff(diffStatements, statements);
             BuildCreateStatementsDiff(diffStatements, statements);
             BuildCommentsDiff(diffStatements, statements);
+            BuildGrantsDiff(diffStatements, statements);
 
             return alters;
+        }
+
+        private void BuildGrantsDiff(DiffStatements diffStatements, Statements statements)
+        {
+            void Build()
+            {
+                foreach (var targetKey in diffStatements.Target.Grants.Keys)
+                {
+                    statements.TableGrants.AppendLine($"REVOKE ALL ON {Table.Schema}.\"{Table.Name}\" FROM {targetKey};");
+                }
+                foreach (var (sourceKey, sourceValue) in diffStatements.Source.Grants)
+                {
+                    statements.TableGrants.AppendLine($"REVOKE ALL ON {Table.Schema}.\"{Table.Name}\" FROM {sourceKey};");
+                    foreach (var value in sourceValue)
+                    {
+                        statements.TableGrants.AppendLine(value);
+                    }
+                }
+            }
+            if (diffStatements.Source.Grants.Keys.Count != diffStatements.Target.Grants.Keys.Count)
+            {
+                Build();
+            }
+            else
+            {
+                foreach (var (sourceKey, sourceValue) in diffStatements.Source.Grants)
+                {
+                    if (!diffStatements.Target.Grants.TryGetValue(sourceKey, out var targetValue))
+                    {
+                        Build();
+                        return;
+                    }
+                    if (sourceValue.Count != targetValue.Count)
+                    {
+                        Build();
+                        return;
+                    }
+                    if (!Equals(string.Join("", sourceValue.OrderBy(s => s)), string.Join("", sourceValue.OrderBy(s => s))))
+                    {
+                        Build();
+                        return;
+                    }
+                }
+                if (diffStatements.Target.Grants.Keys.Where(k => !diffStatements.Source.Grants.Keys.Contains(k)).Any())
+                {
+                    Build();
+                    return;
+                }
+            }
         }
 
         private static void BuildAlterIndexesDiff(DiffStatements diffStatements, Statements statements)
@@ -92,7 +143,10 @@ namespace PgRoutiner
                 }
                 else
                 {
-                    statements.TableComments.AppendLine(sourceValue);
+                    if (!Equals(sourceValue, targetValue))
+                    {
+                        statements.TableComments.AppendLine(sourceValue);
+                    }
                 }
             }
             foreach (var (sourceKey, sourceValue) in diffStatements.Source.Comments.Where(c => !diffStatements.Target.Comments.Keys.Contains(c.Key)))
@@ -194,6 +248,20 @@ namespace PgRoutiner
                     if (name != null)
                     {
                         diffEntries.Comments.Add(name, entry);
+                    }
+                    else if (entry.StartsWith("GRANT "))
+                    {
+                        name = entry.FirstWordAfter("TO");
+                        if (name != null)
+                        {
+                            name = name.TrimEnd(';');
+                            if (diffEntries.Grants.TryGetValue(name, out var grants))
+                            {
+                                grants.Add(entry);
+                                diffEntries.Grants[name] = grants;
+                            }
+                            diffEntries.Grants.Add(name, new List<string>() { entry });
+                        }
                     }
                 }
             }

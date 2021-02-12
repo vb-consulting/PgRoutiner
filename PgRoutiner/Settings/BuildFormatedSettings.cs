@@ -168,7 +168,8 @@ namespace PgRoutiner
             AddEntry(nameof(Diff), Value.Diff);
             AddEntry(nameof(DiffTarget), Value.DiffTarget);
             AddEntry(nameof(DiffFilePattern), Value.DiffFilePattern);
-            AddEntry(nameof(DiffPgDump), Value.DiffPgDump, "");
+            AddEntry(nameof(DiffPgDump), Value.DiffPgDump);
+            AddEntry(nameof(DiffPrivileges), Value.DiffPrivileges, "");
 
             if (wrap)
             {

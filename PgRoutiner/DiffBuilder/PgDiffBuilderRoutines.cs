@@ -19,7 +19,7 @@ namespace PgRoutiner
                 {
                     return _routineLines;
                 }
-                return _routineLines = sourceBuilder.GetRawRoutinesDumpLines(true);
+                return _routineLines = sourceBuilder.GetRawRoutinesDumpLines(settings.DiffPrivileges);
             } 
         }
 
