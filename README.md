@@ -1,10 +1,45 @@
-# PgRoutiner .NET global tool
+# PgRoutiner - Set of Development Tools for Database-First Development with PostgreSQL
+
+**`PgRoutiner`** is set of command-line tools for the database-first development support using **`PostgreSQL`**.
+
+It primarly targets .NET (.NET Core and .NET5+) project types but, depending on the feature - it also can be used woth different project types.
+
+## Features at a Glance
+
+- .NET Feature: Automatically creates all the neccessary **C# source-code files to call and use PostgreSQL routines** (functions and/or procedures) - implemented as connection extension methods and return results (if any).
+
+- .NET Feature: Automatically creates a **unit test projects and unit test template source-code files** for each generated PostgreSQL routines call with each test isolated in transaction.
+
+- Create a **complete schema script** file from connection in your configuration file to include in your project source control or to be used with database unit tests.
+
+- Create a **data dump script file**, for configured tables, from connection in your configuration file to include in your project source control or to be used with database unit tests.
+
+- Create a nicely formatted **script file for each individual database object** and distribute them in direcotires by type (tables, views, functions, etc) to include in your project source control or use in unit tests.
+
+- Create and maintain a database **documentation markdown (MD)** file from database object comments to include database dictionary in your source code repository. Edit markdown database dictionary comments in markdown file and commit them back to database to keep documentation and database comments in sync.
+
+- Run a `psql` command line tool easily, using your configured project connection.
+
+- Create an **update diff database script** with difference between two configured connections and generate migration scripts automatically and keep them in source-control.
+
+## Installation and usage
+
+This version is ditributed as a .NET Global tool.
 
 > ```
 > $ dotnet tool install --global dotnet-pgroutiner
 > You can invoke the tool using the following command: PgRoutiner
-> Tool 'dotnet-pgroutiner' (version '2.0.0') was successfully installed.
+> Tool 'dotnet-pgroutiner' (version '3.0.0') was successfully installed.
 > ```
+
+
+
+.....................................
+
+
+
+
+
 
 **.NET Core tool for easy scaffolding of your PostgreSQL functions and procedures in you .NET Core project**
 
