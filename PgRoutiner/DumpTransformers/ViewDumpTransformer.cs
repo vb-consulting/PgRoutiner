@@ -4,16 +4,18 @@ using System.Text;
 
 namespace PgRoutiner
 {
-    public partial class DumpTransformer
+    public class ViewDumpTransformer : DumpTransformer
     {
-        public static string TransformView(List<string> lines, 
+        public ViewDumpTransformer(List<string> lines) : base(lines) {}
+
+        public ViewDumpTransformer BuildLines(
             bool dbObjectsNoCreateOrReplace = false,
             bool ignorePrepend = false,
             Action<string> lineCallback = null)
         {
-            List<string> prepend = new();
-            List<string> create = new();
-            List<string> append = new();
+            Prepend.Clear();
+            Create.Clear();
+            Append.Clear();
 
             if (lineCallback == null)
             {
@@ -29,7 +31,7 @@ namespace PgRoutiner
 
             string statement = "";
 
-            foreach(var l in lines)
+            foreach (var l in lines)
             {
                 var line = l;
                 if (line.StartsWith("--") || line.StartsWith("SET ") || (!isCreate && line.StartsWith("SELECT ")))
@@ -51,7 +53,7 @@ namespace PgRoutiner
                 }
                 if (isCreate)
                 {
-                    create.Add(line);
+                    Create.Add(line);
                     if (createEnd)
                     {
                         isPrepend = false;
@@ -70,33 +72,18 @@ namespace PgRoutiner
                     {
                         if (isPrepend && !ignorePrepend)
                         {
-                            prepend.Add(statement);
+                            Prepend.Add(statement);
                         }
                         else if (isAppend)
                         {
-                            append.Add(statement);
+                            Append.Add(statement);
                         }
                         statement = "";
                     }
                 }
             }
 
-            StringBuilder sb = new();
-            if (prepend.Count > 0)
-            {
-                sb.Append(string.Join(Environment.NewLine, prepend));
-                sb.AppendLine();
-                sb.AppendLine();
-            }
-            sb.Append(string.Join(Environment.NewLine, create));
-            sb.AppendLine();
-            if (append.Count > 0)
-            {
-                sb.AppendLine();
-                sb.Append(string.Join(Environment.NewLine, append));
-                sb.AppendLine();
-            }
-            return sb.ToString();
+            return this;
         }
     }
 }

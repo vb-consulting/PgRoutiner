@@ -83,7 +83,9 @@ namespace PgRoutiner
                     string content;
                     try
                     {
-                        content = DumpTransformer.TransformRoutine(routine, lines, dbObjectsNoCreateOrReplace: settings.DbObjectsNoCreateOrReplace);
+                        content = new RoutineDumpTransformer(routine, lines)
+                            .BuildLines(dbObjectsNoCreateOrReplace: settings.DbObjectsNoCreateOrReplace)
+                            .ToString();
                     }
                     catch (Exception e)
                     {
@@ -161,7 +163,7 @@ namespace PgRoutiner
             {
                 return GetPgDumpContent($"{args} {tableArg}");
             }
-            return new TableDumpTransformer(table, GetDumpLines(args, tableArg)).BuildLines().ToCreateString();
+            return new TableDumpTransformer(table, GetDumpLines(args, tableArg)).BuildLines().ToString();
         }
 
         private string GetViewContent(PgItem table, string args)
@@ -171,7 +173,9 @@ namespace PgRoutiner
             {
                 return GetPgDumpContent($"{args} {tableArg}");
             }
-            return DumpTransformer.TransformView(GetDumpLines(args, tableArg), settings.DbObjectsNoCreateOrReplace);
+            return new ViewDumpTransformer(GetDumpLines(args, tableArg))
+                .BuildLines(dbObjectsNoCreateOrReplace: settings.DbObjectsNoCreateOrReplace)
+                .ToString();
         }
 
         private List<string> GetDumpLines(string args, string tableArg)

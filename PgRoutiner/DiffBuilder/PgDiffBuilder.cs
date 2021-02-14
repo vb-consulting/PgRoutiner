@@ -24,8 +24,8 @@ namespace PgRoutiner
     {
         private readonly NpgsqlConnection target;
         private readonly PgDumpBuilder sourceBuilder;
-        private readonly string title;
         private readonly PgDumpBuilder targetBuilder;
+        private readonly string title;
 
         private readonly Dictionary<Table, PgItem> sourceTables;
         private readonly Dictionary<Table, PgItem> sourceViews;
@@ -88,10 +88,10 @@ namespace PgRoutiner
                 stage = (_, _, _) => { };
             }
             var total = 7;
-            stage("scanning routines not in source to drop...", 1, total);
-            BuildDropRoutinesNotInSource(sb);
-            stage("scanning views not in source to drop...", 2, total);
-            BuildDropViewsNotInSource(sb);
+            stage("scanning routines to drop...", 1, total);
+            BuildDropRoutines(sb);
+            stage("scanning views to drop...", 2, total);
+            BuildDropViews(sb);
             stage("scanning tables not in target to create...", 3, total);
             BuildCreateTablesNotInTarget(sb, statements);
             stage("scanning tables not in source to drop...", 4, total);
@@ -149,14 +149,10 @@ namespace PgRoutiner
                 AddComment(sb, "#endregion TABLE COMMENTS");
             }
 
-            //stage("scanning views in source different from target to replace...", 6, total);
-
-            //stage("scanning routines in source different from target to replace...", 7, total);
-
-            stage("scanning views not in target to create...", 6, total);
-            BuildCreateViewsNotInTarget(sb);
-            stage("scanning routines no in target to create...", 9, total);
-            BuildCreateRoutinesNotInTarget(sb);
+            stage("scanning views to create...", 6, total);
+            BuildCreateViews(sb);
+            stage("scanning routines to create...", 7, total);
+            BuildCreateRoutines(sb);
 
             if (sb.Length == 0)
             {

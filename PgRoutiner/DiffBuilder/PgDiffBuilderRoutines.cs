@@ -1,41 +1,85 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Diagnostics;
-using Npgsql;
-using System.Reflection;
 using System.Text;
 
 namespace PgRoutiner
 {
     public partial class PgDiffBuilder
     { 
-        private List<string> _routineLines = null;
-        private List<string> RoutineLines 
+        private List<string> _sourceRoutineLines = null;
+        private List<string> SourceRoutineLines 
         { 
             get 
             { 
-                if (_routineLines != null)
+                if (_sourceRoutineLines != null)
                 {
-                    return _routineLines;
+                    return _sourceRoutineLines;
                 }
-                return _routineLines = sourceBuilder.GetRawRoutinesDumpLines(settings.DiffPrivileges);
+                return _sourceRoutineLines = sourceBuilder.GetRawRoutinesDumpLines(settings.DiffPrivileges);
             } 
         }
+        private List<string> _targetRoutineLines = null;
+        private List<string> TargetRoutineLines
+        {
+            get
+            {
+                if (_targetRoutineLines != null)
+                {
+                    return _targetRoutineLines;
+                }
+                return _targetRoutineLines = targetBuilder.GetRawRoutinesDumpLines(settings.DiffPrivileges);
+            }
+        }
+        private readonly Dictionary<Routine, DumpTransformer> routinesToUpdate = new();
 
-        private void BuildDropRoutinesNotInSource(StringBuilder sb)
+        private void BuildDropRoutines(StringBuilder sb)
         {
             var header = false;
-            foreach(var routineKey in targetRoutines.Keys.Where(k => !sourceRoutines.Keys.Contains(k)))
+            void AddDropView(Routine key, PgRoutineGroup value)
             {
                 if (!header)
                 {
                     AddComment(sb, "#region DROP NON EXISTING ROUTINES");
                     header = true;
                 }
-
-                var routineValue = targetRoutines[routineKey];
-                sb.AppendLine($"DROP {routineValue.RoutineType.ToUpper()} {routineKey.Schema}.\"{routineKey.Name}\"{routineKey.Params};");
+                sb.AppendLine($"DROP {value.RoutineType.ToUpper()} {key.Schema}.\"{key.Name}\"{key.Params};");
+            }
+            routinesToUpdate.Clear();
+            foreach (var (routineKey, targetValue) in targetRoutines)
+            {
+                if (!sourceRoutines.TryGetValue(routineKey, out var sourceValue))
+                {
+                    AddDropView(routineKey, targetValue);
+                }
+                else
+                {
+                    var item = new PgItem
+                    {
+                        Schema = routineKey.Schema,
+                        Name = routineKey.Name,
+                        TypeName = sourceValue.RoutineType.ToUpper()
+                    };
+                    var sourceTransformer = new RoutineDumpTransformer(item, SourceRoutineLines)
+                        .BuildLines(
+                            paramsString: routineKey.Params,
+                            dbObjectsNoCreateOrReplace: true,
+                            ignorePrepend: true,
+                            lineCallback: null);
+                    item.TypeName = targetValue.RoutineType.ToUpper();
+                    var targetTransformer = new RoutineDumpTransformer(item, TargetRoutineLines)
+                        .BuildLines(
+                            paramsString: routineKey.Params,
+                            dbObjectsNoCreateOrReplace: true,
+                            ignorePrepend: true,
+                            lineCallback: null);
+                    if (sourceTransformer.Equals(targetTransformer))
+                    {
+                        continue;
+                    }
+                    AddDropView(routineKey, sourceValue);
+                    routinesToUpdate.Add(routineKey, sourceTransformer);
+                }
             }
             if (header)
             {
@@ -43,49 +87,44 @@ namespace PgRoutiner
             }
         }
 
-        private void BuildCreateRoutinesNotInTarget(StringBuilder sb)
+        private void BuildCreateRoutines(StringBuilder sb)
         {
-            var header = false;
-            var routinesToInclude = sourceRoutines.Keys.Where(k => !targetRoutines.Keys.Contains(k)).ToList();
+            var routinesToInclude = sourceRoutines.Keys.Where(k => routinesToUpdate.Keys.Contains(k) || !targetRoutines.Keys.Contains(k)).ToList();
             Dictionary<Routine, (string content, HashSet<Routine> references)> result = new();
 
             foreach (var routineKey in routinesToInclude)
             {
                 var routineValue = sourceRoutines[routineKey];
-                var isSql = string.Equals(routineValue.Language, "sql", StringComparison.InvariantCultureIgnoreCase);
                 HashSet<Routine> references = new();
-                void LineCallback(string line)
+                var isSql = string.Equals(routineValue.Language, "sql", StringComparison.InvariantCultureIgnoreCase);
+                if (routinesToUpdate.TryGetValue(routineKey, out var dumpTransformer))
                 {
-                    foreach (var reference in routinesToInclude)
+                    if (isSql)
                     {
-                        if (reference == routineKey || references.Contains(reference))
+                        foreach (var line in dumpTransformer.Create.Union(dumpTransformer.Append))
                         {
-                            continue;
-                        }
-
-                        var search = $"{reference.Name}(";
-                        var searhIndex = line.IndexOf(search);
-                        if (searhIndex > -1)
-                        {
-                            searhIndex += search.Length;
-                            var paramsSubstring = line[searhIndex..line.IndexOf(')', searhIndex)];
-                            if (paramsSubstring.Split(',').Length == sourceRoutines[reference].Parameters.Count)
-                            {
-                                references.Add(reference);
-                            }
+                            RoutineLineCallback(line, routineKey, routinesToInclude, references);
                         }
                     }
+                    result.Add(routineKey, (dumpTransformer.ToString(), references));
                 }
-
-                var content = DumpTransformer.TransformRoutine(
-                    new PgItem { Schema = routineKey.Schema, Name = routineKey.Name, TypeName = routineValue.RoutineType.ToUpper()},
-                    RoutineLines,
-                    paramsString: routineKey.Params,
-                    dbObjectsNoCreateOrReplace: true,
-                    ignorePrepend: true,
-                    lineCallback: isSql ? LineCallback : null);
-
-                result[routineKey] = (content, references);
+                else
+                {
+                    var item = new PgItem
+                    {
+                        Schema = routineKey.Schema,
+                        Name = routineKey.Name,
+                        TypeName = routineValue.RoutineType.ToUpper()
+                    };
+                    var content = new RoutineDumpTransformer(item, SourceRoutineLines)
+                        .BuildLines(
+                            paramsString: routineKey.Params,
+                            dbObjectsNoCreateOrReplace: true,
+                            ignorePrepend: true,
+                            lineCallback: isSql ? line => RoutineLineCallback(line, routineKey, routinesToInclude, references) : null)
+                        .ToString();
+                    result.Add(routineKey, (content, references));
+                }
             }
 
             HashSet<Routine> added = new();
@@ -103,6 +142,7 @@ namespace PgRoutiner
                 added.Add(key);
             }
 
+            var header = false;
             foreach (var routine in result)
             {
                 if (!header)
@@ -115,6 +155,29 @@ namespace PgRoutiner
             if (header)
             {
                 AddComment(sb, "#endregion CREATE NON EXISTING ROUTINES");
+            }
+        }
+
+        private void RoutineLineCallback(string line, Routine routineKey, List<Routine> routinesToInclude, HashSet<Routine> references)
+        {
+            foreach (var reference in routinesToInclude)
+            {
+                if (reference == routineKey || references.Contains(reference))
+                {
+                    continue;
+                }
+
+                var search = $"{reference.Name}(";
+                var searhIndex = line.IndexOf(search);
+                if (searhIndex > -1)
+                {
+                    searhIndex += search.Length;
+                    var paramsSubstring = line[searhIndex..line.IndexOf(')', searhIndex)];
+                    if (paramsSubstring.Split(',').Length == sourceRoutines[reference].Parameters.Count)
+                    {
+                        references.Add(reference);
+                    }
+                }
             }
         }
     }

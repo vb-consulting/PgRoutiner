@@ -21,33 +21,6 @@ namespace PgRoutiner
             public DiffEntries Target { get; } = new();
         }
 
-        public bool Equals(TableDumpTransformer to)
-        {
-            if (Create.Count != to.Create.Count)
-            {
-                return false;
-            }
-            if (Append.Count != to.Append.Count)
-            {
-                return false;
-            }
-            foreach (var (line, idx) in Create.Select((l, idx) => (l, idx)))
-            {
-                if (!string.Equals(line, to.Create[idx]))
-                {
-                    return false;
-                }
-            }
-            foreach (var (line, idx) in Append.Select((l, idx) => (l, idx)))
-            {
-                if (!string.Equals(line, to.Append[idx]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
         public StringBuilder ToDiff(TableDumpTransformer source, Statements statements)
         {
             StringBuilder alters = new();

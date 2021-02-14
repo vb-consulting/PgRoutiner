@@ -5,22 +5,15 @@ using System.Text;
 
 namespace PgRoutiner
 {
-    public partial class TableDumpTransformer
+    public partial class TableDumpTransformer : DumpTransformer
     {
-        private readonly List<string> lines;
-
         public PgItem Table { get; }
         public enum EntryType { Field, Contraint, Index, Sequence }
-
-        public List<string> Prepend { get; } = new();
-        public List<string> Create { get; } = new();
         public Dictionary<string, (int position, string content, EntryType entryType)> Names { get; } = new();
-        public List<string> Append { get; } = new();
 
-        public TableDumpTransformer(PgItem table, List<string> lines)
+        public TableDumpTransformer(PgItem table, List<string> lines) : base(lines)
         {
             this.Table = table;
-            this.lines = lines;
         }
 
         public TableDumpTransformer BuildLines()
@@ -104,7 +97,7 @@ namespace PgRoutiner
             return this;
         }
 
-        public string ToCreateString()
+        public override string ToString()
         {
             List<string> appendResult = new();
             foreach(var line in Append)

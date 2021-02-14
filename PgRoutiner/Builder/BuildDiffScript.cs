@@ -7,12 +7,6 @@ namespace PgRoutiner
 {
     partial class Builder
     {
-        /*
-    "Diff": false,
-    "DiffPgDump": "pg_dump",
-    "DiffTarget": null,
-    "DiffFilePattern": "./Database/{0}-{1}/{2}-diff.sql"
-         */
         private static void BuildDiffScript(NpgsqlConnection connection)
         {
             if (!Settings.Value.Diff)
@@ -38,6 +32,35 @@ namespace PgRoutiner
             }
             Dump("");
             var targetName = (Settings.Value.DiffTarget ?? $"{target.Host}_{target.Port}_{target.Database}").SanitazePath();
+
+            string GetFilePattern(int? ord)
+            {
+                var c1 = Settings.Value.DiffFilePattern.Contains("{0}");
+                var c2 = Settings.Value.DiffFilePattern.Contains("{1}");
+                var c3 = Settings.Value.DiffFilePattern.Contains("{2}");
+                if (c1 && c2 && c3)
+                {
+                    if (ord.HasValue)
+                    {
+                        return string.Format(Settings.Value.DiffFilePattern, ConnectionName, targetName, ord);
+                    }
+                    else
+                    {
+                        return string.Format(Settings.Value.DiffFilePattern.Replace("{2}", ""), ConnectionName, targetName);
+                    }
+                }
+                else if (c1 && c2)
+                {
+                    return string.Format(Settings.Value.DiffFilePattern, ConnectionName, targetName);
+                }
+                else if (c1)
+                {
+                    return string.Format(Settings.Value.DiffFilePattern, ConnectionName);
+                }
+                return Settings.Value.DiffFilePattern;
+            }
+
+
             var title = string.Format("{0}__diff__{1}", ConnectionName, targetName).SanitazeName();
             var builder = new PgDiffBuilder(Settings.Value, connection, target, sourceBuilder, targetBuilder, title);
             var content = builder.Build((msg, step, total) => 
@@ -51,7 +74,7 @@ namespace PgRoutiner
             }
             if (Settings.Value.DiffFilePattern != null)
             {
-                var dir = Path.GetFullPath(Path.GetDirectoryName(string.Format(Settings.Value.DiffFilePattern, ConnectionName, targetName, 1)));
+                var dir = Path.GetFullPath(Path.GetDirectoryName(GetFilePattern(1)));
                 if (!Directory.Exists(dir))
                 {
                     DumpFormat("Creating dir: {0}", dir);
@@ -69,7 +92,7 @@ namespace PgRoutiner
                     i++;
                 }
 
-                var file = string.Format(Settings.Value.DiffFilePattern, ConnectionName, targetName, i);
+                var file = GetFilePattern(i);
                 DumpRelativePath("Creating new diff file: {0} ...", Path.GetFullPath(file));
                 WriteFile(file, content);
             }

@@ -8,24 +8,48 @@ namespace PgRoutiner
     public partial class PgDiffBuilder
     {
         private readonly char[] terminators = new[] { ' ', ';', '"', '\n', '\r' };
+        private readonly Dictionary<Table, DumpTransformer> viewsToUpdate = new();
 
-        private void BuildDropViewsNotInSource(StringBuilder sb)
+        private void BuildDropViews(StringBuilder sb)
         {
-            var header = false;
-            var viewsToInclude = targetViews.Keys.Where(k => !sourceViews.Keys.Contains(k)).ToList();
             Dictionary<Table, HashSet<Table>> result = new();
-
-            foreach (var viewKey in viewsToInclude)
+            viewsToUpdate.Clear();
+            var targetViewsKeys = targetViews.Keys.ToList();
+            foreach (var (viewKey, viewValue) in targetViews)
             {
-                var viewValue = targetViews[viewKey];
                 HashSet<Table> references = new();
+                if (!sourceViews.TryGetValue(viewKey, out var sourceValue))
+                {
+                    new ViewDumpTransformer(targetBuilder.GetRawTableDumpLines(viewValue, settings.DiffPrivileges))
+                        .BuildLines(
+                            dbObjectsNoCreateOrReplace: true, 
+                            ignorePrepend: true, 
+                            lineCallback: line => ViewLineCallback(line, viewKey, targetViewsKeys, references));
 
-                DumpTransformer.TransformView(
-                    targetBuilder.GetRawTableDumpLines(viewValue, settings.DiffPrivileges),
-                    dbObjectsNoCreateOrReplace: true,
-                    ignorePrepend: true,
-                    lineCallback: line => LineCallback(line, viewKey, viewsToInclude, references));
-                result[viewKey] = references;
+                    result.Add(viewKey, references);
+                }
+                else
+                {
+                    var targetTransformer = new ViewDumpTransformer(targetBuilder.GetRawTableDumpLines(viewValue, settings.DiffPrivileges))
+                        .BuildLines(
+                            dbObjectsNoCreateOrReplace: true,
+                            ignorePrepend: true,
+                            lineCallback: line => ViewLineCallback(line, viewKey, targetViewsKeys, references));
+
+                    var sourceTransformer = new ViewDumpTransformer(sourceBuilder.GetRawTableDumpLines(viewValue, settings.DiffPrivileges))
+                        .BuildLines(
+                            dbObjectsNoCreateOrReplace: true,
+                            ignorePrepend: true,
+                            lineCallback: null);
+                    
+                    if (targetTransformer.Equals(sourceTransformer))
+                    {
+                        continue;
+                    }
+
+                    result.Add(viewKey, references);
+                    viewsToUpdate.Add(viewKey, sourceTransformer);
+                }
             }
 
             HashSet<Table> added = new();
@@ -38,7 +62,10 @@ namespace PgRoutiner
                 }
                 foreach (var reference in references)
                 {
-                    AddViewRecursively(reference, result[reference]);
+                    if (result.ContainsKey(reference))
+                    {
+                        AddViewRecursively(reference, result[reference]);
+                    }
                 }
                 statements.Push($"DROP VIEW {key.Schema}.\"{key.Name}\";");
                 added.Add(key);
@@ -48,8 +75,9 @@ namespace PgRoutiner
             {
                 AddViewRecursively(routine.Key, routine.Value);
             }
-            
-            while(statements.TryPop(out var statement))
+
+            var header = false;
+            while (statements.TryPop(out var statement))
             {
                 if (!header)
                 {
@@ -64,10 +92,9 @@ namespace PgRoutiner
             }
         }
 
-        private void BuildCreateViewsNotInTarget(StringBuilder sb)
+        private void BuildCreateViews(StringBuilder sb)
         {
-            var header = false;
-            var viewsToInclude = sourceViews.Keys.Where(k => !targetViews.Keys.Contains(k)).ToList();
+            var viewsToInclude = sourceViews.Keys.Where(k => viewsToUpdate.Keys.Contains(k) || !targetViews.Keys.Contains(k)).ToList();
             Dictionary<Table, (string content, HashSet<Table> references)> result = new();
             
             foreach (var viewKey in viewsToInclude)
@@ -75,12 +102,26 @@ namespace PgRoutiner
                 var viewValue = sourceViews[viewKey];
                 HashSet<Table> references = new();
 
-                var content = DumpTransformer.TransformView(
-                    sourceBuilder.GetRawTableDumpLines(viewValue, settings.DiffPrivileges), 
-                    dbObjectsNoCreateOrReplace: true,
-                    ignorePrepend: true,
-                    lineCallback: line => LineCallback(line, viewKey, viewsToInclude, references));
-                result[viewKey] = (content, references);
+                if (viewsToUpdate.TryGetValue(viewKey, out var dumpTransformer))
+                {
+                    foreach(var line in dumpTransformer.Create.Union(dumpTransformer.Append))
+                    {
+                        ViewLineCallback(line, viewKey, viewsToInclude, references);
+                    }
+
+                    result.Add(viewKey, (dumpTransformer.ToString(), references));
+                }
+                else
+                {
+                    var content = new ViewDumpTransformer(sourceBuilder.GetRawTableDumpLines(viewValue, settings.DiffPrivileges))
+                        .BuildLines(
+                            dbObjectsNoCreateOrReplace: true,
+                            ignorePrepend: true,
+                            lineCallback: line => ViewLineCallback(line, viewKey, viewsToInclude, references))
+                        .ToString();
+
+                    result.Add(viewKey, (content, references));
+                }
             }
 
             HashSet<Table> added = new();
@@ -92,12 +133,16 @@ namespace PgRoutiner
                 }
                 foreach (var reference in value.references)
                 {
-                    AddViewRecursively(reference, result[reference]);
+                    if (result.ContainsKey(reference))
+                    {
+                        AddViewRecursively(reference, result[reference]);
+                    }
                 }
                 sb.AppendLine(value.content);
                 added.Add(key);
             }
 
+            var header = false;
             foreach (var routine in result)
             {
                 if (!header)
@@ -113,7 +158,7 @@ namespace PgRoutiner
             }
         }
 
-        private void LineCallback(string line, Table viewKey, List<Table> viewsToInclude, HashSet<Table> references)
+        private void ViewLineCallback(string line, Table viewKey, List<Table> viewsToInclude, HashSet<Table> references)
         {
             foreach (var reference in viewsToInclude)
             {
