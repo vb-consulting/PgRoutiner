@@ -248,7 +248,7 @@ namespace PgRoutiner
 
         private Return GetReturnInfo(PgRoutineGroup routine)
         {
-            if (routine.DataType == "void")
+            if (routine == null || routine.DataType == null || routine.DataType == "void")
             {
                 return new Return("void", "void", true, false);
             }

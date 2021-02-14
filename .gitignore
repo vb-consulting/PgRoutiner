@@ -341,3 +341,4 @@ healthchecksdb
 /PgRoutiner/appsettings.Development.json
 /PgRoutiner/appsettings.PgRoutiner.json
 /PgRoutiner/Test
+/PgRoutinerTests

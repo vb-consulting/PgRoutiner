@@ -32,10 +32,10 @@ namespace PgRoutiner
             bool isCreate = false;
             bool isAppend = true;
 
-            var name1 = $"{Routine.Schema}.{Routine.Name}{paramsString ?? ""}";
-            var name2 = $"{Routine.Schema}.\"{Routine.Name}\"{paramsString ?? ""}";
-            var name3 = $"\"{Routine.Schema}\".\"{Routine.Name}\"{paramsString ?? ""}";
-            var name4 = $"\"{Routine.Schema}\".{Routine.Name}{paramsString ?? ""}";
+            var name1 = $"{Routine.Schema}.{Routine.Name}{paramsString ?? "("}";
+            var name2 = $"{Routine.Schema}.\"{Routine.Name}\"{paramsString ?? "("}";
+            var name3 = $"\"{Routine.Schema}\".\"{Routine.Name}\"{paramsString ?? "("}";
+            var name4 = $"\"{Routine.Schema}\".{Routine.Name}{paramsString ?? "("}";
 
             var startSequence1 = $"CREATE {Routine.TypeName} {name1}";
             var startSequence2 = $"CREATE {Routine.TypeName} {name2}";
