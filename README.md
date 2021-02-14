@@ -1,196 +1,33 @@
-# PgRoutiner - Set of Development Tools for Database-First Development with PostgreSQL
+# PgRoutiner - Database-First Development with PostgreSQL
 
-**`PgRoutiner`** is set of command-line tools for the database-first development support using **`PostgreSQL`**.
+**`PgRoutiner`** is a set of command-line tools for the database-first development support using **`PostgreSQL`**.
 
-It primarly targets .NET (.NET Core and .NET5+) project types but, depending on the feature - it also can be used woth different project types.
+It primarily targets .NET (.NET Core and .NET5+) project types but, depending on the feature - it also can be used with different project types.
 
 ## Features at a Glance
 
-- .NET Feature: Automatically creates all the neccessary **C# source-code files to call and use PostgreSQL routines** (functions and/or procedures) - implemented as connection extension methods and return results (if any).
+- .NET Feature: Automatically creates all the necessary **C# source-code files to call and use PostgreSQL routines** (functions and/or procedures) - implemented as connection extension methods and return results (if any).
 
-- .NET Feature: Automatically creates a **unit test projects and unit test template source-code files** for each generated PostgreSQL routines call with each test isolated in transaction.
+- .NET Feature: Automatically creates a **unit test projects and unit test template source-code files** for each generated PostgreSQL routines call with each test isolated in a rolled-back transaction.
 
-- Create a **complete schema script** file from connection in your configuration file to include in your project source control or to be used with database unit tests.
+- Create a **complete schema script** file from a connection in your configuration file to include in your project source control or to be used with database unit tests.
 
-- Create a **data dump script file**, for configured tables, from connection in your configuration file to include in your project source control or to be used with database unit tests.
+- Create a **data dump script file**, for configured tables, from a connection in your configuration file to include in your project source control or to be used with database unit tests.
 
-- Create a nicely formatted **script file for each individual database object** and distribute them in direcotires by type (tables, views, functions, etc) to include in your project source control or use in unit tests.
+- Create a nicely formatted **script file for each, individual database object** and distribute them in directories by type (tables, views, functions, etc) to include in your project source control or use in unit tests.
 
-- Create and maintain a database **documentation markdown (MD)** file from database object comments to include database dictionary in your source code repository. Edit markdown database dictionary comments in markdown file and commit them back to database to keep documentation and database comments in sync.
+- Create and maintain a database **documentation markdown (MD)** file from database object comments to include database dictionary in your source code repository. Edit markdown database dictionary comments in a markdown file and commit them back to the database to keep documentation and database comments in sync.
 
-- Run a `psql` command line tool easily, using your configured project connection.
+- Run a `psql` command-line tool easily, using your configured project connection.
 
-- Create an **update diff database script** with difference between two configured connections and generate migration scripts automatically and keep them in source-control.
+- Create an **update diff database script** with the difference between two configured connections and generate migration scripts automatically and keep them in source-control.
 
 ## Installation and usage
 
-This version is ditributed as a .NET Global tool.
+This version is distributed as a .NET Global tool.
 
 > ```
 > $ dotnet tool install --global dotnet-pgroutiner
 > You can invoke the tool using the following command: PgRoutiner
 > Tool 'dotnet-pgroutiner' (version '3.0.0') was successfully installed.
 > ```
-
-
-
-.....................................
-
-
-
-
-
-
-**.NET Core tool for easy scaffolding of your PostgreSQL functions and procedures in you .NET Core project**
-
-This tool will generate **all the necessary source code files** needed to make a simple call from C# (.NET Core) of your **PostgreSQL routines (functions or procedures):**
-
-- Simple execution - or data retrieval - in C#, sync, or async.
-
-- All the necessary data-access code is automatically implemented for you as **connection object extension.**.
-
-- All related necessary POC  **model classes** (or `record` structures for C# 9) - for data retrieval operations (function returning recordset or physical table returned from a function).
-
-See [examples](https://github.com/vbilopav/PgRoutiner#examples)
-
-> Also: can make your .NET Core project to do a **static type checking** - on your PostgreSQL.
-
-You can use this tool to enforce **static type checking** over PostgreSQL programmable routines (functions or procedures) - in your .NET Core project.
-
-Simply add the code generation command with this tool to your pre-build event.
-
-Or, you can simply just generate the code you need with a simple command.
-
-It will take care of things like:
-
-- PostgreSQL function overload for multiple versions.
-
-- PostgreSQL array types for complex input and output.
-
-- Superfast serialization to generated model classes without any caching. See [serialization section](https://github.com/vbilopav/PgRoutiner#serialization-and-mapping).
-
-## Installation
-
-.NET global tool install:
-
-> ```
-> dotnet tool install --global dotnet-pgroutiner
-> ```
-
-You will receive a message:
-
-> ```
-> You can invoke the tool using the following command: PgRoutiner
-> Tool 'dotnet-pgroutiner' (version '1.4.1') was successfully installed.
-> ```
-
-## Running
-
-Type (case-insensitive):
-
-> ```
-> PgRoutiner [default directory]
-> ```
-
-If first parameter is not supplied, default directory will be current directory, from where you have started the tool execution.
-If first parameter is supplied, default directory will be the one from the first parameter relative to the current. 
-
-It is enough to just type **`PgRoutiner`** (case-insensitive) - and it will look for .NET Core project file (`.csproj`) in the default directory - and start source file generation by using the first available connection string in your configuration.
-
-Or - you may supply additional configuration settings either trough:
-
-1) Custom **JSON configuration settings** section `PgRoutiner`. It is your standard `appsettings.json` or `appsettings.Development.json` from your project. For example, to configure the connection that will be used:
-
-> ```json
-> {
->   "PgRoutiner": {
->     "Connection": "MyConnection",
->   }
-> }
-> ```
-
-2) Standard command-line interface, by supplying command-line arguments. Example from above, to configure the connection that will be used:
-
-> ```
-> pgroutiner Connection=MyConnection
-> ```
-
-For key-value settings you can use:
-
-```
-pgroutiner setting:key=value
-```
-
-For array settings you can use:
-
-```
-pgroutiner settings:index=value
-```
-
-Where index is always zero based.
-
-> The command-line setting if supplied - **will always override JSON configuration settings.**. You can mix JSON configuration and command line settings and use command-line setting to override settings from JSON configuration
-
-## Configuration
-
-| Name | Description | Default |
-| ---- | ----------- | ------- |
-| **Connection** | Connection string name from your configuration connection string to be used. | First available connection string. |
-| **OutputDir** | Relative path where generated source files will be saved. | Current dir. |
-| **ModelDir** | Relative path where model classes source files will be saved. | Default value saves model classes in the same file as a related data-access code. |
-| **Schema** | PostgreSQL schema name used to search for routines.  | public |
-| **Overwrite** | Should existing generated source file be overwritten (true) or skipped if they exist (false) | false |
-| **AskOverwrite** | Should prompt a question should overwrite a file (Y/N). Only if overwrite is set true. | false |
-| **Namespace** |  Root namespace for generated source files. | Project root namespace. |
-| **NotSimilarTo** | `NOT SIMILAR TO` SQL regular expression used to search routine names. | Default skips this matching. |
-| **SimilarTo** | `SIMILAR TO` SQL regular expression used to search routine names. | Default skips this matching. |
-| **SourceHeader** | Insert the following content to the start of each generated source code file. | `// <auto-generated at timestamp />` |
-| **SyncMethod** | Generate a `sync` method, true or false. |  True. |
-| **AsyncMethod** | Generate a `async` method, true or false. | True. |
-| **UseRecords** | If set to true, all models will be C# 9 `record` types instead of POCO classes. | False. |
-| **Ident** | Number of default indentation spaces for the generated code. | 4 |
-| **Mapping** * | Key-values to override default type mapping. Key is PostgreSQL UDT type name and value is the corresponding C# type name. | See default mapping [here](/PgRoutiner/Settings.cs#L27) |
-| **CustomModels** **`*`** | Key-value dictionary to set custom models name. Key is expected model name and value is the new model name. | none |
-| **SkipIfExists** **`**`** | List of file names (without dir) that will be skipped if they already exist. | none |
-
-* **`*`** Key-values are JSON objects in JSON configuration. For command-line, use the following format: `pgroutiner mapping:Key1=Value1`
-* **`**`** Lists are JSON arrays in JSON configuration. For command-line, use the following format: `pgroutiner skipifexists:0=Value1`
-
-## Examples
-
-- [Simple `void` function example](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#simple-void-function-example)
-- [Function that returns a single value with overload example](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#function-that-returns-a-single-value-with-overload-example)
-- [Function returning anonymous table](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#function-returning-anonymous-table)
-- [Returning existing table](https://github.com/vbilopav/PgRoutiner/blob/master/EXAMPLES.md#returning-existing-table)
-
-## Serialization and mapping
-
-Serialization and mapping are performed using [Norm.net](https://github.com/vbilopav/NoOrm.Net) data access library.
-
-It uses **positional mapping** instead of mapping by name. 
-
-This means that the mapping mechanism is a **little bit [faster](https://github.com/vbilopav/NoOrm.Net/blob/master/PERFOMANCE-TESTS.md)** than any standard mapping mechanism commonly used (like Dapper or EF).
-
-For example, performance tests are indicating that serialization and mapping of 1 million rows that Dapper averages at `0:02.859` seconds and Norm.net positional mapping at `0:02.400` seconds. Norm.net does not use any additional caching to achieve performances because it doesn't need to.
-
-However, the number of returning record fields is limited to 12, more than 12 it will fallback to standard mapping by name (which averaged at `0:03.022` seconds at performance tests). If you need more performances and use positional mapping with more than 12 record fields, open an issue with Norm.net and consider supporting this project and also Norm.net.
-
-## Required dependencies for project
-
-- [Npgsql](https://www.nuget.org/packages/Npgsql/)
-- [Norm.net](https://www.nuget.org/packages/Norm.net/) >= 3.1.2
-- [System.Linq.Async](https://www.nuget.org/packages/System.Linq.Async/) (only for async operations)
-
-## Support
-
-This is open-source software developed and maintained freely without any compensation whatsoever.
-
-If you find it useful please consider rewarding me on my effort by [buying me a beer](https://www.paypal.me/vbsoftware/5)🍻 or [buying me a pizza](https://www.paypal.me/vbsoftware/10)🍕
-
-Or if you prefer bitcoin:
-bitcoincash:qp93skpzyxtvw3l3lqqy7egwv8zrszn3wcfygeg0mv
-
-## Licence
-
-Copyright (c) Vedran Bilopavlović - VB Consulting and VB Software 2020
-This source code is licensed under the [MIT license](https://github.com/vb-consulting/Norm.net/blob/master/LICENSE).
