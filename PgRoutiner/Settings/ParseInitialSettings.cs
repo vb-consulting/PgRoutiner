@@ -32,7 +32,8 @@ namespace PgRoutiner
                 !Value.SchemaDump && 
                 !Value.DataDump && 
                 !Value.DbObjects && 
-                !Value.Markdown)
+                !Value.Markdown && 
+                !Value.Diff)
             {
                 Program.WriteLine(ConsoleColor.Yellow, "",
                     "It seems that you are not using any commands or switches and you don't have a custom settings file created.",

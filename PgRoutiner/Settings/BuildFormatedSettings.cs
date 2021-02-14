@@ -69,7 +69,8 @@ namespace PgRoutiner
                 sb.AppendLine("  \"ConnectionStrings\": {");
                 if (Value.Connection == null && connection != null)
                 {
-                    sb.AppendLine($"    \"{connection.Database.ToUpperCamelCase()}Connection\": \"{connection.ConnectionString}\"");
+                    Value.Connection = $"{connection.Database.ToUpperCamelCase()}Connection";
+                    sb.AppendLine($"    \"{Value.Connection}\": \"{connection.ConnectionString}\"");
                 }
                 else
                 {
