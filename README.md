@@ -1,26 +1,57 @@
 # PgRoutiner - Database-First Development with PostgreSQL
 
-**`PgRoutiner`** is a set of command-line tools for the database-first development support using **`PostgreSQL`**.
+**PgRoutiner** is a set of a **command-line tools** - for the **database-first development** support using **PostgreSQL**.
 
-It primarily targets .NET (.NET Core and .NET5+) project types but, depending on the feature - it also can be used with different project types.
+**PgRoutiner** is .NET Global tool and it uses .NET (.NET Core and .NET5+) configuration and project types to generate source code and SQL files.
 
-## Features at a Glance
+It also can be used with any project type to:
 
-- .NET Feature: Automatically creates all the necessary **C# source-code files to call and use PostgreSQL routines** (functions and/or procedures) - implemented as connection extension methods and return results (if any).
+- Build schema, data and objects scripts.
+- Generate documentation markdown (MD) from comments and commit changes back to database.
+- Generate diference between two databases and create migration scripts on command.
 
-- .NET Feature: Automatically creates a **unit test projects and unit test template source-code files** for each generated PostgreSQL routines call with each test isolated in a rolled-back transaction.
+## Features
 
-- Create a **complete schema script** file from a connection in your configuration file to include in your project source control or to be used with database unit tests.
+### 1. .NET Feature: Build PostgreSQL routines (functions and procedures) data access code
 
-- Create a **data dump script file**, for configured tables, from a connection in your configuration file to include in your project source control or to be used with database unit tests.
+- Builds **C# source-code files** to call and use **PostgreSQL routines** (functions and/or procedures) on command.
+- Creates all neccessary data-access code for your routnies implemented as connection object extenions.
+- Creates all neccessary model classes or records.
 
-- Create a nicely formatted **script file for each, individual database object** and distribute them in directories by type (tables, views, functions, etc) to include in your project source control or use in unit tests.
+### 2. .NET Feature: Build unit-test project and unit test template source-code files for each generated method
 
-- Create and maintain a database **documentation markdown (MD)** file from database object comments to include database dictionary in your source code repository. Edit markdown database dictionary comments in a markdown file and commit them back to the database to keep documentation and database comments in sync.
+- Create a **unit-test project** for your database, where each test runs in **isolation** (unique connection inside rolledback transaction).
+- Create a **unit test template** for each generated data-access method and facilitaty **test-driven development** for PostgreSQL database. 
+- Run schema, data or migration script for your testing sessions.
 
-- Run a `psql` command-line tool easily, using your configured project connection.
+### 3. Build a complete schema script
 
-- Create an **update diff database script** with the difference between two configured connections and generate migration scripts automatically and keep them in source-control.
+- Build a **complete schema script** file from `pg_dump` using only your configuration settings to keep it under source-control or use in test project.
+
+### 4. Build a complete schema script
+
+- Build a **data script files** from `pg_dump` using only your configuration for selected tables to keep it under source-control or use in test project.
+
+### 5. Build a script for each database object
+
+- Build a **formatted script** file from `pg_dump` **for each database object* to keep them under source-control or use in test project.
+- Place objects scripts in subdirectories (tables, views, functions and procedures).
+
+### 6. Create a database dictionary in a documentation markdown (MD) file from database comments and keep them in sync
+
+- Create a **documentation markdown (MD)** from **database comments** on database objects and keep in source-control and share it with a team.
+- Edit documentation markdown (MD) comments directly in a file and commit them back to the database with single command.
+- Keep **database dictionary** in sync with database comments.
+
+### 6. Run `psql` command-line tool easily
+
+- Run `psql` command-line tool easily and open new terminal on sa single command using your project configuration.
+
+### 7. Generate difference script bewteen two databases
+
+- Generate a **difference script bewteen two databases** on a single command.
+- Automaticially geberate **schema migration** scripts to keep them under source-control or use in test project.
+
 
 ## Installation and usage
 

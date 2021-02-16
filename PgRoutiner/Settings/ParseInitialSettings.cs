@@ -25,6 +25,7 @@ namespace PgRoutiner
             var exists = File.Exists(Path.Join(pgroutinerFile));
 
             if (!exists &&
+                Program.Config.GetSection("PgRoutiner").GetChildren().Count() == 0 &&
                 Value.Execute == null &&
                 !Value.Psql &&
                 !Value.Routines && 
@@ -36,7 +37,7 @@ namespace PgRoutiner
                 !Value.Diff)
             {
                 Program.WriteLine(ConsoleColor.Yellow, "",
-                    "You don't seem to be using any available commands tgo create files and you don't have a custom settings file created.");
+                    "You don't seem to be using any available commands and PgRoutiner configuration seems to be missing.");
                 Program.Write(ConsoleColor.Yellow, 
                     $"Would you like to create a custom settings file \"");
                 Program.Write(ConsoleColor.Cyan, pgroutinerSettingsFile);
