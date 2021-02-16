@@ -61,7 +61,7 @@ namespace PgRoutiner
                 .TrimStart('.');
         }
 
-        public static string FirstWordAfter(this string value, string word, char character = ' ')
+        public static string FirstWordAfter(this string value, string word, char? character = ' ')
         {
             if (value is null)
             {
@@ -82,17 +82,21 @@ namespace PgRoutiner
                 return null;
             }
             index++;
-            var lastindex = value.IndexOf(character, index);
-            int len;
-            if (lastindex == -1)
+            if (character.HasValue)
             {
-                len = value.Length - index;
+                var lastindex = value.IndexOf(character.Value, index);
+                int len;
+                if (lastindex == -1)
+                {
+                    len = value.Length - index;
+                }
+                else
+                {
+                    len = lastindex - index;
+                }
+                return value.Substring(index, len).Trim();
             }
-            else
-            {
-                len = lastindex - index;
-            }
-            return value.Substring(index, len).Trim();
+            return value.Substring(index).Trim();
         }
 
         public static string Between(this string value, char start, char end)

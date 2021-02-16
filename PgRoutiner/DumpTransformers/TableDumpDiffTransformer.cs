@@ -13,6 +13,7 @@ namespace PgRoutiner
             public Dictionary<string, string> Indexes { get; } = new();
             public Dictionary<string, string> Comments { get; } = new();
             public Dictionary<string, List<string>> Grants { get; } = new();
+            public Dictionary<string, string> Triggers { get; } = new();
         }
 
         private class DiffStatements
@@ -32,6 +33,7 @@ namespace PgRoutiner
             var diffStatements = BuildStatementsDicts(source);
 
             BuildAlterIndexesDiff(diffStatements, statements);
+            BuildAlterTriggersDiff(diffStatements, statements);
             BuildDropStatementsDiff(diffStatements, statements);
             BuildAlterStatementsDiff(diffStatements, statements);
             BuildCreateStatementsDiff(diffStatements, statements);
@@ -98,7 +100,23 @@ namespace PgRoutiner
                 {
                     if (Equals(sourceValue, targetValue) && !Equals(sourceKey, targetKey))
                     {
-                        statements.AlterIndexes.AppendLine($"ALTER INDEX {targetKey} RENAME TO {sourceKey};");
+                        statements.AlterIndexes.AppendLine($"ALTER INDEX \"{targetKey.Trim('"')}\" RENAME TO \"{sourceKey.Trim('"')}\";");
+                        diffStatements.Source.Statements.Remove(sourceKey);
+                        diffStatements.Target.Statements.Remove(targetKey);
+                    }
+                }
+            }
+        }
+
+        private void BuildAlterTriggersDiff(DiffStatements diffStatements, Statements statements)
+        {
+            foreach (var (sourceKey, sourceValue) in diffStatements.Source.Triggers)
+            {
+                foreach (var (targetKey, targetValue) in diffStatements.Target.Triggers)
+                {
+                    if (Equals(sourceValue, targetValue) && !Equals(sourceKey, targetKey))
+                    {
+                        statements.CreateTriggers.AppendLine($"ALTER TRIGGER \"{targetKey.Trim('"')}\" ON {Table.Schema}.\"{Table.Name}\" RENAME TO \"{sourceKey.Trim('"')}\";");
                         diffStatements.Source.Statements.Remove(sourceKey);
                         diffStatements.Target.Statements.Remove(targetKey);
                     }
@@ -132,12 +150,15 @@ namespace PgRoutiner
         {
             foreach(var (targetKey, targetValue) in diffStatements.Target.Statements.Where(c => !diffStatements.Source.Statements.Keys.Contains(c.Key)))
             {
-                if (targetValue.type != EntryType.Contraint && targetValue.type != EntryType.Index)
+                if (targetValue.type == EntryType.Contraint || targetValue.type == EntryType.Index)
                 {
-                    continue;
+                    string element = targetValue.type == EntryType.Contraint ? "CONSTRAINT" : "INDEX";
+                    statements.Drop.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" DROP {element} \"{targetKey.Trim('"')}\";");
                 }
-                string element = targetValue.type == EntryType.Contraint ? "CONSTRAINT" : "INDEX";
-                statements.Drop.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" DROP {element} \"{targetKey.Trim('"')}\";");
+                else if ( targetValue.type == EntryType.Trigger)
+                {
+                    statements.DropTriggers.AppendLine($"DROP TRIGGER \"{targetKey.Trim('"')}\" ON {Table.Schema}.\"{Table.Name}\";");
+                }
             }
         }
 
@@ -180,7 +201,14 @@ namespace PgRoutiner
                 }
                 else
                 {
-                    statements.Create.AppendLine(statement);
+                    if (type == EntryType.Trigger)
+                    {
+                        statements.CreateTriggers.AppendLine(statement);
+                    }
+                    else
+                    {
+                        statements.Create.AppendLine(statement);
+                    }
                 }
             }
         }
@@ -200,6 +228,15 @@ namespace PgRoutiner
                     if (name != null)
                     {
                         diffEntries.Indexes.Add(name, entry.Split(" ON ").Last());
+                    }
+                }
+                if (name == null)
+                {
+                    name = entry.FirstWordAfter(" TRIGGER");
+                    type = EntryType.Trigger;
+                    if (name != null)
+                    {
+                        diffEntries.Triggers.Add(name, entry.FirstWordAfter(name, null));
                     }
                 }
                 if (name == null)

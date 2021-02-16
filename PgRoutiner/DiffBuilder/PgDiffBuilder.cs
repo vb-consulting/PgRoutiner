@@ -15,6 +15,8 @@ namespace PgRoutiner
         public StringBuilder Drop { get; } = new();
         public StringBuilder Unique { get; } = new();
         public StringBuilder Create { get; } = new();
+        public StringBuilder DropTriggers { get; } = new();
+        public StringBuilder CreateTriggers { get; } = new();
         public StringBuilder AlterIndexes { get; } = new();
         public StringBuilder TableComments { get; } = new();
         public StringBuilder TableGrants { get; } = new();
@@ -153,6 +155,20 @@ namespace PgRoutiner
             BuildCreateViews(sb);
             stage("scanning routines to create...", 7, total);
             BuildCreateRoutines(sb);
+
+            if (statements.CreateTriggers.Length > 0 || statements.DropTriggers.Length > 0)
+            {
+                AddComment(sb, "#region TRIGGERS");
+                if (statements.DropTriggers.Length > 0)
+                {
+                    sb.Append(statements.DropTriggers);
+                }
+                if (statements.CreateTriggers.Length > 0)
+                {
+                    sb.Append(statements.CreateTriggers);
+                }
+                AddComment(sb, "#endregion TRIGGERS");
+            }
 
             if (sb.Length == 0)
             {

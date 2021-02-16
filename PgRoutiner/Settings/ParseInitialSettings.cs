@@ -36,9 +36,18 @@ namespace PgRoutiner
                 !Value.Diff)
             {
                 Program.WriteLine(ConsoleColor.Yellow, "",
-                    "It seems that you are not using any commands or switches and you don't have a custom settings file created.",
-                    $"You can use custom settings file to set switches, commands and settings instead of command line.", "");
-                var answer = Program.Ask($"Create a custom \"{pgroutinerSettingsFile}\" settings file with all available default values? [Y/N]", ConsoleKey.Y, ConsoleKey.N);
+                    "You don't seem to be using any available commands tgo create files and you don't have a custom settings file created.");
+                Program.Write(ConsoleColor.Yellow, 
+                    $"Would you like to create a custom settings file \"");
+                Program.Write(ConsoleColor.Cyan, pgroutinerSettingsFile);
+                Program.WriteLine(ConsoleColor.Yellow, "\" with your current values?", 
+                    "This file can be used to change setings and run tasks without command line arguments.");
+                Program.Write(ConsoleColor.Yellow,
+                    $"Create \"");
+                Program.Write(ConsoleColor.Cyan, pgroutinerSettingsFile);
+                Program.WriteLine(ConsoleColor.Yellow, "\" in this dir [Y/N]?");
+
+                var answer = Program.Ask(null, ConsoleKey.Y, ConsoleKey.N);
                 if (answer == ConsoleKey.Y)
                 {
                     BuildSettingsFile(pgroutinerFile, connection);

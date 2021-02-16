@@ -8,7 +8,7 @@ namespace PgRoutiner
     public partial class TableDumpTransformer : DumpTransformer
     {
         public PgItem Table { get; }
-        public enum EntryType { Field, Contraint, Index, Sequence }
+        public enum EntryType { Field, Contraint, Index, Sequence, Trigger }
         public Dictionary<string, (int position, string content, EntryType entryType)> Names { get; } = new();
 
         public TableDumpTransformer(PgItem table, List<string> lines) : base(lines)

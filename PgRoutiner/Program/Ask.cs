@@ -7,7 +7,10 @@ namespace PgRoutiner
     {
         public static ConsoleKey Ask(string message, params ConsoleKey[] answers)
         {
-            WriteLine(ConsoleColor.Yellow, message);
+            if (!string.IsNullOrEmpty(message))
+            {
+                WriteLine(ConsoleColor.Yellow, message);
+            }            
             ConsoleKey answer;
             do
             {

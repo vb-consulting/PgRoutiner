@@ -33,21 +33,21 @@ namespace PgRoutiner
             Dump("");
             var targetName = (Settings.Value.DiffTarget ?? $"{target.Host}_{target.Port}_{target.Database}").SanitazePath();
 
-            string GetFilePattern(int? ord)
+            var now = DateTime.Now;
+            string GetFilePattern(int ord)
             {
-                var c1 = Settings.Value.DiffFilePattern.Contains("{0}");
-                var c2 = Settings.Value.DiffFilePattern.Contains("{1}");
-                var c3 = Settings.Value.DiffFilePattern.Contains("{2}");
-                if (c1 && c2 && c3)
+                var c1 = Settings.Value.DiffFilePattern.Contains("{0");
+                var c2 = Settings.Value.DiffFilePattern.Contains("{1");
+                var c3 = Settings.Value.DiffFilePattern.Contains("{2");
+                var c4 = Settings.Value.DiffFilePattern.Contains("{3");
+
+                if (c1 && c2 && c3 && c4)
                 {
-                    if (ord.HasValue)
-                    {
-                        return string.Format(Settings.Value.DiffFilePattern, ConnectionName, targetName, ord);
-                    }
-                    else
-                    {
-                        return string.Format(Settings.Value.DiffFilePattern.Replace("{2}", ""), ConnectionName, targetName);
-                    }
+                    return string.Format(Settings.Value.DiffFilePattern, ConnectionName, targetName, ord, now);
+                }
+                else if (c1 && c2 && c3)
+                {
+                    return string.Format(Settings.Value.DiffFilePattern, ConnectionName, targetName, ord);
                 }
                 else if (c1 && c2)
                 {
