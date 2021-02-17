@@ -41,8 +41,8 @@ namespace PgRoutiner
                 Program.Write(ConsoleColor.Yellow, 
                     $"Would you like to create a custom settings file \"");
                 Program.Write(ConsoleColor.Cyan, pgroutinerSettingsFile);
-                Program.WriteLine(ConsoleColor.Yellow, "\" with your current values?", 
-                    "This file can be used to change setings and run tasks without command line arguments.");
+                Program.WriteLine(ConsoleColor.Yellow, "\" with your current values?",
+                    "This file can be used to change settings and run tasks without command line arguments.");
                 Program.Write(ConsoleColor.Yellow,
                     $"Create \"");
                 Program.Write(ConsoleColor.Cyan, pgroutinerSettingsFile);
