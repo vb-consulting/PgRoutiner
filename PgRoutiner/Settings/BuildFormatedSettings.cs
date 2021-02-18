@@ -146,7 +146,7 @@ namespace PgRoutiner
             AddEntry(nameof(DbObjectsOwners), Value.DbObjectsOwners);
             AddEntry(nameof(DbObjectsPrivileges), Value.DbObjectsPrivileges);
             AddEntry(nameof(DbObjectsDropIfExists), Value.DbObjectsDropIfExists);
-            AddEntry(nameof(DbObjectsNoCreateOrReplace), Value.DbObjectsNoCreateOrReplace);
+            AddEntry(nameof(DbObjectsCreateOrReplace), Value.DbObjectsCreateOrReplace);
             AddEntry(nameof(DbObjectsRaw), Value.DbObjectsRaw);
 
             sb.AppendLine();

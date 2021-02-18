@@ -22,7 +22,7 @@ namespace PgRoutiner
                 {
                     new ViewDumpTransformer(targetBuilder.GetRawTableDumpLines(viewValue, settings.DiffPrivileges))
                         .BuildLines(
-                            dbObjectsNoCreateOrReplace: true, 
+                            dbObjectsCreateOrReplace: true, 
                             ignorePrepend: true, 
                             lineCallback: line => ViewLineCallback(line, viewKey, targetViewsKeys, references));
 
@@ -32,13 +32,13 @@ namespace PgRoutiner
                 {
                     var targetTransformer = new ViewDumpTransformer(targetBuilder.GetRawTableDumpLines(viewValue, settings.DiffPrivileges))
                         .BuildLines(
-                            dbObjectsNoCreateOrReplace: true,
+                            dbObjectsCreateOrReplace: true,
                             ignorePrepend: true,
                             lineCallback: line => ViewLineCallback(line, viewKey, targetViewsKeys, references));
 
                     var sourceTransformer = new ViewDumpTransformer(sourceBuilder.GetRawTableDumpLines(viewValue, settings.DiffPrivileges))
                         .BuildLines(
-                            dbObjectsNoCreateOrReplace: true,
+                            dbObjectsCreateOrReplace: true,
                             ignorePrepend: true,
                             lineCallback: null);
                     
@@ -115,7 +115,7 @@ namespace PgRoutiner
                 {
                     var content = new ViewDumpTransformer(sourceBuilder.GetRawTableDumpLines(viewValue, settings.DiffPrivileges))
                         .BuildLines(
-                            dbObjectsNoCreateOrReplace: true,
+                            dbObjectsCreateOrReplace: true,
                             ignorePrepend: true,
                             lineCallback: line => ViewLineCallback(line, viewKey, viewsToInclude, references))
                         .ToString();

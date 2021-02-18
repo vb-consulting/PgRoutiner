@@ -15,7 +15,7 @@ namespace PgRoutiner
 
         public RoutineDumpTransformer BuildLines(
             string paramsString = null,
-            bool dbObjectsNoCreateOrReplace = false,
+            bool dbObjectsCreateOrReplace = false,
             bool ignorePrepend = false,
             Action<string> lineCallback = null)
         {
@@ -42,7 +42,7 @@ namespace PgRoutiner
             var startSequence3 = $"CREATE {Routine.TypeName} {name3}";
             var startSequence4 = $"CREATE {Routine.TypeName} {name4}";
 
-            const string endSequence = "$$;";
+            const string endSequence = "$;";
 
             string statement = "";
 
@@ -62,7 +62,7 @@ namespace PgRoutiner
                 var createEnd = line.EndsWith(endSequence);
                 if (createStart)
                 {
-                    if (!dbObjectsNoCreateOrReplace)
+                    if (dbObjectsCreateOrReplace)
                     {
                         line = line.Replace("CREATE", "CREATE OR REPLACE");
                     }
@@ -110,7 +110,7 @@ namespace PgRoutiner
 
         public static string TransformRoutine(PgItem Routine, List<string> lines, 
             string paramsString = null,
-            bool dbObjectsNoCreateOrReplace = false,
+            bool dbObjectsCreateOrReplace = false,
             bool ignorePrepend = false,
             Action<string> lineCallback = null)
         {
@@ -137,7 +137,7 @@ namespace PgRoutiner
             var startSequence3 = $"CREATE {Routine.TypeName} {name3}";
             var startSequence4 = $"CREATE {Routine.TypeName} {name4}";
 
-            const string endSequence = "$$;";
+            const string endSequence = "$;";
 
             string statement = "";
 
@@ -157,7 +157,7 @@ namespace PgRoutiner
                 var createEnd = line.EndsWith(endSequence);
                 if (createStart)
                 {
-                    if (!dbObjectsNoCreateOrReplace)
+                    if (dbObjectsCreateOrReplace)
                     {
                         line = line.Replace("CREATE", "CREATE OR REPLACE");
                     }

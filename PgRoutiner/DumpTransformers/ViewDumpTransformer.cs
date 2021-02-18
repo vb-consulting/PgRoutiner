@@ -9,7 +9,7 @@ namespace PgRoutiner
         public ViewDumpTransformer(List<string> lines) : base(lines) {}
 
         public ViewDumpTransformer BuildLines(
-            bool dbObjectsNoCreateOrReplace = false,
+            bool dbObjectsCreateOrReplace = false,
             bool ignorePrepend = false,
             Action<string> lineCallback = null)
         {
@@ -43,7 +43,7 @@ namespace PgRoutiner
                 var createEnd = line.EndsWith(endSequence);
                 if (createStart)
                 {
-                    if (!dbObjectsNoCreateOrReplace)
+                    if (dbObjectsCreateOrReplace)
                     {
                         line = line.Replace("CREATE", "CREATE OR REPLACE");
                     }

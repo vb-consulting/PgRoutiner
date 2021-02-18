@@ -84,7 +84,7 @@ namespace PgRoutiner
                     try
                     {
                         content = new RoutineDumpTransformer(routine, lines)
-                            .BuildLines(dbObjectsNoCreateOrReplace: settings.DbObjectsNoCreateOrReplace)
+                            .BuildLines(dbObjectsCreateOrReplace: settings.DbObjectsCreateOrReplace)
                             .ToString();
                     }
                     catch (Exception e)
@@ -174,7 +174,7 @@ namespace PgRoutiner
                 return GetPgDumpContent($"{args} {tableArg}");
             }
             return new ViewDumpTransformer(GetDumpLines(args, tableArg))
-                .BuildLines(dbObjectsNoCreateOrReplace: settings.DbObjectsNoCreateOrReplace)
+                .BuildLines(dbObjectsCreateOrReplace: settings.DbObjectsCreateOrReplace)
                 .ToString();
         }
 
@@ -195,12 +195,12 @@ namespace PgRoutiner
             var insideView = false;
             string lineFunc(string line)
             {
-                if (line.Contains("AS $$"))
+                if (line.Contains("AS $"))
                 {
                     insideBlock = true;
                     return line;
                 }
-                if (insideBlock && line.Contains("$$;"))
+                if (insideBlock && line.Contains("$;"))
                 {
                     insideBlock = false;
                     return line;

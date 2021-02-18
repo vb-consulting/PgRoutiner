@@ -63,14 +63,14 @@ namespace PgRoutiner
                     var sourceTransformer = new RoutineDumpTransformer(item, SourceRoutineLines)
                         .BuildLines(
                             paramsString: routineKey.Params,
-                            dbObjectsNoCreateOrReplace: true,
+                            dbObjectsCreateOrReplace: true,
                             ignorePrepend: true,
                             lineCallback: null);
                     item.TypeName = targetValue.RoutineType.ToUpper();
                     var targetTransformer = new RoutineDumpTransformer(item, TargetRoutineLines)
                         .BuildLines(
                             paramsString: routineKey.Params,
-                            dbObjectsNoCreateOrReplace: true,
+                            dbObjectsCreateOrReplace: true,
                             ignorePrepend: true,
                             lineCallback: null);
                     if (sourceTransformer.Equals(targetTransformer))
@@ -119,7 +119,7 @@ namespace PgRoutiner
                     var content = new RoutineDumpTransformer(item, SourceRoutineLines)
                         .BuildLines(
                             paramsString: routineKey.Params,
-                            dbObjectsNoCreateOrReplace: true,
+                            dbObjectsCreateOrReplace: true,
                             ignorePrepend: true,
                             lineCallback: isSql ? line => RoutineLineCallback(line, routineKey, routinesToInclude, references) : null)
                         .ToString();

@@ -128,7 +128,7 @@ namespace PgRoutiner
         public bool DbObjectsOwners { get; set; } = false;
         public bool DbObjectsPrivileges { get; set; } = false;
         public bool DbObjectsDropIfExists { get; set; } = false;
-        public bool DbObjectsNoCreateOrReplace { get; set; } = false;
+        public bool DbObjectsCreateOrReplace { get; set; } = false;
         public bool DbObjectsRaw { get; set; } = false;
 
         /*comments markdown file*/
