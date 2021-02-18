@@ -140,9 +140,9 @@ namespace PgRoutiner
 #else
             string projectSetting = null;
 #endif
-            if (!string.IsNullOrEmpty(Value.Project))
+            if (!string.IsNullOrEmpty(projectSetting))
             {
-                projectFile = Path.Combine(Program.CurrentDir, Path.GetFileName(Value.Project));
+                projectFile = Path.Combine(Program.CurrentDir, Path.GetFileName(projectSetting));
                 if (!File.Exists(projectFile))
                 {
                     Program.DumpError($"Couldn't find a project to run. Ensure that a {Path.GetFullPath(projectFile)} project exists, or pass the path to the project in a first argument (pgroutiner path)");
