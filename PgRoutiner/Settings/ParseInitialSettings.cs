@@ -135,6 +135,11 @@ namespace PgRoutiner
         private static Project ParseProjectFile()
         {
             string projectFile = null;
+#if DEBUG
+            var projectSetting = Value.Project;
+#else
+            string projectSetting = null;
+#endif
             if (!string.IsNullOrEmpty(Value.Project))
             {
                 projectFile = Path.Combine(Program.CurrentDir, Path.GetFileName(Value.Project));
