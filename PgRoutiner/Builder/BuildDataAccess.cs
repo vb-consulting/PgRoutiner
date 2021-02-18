@@ -17,7 +17,7 @@ namespace PgRoutiner
             var outputDir = GetOutputDir();
             var modelDir = GetModelDir();
 
-            foreach (var group in connection.GetRoutineGroups(Settings.Value))
+            foreach (var group in connection.GetRoutineGroups(Settings.Value, all: false))
             {
                 var name = group.Key;
                 var shortFilename = string.Concat(name.ToUpperCamelCase(), ".cs");
@@ -115,7 +115,7 @@ namespace PgRoutiner
 
         private static void BuildDataAccessExtensions(NpgsqlConnection connection)
         {
-            foreach (var group in connection.GetRoutineGroups(Settings.Value))
+            foreach (var group in connection.GetRoutineGroups(Settings.Value, all: false))
             {
                 var name = group.Key;
                 var module = new RoutineModule(Settings.Value);

@@ -45,7 +45,7 @@ namespace PgRoutiner
         public static void ShowSettingsLink()
         {
             Program.WriteLine("", "To learn how to work with settings, visit: ");
-            Program.WriteLine(ConsoleColor.Cyan, " https://github.com/vb-consulting/PgRoutiner/blob/master/SETTINGS.MD", "");
+            Program.WriteLine(ConsoleColor.Cyan, " https://github.com/vb-consulting/PgRoutiner/wiki/1.-WORKING-WITH-SETTINGS", "");
         }
 
         public static void ShowUpdatedSettings()

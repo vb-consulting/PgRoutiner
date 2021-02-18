@@ -43,13 +43,14 @@ It also can be used with any project type to:
 - Edit documentation markdown (MD) comments directly in a file and commit them back to the database with a single command.
 - Keep **database dictionary** in sync with database comments.
 
-### 7. Run `psql` and open `psql` terminal easily from your configuration
-
-### 8. Generate difference script between two databases
+### 7. Generate difference script between two databases
 
 - Generate a **difference script between two databases** with a single command.
 - Automatically generate **schema migration** scripts to keep them under source-control or use in the test project.
 
+### 8. Run `psql` from your configuration
+
+- Use your
 
 ## Installation
 

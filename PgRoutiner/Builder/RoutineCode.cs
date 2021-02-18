@@ -43,6 +43,7 @@ namespace PgRoutiner
             Class.AppendLine($"{I2}public const string Name = \"{Name}\";");
             foreach (var routine in routines)
             {
+                PrepareParams(routine);
                 var @return = GetReturnInfo(routine);
                 var @params = GetParamsInfo(routine);
                 if (!settings.SkipSyncMethods)
@@ -55,6 +56,18 @@ namespace PgRoutiner
                 }
             }
             Class.AppendLine($"{I1}}}");
+        }
+
+        private void PrepareParams(PgRoutineGroup routine)
+        {
+            var i = 0;
+            foreach(var p in routine.Parameters)
+            {
+                if (p.Name == null)
+                {
+                    p.Name = $"param{++i}";
+                }
+            }
         }
 
         private void BuildSyncMethod(PgRoutineGroup routine, Return @return, List<Param> @params)

@@ -79,7 +79,7 @@ namespace PgRoutiner
 
                 }
                 sb.AppendLine("  },");
-                sb.AppendLine("  /* see https://github.com/vb-consulting/PgRoutiner/SETTINGS.MD for more info */");
+                sb.AppendLine("  /* see https://github.com/vb-consulting/PgRoutiner/wiki/1.-WORKING-WITH-SETTINGS for more info */");
                 sb.AppendLine("  \"PgRoutiner\": {");
                 sb.AppendLine();
             }
@@ -87,6 +87,8 @@ namespace PgRoutiner
             AddComment("general settings");
             AddEntry(nameof(Connection), Value.Connection);
             AddEntry(nameof(Schema), Value.Schema);
+            AddEntry(nameof(Execute), Value.Execute);
+            AddEntry(nameof(Dump), Value.Dump);
             AddEntry(nameof(Overwrite), Value.Overwrite);
             AddEntry(nameof(AskOverwrite), Value.AskOverwrite);
             AddEntry(nameof(SkipIfExists), Value.SkipIfExists);
