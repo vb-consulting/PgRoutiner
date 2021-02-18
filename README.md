@@ -87,7 +87,6 @@ When there is no available any configuration sections and there is no command li
 >Create "appsettings.PgRoutiner.json" in this dir [Y/N]?
 >```
 
-
 If you choose yes, the configuration file `appsettings.PgRoutiner.json` will be created in your directory.
 
 This file will contain all possible options and settings with your current values. 

@@ -97,7 +97,7 @@ namespace PgRoutiner
             AddEntry(nameof(SourceHeader), Value.SourceHeader);
 
             sb.AppendLine();
-            AddComment("routines data-access extensions settings");
+            AddComment("routines data-access extensions code-generation settings");
             AddEntry(nameof(Routines), Value.Routines);
             AddEntry(nameof(OutputDir), Value.OutputDir);
             AddEntry(nameof(Namespace), Value.Namespace);

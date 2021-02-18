@@ -16,7 +16,12 @@ namespace PgRoutiner
             baseArg = $"-d postgresql://{connection.UserName}:{password}@{connection.Host}:{connection.Port}/{connection.Database}";
         }
 
-        public void Run()
+        public void Run(string args)
+        {
+            Program.RunProcess(settings.PsqlCommand, $"{baseArg} {(args ?? "")}", writeCommand: false);
+        }
+
+        public void RunFromTerminal()
         {
             using var process = new Process();
             process.StartInfo.FileName = settings.PsqlTerminal;

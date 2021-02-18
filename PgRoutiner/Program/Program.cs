@@ -40,6 +40,7 @@ namespace PgRoutiner
             {
                 return;
             }
+            Settings.ShowUpdatedSettings();
             using var connection = new ConnectionManager(Config).ParseConnectionString();
             if (connection == null)
             {
@@ -49,7 +50,7 @@ namespace PgRoutiner
             {
                 return;
             }
-            Settings.ShowUpdatedSettings();
+            //Settings.ShowUpdatedSettings();
             WriteLine("");
             Builder.Run(connection);
             WriteLine("");

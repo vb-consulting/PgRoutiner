@@ -37,7 +37,7 @@ namespace PgRoutiner
             if (Settings.Value.Psql)
             {
                 DumpTitle("** PSQL TERMINAL **");
-                new PsqlRunner(Settings.Value, connection).Run();
+                new PsqlRunner(Settings.Value, connection).RunFromTerminal();
             }
 
             if (Settings.Value.DbObjects || Settings.Value.SchemaDump || Settings.Value.DataDump)
@@ -93,8 +93,8 @@ namespace PgRoutiner
 
             if (Settings.Value.Execute != null)
             {
-                DumpTitle("** FILE EXECUTION **");
-                ExecuteFile(connection);
+                DumpTitle("** EXECUTION **");
+                ExecuteFromSetting(connection);
             }
 
             DumpTitle("", "", "**** FINISHED ****");
