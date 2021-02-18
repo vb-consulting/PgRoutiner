@@ -50,7 +50,7 @@ It also can be used with any project type to:
 
 ### 8. Run `psql` from your configuration
 
-- Use your
+- Use your configuration to ipen new `psql` terminal or issue a command and inspect the output.
 
 ## Installation
 
@@ -99,6 +99,8 @@ You can override each setting using command line arguments.
 To see help on each argument and settings type `pgroutiner -h` or `pgroutiner -help`.
 
 To see current setting values type `pgroutiner -s` or `pgroutiner -settings`.
+
+[See working with settings](https://github.com/vb-consulting/PgRoutiner/wiki/1.-WORKING-WITH-SETTINGS)
 
 ## Support
  
