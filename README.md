@@ -28,11 +28,11 @@ It also can be used with any project type to:
 
 - Build a **complete schema script** file from `pg_dump` using only your configuration settings to keep it under source-control or use in a test project.
 
-### 4. Build a complete schema script
+### 4. Build a data script file for the selected tables
 
 - Build a **data script files** from `pg_dump` using only your configuration for selected tables to keep it under source-control or use in a test project.
 
-### 5. Build a script for each database object
+### 5. Build a compact script for each database object and place them in designated subdirectories
 
 - Build a **formatted script** file from `pg_dump` **for each database object* to keep them under source-control or use in a test project.
 - Place object scripts in subdirectories (tables, views, functions, and procedures).
