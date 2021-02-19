@@ -7,8 +7,13 @@ namespace PgRoutiner
 {
     public static partial class DataAccess
     {
+        public static string GetSchemaExpression(string field)
+        {
+            return $"{field} not like 'pg_temp%' and {field} not like 'pg_toast%' and {field} <> 'information_schema' and {field} <> 'pg_catalog'";
+        }
+
         public static IEnumerable<string> GetSchemas(this NpgsqlConnection connection, Settings settings) =>
-            connection.Read<string>(@"
+            connection.Read<string>(@$"
 
                 select
                     schema_name
@@ -17,7 +22,7 @@ namespace PgRoutiner
                 where
                     (   @schema is not null and schema_name similar to @schema   )
                     or
-                    (   schema_name not like 'pg_%' and schema_name <> 'information_schema' )
+                    (   {GetSchemaExpression("schema_name")}  )
             ",
                 ("schema", settings.Schema, DbType.AnsiString));
     }

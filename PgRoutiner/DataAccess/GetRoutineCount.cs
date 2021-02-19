@@ -8,7 +8,7 @@ namespace PgRoutiner
     public static partial class DataAccess
     {
         public static long GetRoutineCount(this NpgsqlConnection connection, Settings settings) => 
-            connection.Read<long>(@"
+            connection.Read<long>(@$"
 
                 select 
                     count(*)
@@ -20,7 +20,7 @@ namespace PgRoutiner
                     (
                         (   @schema is not null and r.specific_schema similar to @schema   )
                         or
-                        (   r.specific_schema not like 'pg_%' and r.specific_schema <> 'information_schema' )
+                        (   {GetSchemaExpression("r.specific_schema")}  )
                     )
                     and (@notSimilarTo is null or r.routine_name not similar to @notSimilarTo)
                     and (@similarTo is null or r.routine_name similar to @similarTo)

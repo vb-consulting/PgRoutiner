@@ -42,9 +42,8 @@ namespace PgRoutiner
             var startSequence3 = $"CREATE {Routine.TypeName} {name3}";
             var startSequence4 = $"CREATE {Routine.TypeName} {name4}";
 
-            const string endSequence = "$;";
-
             string statement = "";
+            string endSequence = null;
 
             foreach (var l in lines)
             {
@@ -59,7 +58,7 @@ namespace PgRoutiner
                 }
 
                 var createStart = line.StartsWith(startSequence1) || line.StartsWith(startSequence2) || line.StartsWith(startSequence3) || line.StartsWith(startSequence4);
-                var createEnd = line.EndsWith(endSequence);
+                var createEnd = endSequence != null && line.Contains($"{endSequence};");
                 if (createStart)
                 {
                     if (dbObjectsCreateOrReplace)
@@ -76,6 +75,10 @@ namespace PgRoutiner
                 }
                 if (isCreate)
                 {
+                    if (endSequence == null)
+                    {
+                        endSequence = line.GetSequence();
+                    }
                     Create.Add(line);
                     if (createEnd)
                     {
@@ -137,9 +140,8 @@ namespace PgRoutiner
             var startSequence3 = $"CREATE {Routine.TypeName} {name3}";
             var startSequence4 = $"CREATE {Routine.TypeName} {name4}";
 
-            const string endSequence = "$;";
-
             string statement = "";
+            string endSequence = null;
 
             foreach (var l in lines)
             {
@@ -154,7 +156,7 @@ namespace PgRoutiner
                 }
 
                 var createStart = line.StartsWith(startSequence1) || line.StartsWith(startSequence2) || line.StartsWith(startSequence3) || line.StartsWith(startSequence4);
-                var createEnd = line.EndsWith(endSequence);
+                var createEnd = endSequence != null && line.Contains($"{endSequence};");
                 if (createStart)
                 {
                     if (dbObjectsCreateOrReplace)
@@ -171,6 +173,10 @@ namespace PgRoutiner
                 }
                 if (isCreate)
                 {
+                    if (endSequence == null)
+                    {
+                        endSequence = line.GetSequence();
+                    }
                     Create.Add(line);
                     if (createEnd)
                     {

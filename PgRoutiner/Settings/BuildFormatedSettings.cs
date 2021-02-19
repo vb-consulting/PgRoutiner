@@ -65,7 +65,7 @@ namespace PgRoutiner
             {
                 sb.AppendLine($"/* PgRoutiner ({Program.Version}) settings */");
                 sb.AppendLine("{");
-                sb.AppendLine($"  /* see https://github.com/vb-consulting/PgRoutiner/CONNECTIONS.MD for more info */");
+                sb.AppendLine($"  /* see https://github.com/vb-consulting/PgRoutiner/wiki/10.-WORKING-WITH-CONNECTIONS for more info */");
                 sb.AppendLine("  \"ConnectionStrings\": {");
                 if (Value.Connection == null && connection != null)
                 {
@@ -84,7 +84,7 @@ namespace PgRoutiner
                 sb.AppendLine();
             }
 
-            AddComment("general settings");
+            AddComment("General settings, see https://github.com/vb-consulting/PgRoutiner/wiki/1.-WORKING-WITH-SETTINGS#general-settings for more info");
             AddEntry(nameof(Connection), Value.Connection);
             AddEntry(nameof(Schema), Value.Schema);
             AddEntry(nameof(Execute), Value.Execute);
@@ -99,7 +99,7 @@ namespace PgRoutiner
             AddEntry(nameof(SourceHeader), Value.SourceHeader);
 
             sb.AppendLine();
-            AddComment("routines data-access extensions code-generation settings");
+            AddComment("Routines data-access extensions code-generation settings, https://github.com/vb-consulting/PgRoutiner/wiki/2.-WORKING-WITH-ROUTINES#routines-data-access-extensions-code-generation-settings see for more info");
             AddEntry(nameof(Routines), Value.Routines);
             AddEntry(nameof(OutputDir), Value.OutputDir);
             AddEntry(nameof(Namespace), Value.Namespace);
@@ -114,13 +114,13 @@ namespace PgRoutiner
             AddEntry(nameof(UseRecords), Value.UseRecords);
 
             sb.AppendLine();
-            AddComment("unit tests settings");
+            AddComment("Unit tests code-generation settings, see https://github.com/vb-consulting/PgRoutiner/wiki/3.-WORKING-WITH-UNIT-TESTS#unit-tests-code-generation-settings for more info");
             AddEntry(nameof(UnitTests), Value.UnitTests);
             AddEntry(nameof(UnitTestsDir), Value.UnitTestsDir);
             AddEntry(nameof(UnitTestsAskRecreate), Value.UnitTestsAskRecreate);
 
             sb.AppendLine();
-            AddComment("schema dump settings");
+            AddComment("Schema dump script settings, see https://github.com/vb-consulting/PgRoutiner/wiki/4.-WORKING-WITH-SCHEMA-DUMP-SCRIPT#schema-dump-script-settings for more info");
             AddEntry(nameof(SchemaDump), Value.SchemaDump);
             AddEntry(nameof(SchemaDumpFile), Value.SchemaDumpFile);
             AddEntry(nameof(SchemaDumpOwners), Value.SchemaDumpOwners);
@@ -130,7 +130,7 @@ namespace PgRoutiner
             AddEntry(nameof(SchemaDumpNoTransaction), Value.SchemaDumpNoTransaction);
 
             sb.AppendLine();
-            AddComment("data dump settings");
+            AddComment("Data dump script settings, see https://github.com/vb-consulting/PgRoutiner/wiki/5.-WORKING-WITH-DATA-DUMP-SCRIPT#data-dump-script-settings for more info");
             AddEntry(nameof(DataDump), Value.DataDump);
             AddEntry(nameof(DataDumpFile), Value.DataDumpFile);
             AddEntry(nameof(DataDumpTables), Value.DataDumpTables);
@@ -138,7 +138,7 @@ namespace PgRoutiner
             AddEntry(nameof(DataDumpNoTransaction), Value.DataDumpNoTransaction);
 
             sb.AppendLine();
-            AddComment("database object tree settings");
+            AddComment("Object file tree settings, see https://github.com/vb-consulting/PgRoutiner/wiki/6.-WORKING-WITH-OBJECT-FILES-TREE#object-file-tree-settings for more info");
             AddEntry(nameof(DbObjects), Value.DbObjects);
             AddEntry(nameof(DbObjectsDir), Value.DbObjectsDir);
             AddEntry(nameof(DbObjectsDirNames), Value.DbObjectsDirNames);
@@ -150,7 +150,7 @@ namespace PgRoutiner
             AddEntry(nameof(DbObjectsRaw), Value.DbObjectsRaw);
 
             sb.AppendLine();
-            AddComment("comments markdown documentation file settings");
+            AddComment("Markdown (MD) database dictionaries settings, see https://github.com/vb-consulting/PgRoutiner/wiki/7.-WORKING-WITH-MARKDOWN-DATABASE-DICTIONARIES#markdown-md-database-dictionaries-settings for more info");
             AddEntry(nameof(Markdown), Value.Markdown);
             AddEntry(nameof(MdFile), Value.MdFile);
             AddEntry(nameof(MdSkipRoutines), Value.MdSkipRoutines);
@@ -160,14 +160,14 @@ namespace PgRoutiner
             AddEntry(nameof(CommitMd), Value.CommitMd);
 
             sb.AppendLine();
-            AddComment("psql interactive terminal settings");
+            AddComment("PSQL command-line utility settings, see https://github.com/vb-consulting/PgRoutiner/wiki/8.-WORKING-WITH-PSQL#psql-command-line-utility-settings for more info");
             AddEntry(nameof(Psql), Value.Psql);
             AddEntry(nameof(PsqlTerminal), Value.PsqlTerminal);
             AddEntry(nameof(PsqlCommand), Value.PsqlCommand);
             AddEntry(nameof(PsqlOptions), Value.PsqlOptions);
 
             sb.AppendLine();
-            AddComment("diff script settings (beta)");
+            AddComment("Diff scripts settings, see https://github.com/vb-consulting/PgRoutiner/wiki/9.-WORKING-WITH-DIFF-SCRIPTS#diff-scripts-settings for more info");
             AddEntry(nameof(Diff), Value.Diff);
             AddEntry(nameof(DiffTarget), Value.DiffTarget);
             AddEntry(nameof(DiffFilePattern), Value.DiffFilePattern);

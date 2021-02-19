@@ -10,7 +10,7 @@ namespace PgRoutiner
     public static partial class DataAccess
     {
         public static IEnumerable<PgItem> GetRoutines(this NpgsqlConnection connection, Settings settings) =>
-            connection.Read<(string Schema, string Name, string Type)>(@"
+            connection.Read<(string Schema, string Name, string Type)>(@$"
 
                 select 
                     distinct
@@ -25,7 +25,7 @@ namespace PgRoutiner
                     (
                         (   @schema is not null and r.specific_schema similar to @schema   )
                         or
-                        (   r.specific_schema not like 'pg_%' and r.specific_schema <> 'information_schema' )
+                        (   {GetSchemaExpression("r.specific_schema")}  )
                     )
 
             ", ("schema", settings.Schema, DbType.AnsiString))

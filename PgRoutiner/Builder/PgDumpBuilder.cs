@@ -42,7 +42,7 @@ namespace PgRoutiner
                 settings.DbObjectsPrivileges ? "" : " --no-acl",
                 settings.DbObjectsDropIfExists ? " --clean --if-exists" : "");
 
-            foreach(var table in Connection.GetTables(settings))
+            foreach (var table in Connection.GetTables(settings))
             {
                 var name = table.GetFileName();
                 string content = null;
@@ -193,16 +193,22 @@ namespace PgRoutiner
         {
             var insideBlock = false;
             var insideView = false;
+            string endSequence = null;
             string lineFunc(string line)
             {
-                if (line.Contains("AS $"))
+                if (line.Contains("CREATE FUNCTION ") || line.Contains("CREATE PROCEDURE "))
                 {
                     insideBlock = true;
                     return line;
                 }
-                if (insideBlock && line.Contains("$;"))
+                if (insideBlock && endSequence == null)
+                {
+                    endSequence = line.GetSequence();
+                }
+                if (insideBlock && endSequence != null && line.Contains($"{endSequence};"))
                 {
                     insideBlock = false;
+                    endSequence = null;
                     return line;
                 }
                 if (line.StartsWith("CREATE VIEW "))

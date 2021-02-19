@@ -226,5 +226,20 @@ namespace PgRoutiner
             }
             return sb.ToString();
         }
+
+        public static string GetSequence(this string value, string sequence = "$")
+        {
+            var index = value.IndexOf(sequence);
+            if (index > -1)
+            {
+                var endIndex = value.IndexOf(sequence, index + 1);
+                if (endIndex > -1)
+                {
+                    return value.Substring(index, endIndex - index + 1);
+                }
+                return value.Substring(index);
+            }
+            return null;
+        }
     }
 }

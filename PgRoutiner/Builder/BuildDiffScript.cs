@@ -69,7 +69,7 @@ namespace PgRoutiner
             });
             if (string.IsNullOrEmpty(content))
             {
-                Dump($"No differences found between {ConnectionName} and {targetName}...");
+                Dump($"No diff found between {ConnectionName} and {targetName}...");
                 return;
             }
             if (Settings.Value.DiffFilePattern != null)
@@ -86,7 +86,7 @@ namespace PgRoutiner
                     var fileContent = File.ReadAllText(existingFile);
                     if (Equals(content, fileContent))
                     {
-                        DumpRelativePath("File with same difference script {0} already exists ...", existingFile);
+                        DumpRelativePath("File with same diff script {0} already exists ...", existingFile);
                         return;
                     }
                     i++;
@@ -101,7 +101,7 @@ namespace PgRoutiner
                 Dump("");
                 DumpFormat("Source connection: {0}", ConnectionName);
                 DumpFormat("Target connection: {0}", targetName);
-                Dump("Difference script:");
+                Dump("Diff script:");
                 Console.Write(content);
             }
         }
