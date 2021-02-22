@@ -15,9 +15,13 @@ namespace PgRoutiner
             return $"{server}{database}{port}{user}{pass}";
         }
 
-        private string GetUser()
+        private string GetUser(bool skipPrompt = false)
         {
             var env = Environment.GetEnvironmentVariable("PGUSER");
+            if (skipPrompt)
+            {
+                return $"User Id={env};";
+            }
             var msg = "";
             if (env != null)
             {
@@ -32,12 +36,16 @@ namespace PgRoutiner
             return $"User Id={result};";
         }
 
-        private string GetServer()
+        private string GetServer(bool skipPrompt = false)
         {;
             var env = Environment.GetEnvironmentVariable("PGHOST");
             if (env == null)
             {
                 env = Environment.GetEnvironmentVariable("PGSERVER");
+            }
+            if (skipPrompt)
+            {
+                return $"Server={env};";
             }
             string msg;
             if (env != null)
@@ -58,9 +66,13 @@ namespace PgRoutiner
             return $"Server={result};";
         }
 
-        private string GetPort()
+        private string GetPort(bool skipPrompt = false)
         {
             var env = Environment.GetEnvironmentVariable("PGPORT");
+            if (skipPrompt)
+            {
+                return $"Port={env};";
+            }
             string msg;
             if (env != null)
             {
@@ -80,12 +92,16 @@ namespace PgRoutiner
             return $"Port={result};";
         }
 
-        private string GetDatabase()
+        private string GetDatabase(bool skipPrompt = false)
         {
             var env = Environment.GetEnvironmentVariable("PGDATABASE");
             if (env == null)
             {
                 env = Environment.GetEnvironmentVariable("PGDB");
+            }
+            if (skipPrompt)
+            {
+                return $"Db={env};";
             }
             var msg = "";
             if (env != null)
@@ -101,9 +117,13 @@ namespace PgRoutiner
             return $"Db={result};";
         }
 
-        private string GetPassword()
+        private string GetPassword(bool skipPrompt = false)
         {
             var env = Environment.GetEnvironmentVariable("PGPASSWORD");
+            if (skipPrompt)
+            {
+                return $"Password={env};";
+            }
             var msg = "";
             if (env != null)
             {

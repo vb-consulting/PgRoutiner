@@ -162,23 +162,23 @@ namespace PgRoutiner
             }
             if (string.IsNullOrEmpty(server))
             {
-                server = GetServer();
+                server = GetServer(true);
             }
             if (string.IsNullOrEmpty(port))
             {
-                port = GetPort();
+                port = GetPort(true);
             }
             if (string.IsNullOrEmpty(database))
             {
-                database = GetDatabase();
+                database = GetDatabase(true);
             }
             if (string.IsNullOrEmpty(user))
             {
-                user = GetUser();
+                user = GetUser(true);
             }
             if (string.IsNullOrEmpty(pass))
             {
-                pass = GetPassword();
+                pass = GetPassword(true);
             }
             return $"{server}{database}{port}{user}{pass}";
         }
