@@ -106,6 +106,7 @@ namespace PgRoutiner
                     if (Program.Ask("Add Norm.net reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
                     {
                         Program.RunProcess("dotnet", "add package Norm.net");
+                        project.NormVersion = Value.MinNormVersion;
                     }
                 }
             }

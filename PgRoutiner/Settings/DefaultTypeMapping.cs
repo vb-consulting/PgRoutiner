@@ -26,7 +26,18 @@ namespace PgRoutiner
             {"jsonb", "string"},
             {"real", "float"},
             {"json", "string"},
-            {"integer", "int"}
+            {"integer", "int"},
+            {"bpchar", "string"},
+            {"float8", "double"},
+            {"bool", "bool"},
+            {"int2", "short"},
+            {"timestamptz", "DateTime"},
+            {"int8", "long"},
+            {"timetz", "DateTime"},
+            {"time", "DateTime"},
+            {"varchar", "string"},
+            {"float4", "float"},
+            {"int4", "int"}
         };
     }
 }
