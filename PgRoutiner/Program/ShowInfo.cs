@@ -27,8 +27,6 @@ namespace PgRoutiner
             WriteSetting(Settings.ExecuteArgs, "Executes the content of the SQL file from the argument or execute PSQL command if file doesn't exists and display the results.", "FILE_OR_PSQL_COMMAND", newLine: true);
             WriteSetting(Settings.ConnectionArgs, "Sets the working connection string name. Default is first available.", "NAME");
             WriteSetting(Settings.SchemaArgs, "Use only schemas similar to thio expression. Default is null (all schemas).", "EXP");
-            WriteSetting(Settings.OverwriteArgs, "If this switch is included files will be overwritten.");
-            WriteSetting(Settings.AskOverwriteArgs, "If this switch is included prompt with the question will be displayed for file overwrite.");
             WriteSetting(nameof(Settings.SkipIfExists),
                 "List of filenames without a path to be skipped. Default is an empty list.", 
                 "NAME", "INDEX");
@@ -44,12 +42,15 @@ namespace PgRoutiner
 
             WriteSetting(Settings.RoutinesArgs, "Run routines data-access extensions code generation.");
             WriteSetting(Settings.OutputDirArgs, "Output dir for generated source code. Default is \"./DataAccess\".", "DIR");
+            WriteSetting(Settings.RoutinesOverwriteArgs, "If this switch is included routine files will be overwritten.");
+            WriteSetting(Settings.RoutinesAskOverwriteArgs, "If this switch is included prompt with the question will be displayed for routine file overwrite.", newLine: true);
             WriteSetting(nameof(Settings.Namespace), "Namespace for generated source code. Default is project default.", "NAME");
             WriteSetting(Settings.NotSimilarToArgs, "Include routines not similar to expression. Default is null (disabled).", "EXP");
             WriteSetting(Settings.SimilarToArgs, "Include routines similar to expression. Default is null (disabled).", "EXP");
             WriteSetting(nameof(Settings.MinNormVersion), "Minimum Norm package version that works with generated code. Default is 3.1.2.");
             WriteSetting(Settings.SkipSyncMethodsArgs, "Do not generate synchronous methods.");
             WriteSetting(Settings.SkipAsyncMethodsArgs, "Do not generate asynchronous methods.");
+            WriteSetting(nameof(Settings.UseStatementBody), "Use statement body instead of lambda expressions for generated methods.");
             WriteSetting(nameof(Settings.ModelDir), "Directory for the model classes files. Default is null (models in source files).", "DIR");
             WriteSetting(nameof(Settings.Mapping),"Custom type mappings. Key is PostgreSQL type name and value is C# type. See documentation for defaults.","VALUE", "KEY");
             WriteSetting(nameof(Settings.CustomModels), "Custom model names. Key is generated model name and value new model name. Default is empty (generated).", "VALUE", "KEY");
@@ -67,6 +68,8 @@ namespace PgRoutiner
             Console.WriteLine("  https://github.com/vb-consulting/PgRoutiner/wiki/4.-WORKING-WITH-SCHEMA-DUMP-SCRIPT#schema-dump-script-settings");
             WriteSetting(Settings.SchemaDumpArgs, "Run schema dump file creation.");
             WriteSetting(Settings.SchemaDumpFileArgs, "Schema dump script file name. Format placeholder {0} is replaced with connection name. Default is \"./Database/{0}/Schema.sql\".", "FILE");
+            WriteSetting(Settings.SchemaDumpOverwriteArgs, "If this switch is included schema dump file will be overwritten.", newLine: true);
+            WriteSetting(Settings.SchemaDumpAskOverwriteArgs, "If this switch is included prompt with the question will be displayed for schema file overwrite.", newLine: true);
             WriteSetting(nameof(Settings.SchemaDumpOwners), "Include object owners in schema script.");
             WriteSetting(nameof(Settings.SchemaDumpPrivileges), "Include object privileges in schema script.");
             WriteSetting(nameof(Settings.SchemaDumpNoDropIfExists), "Don't include \"drop object if exists\" in schema script.", newLine: true);
@@ -78,6 +81,8 @@ namespace PgRoutiner
             Console.WriteLine("  https://github.com/vb-consulting/PgRoutiner/wiki/5.-WORKING-WITH-DATA-DUMP-SCRIPT#data-dump-script-settings");
             WriteSetting(Settings.DataDumpArgs, "Run data dump file creation.");
             WriteSetting(Settings.DataDumpFileArgs, "Schema dump script file name. Format placeholder {0} is replaced with connection name. Default is \"./Database/{0}/Data.sql\".", "FILE");
+            WriteSetting(Settings.DataDumpOverwriteArgs, "If this switch is included data dump file will be overwritten.");
+            WriteSetting(Settings.DataDumpAskOverwriteArgs, "If this switch is included prompt with the question will be displayed for data file overwrite.", newLine: true);
             WriteSetting(nameof(Settings.DataDumpTables),
                 "List of the tables to be included in the data dump. Default is empty list that includes all tables.",
                 "NAME", "INDEX", newLine: true);
@@ -89,6 +94,8 @@ namespace PgRoutiner
             Console.WriteLine("  https://github.com/vb-consulting/PgRoutiner/wiki/6.-WORKING-WITH-OBJECT-FILES-TREE#object-file-tree-settings");
             WriteSetting(Settings.DbObjectsArgs, "Run database object files tree creation.");
             WriteSetting(Settings.DbObjectsDirArgs, "Database object files tree root directory. Format placeholder {0} is replaced with connection name. Default is null \"./Database/{0}/\".", "DIR");
+            WriteSetting(Settings.DbObjectsOverwriteArgs, "If this switch is included data object files will be overwritten.");
+            WriteSetting(Settings.DbObjectsAskOverwriteArgs, "If this switch is included prompt with the question will be displayed for object data file overwrite.", newLine: true);
             WriteSetting(nameof(Settings.DbObjectsDirNames), "Database object subdirectory names mapping. Default is Tables, Views, Function and Procedures", "VALUE", "KEY", newLine: true);
             WriteSetting(nameof(Settings.DbObjectsSkipDelete), "Don't delete any existing file in tree subdirectories (Tables, Views, Functions, Procedures).");
             WriteSetting(nameof(Settings.DbObjectsOwners), "Include object owners in each object file.");
@@ -102,6 +109,8 @@ namespace PgRoutiner
             Console.WriteLine("  https://github.com/vb-consulting/PgRoutiner/wiki/7.-WORKING-WITH-MARKDOWN-DATABASE-DICTIONARIES#markdown-md-database-dictionaries-settings");
             WriteSetting(Settings.MarkdownArgs, "Run markdown (MD) file creation.");
             WriteSetting(Settings.MdFileArgs, "Markdown (MD) file built from object comments. Default is null \"./Database/{0}/Dictionary.md\".", "FILE");
+            WriteSetting(Settings.MdOverwriteArgs, "If this switch is included markdown (MD) file will be overwritten.");
+            WriteSetting(Settings.MdAskOverwriteArgs, "If this switch is included prompt with the question will be displayed for markdown (MD) file overwrite.");
             WriteSetting(nameof(Settings.MdSkipRoutines), "Don't include routines in markdown (MD) file.");
             WriteSetting(nameof(Settings.MdSkipViews), "Don't include views in the markdown (MD) file.");
             WriteSetting(nameof(Settings.MdNotSimilarTo), "Include objects not similar to expression in markdown (MD) file. Default is null (disabled).", "EXP");

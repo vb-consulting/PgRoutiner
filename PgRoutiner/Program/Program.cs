@@ -11,6 +11,7 @@ namespace PgRoutiner
 
         static void Main(string[] rawArgs)
         {
+            //var args = ParseArgs(new string[] { "-aow", "-raow" });
             var args = ParseArgs(rawArgs);
             if (args == null)
             {
@@ -50,7 +51,6 @@ namespace PgRoutiner
             {
                 return;
             }
-            //Settings.ShowUpdatedSettings();
             WriteLine("");
             Builder.Run(connection);
             WriteLine("");

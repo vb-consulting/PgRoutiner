@@ -5,7 +5,7 @@ namespace PgRoutiner
 {
     partial class Builder
     {
-        private static void BuildDump(string dumpFile, string file, Func<string> contentFunc)
+        private static void BuildDump(string dumpFile, string file, bool overwrite, bool askOverwrite, Func<string> contentFunc)
         {
             if (string.IsNullOrEmpty(dumpFile))
             {
@@ -22,7 +22,7 @@ namespace PgRoutiner
                 Directory.CreateDirectory(dir);
             }
 
-            if (!Settings.Value.Dump && exists && Settings.Value.Overwrite == false)
+            if (!Settings.Value.Dump && exists && overwrite == false)
             {
                 DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
                 return;
@@ -36,7 +36,7 @@ namespace PgRoutiner
                 DumpFormat("Skipping {0}, already exists ...", relative);
                 return;
             }
-            if (!Settings.Value.Dump && exists && Settings.Value.AskOverwrite && 
+            if (!Settings.Value.Dump && exists && askOverwrite && 
                 Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
             {
                 DumpFormat("Skipping {0} ...", relative);

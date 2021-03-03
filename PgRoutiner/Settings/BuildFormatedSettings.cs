@@ -89,8 +89,6 @@ namespace PgRoutiner
             AddEntry(nameof(Schema), Value.Schema);
             AddEntry(nameof(Execute), Value.Execute);
             AddEntry(nameof(Dump), Value.Dump);
-            AddEntry(nameof(Overwrite), Value.Overwrite);
-            AddEntry(nameof(AskOverwrite), Value.AskOverwrite);
             AddEntry(nameof(SkipIfExists), Value.SkipIfExists);
             AddEntry(nameof(SkipUpdateReferences), Value.SkipUpdateReferences);
             AddEntry(nameof(Ident), Value.Ident);
@@ -102,12 +100,15 @@ namespace PgRoutiner
             AddComment("Routines data-access extensions code-generation settings, https://github.com/vb-consulting/PgRoutiner/wiki/2.-WORKING-WITH-ROUTINES#routines-data-access-extensions-code-generation-settings see for more info");
             AddEntry(nameof(Routines), Value.Routines);
             AddEntry(nameof(OutputDir), Value.OutputDir);
+            AddEntry(nameof(RoutinesOverwrite), Value.RoutinesOverwrite);
+            AddEntry(nameof(RoutinesAskOverwrite), Value.RoutinesAskOverwrite);
             AddEntry(nameof(Namespace), Value.Namespace);
             AddEntry(nameof(NotSimilarTo), Value.NotSimilarTo);
             AddEntry(nameof(SimilarTo), Value.SimilarTo);
             AddEntry(nameof(MinNormVersion), Value.MinNormVersion);
             AddEntry(nameof(SkipSyncMethods), Value.SkipSyncMethods);
             AddEntry(nameof(SkipAsyncMethods), Value.SkipAsyncMethods);
+            AddEntry(nameof(UseStatementBody), Value.UseStatementBody);
             AddEntry(nameof(ModelDir), Value.ModelDir);
             AddEntry(nameof(Mapping), Value.Mapping);
             AddEntry(nameof(CustomModels), Value.CustomModels);
@@ -123,6 +124,8 @@ namespace PgRoutiner
             AddComment("Schema dump script settings, see https://github.com/vb-consulting/PgRoutiner/wiki/4.-WORKING-WITH-SCHEMA-DUMP-SCRIPT#schema-dump-script-settings for more info");
             AddEntry(nameof(SchemaDump), Value.SchemaDump);
             AddEntry(nameof(SchemaDumpFile), Value.SchemaDumpFile);
+            AddEntry(nameof(SchemaDumpOverwrite), Value.SchemaDumpOverwrite);
+            AddEntry(nameof(SchemaDumpAskOverwrite), Value.SchemaDumpAskOverwrite);
             AddEntry(nameof(SchemaDumpOwners), Value.SchemaDumpOwners);
             AddEntry(nameof(SchemaDumpPrivileges), Value.SchemaDumpPrivileges);
             AddEntry(nameof(SchemaDumpNoDropIfExists), Value.SchemaDumpNoDropIfExists);
@@ -133,6 +136,8 @@ namespace PgRoutiner
             AddComment("Data dump script settings, see https://github.com/vb-consulting/PgRoutiner/wiki/5.-WORKING-WITH-DATA-DUMP-SCRIPT#data-dump-script-settings for more info");
             AddEntry(nameof(DataDump), Value.DataDump);
             AddEntry(nameof(DataDumpFile), Value.DataDumpFile);
+            AddEntry(nameof(DataDumpOverwrite), Value.DataDumpOverwrite);
+            AddEntry(nameof(DataDumpAskOverwrite), Value.DataDumpAskOverwrite);
             AddEntry(nameof(DataDumpTables), Value.DataDumpTables);
             AddEntry(nameof(DataDumpOptions), Value.DataDumpOptions);
             AddEntry(nameof(DataDumpNoTransaction), Value.DataDumpNoTransaction);
@@ -141,6 +146,8 @@ namespace PgRoutiner
             AddComment("Object file tree settings, see https://github.com/vb-consulting/PgRoutiner/wiki/6.-WORKING-WITH-OBJECT-FILES-TREE#object-file-tree-settings for more info");
             AddEntry(nameof(DbObjects), Value.DbObjects);
             AddEntry(nameof(DbObjectsDir), Value.DbObjectsDir);
+            AddEntry(nameof(DbObjectsOverwrite), Value.DbObjectsOverwrite);
+            AddEntry(nameof(DbObjectsAskOverwrite), Value.DbObjectsAskOverwrite);
             AddEntry(nameof(DbObjectsDirNames), Value.DbObjectsDirNames);
             AddEntry(nameof(DbObjectsSkipDelete), Value.DbObjectsSkipDelete);
             AddEntry(nameof(DbObjectsOwners), Value.DbObjectsOwners);
@@ -153,6 +160,8 @@ namespace PgRoutiner
             AddComment("Markdown (MD) database dictionaries settings, see https://github.com/vb-consulting/PgRoutiner/wiki/7.-WORKING-WITH-MARKDOWN-DATABASE-DICTIONARIES#markdown-md-database-dictionaries-settings for more info");
             AddEntry(nameof(Markdown), Value.Markdown);
             AddEntry(nameof(MdFile), Value.MdFile);
+            AddEntry(nameof(MdOverwrite), Value.MdOverwrite);
+            AddEntry(nameof(MdAskOverwrite), Value.MdAskOverwrite);
             AddEntry(nameof(MdSkipRoutines), Value.MdSkipRoutines);
             AddEntry(nameof(MdSkipViews), Value.MdSkipViews);
             AddEntry(nameof(MdNotSimilarTo), Value.MdNotSimilarTo);

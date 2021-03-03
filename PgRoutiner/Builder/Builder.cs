@@ -48,12 +48,22 @@ namespace PgRoutiner
                     if (Settings.Value.SchemaDump)
                     {
                         DumpTitle("** SCHEMA DUMP SCRIPT GENERATION **");
-                        BuildDump(Settings.Value.SchemaDumpFile, SchemaFile, () => builder.GetSchemaContent());
+                        BuildDump(
+                            dumpFile: Settings.Value.SchemaDumpFile, 
+                            file: SchemaFile, 
+                            overwrite: Settings.Value.SchemaDumpOverwrite, 
+                            askOverwrite: Settings.Value.SchemaDumpAskOverwrite, 
+                            contentFunc: () => builder.GetSchemaContent());
                     }
                     if (Settings.Value.DataDump)
                     {
                         DumpTitle("** DATA DUMP SCRIPT GENERATION **");
-                        BuildDump(Settings.Value.DataDumpFile, DataFile, () => builder.GetDataContent());
+                        BuildDump(
+                            dumpFile: Settings.Value.DataDumpFile, 
+                            file: DataFile, 
+                            overwrite: Settings.Value.DataDumpOverwrite, 
+                            askOverwrite: Settings.Value.DataDumpAskOverwrite, 
+                            contentFunc: () => builder.GetDataContent());
                     }
                     if (Settings.Value.DbObjects)
                     {

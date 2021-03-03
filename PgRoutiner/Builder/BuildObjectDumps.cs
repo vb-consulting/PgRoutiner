@@ -85,7 +85,7 @@ namespace PgRoutiner
                         break;
                 }
 
-                if (exists && Settings.Value.Overwrite == false)
+                if (exists && Settings.Value.DbObjectsOverwrite == false)
                 {
                     DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
                     continue;
@@ -97,7 +97,7 @@ namespace PgRoutiner
                     DumpFormat("Skipping {0}, already exists ...", relative);
                     continue;
                 }
-                if (exists && Settings.Value.AskOverwrite && 
+                if (exists && Settings.Value.DbObjectsAskOverwrite && 
                     Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
                 {
                     DumpFormat("Skipping {0} ...", relative);

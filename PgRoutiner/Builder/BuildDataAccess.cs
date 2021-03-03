@@ -25,7 +25,7 @@ namespace PgRoutiner
                 var relative = fullFileName.GetRelativePath();
                 var exists = File.Exists(fullFileName);
 
-                if (!Settings.Value.Dump && exists && Settings.Value.Overwrite == false)
+                if (!Settings.Value.Dump && exists && Settings.Value.RoutinesOverwrite == false)
                 {
                     DumpFormat("File {0} exists, overwrite is set to false, skipping ...", fullFileName);
                     continue;
@@ -39,7 +39,7 @@ namespace PgRoutiner
                     DumpFormat("Skipping {0}, already exists ... ", relative);
                     continue;
                 }
-                if (!Settings.Value.Dump && exists && Settings.Value.AskOverwrite && 
+                if (!Settings.Value.Dump && exists && Settings.Value.RoutinesAskOverwrite && 
                     Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
                 {
                     DumpFormat("Skipping {0} ... ", relative);
@@ -67,7 +67,7 @@ namespace PgRoutiner
                         var relativeModelName = fullModelFileName.GetRelativePath();
                         var modelExists = File.Exists(fullModelFileName);
 
-                        if (!Settings.Value.Dump && modelExists && Settings.Value.Overwrite == false)
+                        if (!Settings.Value.Dump && modelExists && Settings.Value.RoutinesOverwrite == false)
                         {
                             DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relativeModelName);
                             continue;
@@ -81,7 +81,7 @@ namespace PgRoutiner
                             DumpFormat("Skipping {0}, already exists ...", relativeModelName);
                             continue;
                         }
-                        if (!Settings.Value.Dump && modelExists && Settings.Value.AskOverwrite && 
+                        if (!Settings.Value.Dump && modelExists && Settings.Value.RoutinesAskOverwrite && 
                             Program.Ask($"File {relativeModelName} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
                         {
                             DumpFormat("Skipping {0} ...", relativeModelName);

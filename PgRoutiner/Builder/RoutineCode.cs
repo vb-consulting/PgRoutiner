@@ -77,41 +77,60 @@ namespace PgRoutiner
             BuildCommentHeader(routine, @return, @params, true);
             var actualReturns = @return.IsInstance ? $"IEnumerable<{@return.Name}>" : @return.Name;
             void AddMethod() => Methods.Add(new Method(name, @namespace, @params, @return, actualReturns, true));
-            Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
-            BuildMethodParams(@params);
-            Class.AppendLine(") => connection");
-            Class.AppendLine($"{I3}.AsProcedure()");
-            if (@return.IsVoid)
+
+            void AddBodyCode(string bodyTab, string paramsTab)
             {
-                Class.Append($"{I3}.Execute(Name");
-                if (@params.Count == 0)
+                Class.AppendLine($"{bodyTab}.AsProcedure()");
+                if (@return.IsVoid)
+                {
+                    Class.Append($"{bodyTab}.Execute(Name");
+                    if (@params.Count == 0)
+                    {
+                        Class.AppendLine(");");
+                        AddMethod();
+                        return;
+                    }
+                    else
+                    {
+                        Class.AppendLine(",");
+                    }
+                }
+                else
+                {
+                    Class.Append($"{bodyTab}.Read<{@return.Name}>(Name");
+                    if (@params.Count > 0)
+                    {
+                        Class.AppendLine(",");
+                    }
+                }
+                BuildParams(@params, paramsTab);
+                if (@return.IsVoid || @return.IsInstance)
                 {
                     Class.AppendLine(");");
                     AddMethod();
                     return;
                 }
-                else
-                {
-                    Class.AppendLine(",");
-                }
+                Class.AppendLine(")");
+                Class.AppendLine($"{bodyTab}.Single();");
+            }
+
+            if (!settings.UseStatementBody)
+            {
+                Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
+                BuildMethodParams(@params);
+                Class.AppendLine(") => connection");
+                AddBodyCode(I3, I4);
             }
             else
             {
-                Class.Append($"{I3}.Read<{@return.Name}>(Name");
-                if (@params.Count > 0)
-                {
-                    Class.AppendLine(",");
-                }
+                Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
+                BuildMethodParams(@params);
+                Class.AppendLine(")");
+                Class.AppendLine($"{I2}{{");
+                Class.AppendLine($"{I3}return connection");
+                AddBodyCode(I4, I5);
+                Class.AppendLine($"{I2}}}");
             }
-            BuildParams(@params);
-            if (@return.IsVoid || @return.IsInstance)
-            {
-                Class.AppendLine(");");
-                AddMethod();
-                return;
-            }
-            Class.AppendLine(")");
-            Class.AppendLine($"{I3}.Single();");
             AddMethod();
         }
 
@@ -122,41 +141,64 @@ namespace PgRoutiner
             BuildCommentHeader(routine, @return, @params, false);
             var actualReturns = @return.IsInstance ? $"IAsyncEnumerable<{@return.Name}>" : (@return.IsVoid ? "async ValueTask" : $"async ValueTask<{@return.Name}>");
             void AddMethod() => Methods.Add(new Method(name, @namespace, @params, @return, actualReturns, false));
-            Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
-            BuildMethodParams(@params);
-            Class.AppendLine(@return.IsInstance ? ") => connection" : ") => await connection");
-            Class.AppendLine($"{I3}.AsProcedure()");
-            if (@return.IsVoid)
+
+            void AddBodyCode(string bodyTab, string paramsTab)
             {
-                Class.Append($"{I3}.ExecuteAsync(Name");
-                if (@params.Count == 0)
+                Class.AppendLine($"{bodyTab}.AsProcedure()");
+                if (@return.IsVoid)
                 {
-                    Class.AppendLine(");");
-                    AddMethod();
-                    return;
+                    Class.Append($"{bodyTab}.ExecuteAsync(Name");
+                    if (@params.Count == 0)
+                    {
+                        Class.AppendLine(");");
+                        AddMethod();
+                        return;
+                    }
+                    else
+                    {
+                        Class.AppendLine(",");
+                    }
                 }
                 else
                 {
-                    Class.AppendLine(",");
+                    Class.Append($"{bodyTab}.ReadAsync<{@return.Name}>(Name");
+                    if (@params.Count > 0)
+                    {
+                        Class.AppendLine(",");
+                    }
                 }
+                BuildParams(@params, paramsTab);
+                if (@return.IsVoid || @return.IsInstance)
+                {
+                    Class.AppendLine(");");
+
+                }
+                else
+                {
+                    Class.AppendLine(")");
+                    Class.AppendLine($"{bodyTab}.SingleAsync();");
+                }
+            }
+
+            if (!settings.UseStatementBody)
+            {
+                Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
+                BuildMethodParams(@params);
+                Class.AppendLine(@return.IsInstance ? ") => connection" : ") => await connection");
+
+                AddBodyCode(I3, I4);
             }
             else
             {
-                Class.Append($"{I3}.ReadAsync<{@return.Name}>(Name");
-                if (@params.Count > 0)
-                {
-                    Class.AppendLine(",");
-                }
+                Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
+                BuildMethodParams(@params);
+                Class.AppendLine(")");
+                Class.AppendLine($"{I2}{{");
+                Class.AppendLine(@return.IsInstance ? $"{I3}return connection" : $"{I3}return await connection");
+                AddBodyCode(I4, I5);
+                Class.AppendLine($"{I2}}}");
             }
-            BuildParams(@params);
-            if (@return.IsVoid || @return.IsInstance)
-            {
-                Class.AppendLine(");");
-                AddMethod();
-                return;
-            }
-            Class.AppendLine(")");
-            Class.AppendLine($"{I3}.SingleAsync();");
+            
             AddMethod();
         }
 
@@ -169,11 +211,12 @@ namespace PgRoutiner
             }
         }
 
-        private void BuildParams(List<Param> @params)
+        private void BuildParams(List<Param> @params, string paramsTab)
         {
             if (@params.Count > 0)
             {
-                Class.Append(string.Join($",{NL}", @params.Select(p => $"{I4}(\"{p.PgName}\", {p.Name}, {p.DbType})")));
+                //Class.Append(string.Join($",{NL}", @params.Select(p => $"{I4}(\"{p.PgName}\", {p.Name}, {p.DbType})")));
+                Class.Append(string.Join($",{NL}", @params.Select(p => $"{paramsTab}(\"{p.PgName}\", {p.Name}, {p.DbType})")));
             }
         }
 
