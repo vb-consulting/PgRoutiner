@@ -51,7 +51,6 @@ namespace PgRoutiner
 
                 var file = string.Format(Path.GetFullPath(Path.Combine(dir, shortFilename)), ConnectionName);
                 var relative = file.GetRelativePath();
-                var exists = File.Exists(file);
 
                 switch (type)
                 {
@@ -84,6 +83,8 @@ namespace PgRoutiner
                         proceduresCreated = true;
                         break;
                 }
+
+                var exists = File.Exists(file);
 
                 if (exists && Settings.Value.DbObjectsOverwrite == false)
                 {
