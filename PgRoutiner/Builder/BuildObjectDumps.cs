@@ -27,11 +27,15 @@ namespace PgRoutiner
             var viewsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Views", "Views"))), ConnectionName);
             var functionsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Functions", "Functions"))), ConnectionName);
             var proceduresDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Procedures", "Procedures"))), ConnectionName);
+            var domainsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Domains", "Domains"))), ConnectionName);
+            var typesDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Types", "Types"))), ConnectionName);
 
             var tableCreated = false;
             var viewCreated = false;
             var functionCreated = false;
             var proceduresCreated = false;
+            var domainsCreated = false;
+            var typesCreated = false;
 
             foreach (var (shortFilename, content, type) in builder.GetDatabaseObjects())
             {
@@ -41,6 +45,8 @@ namespace PgRoutiner
                     PgType.View => viewsDir,
                     PgType.Function => functionsDir,
                     PgType.Procedure => proceduresDir,
+                    PgType.Domain => domainsDir,
+                    PgType.Type=> typesDir,
                     _ => null 
                 };
 
@@ -81,6 +87,20 @@ namespace PgRoutiner
                             CreateDir(proceduresDir);
                         }
                         proceduresCreated = true;
+                        break;
+                    case PgType.Domain:
+                        if (!domainsCreated)
+                        {
+                            CreateDir(domainsDir);
+                        }
+                        domainsCreated = true;
+                        break;
+                    case PgType.Type:
+                        if (!typesCreated)
+                        {
+                            CreateDir(typesDir);
+                        }
+                        typesCreated = true;
                         break;
                 }
 
@@ -124,6 +144,14 @@ namespace PgRoutiner
                 if (!proceduresCreated)
                 {
                     RemoveDir(proceduresDir);
+                }
+                if (!domainsCreated)
+                {
+                    RemoveDir(domainsDir);
+                }
+                if (!typesCreated)
+                {
+                    RemoveDir(typesDir);
                 }
             }
         }

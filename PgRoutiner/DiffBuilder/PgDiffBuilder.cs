@@ -9,6 +9,8 @@ using System.Text;
 namespace PgRoutiner
 {
     public record Table(string Schema, string Name);
+    public record Domain(string Schema, string Name);
+    public record Type(string Schema, string Name);
     public record Routine(string Schema, string Name, string Params);
     public class Statements
     {
@@ -32,10 +34,21 @@ namespace PgRoutiner
         private readonly Dictionary<Table, PgItem> sourceTables;
         private readonly Dictionary<Table, PgItem> sourceViews;
         private readonly Dictionary<Routine, PgRoutineGroup> sourceRoutines;
+        private readonly Dictionary<Domain, PgItem> sourceDomains;
+        private readonly Dictionary<Type, PgItem> sourceTypes;
 
         private readonly Dictionary<Table, PgItem> targetTables;
         private readonly Dictionary<Table, PgItem> targetViews;
         private readonly Dictionary<Routine, PgRoutineGroup> targetRoutines;
+        private readonly Dictionary<Domain, PgItem> targetDomains;
+        private readonly Dictionary<Type, PgItem> targetTypes;
+        
+
+        private List<string> _sourceLines = null;
+        private List<string> _targetLines = null;
+        private List<string> SourceLines => _sourceLines;
+        private List<string> TargetLines => _targetLines;
+        
 
         public PgDiffBuilder(
             Settings settings, 
@@ -64,6 +77,11 @@ namespace PgRoutiner
                     r.RoutineName, 
                 $"({string.Join(", ", r.Parameters.Select(p => $"{p.Name} {p.DataType}{(p.Array ? "[]" : "")}"))})"), 
                     r => r);
+            this.sourceDomains = source.GetDomains(new Settings { Schema = settings.Schema })
+                .ToDictionary(t => new Domain(t.Schema, t.Name), t => t);
+            this._sourceLines = sourceBuilder.GetRawRoutinesDumpLines(settings.DiffPrivileges, out var sourceTypes);
+            this.sourceTypes = source.FilterTypes(sourceTypes, new Settings { Schema = settings.Schema })
+                .ToDictionary(t => new Type(t.Schema, t.Name), t => t);
 
             var tte = target.GetTables(new Settings { Schema = settings.Schema });
             this.targetTables = tte
@@ -79,6 +97,11 @@ namespace PgRoutiner
                     r.RoutineName,
                 $"({string.Join(", ", r.Parameters.Select(p => $"{p.Name} {p.DataType}{(p.Array ? "[]" : "")}"))})"),
                     r => r);
+            this.targetDomains = target.GetDomains(new Settings { Schema = settings.Schema })
+                .ToDictionary(t => new Domain(t.Schema, t.Name), t => t);
+            this._targetLines = targetBuilder.GetRawRoutinesDumpLines(settings.DiffPrivileges, out var targetTypes);
+            this.targetTypes = target.FilterTypes(targetTypes, new Settings { Schema = settings.Schema })
+                .ToDictionary(t => new Type(t.Schema, t.Name), t => t);
         }
 
         public string Build(Action<string, int, int> stage = null)
@@ -89,16 +112,23 @@ namespace PgRoutiner
             {
                 stage = (_, _, _) => { };
             }
-            var total = 7;
-            stage("scanning routines to drop...", 1, total);
-            BuildDropRoutines(sb);
-            stage("scanning views to drop...", 2, total);
+            var total = 12;
+            var current = 1;
+            stage("scanning routines to drop...", current++, total);
+            BuildDropRoutinesNotInSource(sb);
+            stage("scanning types to drop...", current++, total);
+            BuildDropTypesNotInSource(sb);
+            stage("scanning views to drop...", current++, total);
             BuildDropViews(sb);
-            stage("scanning tables not in target to create...", 3, total);
+            stage("scanning domains not in target to create...", current++, total);
+            BuildCreateDomainsNotInTarget(sb);
+            stage("scanning domains to alter...", current++, total);
+            BuildAlterDomains(sb);
+            stage("scanning tables not in target to create...", current++, total);
             BuildCreateTablesNotInTarget(sb, statements);
-            stage("scanning tables not in source to drop...", 4, total);
+            stage("scanning tables not in source to drop...", current++, total);
             var dropTables = GetDropTablesNotInSource(statements);
-            stage("scanning tables in source different from target to alter...", 5, total);
+            stage("scanning tables in source different from target to alter...", current++, total);
             var alters = GetAlterTargetTables(statements);
 
             if (statements.Drop.Length > 0)
@@ -150,11 +180,14 @@ namespace PgRoutiner
                 sb.Append(statements.TableComments);
                 AddComment(sb, "#endregion TABLE COMMENTS");
             }
-
-            stage("scanning views to create...", 6, total);
+            stage("scanning domains to drop...", current++, total);
+            BuildDropDomainsNotInSource(sb);
+            stage("scanning views to create...", current++, total);
             BuildCreateViews(sb);
-            stage("scanning routines to create...", 7, total);
-            BuildCreateRoutines(sb);
+            stage("scanning types not in target to create...", current++, total);
+            BuildCreateTypesNotInTarget(sb);
+            stage("scanning routines not in target to create...", current++, total);
+            BuildCreateRoutinesNotInTarget(sb);
 
             if (statements.CreateTriggers.Length > 0 || statements.DropTriggers.Length > 0)
             {

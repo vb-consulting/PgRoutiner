@@ -22,12 +22,13 @@ namespace PgRoutiner
             {
                 return $"User Id={env};";
             }
-            var msg = "";
-            if (env != null)
+
+            if (env == null)
             {
-                msg = " (empty for PG env. var.)";
+                env = "postgres";
             }
-            Console.Write($"{name2} user{msg}: ");
+            Console.Write($"{name2} user [{env}]: ");
+
             var result = Console.ReadLine();
             if (string.IsNullOrEmpty(result))
             {
@@ -37,7 +38,7 @@ namespace PgRoutiner
         }
 
         private string GetServer(bool skipPrompt = false)
-        {;
+        {
             var env = Environment.GetEnvironmentVariable("PGHOST");
             if (env == null)
             {
@@ -47,17 +48,13 @@ namespace PgRoutiner
             {
                 return $"Server={env};";
             }
-            string msg;
-            if (env != null)
+
+            if (env == null)
             {
-                msg = " (empty for PG env. var.)";;
-            }
-            else
-            {
-                msg = " (empty for localhost)";
                 env = "localhost";
             }
-            Console.Write($"{name2} server{msg}: ");
+            Console.Write($"{name2} server [{env}]: ");
+
             var result = Console.ReadLine();
             if (string.IsNullOrEmpty(result))
             {
@@ -73,17 +70,13 @@ namespace PgRoutiner
             {
                 return $"Port={env};";
             }
-            string msg;
-            if (env != null)
+
+            if (env == null)
             {
-                msg = " (empty for PG env. var.)";
-            }
-            else
-            {
-                msg = " (empty for 5432)";
                 env = "5432";
             }
-            Console.Write($"{name2} port{msg}: ");
+            Console.Write($"{name2} user [{env}]: ");
+
             var result = Console.ReadLine();
             if (string.IsNullOrEmpty(result))
             {
@@ -103,12 +96,13 @@ namespace PgRoutiner
             {
                 return $"Db={env};";
             }
-            var msg = "";
-            if (env != null)
+
+            if (env == null)
             {
-                msg = " (empty for PG env. var.)"; ;
+                env = "postgres";
             }
-            Console.Write($"{name2} database{msg}: ");
+            Console.Write($"{name2} user [{env}]: ");
+
             var result = Console.ReadLine();
             if (string.IsNullOrEmpty(result))
             {
@@ -124,12 +118,12 @@ namespace PgRoutiner
             {
                 return $"Password={env};";
             }
-            var msg = "";
+
             if (env != null)
             {
-                msg = " (empty for PG env. var.)"; ;
+                return $"Password={env};";
             }
-            Console.Write($"{name2} password{msg}: ");
+
             var pass = string.Empty;
             Console.CursorVisible = false;
             try

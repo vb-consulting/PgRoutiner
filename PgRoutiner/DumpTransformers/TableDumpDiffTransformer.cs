@@ -30,7 +30,7 @@ namespace PgRoutiner
             BuildCreateColumnsDiff(source, alters);
             BuildDropColumnsDiff(source, alters);
 
-            var diffStatements = BuildStatementsDicts(source);
+            var diffStatements = BuildDiffStatements(source);
 
             BuildAlterIndexesDiff(diffStatements, statements);
             BuildAlterTriggersDiff(diffStatements, statements);
@@ -49,11 +49,11 @@ namespace PgRoutiner
             {
                 foreach (var targetKey in diffStatements.Target.Grants.Keys)
                 {
-                    statements.TableGrants.AppendLine($"REVOKE ALL ON {Table.Schema}.\"{Table.Name}\" FROM {targetKey};");
+                    statements.TableGrants.AppendLine($"REVOKE ALL ON {Item.Schema}.\"{Item.Name}\" FROM {targetKey};");
                 }
                 foreach (var (sourceKey, sourceValue) in diffStatements.Source.Grants)
                 {
-                    statements.TableGrants.AppendLine($"REVOKE ALL ON {Table.Schema}.\"{Table.Name}\" FROM {sourceKey};");
+                    statements.TableGrants.AppendLine($"REVOKE ALL ON {Item.Schema}.\"{Item.Name}\" FROM {sourceKey};");
                     foreach (var value in sourceValue)
                     {
                         statements.TableGrants.AppendLine(value);
@@ -116,7 +116,7 @@ namespace PgRoutiner
                 {
                     if (Equals(sourceValue, targetValue) && !Equals(sourceKey, targetKey))
                     {
-                        statements.CreateTriggers.AppendLine($"ALTER TRIGGER \"{targetKey.Trim('"')}\" ON {Table.Schema}.\"{Table.Name}\" RENAME TO \"{sourceKey.Trim('"')}\";");
+                        statements.CreateTriggers.AppendLine($"ALTER TRIGGER \"{targetKey.Trim('"')}\" ON {Item.Schema}.\"{Item.Name}\" RENAME TO \"{sourceKey.Trim('"')}\";");
                         diffStatements.Source.Statements.Remove(sourceKey);
                         diffStatements.Target.Statements.Remove(targetKey);
                     }
@@ -153,11 +153,11 @@ namespace PgRoutiner
                 if (targetValue.type == EntryType.Contraint || targetValue.type == EntryType.Index)
                 {
                     string element = targetValue.type == EntryType.Contraint ? "CONSTRAINT" : "INDEX";
-                    statements.Drop.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" DROP {element} \"{targetKey.Trim('"')}\";");
+                    statements.Drop.AppendLine($"ALTER TABLE ONLY {Item.Schema}.\"{Item.Name}\" DROP {element} \"{targetKey.Trim('"')}\";");
                 }
                 else if ( targetValue.type == EntryType.Trigger)
                 {
-                    statements.DropTriggers.AppendLine($"DROP TRIGGER \"{targetKey.Trim('"')}\" ON {Table.Schema}.\"{Table.Name}\";");
+                    statements.DropTriggers.AppendLine($"DROP TRIGGER \"{targetKey.Trim('"')}\" ON {Item.Schema}.\"{Item.Name}\";");
                 }
             }
         }
@@ -177,7 +177,7 @@ namespace PgRoutiner
                 if (sourceValue.type == EntryType.Contraint || sourceValue.type == EntryType.Index)
                 {
                     string element = sourceValue.type == EntryType.Contraint ? "CONSTRAINT" : "INDEX";
-                    statements.Drop.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" DROP {element} \"{sourceKey.Trim('"')}\";");
+                    statements.Drop.AppendLine($"ALTER TABLE ONLY {Item.Schema}.\"{Item.Name}\" DROP {element} \"{sourceKey.Trim('"')}\";");
                 }
                 if (sourceValue.statement.IsUniqueStatemnt())
                 {
@@ -213,7 +213,7 @@ namespace PgRoutiner
             }
         }
 
-        private DiffStatements BuildStatementsDicts(TableDumpTransformer source)
+        private DiffStatements BuildDiffStatements(TableDumpTransformer source)
         {
             var result = new DiffStatements();
 
@@ -279,7 +279,7 @@ namespace PgRoutiner
             foreach(var entry in source.Names.Where(n => n.Value.entryType == EntryType.Contraint))
             {
                 result.Source.Statements.Add(entry.Key, 
-                    ($"ALTER TABLE ONLY {source.Table.Schema}.\"{source.Table.Name}\" ADD CONSTRAINT {entry.Key.Trim('"')} {entry.Value.content};", EntryType.Contraint));
+                    ($"ALTER TABLE ONLY {source.Item.Schema}.\"{source.Item.Name}\" ADD CONSTRAINT {entry.Key.Trim('"')} {entry.Value.content};", EntryType.Contraint));
             }
             foreach (var entry in source.Append)
             {
@@ -288,7 +288,7 @@ namespace PgRoutiner
             foreach (var entry in Names.Where(n => n.Value.entryType == EntryType.Contraint))
             {
                 result.Target.Statements.Add(entry.Key,
-                    ($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" ADD CONSTRAINT {entry.Key.Trim('"')} {entry.Value.content};", EntryType.Contraint));
+                    ($"ALTER TABLE ONLY {Item.Schema}.\"{Item.Name}\" ADD CONSTRAINT {entry.Key.Trim('"')} {entry.Value.content};", EntryType.Contraint));
             }
             foreach (var entry in Append)
             {
@@ -302,7 +302,7 @@ namespace PgRoutiner
             var sourceFields = source.Names.Where(n => n.Value.entryType == EntryType.Field).Select(n => n.Key).ToList();
             foreach (var field in Names.Where(n => n.Value.entryType == EntryType.Field && !sourceFields.Contains(n.Key)).Select(n => n.Key))
             {
-                sb.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" DROP COLUMN \"{field}\";");
+                sb.AppendLine($"ALTER TABLE ONLY {Item.Schema}.\"{Item.Name}\" DROP COLUMN \"{field}\";");
             }
         }
 
@@ -312,7 +312,7 @@ namespace PgRoutiner
             foreach (var field in source.Names.Where(n => n.Value.entryType == EntryType.Field && !targetFields.Contains(n.Key)).Select(n => n.Key))
             {
                 var (position, content, entryType) = source.Names[field];
-                sb.AppendLine($"ALTER TABLE ONLY {source.Table.Schema}.\"{source.Table.Name}\" ADD COLUMN \"{field}\" {content.TrimEnd(',')};");
+                sb.AppendLine($"ALTER TABLE ONLY {source.Item.Schema}.\"{source.Item.Name}\" ADD COLUMN \"{field}\" {content.TrimEnd(',')};");
             }
         }
 
@@ -333,17 +333,17 @@ namespace PgRoutiner
                 var (targetType, targetDefault, targetNotNull) = ParseFieldContent(targetValue.content.TrimEnd(','));
                 if (!string.Equals(sourceType, targetType))
                 {
-                    sb.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" ALTER COLUMN \"{field}\" TYPE {sourceType};");
+                    sb.AppendLine($"ALTER TABLE ONLY {Item.Schema}.\"{Item.Name}\" ALTER COLUMN \"{field}\" TYPE {sourceType};");
                 }
                 if (!string.Equals(sourceDefault, targetDefault))
                 {
                     if (string.IsNullOrEmpty(sourceDefault))
                     {
-                        sb.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" ALTER COLUMN \"{field}\" DROP DEFAULT;");
+                        sb.AppendLine($"ALTER TABLE ONLY {Item.Schema}.\"{Item.Name}\" ALTER COLUMN \"{field}\" DROP DEFAULT;");
                     }
                     else
                     {
-                        sb.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" ALTER COLUMN \"{field}\" SET DEFAULT {sourceDefault};");
+                        sb.AppendLine($"ALTER TABLE ONLY {Item.Schema}.\"{Item.Name}\" ALTER COLUMN \"{field}\" SET DEFAULT {sourceDefault};");
                     }
 
                 }
@@ -351,11 +351,11 @@ namespace PgRoutiner
                 {
                     if (!sourceNotNull)
                     {
-                        sb.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" ALTER COLUMN \"{field}\" DROP NOT NULL;");
+                        sb.AppendLine($"ALTER TABLE ONLY {Item.Schema}.\"{Item.Name}\" ALTER COLUMN \"{field}\" DROP NOT NULL;");
                     }
                     else
                     {
-                        sb.AppendLine($"ALTER TABLE ONLY {Table.Schema}.\"{Table.Name}\" ALTER COLUMN \"{field}\" SET NOT NULL;");
+                        sb.AppendLine($"ALTER TABLE ONLY {Item.Schema}.\"{Item.Name}\" ALTER COLUMN \"{field}\" SET NOT NULL;");
                     }
                 }
             }

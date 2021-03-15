@@ -72,7 +72,7 @@ namespace PgRoutiner
                 Dump($"No diff found between {ConnectionName} and {targetName}...");
                 return;
             }
-            if (Settings.Value.DiffFilePattern != null)
+            if (Settings.Value.DiffFilePattern != null && !Settings.Value.Dump)
             {
                 var dir = Path.GetFullPath(Path.GetDirectoryName(GetFilePattern(1)));
                 if (!Directory.Exists(dir))

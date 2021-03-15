@@ -10,31 +10,28 @@ namespace PgRoutiner
         public static string[] ParseArgs(string[] args)
         {
             List<string> result = new();
-            List<string> list = new();
-            void Add(Arg value)
-            {
-                list.Add(value.Alias.TrimStart('-'));
-                list.Add(value.Original.ToLower());
-            }
-            foreach(var field in typeof(Settings).GetFields(BindingFlags.Public | BindingFlags.Static))
+            var allowed = new HashSet<string>();
+
+            foreach (var field in typeof(Settings).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
                 if (!field.Name.EndsWith("Args"))
                 {
                     continue;
                 }
-                Add((Arg)field.GetValue(null));
+                var arg = (Arg)field.GetValue(null);
+                allowed.Add(arg.Alias.ToLower());
+                allowed.Add(string.Concat("--", arg.Original.ToLower()));
             }
-            var allowed = list.ToHashSet();
             foreach(var prop in typeof(Settings).GetProperties())
             {
-                allowed.Add(prop.Name.ToLower());
+                allowed.Add(string.Concat("--", prop.Name.ToLower()));
             }
 
             foreach(var arg in args)
             {
                 if (arg.StartsWith("-"))
                 {
-                    string name = arg.TrimStart('-');
+                    string name = arg;
                     if (name.Contains("="))
                     {
                         name = name.Split("=").First().ToLower();
@@ -43,16 +40,34 @@ namespace PgRoutiner
                     {
                         name = name.Split(":").First().ToLower();
                     }
-                    name = name.Replace("-", "");
+                    string prefix = "";
+                    if (name.StartsWith("--"))
+                    {
+                        prefix = "--";
+                    }
+                    else if (name.StartsWith("-"))
+                    {
+                        prefix = "-";
+                    }
+                    name = string.Concat(prefix, name.Replace("-", ""));
                     if (!allowed.Contains(name))
                     {
                         DumpError($"Argument {arg} not recognized!");
                         WriteLine("Try \"pgroutiner --help\" for more information.");
                         return null;
                     }
-                    var from = arg.StartsWith("--") ? 2 : 1;
-                    var to = arg.IndexOfAny(new[] { ':', '=' });
-                    result.Add(string.Concat(arg.Substring(0, from), name, arg[(to == -1 ? arg.Length : to)..]));
+
+                    var to = arg.IndexOfAny(new[] { '=' });
+                    if (to == -1)
+                    {
+                        result.Add(name);
+                    }
+                    else
+                    {
+                        result.Add(name);
+                        result.Add(arg.Substring(to + 1));
+                    }
+
                 }
                 else
                 {

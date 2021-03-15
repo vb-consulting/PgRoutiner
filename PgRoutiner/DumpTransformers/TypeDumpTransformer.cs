@@ -4,18 +4,16 @@ using System.Text;
 
 namespace PgRoutiner
 {
-    public class RoutineDumpTransformer : DumpTransformer
+    public partial class TypeDumpTransformer : DumpTransformer
     {
         public PgItem Item { get; }
-
-        public RoutineDumpTransformer(PgItem item, List<string> lines) : base(lines)
+        
+        public TypeDumpTransformer(PgItem item, List<string> lines) : base(lines)
         {
             this.Item = item;
         }
 
-        public RoutineDumpTransformer BuildLines(
-            string paramsString = null,
-            bool dbObjectsCreateOrReplace = false,
+        public TypeDumpTransformer BuildLines(
             bool ignorePrepend = false,
             Action<string> lineCallback = null)
         {
@@ -32,18 +30,18 @@ namespace PgRoutiner
             bool isCreate = false;
             bool isAppend = true;
 
-            var name1 = $"{Item.Schema}.{Item.Name}{paramsString ?? "("}";
-            var name2 = $"{Item.Schema}.\"{Item.Name}\"{paramsString ?? "("}";
-            var name3 = $"\"{Item.Schema}\".\"{Item.Name}\"{paramsString ?? "("}";
-            var name4 = $"\"{Item.Schema}\".{Item.Name}{paramsString ?? "("}";
-
-            var startSequence1 = $"CREATE {Item.TypeName} {name1}";
-            var startSequence2 = $"CREATE {Item.TypeName} {name2}";
-            var startSequence3 = $"CREATE {Item.TypeName} {name3}";
-            var startSequence4 = $"CREATE {Item.TypeName} {name4}";
+            var name1 = $"{Item.Schema}.{Item.Name}";
+            var startSequence1 = $"CREATE TYPE {name1} AS ";
 
             string statement = "";
-            string endSequence = null;
+            const string endSequence = ";";
+
+            bool shouldContinue(string line)
+            {
+                return !isCreate && string.IsNullOrEmpty(statement) &&
+                    !line.Contains(string.Concat(name1, ";")) &&
+                    !line.Contains(string.Concat(name1, " "));
+            }
 
             foreach (var l in lines)
             {
@@ -52,19 +50,15 @@ namespace PgRoutiner
                 {
                     continue;
                 }
-                if (!isCreate && string.IsNullOrEmpty(statement) && !line.Contains(name1) && !line.Contains(name2) && !line.Contains(name3) && !line.Contains(name4))
+                if (shouldContinue(line))
                 {
                     continue;
                 }
 
-                var createStart = line.StartsWith(startSequence1) || line.StartsWith(startSequence2) || line.StartsWith(startSequence3) || line.StartsWith(startSequence4);
-                var createEnd = endSequence != null && line.Contains($"{endSequence};");
+                var createStart = line.StartsWith(startSequence1);
+                var createEnd = line.EndsWith(endSequence);
                 if (createStart)
                 {
-                    if (dbObjectsCreateOrReplace)
-                    {
-                        line = line.Replace("CREATE", "CREATE OR REPLACE");
-                    }
                     isPrepend = false;
                     isCreate = true;
                     isAppend = false;
@@ -75,10 +69,6 @@ namespace PgRoutiner
                 }
                 if (isCreate)
                 {
-                    if (endSequence == null)
-                    {
-                        endSequence = line.GetSequence();
-                    }
                     Create.Add(line);
                     if (createEnd)
                     {

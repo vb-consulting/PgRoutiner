@@ -79,8 +79,7 @@ namespace PgRoutiner
         /*general*/
         public string Connection { get; set; } = null;
         public string Schema { get; set; } = null;
-        //public bool Overwrite { get; set; } = false;
-        //public bool AskOverwrite { get; set; } = false;
+
         public IList<string> SkipIfExists { get; set; } = new List<string>();
         public bool SkipUpdateReferences { get; set; } = false;
         public int Ident { get; set; } = 4;
@@ -137,7 +136,12 @@ namespace PgRoutiner
         public string DbObjectsDir { get; set; } = "./Database/{0}/";
         public IDictionary<string, string> DbObjectsDirNames { get; set; } = new Dictionary<string, string>() 
         {   
-            { "Tables", "Tables" }, { "Views", "Views" }, { "Functions", "Functions" }, { "Procedures", "Procedures" }
+            { "Tables", "Tables" }, 
+            { "Views", "Views" }, 
+            { "Functions", "Functions" }, 
+            { "Procedures", "Procedures" }, 
+            { "Domains", "Domains" },
+            { "Types", "Types" }
         };
         public bool DbObjectsSkipDelete { get; set; } = false;
         public bool DbObjectsOverwrite { get; set; } = false;

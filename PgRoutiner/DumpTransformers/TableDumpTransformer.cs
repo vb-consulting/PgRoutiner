@@ -7,13 +7,13 @@ namespace PgRoutiner
 {
     public partial class TableDumpTransformer : DumpTransformer
     {
-        public PgItem Table { get; }
+        public PgItem Item { get; }
         public enum EntryType { Field, Contraint, Index, Sequence, Trigger }
         public Dictionary<string, (int position, string content, EntryType entryType)> Names { get; } = new();
 
         public TableDumpTransformer(PgItem table, List<string> lines) : base(lines)
         {
-            this.Table = table;
+            this.Item = table;
         }
 
         public TableDumpTransformer BuildLines()
@@ -202,7 +202,7 @@ namespace PgRoutiner
             if (par != null)
             {
                 var opts = "";
-                var defaultName = $"{Table.Schema}.{Table.Name}_{name}_seq";
+                var defaultName = $"{Item.Schema}.{Item.Name}_{name}_seq";
                 var segment = par.FirstWordAfter("SEQUENCE NAME");
                 if (!string.Equals(defaultName, segment))
                 {
@@ -249,7 +249,7 @@ namespace PgRoutiner
 
         private (string name, string statement) ParsePk(string line)
         {
-            var defaultName = $"{Table.Name}_pkey";
+            var defaultName = $"{Item.Name}_pkey";
             var segment = line.FirstWordAfter("ADD CONSTRAINT");
             if (!string.Equals(defaultName, segment))
             {
@@ -279,7 +279,7 @@ namespace PgRoutiner
             {
                 return (null, null);
             }
-            var defaultName = $"{Table.Name}_{field.Replace("\"", "")}_fkey";
+            var defaultName = $"{Item.Name}_{field.Replace("\"", "")}_fkey";
             segment = line.FirstWordAfter("ADD CONSTRAINT");
             string statement;
             if (!string.Equals(defaultName, segment))
@@ -299,7 +299,7 @@ namespace PgRoutiner
             {
                 return (null, null);
             }
-            var defaultName = $"{Table.Name}_{field.Replace("\"", "")}_key";
+            var defaultName = $"{Item.Name}_{field.Replace("\"", "")}_key";
             segment = line.FirstWordAfter("ADD CONSTRAINT");
 
             if (!string.Equals(defaultName, segment))

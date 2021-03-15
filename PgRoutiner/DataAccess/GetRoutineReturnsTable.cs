@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using Norm;
 using Npgsql;
 
@@ -7,7 +8,17 @@ namespace PgRoutiner
 {
     public static partial class DataAccess
     {
-        public static IEnumerable<PgReturns> GetRoutineReturnsTable(this NpgsqlConnection connection, PgRoutineGroup routine) =>
+        public static IEnumerable<PgReturns> GetRoutineReturnsTable(this NpgsqlConnection connection, PgRoutineGroup routine)
+        {
+            var result = connection.GetTableColumnsForRoutine(routine);
+            if (result.Any())
+            {
+                return result;
+            }
+            return connection.GetTypeColumnsForRoutine(routine);
+        }
+
+        private static IEnumerable<PgReturns> GetTableColumnsForRoutine(this NpgsqlConnection connection, PgRoutineGroup routine) =>
             connection.Read<PgReturns>(@"
 
             select 
@@ -27,5 +38,25 @@ namespace PgRoutiner
 
             ",
                 ("typeUdtName", routine.TypeUdtName, DbType.AnsiString));
+
+        private static IEnumerable<PgReturns> GetTypeColumnsForRoutine(this NpgsqlConnection connection, PgRoutineGroup routine) =>
+            connection.Read<PgReturns>(@"
+
+            select 
+                (row_number() over ())::int as ordinal,
+                a.attname as name, 
+                regexp_replace(t.typname, '^[_]', '') as type, 
+                null as data_type,
+                t.typinput::text like 'array_%' as array, 
+                not t.typnotnull as nullable
+
+            from pg_class c 
+            inner join pg_attribute a on c.oid = a.attrelid 
+            inner join pg_type t on a.atttypid = t.oid
+            where 
+                c.relname = @typeUdtName
+
+            ",
+        ("typeUdtName", routine.TypeUdtName, DbType.AnsiString));
     }
 }

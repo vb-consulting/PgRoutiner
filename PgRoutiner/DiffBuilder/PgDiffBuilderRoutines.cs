@@ -7,33 +7,9 @@ namespace PgRoutiner
 {
     public partial class PgDiffBuilder
     { 
-        private List<string> _sourceRoutineLines = null;
-        private List<string> SourceRoutineLines 
-        { 
-            get 
-            { 
-                if (_sourceRoutineLines != null)
-                {
-                    return _sourceRoutineLines;
-                }
-                return _sourceRoutineLines = sourceBuilder.GetRawRoutinesDumpLines(settings.DiffPrivileges);
-            } 
-        }
-        private List<string> _targetRoutineLines = null;
-        private List<string> TargetRoutineLines
-        {
-            get
-            {
-                if (_targetRoutineLines != null)
-                {
-                    return _targetRoutineLines;
-                }
-                return _targetRoutineLines = targetBuilder.GetRawRoutinesDumpLines(settings.DiffPrivileges);
-            }
-        }
         private readonly Dictionary<Routine, DumpTransformer> routinesToUpdate = new();
 
-        private void BuildDropRoutines(StringBuilder sb)
+        private void BuildDropRoutinesNotInSource(StringBuilder sb)
         {
             var header = false;
             void AddDropView(Routine key, PgRoutineGroup value)
@@ -60,14 +36,14 @@ namespace PgRoutiner
                         Name = routineKey.Name,
                         TypeName = sourceValue.RoutineType.ToUpper()
                     };
-                    var sourceTransformer = new RoutineDumpTransformer(item, SourceRoutineLines)
+                    var sourceTransformer = new RoutineDumpTransformer(item, SourceLines)
                         .BuildLines(
                             paramsString: routineKey.Params,
                             dbObjectsCreateOrReplace: true,
                             ignorePrepend: true,
                             lineCallback: null);
                     item.TypeName = targetValue.RoutineType.ToUpper();
-                    var targetTransformer = new RoutineDumpTransformer(item, TargetRoutineLines)
+                    var targetTransformer = new RoutineDumpTransformer(item, TargetLines)
                         .BuildLines(
                             paramsString: routineKey.Params,
                             dbObjectsCreateOrReplace: true,
@@ -87,7 +63,7 @@ namespace PgRoutiner
             }
         }
 
-        private void BuildCreateRoutines(StringBuilder sb)
+        private void BuildCreateRoutinesNotInTarget(StringBuilder sb)
         {
             var routinesToInclude = sourceRoutines.Keys.Where(k => routinesToUpdate.Keys.Contains(k) || !targetRoutines.Keys.Contains(k)).ToList();
             Dictionary<Routine, (string content, HashSet<Routine> references)> result = new();
@@ -116,7 +92,7 @@ namespace PgRoutiner
                         Name = routineKey.Name,
                         TypeName = routineValue.RoutineType.ToUpper()
                     };
-                    var content = new RoutineDumpTransformer(item, SourceRoutineLines)
+                    var content = new RoutineDumpTransformer(item, SourceLines)
                         .BuildLines(
                             paramsString: routineKey.Params,
                             dbObjectsCreateOrReplace: true,

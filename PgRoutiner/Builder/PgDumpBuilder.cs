@@ -66,9 +66,10 @@ namespace PgRoutiner
             }
 
             List<string> lines = null;
+            List<PgItem> types = new();
             try
             {
-                lines = GetDumpLines(args, excludeTables);
+                lines = GetDumpLines(args, excludeTables, out types);
             }
             catch (Exception e)
             {
@@ -93,6 +94,42 @@ namespace PgRoutiner
                         continue;
                     }
                     yield return (name, content, routine.Type);
+                }
+
+                foreach (var domain in Connection.GetDomains(settings))
+                {
+                    var name = domain.GetFileName();
+                    string content;
+                    try
+                    {
+                        content = new DomainDumpTransformer(domain, lines)
+                            .BuildLines()
+                            .ToString();
+                    }
+                    catch (Exception e)
+                    {
+                        Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                        continue;
+                    }
+                    yield return (name, content, domain.Type);
+                }
+
+                foreach (var type in Connection.FilterTypes(types, settings))
+                {
+                    var name = type.GetFileName();
+                    string content;
+                    try
+                    {
+                        content = new TypeDumpTransformer(type, lines)
+                            .BuildLines()
+                            .ToString();
+                    }
+                    catch (Exception e)
+                    {
+                        Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                        continue;
+                    }
+                    yield return (name, content, type.Type);
                 }
             }
         }
@@ -150,10 +187,10 @@ namespace PgRoutiner
             return GetDumpLines(args, tableArg);
         }
 
-        public List<string> GetRawRoutinesDumpLines(bool withPrivileges)
+        public List<string> GetRawRoutinesDumpLines(bool withPrivileges, out List<PgItem> types)
         {
             var args = string.Concat(baseArg, " --schema-only  --no-owner", withPrivileges ? "" : " --no-acl");
-            return GetDumpLines(args, excludeTables);
+            return GetDumpLines(args, excludeTables, out types);
         }
 
         private string GetTableContent(PgItem table, string args)
@@ -178,12 +215,43 @@ namespace PgRoutiner
                 .ToString();
         }
 
-        private List<string> GetDumpLines(string args, string tableArg)
+        private List<string> GetDumpLines(string args, string tableArg, out List<PgItem> types)
+        {
+            List<PgItem> found = new();
+            var result = GetDumpLines(args, tableArg, lineAction: line =>
+            {
+                var entry = line.FirstWordAfter("CREATE TYPE");
+                if (entry != null)
+                {
+                    var type = new PgItem { Type = PgType.Type };
+                    var parts = entry.Split('.');
+                    if (parts.Length < 2)
+                    {
+                        type.Schema = "public";
+                        type.Name = entry;
+                    }
+                    else
+                    {
+                        type.Schema = parts[0];
+                        type.Name = parts[1];
+                    }
+                    found.Add(type);
+                }
+            });
+            types = found;
+            return result;
+        }
+
+        private List<string> GetDumpLines(string args, string tableArg, Action<string> lineAction = null)
         {
             List<string> lines = new();
             GetPgDumpContent($"{args} {tableArg}", lineFunc: line =>
             {
                 lines.Add(line);
+                if (lineAction != null)
+                {
+                    lineAction(line);
+                }
                 return null;
             });
             return lines;
@@ -225,7 +293,12 @@ namespace PgRoutiner
                 {
                     return line;
                 }
-                return line.Replace("SELECT", "PERFORM");
+                var selectIndex = line.IndexOf("SELECT ");
+                if (selectIndex == 0)
+                {
+                    line = string.Concat("PERFORM ", line.Substring("SELECT ".Length));
+                }
+                return line;
             };
             return GetPgDumpContent(args,
                 start: string.Concat($"DO ${name}$", Environment.NewLine, "BEGIN", Environment.NewLine),

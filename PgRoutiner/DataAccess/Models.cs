@@ -31,6 +31,8 @@ namespace PgRoutiner
         View,
         Function,
         Procedure,
+        Domain,
+        Type,
         Unknown
     }
 
