@@ -1,6 +1,6 @@
 ﻿# VERSION HISTORY
 
-## 3.0.5
+## 3.0.7
 
 - Fixed issues with comman line parser
 - Fixed issues with recreating directories on database objects tree
