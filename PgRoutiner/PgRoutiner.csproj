@@ -5,7 +5,7 @@
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
     <TargetFramework>net5.0</TargetFramework>
-    <AssemblyName>PgRoutiner</AssemblyName>
+    <AssemblyName>pgroutiner</AssemblyName>
     <Authors>Vedran Bilopavlović</Authors>
     <Company>VB-Software</Company>
     <Copyright>Vedran Bilopavlović</Copyright>
@@ -14,9 +14,9 @@
     <PackageProjectUrl>https://github.com/vb-consulting/PgRoutiner</PackageProjectUrl>
     <PackageTags>PostgreSQL;ORM;Data Access;Mapping</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.1.0</Version>
+    <Version>3.1.1</Version>
     <PackageId>dotnet-pgroutiner</PackageId>
-    <AssemblyVersion>3.1.0.0</AssemblyVersion>
+    <AssemblyVersion>3.1.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -44,9 +44,6 @@
     </None>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="appsettings.PgRoutiner.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

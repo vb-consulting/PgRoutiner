@@ -31,6 +31,7 @@ namespace PgRoutiner
     {
         public static readonly Arg DirArgs = new("-dir", "dir");
         public static readonly Arg HelpArgs = new("-h", "help");
+        public static readonly Arg VersionArgs = new("-v", "version");
         public static readonly Arg SettingsArgs = new("-s", "settings");
         public static readonly Arg RoutinesArgs = new("-r", nameof(Routines));
         public static readonly Arg CommitMdArgs = new("-cc", nameof(CommitMd));

@@ -1,5 +1,12 @@
 ﻿# VERSION HISTORY
 
+## 3.1.1
+
+- fix duplication of foreign keys in a markupd dictionary document
+- improve generated settings file comments
+- add "-v", "--version" switch to dump current version
+- rename exe to lowercase "pgroutiner" for case-sensitive terminals
+
 ## 3.1.0
 
 - Fixed issues with comman line parser

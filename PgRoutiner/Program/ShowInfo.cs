@@ -5,12 +5,17 @@ namespace PgRoutiner
 {
     static partial class Program
     {
-        private static void ShowInfo()
+        private static void ShowVersion()
         {
             Console.WriteLine();
             Console.ResetColor();
             Console.WriteLine($"PgRoutiner ({Version})");
             Console.WriteLine();
+        }
+
+        private static void ShowInfo()
+        {
+            ShowVersion();
             Console.WriteLine("Usage: ");
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("  pgroutiner [swith1] [swith2] [swith3] [option1 argument1] [option2 argument2] [option3 argument3]");
@@ -22,11 +27,12 @@ namespace PgRoutiner
             
             WriteSetting(Settings.DirArgs, "Set working directory, default is current.", "DIR");
             WriteSetting(Settings.HelpArgs, "Show command-line help.");
+            WriteSetting(Settings.VersionArgs, "Show current version.");
             WriteSetting(Settings.SettingsArgs, "Show current settings.");
             WriteSetting(Settings.DumpArgs, "Displays either SQL to be executed or the file to be created to console output.");
             WriteSetting(Settings.ExecuteArgs, "Executes the content of the SQL file from the argument or execute PSQL command if file doesn't exists and display the results.", "FILE_OR_PSQL_COMMAND", newLine: true);
             WriteSetting(Settings.ConnectionArgs, "Sets the working connection string name. Default is first available.", "NAME");
-            WriteSetting(Settings.SchemaArgs, "Use only schemas similar to thio expression. Default is null (all schemas).", "EXP");
+            WriteSetting(Settings.SchemaArgs, "Use only schemas similar to this expression. Default is null (all schemas).", "EXP");
             WriteSetting(nameof(Settings.SkipIfExists),
                 "List of filenames without a path to be skipped. Default is an empty list.", 
                 "NAME", "INDEX");

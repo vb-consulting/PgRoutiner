@@ -17,17 +17,18 @@ namespace PgRoutiner
             {
                 return;
             }
-            var help = ArgsInclude(args, Settings.HelpArgs);
-            if (help)
+            if (ArgsInclude(args, Settings.HelpArgs))
             {
                 ShowInfo();
                 return;
             }
-            Mute = ArgsInclude(args, Settings.DumpArgs);
-            if (!help)
+            if (ArgsInclude(args, Settings.VersionArgs))
             {
-                ShowStartupInfo();
+                ShowVersion();
+                return;
             }
+            Mute = ArgsInclude(args, Settings.DumpArgs);
+            ShowStartupInfo();
             if (!SetCurrentDir(args))
             {
                 return;
@@ -67,6 +68,8 @@ namespace PgRoutiner
             if (Switches.Value.Debug)
             {
                 WriteLine("", "Debug: ");
+                WriteLine("Version: ");
+                WriteLine(ConsoleColor.Cyan, " " + Version);
                 var path = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
                 WriteLine("Executable dir: ");
                 WriteLine(ConsoleColor.Cyan, " " + path);
@@ -80,6 +83,8 @@ namespace PgRoutiner
                 WriteLine(ConsoleColor.Cyan, $" {Settings.Value.Dump}");
                 WriteLine("Execute: ");
                 WriteLine(ConsoleColor.Cyan, $" {Settings.Value.Execute ?? "<null>"}");
+                WriteLine("Diff: ");
+                WriteLine(ConsoleColor.Cyan, $" {Settings.Value.Diff}");
                 return true;
             }
 

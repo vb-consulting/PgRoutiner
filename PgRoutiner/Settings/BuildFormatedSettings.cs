@@ -12,9 +12,16 @@ namespace PgRoutiner
         {
             StringBuilder sb = new();
 
-            void AddComment(string comment)
+            void AddSectionComment(string header, string helpUrl, string tip = null)
             {
-                sb.AppendLine($"    /* {comment} */");
+                sb.AppendLine($"    /*");
+                sb.AppendLine($"      {header}");
+                if (tip != null)
+                {
+                    sb.AppendLine($"      {tip}");
+                }
+                sb.AppendLine($"      For more info, see: {helpUrl}");
+                sb.AppendLine($"    */");
             }
 
             void AddEntry(string field, object fieldValue, string last = ",")
@@ -84,7 +91,9 @@ namespace PgRoutiner
                 sb.AppendLine();
             }
 
-            AddComment("General settings, see https://github.com/vb-consulting/PgRoutiner/wiki/1.-WORKING-WITH-SETTINGS#general-settings for more info");
+            AddSectionComment(
+                "General settings", 
+                "https://github.com/vb-consulting/PgRoutiner/wiki/1.-WORKING-WITH-SETTINGS#general-settings");
             AddEntry(nameof(Connection), Value.Connection);
             AddEntry(nameof(Schema), Value.Schema);
             AddEntry(nameof(Execute), Value.Execute);
@@ -97,7 +106,10 @@ namespace PgRoutiner
             AddEntry(nameof(SourceHeader), Value.SourceHeader);
 
             sb.AppendLine();
-            AddComment("Routines data-access extensions code-generation settings, https://github.com/vb-consulting/PgRoutiner/wiki/2.-WORKING-WITH-ROUTINES#routines-data-access-extensions-code-generation-settings see for more info");
+            AddSectionComment(
+                "Routines data-access extensions code-generation", 
+                "https://github.com/vb-consulting/PgRoutiner/wiki/2.-WORKING-WITH-ROUTINES#routines-data-access-extensions-code-generation-settings",
+                $"Use \"{RoutinesArgs.Alias}\" or \"{RoutinesArgs.Name}\" switch to run routines data-access extensions code-generation from the command line.");
             AddEntry(nameof(Routines), Value.Routines);
             AddEntry(nameof(OutputDir), Value.OutputDir);
             AddEntry(nameof(RoutinesOverwrite), Value.RoutinesOverwrite);
@@ -115,13 +127,19 @@ namespace PgRoutiner
             AddEntry(nameof(UseRecords), Value.UseRecords);
 
             sb.AppendLine();
-            AddComment("Unit tests code-generation settings, see https://github.com/vb-consulting/PgRoutiner/wiki/3.-WORKING-WITH-UNIT-TESTS#unit-tests-code-generation-settings for more info");
+            AddSectionComment(
+                "Unit tests code-generation settings", 
+                "https://github.com/vb-consulting/PgRoutiner/wiki/3.-WORKING-WITH-UNIT-TESTS#unit-tests-code-generation-settings",
+                $"Use \"{UnitTestsArgs.Alias}\" or \"--{UnitTestsArgs.Original.ToKebabCase()}\" switch to run unit tests code-generation from the command line.");
             AddEntry(nameof(UnitTests), Value.UnitTests);
             AddEntry(nameof(UnitTestsDir), Value.UnitTestsDir);
             AddEntry(nameof(UnitTestsAskRecreate), Value.UnitTestsAskRecreate);
 
             sb.AppendLine();
-            AddComment("Schema dump script settings, see https://github.com/vb-consulting/PgRoutiner/wiki/4.-WORKING-WITH-SCHEMA-DUMP-SCRIPT#schema-dump-script-settings for more info");
+            AddSectionComment(
+                "Schema dump script settings", 
+                "https://github.com/vb-consulting/PgRoutiner/wiki/4.-WORKING-WITH-SCHEMA-DUMP-SCRIPT#schema-dump-script-settings",
+                $"Use \"{SchemaDumpArgs.Alias}\" or \"--{SchemaDumpArgs.Original.ToKebabCase()}\" switch to run schema script dump from the command line.");
             AddEntry(nameof(SchemaDump), Value.SchemaDump);
             AddEntry(nameof(SchemaDumpFile), Value.SchemaDumpFile);
             AddEntry(nameof(SchemaDumpOverwrite), Value.SchemaDumpOverwrite);
@@ -133,7 +151,10 @@ namespace PgRoutiner
             AddEntry(nameof(SchemaDumpNoTransaction), Value.SchemaDumpNoTransaction);
 
             sb.AppendLine();
-            AddComment("Data dump script settings, see https://github.com/vb-consulting/PgRoutiner/wiki/5.-WORKING-WITH-DATA-DUMP-SCRIPT#data-dump-script-settings for more info");
+            AddSectionComment(
+                "Data dump script settings", 
+                "https://github.com/vb-consulting/PgRoutiner/wiki/5.-WORKING-WITH-DATA-DUMP-SCRIPT#data-dump-script-settings",
+                $"Use \"{DataDumpArgs.Alias}\" or \"--{DataDumpArgs.Original.ToKebabCase()}\" switch to run data script dump from the command line.");
             AddEntry(nameof(DataDump), Value.DataDump);
             AddEntry(nameof(DataDumpFile), Value.DataDumpFile);
             AddEntry(nameof(DataDumpOverwrite), Value.DataDumpOverwrite);
@@ -143,7 +164,10 @@ namespace PgRoutiner
             AddEntry(nameof(DataDumpNoTransaction), Value.DataDumpNoTransaction);
 
             sb.AppendLine();
-            AddComment("Object file tree settings, see https://github.com/vb-consulting/PgRoutiner/wiki/6.-WORKING-WITH-OBJECT-FILES-TREE#object-file-tree-settings for more info");
+            AddSectionComment(
+                "Object file tree settings", 
+                "https://github.com/vb-consulting/PgRoutiner/wiki/6.-WORKING-WITH-OBJECT-FILES-TREE#object-file-tree-settings",
+                $"Use \"{DbObjectsArgs.Alias}\" or \"--{DbObjectsArgs.Original.ToKebabCase()}\" switch to run object files tree dump from the command line.");
             AddEntry(nameof(DbObjects), Value.DbObjects);
             AddEntry(nameof(DbObjectsDir), Value.DbObjectsDir);
             AddEntry(nameof(DbObjectsOverwrite), Value.DbObjectsOverwrite);
@@ -157,7 +181,10 @@ namespace PgRoutiner
             AddEntry(nameof(DbObjectsRaw), Value.DbObjectsRaw);
 
             sb.AppendLine();
-            AddComment("Markdown (MD) database dictionaries settings, see https://github.com/vb-consulting/PgRoutiner/wiki/7.-WORKING-WITH-MARKDOWN-DATABASE-DICTIONARIES#markdown-md-database-dictionaries-settings for more info");
+            AddSectionComment(
+                "Markdown (MD) database dictionaries settings", 
+                "https://github.com/vb-consulting/PgRoutiner/wiki/7.-WORKING-WITH-MARKDOWN-DATABASE-DICTIONARIES#markdown-md-database-dictionaries-settings",
+                $"Use \"{MarkdownArgs.Alias}\" or \"--{MarkdownArgs.Original.ToKebabCase()}\" switch to run markdown (MD) database dictionary file from the command line.");
             AddEntry(nameof(Markdown), Value.Markdown);
             AddEntry(nameof(MdFile), Value.MdFile);
             AddEntry(nameof(MdOverwrite), Value.MdOverwrite);
@@ -169,14 +196,20 @@ namespace PgRoutiner
             AddEntry(nameof(CommitMd), Value.CommitMd);
 
             sb.AppendLine();
-            AddComment("PSQL command-line utility settings, see https://github.com/vb-consulting/PgRoutiner/wiki/8.-WORKING-WITH-PSQL#psql-command-line-utility-settings for more info");
+            AddSectionComment(
+                "PSQL command-line utility settings", 
+                "https://github.com/vb-consulting/PgRoutiner/wiki/8.-WORKING-WITH-PSQL#psql-command-line-utility-settings",
+                $"Use \"{PsqlArgs.Alias}\" or \"--{PsqlArgs.Original.ToKebabCase()}\" switch to open PSQL command-line utility from the command line.");
             AddEntry(nameof(Psql), Value.Psql);
             AddEntry(nameof(PsqlTerminal), Value.PsqlTerminal);
             AddEntry(nameof(PsqlCommand), Value.PsqlCommand);
             AddEntry(nameof(PsqlOptions), Value.PsqlOptions);
 
             sb.AppendLine();
-            AddComment("Diff scripts settings, see https://github.com/vb-consulting/PgRoutiner/wiki/9.-WORKING-WITH-DIFF-SCRIPTS#diff-scripts-settings for more info");
+            AddSectionComment(
+                "Diff scripts settings", 
+                "https://github.com/vb-consulting/PgRoutiner/wiki/9.-WORKING-WITH-DIFF-SCRIPTS#diff-scripts-settings",
+                $"Use \"{DiffArgs.Alias}\" or \"--{DiffArgs.Original.ToKebabCase()}\" diff script generation from the command line.");
             AddEntry(nameof(Diff), Value.Diff);
             AddEntry(nameof(DiffTarget), Value.DiffTarget);
             AddEntry(nameof(DiffFilePattern), Value.DiffFilePattern);
