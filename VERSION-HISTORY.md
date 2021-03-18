@@ -1,5 +1,12 @@
 ﻿# VERSION HISTORY
 
+## 3.1.2
+
+- fix connection prompt text
+- add schema support to database objects tree and diff generator
+- further improve generated settings file comments
+- include check defintion expressions into generated dictionary file
+
 ## 3.1.1
 
 - fix duplication of foreign keys in a markupd dictionary document

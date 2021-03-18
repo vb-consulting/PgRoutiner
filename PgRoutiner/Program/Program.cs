@@ -11,7 +11,7 @@ namespace PgRoutiner
 
         static void Main(string[] rawArgs)
         {
-            //var args = ParseArgs(new string[] { "--diff-file-pattern" });
+            //var args = ParseArgs(new string[] { "--dump" });
             var args = ParseArgs(rawArgs);
             if (args == null)
             {

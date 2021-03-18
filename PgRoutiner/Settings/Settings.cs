@@ -142,7 +142,8 @@ namespace PgRoutiner
             { "Functions", "Functions" }, 
             { "Procedures", "Procedures" }, 
             { "Domains", "Domains" },
-            { "Types", "Types" }
+            { "Types", "Types" },
+            { "Schemas", "Schemas" }
         };
         public bool DbObjectsSkipDelete { get; set; } = false;
         public bool DbObjectsOverwrite { get; set; } = false;

@@ -29,6 +29,7 @@ namespace PgRoutiner
             var proceduresDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Procedures", "Procedures"))), ConnectionName);
             var domainsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Domains", "Domains"))), ConnectionName);
             var typesDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Types", "Types"))), ConnectionName);
+            var schemasDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Schemas", "Schemas"))), ConnectionName);
 
             var tableCreated = false;
             var viewCreated = false;
@@ -36,6 +37,7 @@ namespace PgRoutiner
             var proceduresCreated = false;
             var domainsCreated = false;
             var typesCreated = false;
+            var schemaCreated = false;
 
             foreach (var (shortFilename, content, type) in builder.GetDatabaseObjects())
             {
@@ -46,7 +48,8 @@ namespace PgRoutiner
                     PgType.Function => functionsDir,
                     PgType.Procedure => proceduresDir,
                     PgType.Domain => domainsDir,
-                    PgType.Type=> typesDir,
+                    PgType.Type => typesDir,
+                    PgType.Schema => schemasDir,
                     _ => null 
                 };
 
@@ -102,6 +105,13 @@ namespace PgRoutiner
                         }
                         typesCreated = true;
                         break;
+                    case PgType.Schema:
+                        if (!schemaCreated)
+                        {
+                            CreateDir(schemasDir);
+                        }
+                        schemaCreated = true;
+                        break;
                 }
 
                 var exists = File.Exists(file);
@@ -152,6 +162,10 @@ namespace PgRoutiner
                 if (!typesCreated)
                 {
                     RemoveDir(typesDir);
+                }
+                if (!schemaCreated)
+                {
+                    RemoveDir(schemasDir);
                 }
             }
         }

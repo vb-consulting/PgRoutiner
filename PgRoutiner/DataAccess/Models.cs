@@ -33,6 +33,7 @@ namespace PgRoutiner
         Procedure,
         Domain,
         Type,
+        Schema,
         Unknown
     }
 
@@ -54,6 +55,7 @@ namespace PgRoutiner
             }
             return $"{item.Name}.sql";
         }
+
         public static string GetTableArg(this PgItem item) => $"--table=\\\"{item.Schema}\\\".\\\"{item.Name}\\\"";
     }
 

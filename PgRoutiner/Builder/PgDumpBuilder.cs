@@ -131,6 +131,30 @@ namespace PgRoutiner
                     }
                     yield return (name, content, type.Type);
                 }
+
+                foreach (var schema in Connection.GetSchemas(settings))
+                {
+                    if (string.Equals(schema, "public"))
+                    {
+                        continue;
+                    }
+                    var name = $"{schema}.sql";
+                    string content;
+                    try
+                    {
+                        
+                        content = new SchemaDumpTransformer(schema, lines)
+                            .BuildLines()
+                            .ToString();
+                        
+                    }
+                    catch (Exception e)
+                    {
+                        Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                        continue;
+                    }
+                    yield return (name, content, PgType.Schema);
+                }
             }
         }
 

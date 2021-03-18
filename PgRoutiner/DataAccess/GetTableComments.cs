@@ -38,7 +38,8 @@ namespace PgRoutiner
                                                 else ccu.table_schema || '.'
                                         end 
                                         || ccu.table_name || '.' || ccu.column_name || '`**'
-                                else tc.constraint_type
+                                    when tc.constraint_type = 'CHECK' then (select pg_get_constraintdef((select oid from pg_constraint where conname = tc.constraint_name), true))
+                                    else tc.constraint_type
                             end as description_markup
 
                         from
@@ -50,7 +51,7 @@ namespace PgRoutiner
                         where
                             tc.constraint_schema = @schema
                         group by
-                            tc.table_name, kcu.column_name, ccu.column_name, 
+                            tc.table_name, kcu.column_name, ccu.column_name, tc.constraint_name,
                             tc.constraint_type, ccu.table_schema, ccu.table_name, tc.constraint_schema
 
                         union all 

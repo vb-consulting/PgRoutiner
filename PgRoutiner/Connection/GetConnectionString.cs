@@ -75,7 +75,7 @@ namespace PgRoutiner
             {
                 env = "5432";
             }
-            Console.Write($"{name2} user [{env}]: ");
+            Console.Write($"{name2} port [{env}]: ");
 
             var result = Console.ReadLine();
             if (string.IsNullOrEmpty(result))
@@ -101,7 +101,7 @@ namespace PgRoutiner
             {
                 env = "postgres";
             }
-            Console.Write($"{name2} user [{env}]: ");
+            Console.Write($"{name2} database [{env}]: ");
 
             var result = Console.ReadLine();
             if (string.IsNullOrEmpty(result))
@@ -124,6 +124,7 @@ namespace PgRoutiner
                 return $"Password={env};";
             }
 
+            Console.Write($"{name2} password: ");
             var pass = string.Empty;
             Console.CursorVisible = false;
             try

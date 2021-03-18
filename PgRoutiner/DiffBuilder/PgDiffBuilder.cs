@@ -36,13 +36,15 @@ namespace PgRoutiner
         private readonly Dictionary<Routine, PgRoutineGroup> sourceRoutines;
         private readonly Dictionary<Domain, PgItem> sourceDomains;
         private readonly Dictionary<Type, PgItem> sourceTypes;
+        private readonly HashSet<string> sourceSchemas;
 
         private readonly Dictionary<Table, PgItem> targetTables;
         private readonly Dictionary<Table, PgItem> targetViews;
         private readonly Dictionary<Routine, PgRoutineGroup> targetRoutines;
         private readonly Dictionary<Domain, PgItem> targetDomains;
         private readonly Dictionary<Type, PgItem> targetTypes;
-        
+        private readonly HashSet<string> targetSchemas;
+
 
         private List<string> _sourceLines = null;
         private List<string> _targetLines = null;
@@ -82,6 +84,9 @@ namespace PgRoutiner
             this._sourceLines = sourceBuilder.GetRawRoutinesDumpLines(settings.DiffPrivileges, out var sourceTypes);
             this.sourceTypes = source.FilterTypes(sourceTypes, new Settings { Schema = settings.Schema })
                 .ToDictionary(t => new Type(t.Schema, t.Name), t => t);
+            this.sourceSchemas = source.GetSchemas(new Settings { Schema = settings.Schema })
+                .Where(s => !string.Equals(s, "public"))
+                .ToHashSet();
 
             var tte = target.GetTables(new Settings { Schema = settings.Schema });
             this.targetTables = tte
@@ -102,6 +107,9 @@ namespace PgRoutiner
             this._targetLines = targetBuilder.GetRawRoutinesDumpLines(settings.DiffPrivileges, out var targetTypes);
             this.targetTypes = target.FilterTypes(targetTypes, new Settings { Schema = settings.Schema })
                 .ToDictionary(t => new Type(t.Schema, t.Name), t => t);
+            this.targetSchemas = target.GetSchemas(new Settings { Schema = settings.Schema })
+                .Where(s => !string.Equals(s, "public"))
+                .ToHashSet();
         }
 
         public string Build(Action<string, int, int> stage = null)
@@ -112,8 +120,11 @@ namespace PgRoutiner
             {
                 stage = (_, _, _) => { };
             }
-            var total = 12;
+            var total = 14;
             var current = 1;
+
+            stage("scanning new schemas...", current++, total);
+            BuildCreateSchemasNotInTarget(sb);
             stage("scanning routines to drop...", current++, total);
             BuildDropRoutinesNotInSource(sb);
             stage("scanning types to drop...", current++, total);
@@ -202,6 +213,8 @@ namespace PgRoutiner
                 }
                 AddComment(sb, "#endregion TRIGGERS");
             }
+            stage("scanning schemas to drop...", current++, total);
+            BuildDropSchemasNotInSource(sb);
 
             if (sb.Length == 0)
             {
