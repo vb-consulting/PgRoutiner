@@ -77,7 +77,7 @@ namespace PgRoutiner
                 if (Value.Connection == null && connection != null)
                 {
                     Value.Connection = $"{connection.Database.ToUpperCamelCase()}Connection";
-                    sb.AppendLine($"    \"{Value.Connection}\": \"{connection.ConnectionString}\"");
+                    sb.AppendLine($"    \"{Value.Connection}\": \"{connection.ToPsqlFormatString()}\"");
                 }
                 sb.AppendLine("    //\"Connection1\": \"Server={server};Db={database};Port={port};User Id={user};Password={password};\"");
                 sb.AppendLine("    //\"Connection2\": \"postgresql://{user}:{password}@{server}:{port}/{database}\" ");

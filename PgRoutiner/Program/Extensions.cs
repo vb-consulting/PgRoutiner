@@ -1,13 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using Npgsql;
 
 namespace PgRoutiner
 {
-    public static class StringExtensions
+    public static class Extensions
     {
         public static string ToUpperCamelCase(this string value)
         {
@@ -240,6 +242,12 @@ namespace PgRoutiner
                 return value.Substring(index);
             }
             return null;
+        }
+
+        public static string ToPsqlFormatString(this NpgsqlConnection connection)
+        {
+            var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
+            return $"postgresql://{connection.UserName}:{password}@{connection.Host}:{connection.Port}/{connection.Database}";
         }
     }
 }

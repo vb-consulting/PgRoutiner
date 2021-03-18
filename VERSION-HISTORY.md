@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.1.6
+
+- Change connmection string formatting and add asterisk to password prompt
+
 ## 3.1.3
 
 - when entering password, use blank (hit enter key) to use envirment variable

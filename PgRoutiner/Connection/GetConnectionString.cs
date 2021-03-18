@@ -121,7 +121,7 @@ namespace PgRoutiner
 
             if (env != null)
             {
-                Console.Write($"{name2} password [env]: ");
+                Console.Write($"{name2} password [env var]: ");
             } 
             else
             {
@@ -144,6 +144,7 @@ namespace PgRoutiner
                     else if (!char.IsControl(keyInfo.KeyChar))
                     {
                         pass += keyInfo.KeyChar;
+                        Console.Write("*");
                     }
                 } while (key != ConsoleKey.Enter);
             }

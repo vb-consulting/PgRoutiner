@@ -12,8 +12,7 @@ namespace PgRoutiner
         public PsqlRunner(Settings settings, NpgsqlConnection connection)
         {
             this.settings = settings;
-            var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
-            baseArg = $"-d postgresql://{connection.UserName}:{password}@{connection.Host}:{connection.Port}/{connection.Database}";
+            baseArg = $"-d {connection.ToPsqlFormatString()}";
         }
 
         public void Run(string args)
