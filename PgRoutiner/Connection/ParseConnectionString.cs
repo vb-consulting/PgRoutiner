@@ -115,6 +115,11 @@ namespace PgRoutiner
                     var hostParts = host.Split(':');
                     server = hostParts.First();
                     port = hostParts.Last();
+                    server = $"Server={server};";
+                    database = $"Db={database};";
+                    port = $"Port={port};";
+                    user = $"User Id={user};";
+                    pass = $"Password={pass};";
                 }
                 else
                 {

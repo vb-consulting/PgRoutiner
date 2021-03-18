@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.1.7
+
+- Fix postgresql connection string format
+
 ## 3.1.6
 
 - Change connection string formatting and add asterisk to password prompt
