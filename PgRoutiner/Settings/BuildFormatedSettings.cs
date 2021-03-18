@@ -79,12 +79,9 @@ namespace PgRoutiner
                     Value.Connection = $"{connection.Database.ToUpperCamelCase()}Connection";
                     sb.AppendLine($"    \"{Value.Connection}\": \"{connection.ConnectionString}\"");
                 }
-                else
-                {
-                    sb.AppendLine("    //\"Connection1\": \"Server={server};Db={database};Port={port};User Id={user};Password={password};\"");
-                    sb.AppendLine("    //\"Connection2\": \"postgresql://{user}:{password}@{server}:{port}/{database}\" ");
+                sb.AppendLine("    //\"Connection1\": \"Server={server};Db={database};Port={port};User Id={user};Password={password};\"");
+                sb.AppendLine("    //\"Connection2\": \"postgresql://{user}:{password}@{server}:{port}/{database}\" ");
 
-                }
                 sb.AppendLine("  },");
                 sb.AppendLine("  /* see https://github.com/vb-consulting/PgRoutiner/wiki/1.-WORKING-WITH-SETTINGS for more info */");
                 sb.AppendLine("  \"PgRoutiner\": {");
