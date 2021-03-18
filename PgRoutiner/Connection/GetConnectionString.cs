@@ -121,7 +121,11 @@ namespace PgRoutiner
 
             if (env != null)
             {
-                return $"Password={env};";
+                Console.Write($"{name2} password [env]: ");
+            } 
+            else
+            {
+                Console.Write($"{name2} password: ");
             }
 
             Console.Write($"{name2} password: ");
@@ -150,6 +154,10 @@ namespace PgRoutiner
                 Console.CursorVisible = true;
             }
             Console.WriteLine();
+            if (string.IsNullOrEmpty(pass) && !string.IsNullOrEmpty(env))
+            {
+                return $"Password={env};";
+            }
             return $"Password={pass};";
         }
     }

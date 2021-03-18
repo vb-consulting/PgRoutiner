@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.1.3
+
+- when entering password, use blank (hit enter key) to use envirment variable
+
 ## 3.1.2
 
 - fix connection prompt text
