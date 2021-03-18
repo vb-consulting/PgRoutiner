@@ -2,7 +2,7 @@
 
 ## 3.1.6
 
-- Change connmection string formatting and add asterisk to password prompt
+- Change connection string formatting and add asterisk to password prompt
 
 ## 3.1.3
 
