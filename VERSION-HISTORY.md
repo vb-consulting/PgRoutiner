@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.1.8
+
+- Fix typo in settings comment hint
+- 
 ## 3.1.7
 
 - Fix postgresql connection string format

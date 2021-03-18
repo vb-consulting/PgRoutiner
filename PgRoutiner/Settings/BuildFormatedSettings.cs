@@ -224,7 +224,7 @@ namespace PgRoutiner
                 "Diff scripts settings", 
                 "https://github.com/vb-consulting/PgRoutiner/wiki/9.-WORKING-WITH-DIFF-SCRIPTS#diff-scripts-settings",
                 $"- Use \"{DiffArgs.Alias}\" or \"--{DiffArgs.Original.ToKebabCase()}\" diff script generation from the command line.",
-                $"- Use \"{DiffArgs.Alias}\" or \"--{DiffArgs.Original.ToKebabCase()}\" option to set target connection for the diff script generator from the command line.");
+                $"- Use \"{DiffTargetArgs.Alias}\" or \"--{DiffTargetArgs.Original.ToKebabCase()}\" option to set target connection for the diff script generator from the command line.");
             AddEntry(nameof(Diff), Value.Diff);
             AddEntry(nameof(DiffTarget), Value.DiffTarget);
             AddEntry(nameof(DiffFilePattern), Value.DiffFilePattern);
