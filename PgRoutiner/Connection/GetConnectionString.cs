@@ -127,8 +127,6 @@ namespace PgRoutiner
             {
                 Console.Write($"{name2} password: ");
             }
-
-            Console.Write($"{name2} password: ");
             var pass = string.Empty;
             Console.CursorVisible = false;
             try
