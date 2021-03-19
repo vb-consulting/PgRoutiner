@@ -112,7 +112,7 @@ namespace PgRoutiner
                 "https://github.com/vb-consulting/PgRoutiner/wiki/2.-WORKING-WITH-ROUTINES#routines-data-access-extensions-code-generation-settings",
                 $"- Use \"{RoutinesArgs.Alias}\" or \"--{RoutinesArgs.Original.ToKebabCase()}\" switch to run routines data-access extensions code-generation from the command line.",
                 $"- Use \"{OutputDirArgs.Alias}\" or \"--{OutputDirArgs.Original.ToKebabCase()}\" option to set the output dir for the generated code from the command line.",
-                $"- Use \"{RoutinesOverwriteArgs.Alias}\" or \"--{RoutinesOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwerite mode for the generated code from the command line.",
+                $"- Use \"{RoutinesOverwriteArgs.Alias}\" or \"--{RoutinesOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated code from the command line.",
                 $"- Use \"{ModelDirArgs.Alias}\" or \"--{ModelDirArgs.Original.ToKebabCase()}\" option to set the custom models output dir for the generated code from the command line.");
             AddEntry(nameof(Routines), Value.Routines);
             AddEntry(nameof(OutputDir), Value.OutputDir);
@@ -198,7 +198,7 @@ namespace PgRoutiner
                 "https://github.com/vb-consulting/PgRoutiner/wiki/7.-WORKING-WITH-MARKDOWN-DATABASE-DICTIONARIES#markdown-md-database-dictionaries-settings",
                 $"- Use \"{MarkdownArgs.Alias}\" or \"--{MarkdownArgs.Original.ToKebabCase()}\" switch to run markdown (MD) database dictionary file from the command line.",
                 $"- Use \"{MdFileArgs.Alias}\" or \"--{MdFileArgs.Original.ToKebabCase()}\" option to set generated dictionary file name from the command line.",
-                $"- Use \"{CommitMdArgs.Alias}\" or \"--{CommitMdArgs.Original.ToKebabCase()}\" switch to run commit changes in comments from the MD fiole back to the database from the command line.");
+                $"- Use \"{CommitMdArgs.Alias}\" or \"--{CommitMdArgs.Original.ToKebabCase()}\" switch to run commit changes in comments from the MD file back to the database from the command line.");
             AddEntry(nameof(Markdown), Value.Markdown);
             AddEntry(nameof(MdFile), Value.MdFile);
             AddEntry(nameof(MdOverwrite), Value.MdOverwrite);
