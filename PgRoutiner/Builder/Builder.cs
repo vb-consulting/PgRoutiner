@@ -25,19 +25,35 @@ namespace PgRoutiner
         {
             ConnectionName = (Settings.Value.Connection ?? $"{connection.Host}_{connection.Port}_{connection.Database}").SanitazePath();
 
-            if (Settings.Value.SchemaDumpFile != null)
+            if (Settings.Value.Execute != null)
             {
-                SchemaFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.SchemaDumpFile)), ConnectionName);
-            }
-            if (Settings.Value.DataDumpFile != null)
-            {
-                DataFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.DataDumpFile)), ConnectionName);
+                DumpTitle("** EXECUTION **");
+                ExecuteFromSetting(connection);
+                return;
             }
 
             if (Settings.Value.Psql)
             {
                 DumpTitle("** PSQL TERMINAL **");
-                new PsqlRunner(Settings.Value, connection).RunFromTerminal();
+                new PsqlRunner(Settings.Value, connection).TryRunFromTerminal();
+                return;
+            }
+
+            if (Settings.Value.CommitMd)
+            {
+                DumpTitle("** COMMIT MARKDOWN (MD) EDITS **");
+                BuildMdDiff(connection);
+                return;
+            }
+
+            if (Settings.Value.SchemaDumpFile != null)
+            {
+                SchemaFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.SchemaDumpFile)), ConnectionName);
+            }
+
+            if (Settings.Value.DataDumpFile != null)
+            {
+                DataFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.DataDumpFile)), ConnectionName);
             }
 
             if (Settings.Value.DbObjects || Settings.Value.SchemaDump || Settings.Value.DataDump)
@@ -84,27 +100,17 @@ namespace PgRoutiner
                 DumpTitle("** ROUTINE SOURCE CODE GENERATION **");
                 BuildDataAccess(connection);
             }
+
             if (Settings.Value.UnitTests)
             {
                 DumpTitle("** UNIT TEST PROJECT TEMPLATE CODE GENERATION **");
                 BuildUnitTests(connection);
             }
 
-            if (Settings.Value.CommitMd)
-            {
-                DumpTitle("** COMMIT MARKDOWN (MD) EDITS **");
-                BuildMdDiff(connection);
-            }
             if (Settings.Value.Markdown)
             {
                 DumpTitle("** MARKDOWN (MD) GENERATION **");
                 BuilMd(connection);
-            }
-
-            if (Settings.Value.Execute != null)
-            {
-                DumpTitle("** EXECUTION **");
-                ExecuteFromSetting(connection);
             }
 
             DumpTitle("", "", "**** FINISHED ****");

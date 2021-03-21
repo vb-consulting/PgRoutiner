@@ -130,6 +130,17 @@ namespace PgRoutiner
 #if DEBUG
             Program.ParseProjectSetting(Value);
 #endif
+            if (Value.Execute != null || Value.Psql || Value.CommitMd)
+            {
+                Value.DbObjects = false;
+                Value.SchemaDump = false;
+                Value.DataDump = false;
+                Value.Diff = false;
+                Value.Routines = false;
+                Value.UnitTests = false;
+                Value.Markdown = false;
+            }
+
             return config;
         }
     }

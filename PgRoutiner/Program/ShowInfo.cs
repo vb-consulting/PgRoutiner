@@ -29,6 +29,7 @@ namespace PgRoutiner
             WriteSetting(Settings.HelpArgs, "Show command-line help.");
             WriteSetting(Settings.VersionArgs, "Show current version.");
             WriteSetting(Settings.SettingsArgs, "Show current settings.");
+            WriteSetting(Settings.InfoArgs, "Display current info (dir, config files, used settings and connection) and exit.");
             WriteSetting(Settings.DumpArgs, "Displays either SQL to be executed or the file to be created to console output.");
             WriteSetting(Settings.ExecuteArgs, "Executes the content of the SQL file from the argument or execute PSQL command if file doesn't exists and display the results.", "FILE_OR_PSQL_COMMAND", newLine: true);
             WriteSetting(Settings.ConnectionArgs, "Sets the working connection string name. Default is first available.", "NAME");

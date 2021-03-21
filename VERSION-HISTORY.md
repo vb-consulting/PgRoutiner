@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.1.10
+
+- Added `-i` or `--info` command-line switch that just display current info (dir, config files, used settings and connection). and exits without any file file generation.
+- If following switches are on: `Execute`, `Psql` or `CommitMd`, all other file generations switches are off (`DbObjects`, `SchemaDump`, `DataDump`, `Diff`, `Routines`, `UnitTests` and `Markdown`)
+- If `PsqlTerminal` program is not supported by the operations system, fallback to the default shell execute of the operationg system.
+
 ## 3.1.9
 ## 3.1.8
 

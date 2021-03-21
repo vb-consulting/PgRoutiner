@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Npgsql;
 using System.Reflection;
+using System;
 
 namespace PgRoutiner
 {
@@ -20,15 +21,36 @@ namespace PgRoutiner
             Program.RunProcess(settings.PsqlCommand, $"{baseArg} {(args ?? "")}", writeCommand: false);
         }
 
-        public void RunFromTerminal()
+        public void TryRunFromTerminal()
         {
-            using var process = new Process();
-            process.StartInfo.FileName = settings.PsqlTerminal;
-            process.StartInfo.Arguments = $"{settings.PsqlCommand} {baseArg} {(settings.PsqlOptions ?? "")}";
-            process.StartInfo.CreateNoWindow = false;
-            process.StartInfo.RedirectStandardOutput = false;
-            process.StartInfo.RedirectStandardError = false;
-            process.Start();
+            try
+            {
+                using var process = new Process();
+                process.StartInfo.FileName = settings.PsqlTerminal;
+                process.StartInfo.Arguments = $"{settings.PsqlCommand} {baseArg} {(settings.PsqlOptions ?? "")}";
+                process.StartInfo.CreateNoWindow = false;
+                process.StartInfo.RedirectStandardOutput = false;
+                process.StartInfo.RedirectStandardError = false;
+                process.Start();
+            }
+            catch
+            {
+                try
+                {
+                    using var process = new Process();
+                    process.StartInfo.FileName = settings.PsqlCommand;
+                    process.StartInfo.Arguments = $"{baseArg} {(settings.PsqlOptions ?? "")}";
+                    process.StartInfo.CreateNoWindow = false;
+                    process.StartInfo.UseShellExecute = true;
+                    process.StartInfo.RedirectStandardOutput = false;
+                    process.StartInfo.RedirectStandardError = false;
+                    process.Start();
+                }
+                catch(Exception e)
+                {
+                    Program.DumpError(e.Message);
+                }
+            }
         }
     }
 }

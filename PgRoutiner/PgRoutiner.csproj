@@ -9,14 +9,14 @@
     <Authors>Vedran Bilopavlović</Authors>
     <Company>VB-Software</Company>
     <Copyright>Vedran Bilopavlović</Copyright>
-    <Description>Scaffold your PostgreSQL routines</Description>
+    <Description>A tool for PostgreSQL database-first development</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/vb-consulting/PgRoutiner</PackageProjectUrl>
-    <PackageTags>PostgreSQL;ORM;Data Access;Mapping</PackageTags>
+    <PackageTags>PostgreSQL</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.1.9</Version>
+    <Version>3.1.10</Version>
     <PackageId>dotnet-pgroutiner</PackageId>
-    <AssemblyVersion>3.1.9.0</AssemblyVersion>
+    <AssemblyVersion>3.1.10.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

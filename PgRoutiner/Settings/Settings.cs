@@ -9,6 +9,7 @@ namespace PgRoutiner
         public bool Help { get; set; } = false;
         public bool Settings { get; set; } = false;
         public bool Debug { get; set; } = false;
+        public bool Info { get; set; } = false;
 
         public static readonly Switches Value = new Switches();
     }
@@ -32,6 +33,7 @@ namespace PgRoutiner
         public static readonly Arg DirArgs = new("-dir", "dir");
         public static readonly Arg HelpArgs = new("-h", "help");
         public static readonly Arg VersionArgs = new("-v", "version");
+        public static readonly Arg InfoArgs = new("-i", "info");
         public static readonly Arg SettingsArgs = new("-s", "settings");
         public static readonly Arg RoutinesArgs = new("-r", nameof(Routines));
         public static readonly Arg CommitMdArgs = new("-cc", nameof(CommitMd));

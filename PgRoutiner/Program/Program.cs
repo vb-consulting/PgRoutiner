@@ -52,6 +52,11 @@ namespace PgRoutiner
             {
                 return;
             }
+            if (ArgsInclude(args, Settings.InfoArgs))
+            {
+                WriteLine("");
+                return;
+            }
             WriteLine("");
             Builder.Run(connection);
             WriteLine("");
