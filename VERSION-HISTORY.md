@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.1.11
+
+- Fix connection prompt in partial connection strings.
+
 ## 3.1.10
 
 - Added `-i` or `--info` command-line switch that just display current info (dir, config files, used settings and connection). and exits without any file file generation.

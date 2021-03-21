@@ -115,11 +115,6 @@ namespace PgRoutiner
                     var hostParts = host.Split(':');
                     server = hostParts.First();
                     port = hostParts.Last();
-                    server = $"Server={server};";
-                    database = $"Db={database};";
-                    port = $"Port={port};";
-                    user = $"User Id={user};";
-                    pass = $"Password={pass};";
                 }
                 else
                 {
@@ -167,23 +162,47 @@ namespace PgRoutiner
             }
             if (string.IsNullOrEmpty(server))
             {
-                server = GetServer(true);
+                server = GetServer(false);
             }
+            else
+            {
+                server = $"Server={server};";
+            }
+
             if (string.IsNullOrEmpty(port))
             {
-                port = GetPort(true);
+                port = GetPort(false);
             }
+            else
+            {
+                port = $"Port={port};";
+            }
+
             if (string.IsNullOrEmpty(database))
             {
-                database = GetDatabase(true);
+                database = GetDatabase(false);
             }
+            else
+            {
+                database = $"Db={database};";
+            }
+
             if (string.IsNullOrEmpty(user))
             {
-                user = GetUser(true);
+                user = GetUser(false);
             }
+            else
+            {
+                user = $"User Id={user};";
+            }
+
             if (string.IsNullOrEmpty(pass))
             {
-                pass = GetPassword(true);
+                pass = GetPassword(false);
+            }
+            else
+            {
+                pass = $"Password={pass};";
             }
             return $"{server}{database}{port}{user}{pass}";
         }

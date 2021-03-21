@@ -23,6 +23,12 @@ namespace PgRoutiner
 
         public void TryRunFromTerminal()
         {
+            if (settings.PsqlCommand == null)
+            {
+                RunAsShellExecute();
+                return;
+            }
+
             try
             {
                 using var process = new Process();
@@ -35,21 +41,26 @@ namespace PgRoutiner
             }
             catch
             {
-                try
-                {
-                    using var process = new Process();
-                    process.StartInfo.FileName = settings.PsqlCommand;
-                    process.StartInfo.Arguments = $"{baseArg} {(settings.PsqlOptions ?? "")}";
-                    process.StartInfo.CreateNoWindow = false;
-                    process.StartInfo.UseShellExecute = true;
-                    process.StartInfo.RedirectStandardOutput = false;
-                    process.StartInfo.RedirectStandardError = false;
-                    process.Start();
-                }
-                catch(Exception e)
-                {
-                    Program.DumpError(e.Message);
-                }
+                RunAsShellExecute();
+            }
+        }
+
+        public void RunAsShellExecute()
+        {
+            try
+            {
+                using var process = new Process();
+                process.StartInfo.FileName = settings.PsqlCommand;
+                process.StartInfo.Arguments = $"{baseArg} {(settings.PsqlOptions ?? "")}";
+                process.StartInfo.CreateNoWindow = false;
+                process.StartInfo.UseShellExecute = true;
+                process.StartInfo.RedirectStandardOutput = false;
+                process.StartInfo.RedirectStandardError = false;
+                process.Start();
+            }
+            catch (Exception e)
+            {
+                Program.DumpError(e.Message);
             }
         }
     }

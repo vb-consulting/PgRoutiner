@@ -114,6 +114,10 @@ namespace PgRoutiner
         private string GetPassword(bool skipPrompt = false)
         {
             var env = Environment.GetEnvironmentVariable("PGPASSWORD");
+            if (env == null)
+            {
+                env = Environment.GetEnvironmentVariable("PGPASS");
+            }
             if (skipPrompt)
             {
                 return $"Password={env};";
@@ -121,37 +125,32 @@ namespace PgRoutiner
 
             if (env != null)
             {
-                Console.Write($"{name2} password [env var]: ");
+                Console.Write($"{name2} password [environment var.]: ");
             } 
             else
             {
                 Console.Write($"{name2} password: ");
             }
             var pass = string.Empty;
-            Console.CursorVisible = false;
-            try
-            {
-                ConsoleKey key;
-                do
-                {
-                    var keyInfo = Console.ReadKey(intercept: true);
-                    key = keyInfo.Key;
 
-                    if (key == ConsoleKey.Backspace && pass.Length > 0)
-                    {
-                        pass = pass[0..^1];
-                    }
-                    else if (!char.IsControl(keyInfo.KeyChar))
-                    {
-                        pass += keyInfo.KeyChar;
-                        Console.Write("*");
-                    }
-                } while (key != ConsoleKey.Enter);
-            }
-            finally
+            ConsoleKey key;
+            do
             {
-                Console.CursorVisible = true;
+                var keyInfo = Console.ReadKey(intercept: true);
+                key = keyInfo.Key;
+
+                if (key == ConsoleKey.Backspace && pass.Length > 0)
+                {
+                    pass = pass[0..^1];
+                    Console.Write("\b \b");
             }
+                else if (!char.IsControl(keyInfo.KeyChar))
+                {
+                    pass += keyInfo.KeyChar;
+                    Console.Write("*");
+                }
+            } while (key != ConsoleKey.Enter);
+
             Console.WriteLine();
             if (string.IsNullOrEmpty(pass) && !string.IsNullOrEmpty(env))
             {
