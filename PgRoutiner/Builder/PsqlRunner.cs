@@ -54,9 +54,11 @@ namespace PgRoutiner
                 process.StartInfo.Arguments = $"{baseArg} {(settings.PsqlOptions ?? "")}";
                 process.StartInfo.CreateNoWindow = false;
                 process.StartInfo.UseShellExecute = true;
+                process.StartInfo.RedirectStandardInput = false;
                 process.StartInfo.RedirectStandardOutput = false;
                 process.StartInfo.RedirectStandardError = false;
                 process.Start();
+                process.WaitForExit();
             }
             catch (Exception e)
             {

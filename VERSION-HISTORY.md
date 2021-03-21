@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.1.12
+
+- Add "wait for exit" on psql shell execute to fix early exit on linux
+
 ## 3.1.11
 
 - Fix connection prompt in partial connection strings.
