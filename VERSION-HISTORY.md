@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.1.14
+
+- Fix connection string parsing bug
+
 ## 3.1.13
 
 - "wait for exit" on psql shell execute only if not on windows

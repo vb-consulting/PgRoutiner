@@ -115,6 +115,28 @@ namespace PgRoutiner
                     var hostParts = host.Split(':');
                     server = hostParts.First();
                     port = hostParts.Last();
+
+                    if (!string.IsNullOrEmpty(server))
+                    {
+                        server = $"Server={server};";
+                    }
+                    if (!string.IsNullOrEmpty(port))
+                    { 
+                        port = $"Port={port};";
+                    }
+                    if (!string.IsNullOrEmpty(database))
+                    {
+                        database = $"Db={database};";
+                    }
+
+                    if (!string.IsNullOrEmpty(user))
+                    {
+                        user = $"User Id={user};";
+                    }
+                    if (!string.IsNullOrEmpty(pass))
+                    {
+                        pass = $"Password={pass};";
+                    }
                 }
                 else
                 {
@@ -160,50 +182,28 @@ namespace PgRoutiner
                 Program.DumpError($"Connection string \"{connectionStr}\" is malformed.");
                 return null;
             }
+
             if (string.IsNullOrEmpty(server))
             {
                 server = GetServer(false);
             }
-            else
-            {
-                server = $"Server={server};";
-            }
-
             if (string.IsNullOrEmpty(port))
             {
                 port = GetPort(false);
             }
-            else
-            {
-                port = $"Port={port};";
-            }
-
             if (string.IsNullOrEmpty(database))
             {
                 database = GetDatabase(false);
             }
-            else
-            {
-                database = $"Db={database};";
-            }
-
             if (string.IsNullOrEmpty(user))
             {
                 user = GetUser(false);
             }
-            else
-            {
-                user = $"User Id={user};";
-            }
-
             if (string.IsNullOrEmpty(pass))
             {
                 pass = GetPassword(false);
             }
-            else
-            {
-                pass = $"Password={pass};";
-            }
+           
             return $"{server}{database}{port}{user}{pass}";
         }
     }
