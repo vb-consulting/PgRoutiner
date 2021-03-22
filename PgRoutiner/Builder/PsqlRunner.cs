@@ -58,7 +58,10 @@ namespace PgRoutiner
                 process.StartInfo.RedirectStandardOutput = false;
                 process.StartInfo.RedirectStandardError = false;
                 process.Start();
-                process.WaitForExit();
+                if (!OperatingSystem.IsWindows())
+                {
+                    process.WaitForExit();
+                }
             }
             catch (Exception e)
             {

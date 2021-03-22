@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.1.13
+
+- "wait for exit" on psql shell execute only if not on windows
+
 ## 3.1.12
 
 - Add "wait for exit" on psql shell execute to fix early exit on linux
