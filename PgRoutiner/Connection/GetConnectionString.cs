@@ -18,7 +18,7 @@ namespace PgRoutiner
         private string GetUser(bool skipPrompt = false)
         {
             var env = Environment.GetEnvironmentVariable("PGUSER");
-            if (skipPrompt)
+            if (!string.IsNullOrEmpty(env) && skipPrompt)
             {
                 return $"User Id={env};";
             }
@@ -44,7 +44,7 @@ namespace PgRoutiner
             {
                 env = Environment.GetEnvironmentVariable("PGSERVER");
             }
-            if (skipPrompt)
+            if (!string.IsNullOrEmpty(env) && skipPrompt)
             {
                 return $"Server={env};";
             }
@@ -66,7 +66,7 @@ namespace PgRoutiner
         private string GetPort(bool skipPrompt = false)
         {
             var env = Environment.GetEnvironmentVariable("PGPORT");
-            if (skipPrompt)
+            if (!string.IsNullOrEmpty(env) && skipPrompt)
             {
                 return $"Port={env};";
             }
@@ -92,7 +92,7 @@ namespace PgRoutiner
             {
                 env = Environment.GetEnvironmentVariable("PGDB");
             }
-            if (skipPrompt)
+            if (!string.IsNullOrEmpty(env) && skipPrompt)
             {
                 return $"Db={env};";
             }
@@ -118,7 +118,7 @@ namespace PgRoutiner
             {
                 env = Environment.GetEnvironmentVariable("PGPASS");
             }
-            if (skipPrompt)
+            if (!string.IsNullOrEmpty(env) && skipPrompt)
             {
                 return $"Password={env};";
             }

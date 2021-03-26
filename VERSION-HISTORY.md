@@ -1,5 +1,15 @@
 ﻿# VERSION HISTORY
 
+## 3.1.15
+
+- Added "SkipConnectionPrompt" option.
+
+If some value from the connection string (host, port, database, user or password) is missing (empty), program will automatically prompt for input.
+
+When system enviorment variable is defined for that part (PGHOST, PGSERVER, PGPORT, PGDATABASE, PGDB, PGUSER, PGPASSWORD, PGPASS) program will take that as a default value. Simply leave value empty in prompt (hit enter) to use enviorment variable.
+
+If "SkipConnectionPrompt" is true and enviorment variable is defined, enviorment variable will be used without propmpting the user.
+
 ## 3.1.14
 
 - Fix connection string parsing bug

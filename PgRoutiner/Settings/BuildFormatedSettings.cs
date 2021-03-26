@@ -96,6 +96,7 @@ namespace PgRoutiner
                 $"- Use \"{ExecuteArgs.Alias}\" or \"--{ExecuteArgs.Original.ToKebabCase()}\" option to execute SQL file or PSQL command on your current connection  from the command line.",
                 $"- Use \"{DumpArgs.Alias}\" or \"--{DumpArgs.Original.ToKebabCase()}\" switch to redirect all outputs to the command line.");
             AddEntry(nameof(Connection), Value.Connection);
+            AddEntry(nameof(SkipConnectionPrompt), Value.SkipConnectionPrompt);
             AddEntry(nameof(Schema), Value.Schema);
             AddEntry(nameof(Execute), Value.Execute);
             AddEntry(nameof(Dump), Value.Dump);

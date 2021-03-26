@@ -185,23 +185,23 @@ namespace PgRoutiner
 
             if (string.IsNullOrEmpty(server))
             {
-                server = GetServer(false);
+                server = GetServer(Settings.Value.SkipConnectionPrompt);
             }
             if (string.IsNullOrEmpty(port))
             {
-                port = GetPort(false);
+                port = GetPort(Settings.Value.SkipConnectionPrompt);
             }
             if (string.IsNullOrEmpty(database))
             {
-                database = GetDatabase(false);
+                database = GetDatabase(Settings.Value.SkipConnectionPrompt);
             }
             if (string.IsNullOrEmpty(user))
             {
-                user = GetUser(false);
+                user = GetUser(Settings.Value.SkipConnectionPrompt);
             }
             if (string.IsNullOrEmpty(pass))
             {
-                pass = GetPassword(false);
+                pass = GetPassword(Settings.Value.SkipConnectionPrompt);
             }
            
             return $"{server}{database}{port}{user}{pass}";

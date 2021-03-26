@@ -11,7 +11,7 @@ namespace PgRoutiner
         public bool Debug { get; set; } = false;
         public bool Info { get; set; } = false;
 
-        public static readonly Switches Value = new Switches();
+        public static readonly Switches Value = new();
     }
 
     public class Arg
@@ -81,6 +81,7 @@ namespace PgRoutiner
 
         /*general*/
         public string Connection { get; set; } = null;
+        public bool SkipConnectionPrompt { get; set; } = false;
         public string Schema { get; set; } = null;
 
         public IList<string> SkipIfExists { get; set; } = new List<string>();
@@ -180,6 +181,6 @@ namespace PgRoutiner
         public string DiffFilePattern { get; set; } = "./Database/{0}-{1}/{2}-diff-{3:yyyyMMdd}.sql";
         public bool DiffPrivileges { get; set; } = false;
 
-        public static readonly Settings Value = new Settings();
+        public static readonly Settings Value = new();
     }
 }

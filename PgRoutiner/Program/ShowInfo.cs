@@ -33,6 +33,7 @@ namespace PgRoutiner
             WriteSetting(Settings.DumpArgs, "Displays either SQL to be executed or the file to be created to console output.");
             WriteSetting(Settings.ExecuteArgs, "Executes the content of the SQL file from the argument or execute PSQL command if file doesn't exists and display the results.", "FILE_OR_PSQL_COMMAND", newLine: true);
             WriteSetting(Settings.ConnectionArgs, "Sets the working connection string name. Default is first available.", "NAME");
+            WriteSetting(nameof(Settings.SkipConnectionPrompt), "If connection part value exists as enviorment variable, skip the prompt (don't ask).");
             WriteSetting(Settings.SchemaArgs, "Use only schemas similar to this expression. Default is null (all schemas).", "EXP");
             WriteSetting(nameof(Settings.SkipIfExists),
                 "List of filenames without a path to be skipped. Default is an empty list.", 
