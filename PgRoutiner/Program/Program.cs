@@ -11,7 +11,7 @@ namespace PgRoutiner
 
         static void Main(string[] rawArgs)
         {
-            //var args = ParseArgs(new string[] { "-i" });
+            //var args = ParseArgs(new string[] { "-x", ".\\Test\\Air\\" });
             var args = ParseArgs(rawArgs);
             if (args == null)
             {

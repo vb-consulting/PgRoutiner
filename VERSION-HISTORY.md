@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.1.16
+
+- If "Execute" (exlusive -x switch) contains a file pattern that yields valid files, or valid directory - all files will be executed, only in top level directory.
+- If there is no valid file, command will execute PSQL command as before.
+- Connection now writes notices to console that connection might yield.
+
 ## 3.1.15
 
 - Added "SkipConnectionPrompt" option.

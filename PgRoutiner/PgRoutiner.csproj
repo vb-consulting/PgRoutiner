@@ -14,9 +14,9 @@
     <PackageProjectUrl>https://github.com/vb-consulting/PgRoutiner</PackageProjectUrl>
     <PackageTags>PostgreSQL</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.1.15</Version>
+    <Version>3.1.16</Version>
     <PackageId>dotnet-pgroutiner</PackageId>
-    <AssemblyVersion>3.1.15.0</AssemblyVersion>
+    <AssemblyVersion>3.1.16.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -48,10 +48,6 @@
     <None Update="appsettings.PgRoutiner.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Test\" />
   </ItemGroup>
 
 </Project>

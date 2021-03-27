@@ -134,13 +134,13 @@ namespace PgRoutiner
             Program.WriteLine(ConsoleColor.Green, lines);
         }
 
-        private static void DumpFormat(string msg, string value)
+        private static void DumpFormat(string msg, params object[] values)
         {
             if (Settings.Value.Dump)
             {
                 return;
             }
-            msg = string.Format(msg, $"`{value}`");
+            msg = string.Format(msg, values.Select(v => $"`{v}`").ToArray());
             foreach(var (line, i) in msg.Split('`').Select((l, i) => (l, i)))
             {
                 if (i % 2 == 0)
@@ -151,7 +151,6 @@ namespace PgRoutiner
                 {
                     Program.Write(ConsoleColor.Cyan, line);
                 }
-
             }
             
             Program.WriteLine("");
