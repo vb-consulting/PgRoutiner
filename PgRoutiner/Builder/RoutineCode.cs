@@ -19,6 +19,7 @@ namespace PgRoutiner
  
         public string Name { get; }
         public Dictionary<string, StringBuilder> Models { get; private set; } = new();
+        public Dictionary<string, StringBuilder> ModelContent { get; private set; } = new();
         public StringBuilder Class { get; } = new();
         public List<Method> Methods { get; } = new();
 
@@ -127,7 +128,14 @@ namespace PgRoutiner
                 BuildMethodParams(@params);
                 Class.AppendLine(")");
                 Class.AppendLine($"{I2}{{");
-                Class.AppendLine($"{I3}return connection");
+                if (@return.IsVoid)
+                {
+                    Class.AppendLine($"{I3}connection");
+                }
+                else
+                {
+                    Class.AppendLine($"{I3}return connection");
+                }
                 AddBodyCode(I4, I5);
                 Class.AppendLine($"{I2}}}");
             }
@@ -194,7 +202,14 @@ namespace PgRoutiner
                 BuildMethodParams(@params);
                 Class.AppendLine(")");
                 Class.AppendLine($"{I2}{{");
-                Class.AppendLine(@return.IsInstance ? $"{I3}return connection" : $"{I3}return await connection");
+                if (@return.IsVoid)
+                {
+                    Class.AppendLine(@return.IsInstance ? $"{I3}connection" : $"{I3}await connection");
+                }
+                else
+                {
+                    Class.AppendLine(@return.IsInstance ? $"{I3}return connection" : $"{I3}return await connection");
+                }
                 AddBodyCode(I4, I5);
                 Class.AppendLine($"{I2}}}");
             }
@@ -350,15 +365,14 @@ namespace PgRoutiner
         {
             var suffix = ++recordModelCount == 1 ? "" : recordModelCount.ToString();
             var name = $"{this.Name.ToUpperCamelCase()}{suffix}";
-            BuildModel(name, connection => connection.GetRoutineReturnsRecord(routine));
-            return name;
+            return BuildModel(name, connection => connection.GetRoutineReturnsRecord(routine));
         }
 
-        private void BuildModel(string name, Func<NpgsqlConnection, IEnumerable<PgReturns>> func)
+        private string BuildModel(string name, Func<NpgsqlConnection, IEnumerable<PgReturns>> func)
         {
             if (Models.ContainsKey(name))
             {
-                return;
+                return name;
             }
             string getType(PgReturns returnModel)
             {
@@ -377,14 +391,16 @@ namespace PgRoutiner
                 throw new ArgumentException($"Could not find mapping \"{returnModel.DataType}\" for result type of routine  \"{this.Name}\"");
             }
             var model = new StringBuilder();
+            var modelContent = new StringBuilder();
             if (!settings.UseRecords)
             {
                 model.AppendLine($"{I1}public class {name}");
                 model.AppendLine($"{I1}{{");
                 foreach (var item in func(connection))
                 {
-                    model.AppendLine($"{I2}public {getType(item)} {item.Name.ToUpperCamelCase()} {{ get; set; }}");
+                    modelContent.AppendLine($"{I2}public {getType(item)} {item.Name.ToUpperCamelCase()} {{ get; set; }}");
                 }
+                model.Append(modelContent);
                 model.AppendLine($"{I1}}}");
             }
             else
@@ -393,7 +409,16 @@ namespace PgRoutiner
                 model.Append(string.Join(", ", func(connection).Select(item => $"{getType(item)} {item.Name.ToUpperCamelCase()}")));
                 model.AppendLine($");");
             }
+            foreach(var (key, value) in ModelContent)
+            {
+                if (value.Equals(modelContent))
+                {
+                    return key;
+                }
+            }
             Models.Add(name, model);
+            ModelContent.Add(name, modelContent);
+            return name;
         }
 
         private bool TryGetMapping(PgParameter p, out string value)

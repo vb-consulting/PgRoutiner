@@ -30,6 +30,7 @@ namespace PgRoutiner
             var domainsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Domains", "Domains"))), ConnectionName);
             var typesDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Types", "Types"))), ConnectionName);
             var schemasDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Schemas", "Schemas"))), ConnectionName);
+            var sequencesDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Sequences", "Sequences"))), ConnectionName);
 
             var tableCreated = false;
             var viewCreated = false;
@@ -38,6 +39,7 @@ namespace PgRoutiner
             var domainsCreated = false;
             var typesCreated = false;
             var schemaCreated = false;
+            var sequencesCreated = false;
 
             foreach (var (shortFilename, content, type) in builder.GetDatabaseObjects())
             {
@@ -50,6 +52,7 @@ namespace PgRoutiner
                     PgType.Domain => domainsDir,
                     PgType.Type => typesDir,
                     PgType.Schema => schemasDir,
+                    PgType.Sequence => sequencesDir,
                     _ => null 
                 };
 
@@ -112,6 +115,13 @@ namespace PgRoutiner
                         }
                         schemaCreated = true;
                         break;
+                    case PgType.Sequence:
+                        if (!sequencesCreated)
+                        {
+                            CreateDir(sequencesDir);
+                        }
+                        sequencesCreated = true;
+                        break;
                 }
 
                 var exists = File.Exists(file);
@@ -166,6 +176,10 @@ namespace PgRoutiner
                 if (!schemaCreated)
                 {
                     RemoveDir(schemasDir);
+                }
+                if (!sequencesCreated)
+                {
+                    RemoveDir(sequencesDir);
                 }
             }
         }

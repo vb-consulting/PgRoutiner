@@ -34,6 +34,7 @@ namespace PgRoutiner
         Domain,
         Type,
         Schema,
+        Sequence,
         Unknown
     }
 

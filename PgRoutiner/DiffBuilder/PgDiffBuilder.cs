@@ -12,6 +12,8 @@ namespace PgRoutiner
     public record Domain(string Schema, string Name);
     public record Type(string Schema, string Name);
     public record Routine(string Schema, string Name, string Params);
+    public record Seq(string Schema, string Name);
+
     public class Statements
     {
         public StringBuilder Drop { get; } = new();
@@ -37,6 +39,7 @@ namespace PgRoutiner
         private readonly Dictionary<Domain, PgItem> sourceDomains;
         private readonly Dictionary<Type, PgItem> sourceTypes;
         private readonly HashSet<string> sourceSchemas;
+        private readonly Dictionary<Seq, PgItem> sourceSeqs;
 
         private readonly Dictionary<Table, PgItem> targetTables;
         private readonly Dictionary<Table, PgItem> targetViews;
@@ -44,7 +47,7 @@ namespace PgRoutiner
         private readonly Dictionary<Domain, PgItem> targetDomains;
         private readonly Dictionary<Type, PgItem> targetTypes;
         private readonly HashSet<string> targetSchemas;
-
+        private readonly Dictionary<Seq, PgItem> targetSeqs;
 
         private List<string> _sourceLines = null;
         private List<string> _targetLines = null;
@@ -87,6 +90,8 @@ namespace PgRoutiner
             this.sourceSchemas = source.GetSchemas(new Settings { Schema = settings.Schema })
                 .Where(s => !string.Equals(s, "public"))
                 .ToHashSet();
+            this.sourceSeqs = source.GetSequences(new Settings { Schema = settings.Schema })
+                .ToDictionary(t => new Seq(t.Schema, t.Name), t => t);
 
             var tte = target.GetTables(new Settings { Schema = settings.Schema });
             this.targetTables = tte
@@ -110,6 +115,8 @@ namespace PgRoutiner
             this.targetSchemas = target.GetSchemas(new Settings { Schema = settings.Schema })
                 .Where(s => !string.Equals(s, "public"))
                 .ToHashSet();
+            this.targetSeqs = target.GetSequences(new Settings { Schema = settings.Schema })
+                .ToDictionary(t => new Seq(t.Schema, t.Name), t => t);
         }
 
         public string Build(Action<string, int, int> stage = null)
@@ -120,7 +127,7 @@ namespace PgRoutiner
             {
                 stage = (_, _, _) => { };
             }
-            var total = 14;
+            var total = 16;
             var current = 1;
 
             stage("scanning new schemas...", current++, total);
@@ -131,8 +138,13 @@ namespace PgRoutiner
             BuildDropTypesNotInSource(sb);
             stage("scanning views to drop...", current++, total);
             BuildDropViews(sb);
+
+            stage("scanning sequences not in target to create...", current++, total);
+            BuildCreateSeqsNotInTarget(sb);
+
             stage("scanning domains not in target to create...", current++, total);
             BuildCreateDomainsNotInTarget(sb);
+
             stage("scanning domains to alter...", current++, total);
             BuildAlterDomains(sb);
             stage("scanning tables not in target to create...", current++, total);
@@ -191,8 +203,13 @@ namespace PgRoutiner
                 sb.Append(statements.TableComments);
                 AddComment(sb, "#endregion TABLE COMMENTS");
             }
+
+            stage("scanning sequences to drop...", current++, total);
+            BuildDropSeqsNotInSource(sb);
+
             stage("scanning domains to drop...", current++, total);
             BuildDropDomainsNotInSource(sb);
+
             stage("scanning views to create...", current++, total);
             BuildCreateViews(sb);
             stage("scanning types not in target to create...", current++, total);

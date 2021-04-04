@@ -65,6 +65,22 @@ namespace PgRoutiner
                 yield return (name, content, table.Type);
             }
 
+            foreach (var seq in Connection.GetSequences(settings))
+            {
+                var name = seq.GetFileName();
+                string content;
+                try
+                {
+                    content = GetSeqContent(seq, args);
+                }
+                catch (Exception e)
+                {
+                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                    continue;
+                }
+                yield return (name, content, seq.Type);
+            }
+
             List<string> lines = null;
             List<PgItem> types = new();
             try
@@ -225,6 +241,16 @@ namespace PgRoutiner
                 return GetPgDumpContent($"{args} {tableArg}");
             }
             return new TableDumpTransformer(table, GetDumpLines(args, tableArg)).BuildLines().ToString();
+        }
+
+        private string GetSeqContent(PgItem seq, string args)
+        {
+            var tableArg = seq.GetTableArg();
+            if (settings.DbObjectsRaw)
+            {
+                return GetPgDumpContent($"{args} {tableArg}");
+            }
+            return new SequenceDumpTransformer(seq, GetDumpLines(args, tableArg)).BuildLines().ToString();
         }
 
         private string GetViewContent(PgItem table, string args)

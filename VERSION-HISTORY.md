@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.1.2
+
+- Fix method body methods when on void functions
+- Fix same model repetition for function overloads
+- Add sequences support for object files (only sequences not used in identites) tree and diff generator
+
 ## 3.1.16
 
 - If "Execute" (exlusive -x switch) contains a file pattern that yields valid files, or valid directory - all files will be executed, only in top level directory.
