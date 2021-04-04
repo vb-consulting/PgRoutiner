@@ -1,6 +1,6 @@
 ﻿# VERSION HISTORY
 
-## 3.1.2
+## 3.2.0
 
 - Fix method body methods when on void functions
 - Fix same model repetition for function overloads
