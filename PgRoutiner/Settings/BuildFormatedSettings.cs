@@ -20,7 +20,10 @@ namespace PgRoutiner
                 {
                     sb.AppendLine($"      {tip}");
                 }
-                sb.AppendLine($"      - For more info see: {helpUrl}");
+                if (helpUrl != null)
+                {
+                    sb.AppendLine($"      - For more info see: {helpUrl}");
+                }
                 sb.AppendLine($"    */");
             }
 
@@ -48,6 +51,17 @@ namespace PgRoutiner
                     else
                     {
                         v = $"[{Environment.NewLine}      {string.Join($",{Environment.NewLine}      ", list.Select(i => $"\"{i}\""))}{Environment.NewLine}    ]";
+                    }
+                }
+                else if (fieldValue is HashSet<string> hashset)
+                {
+                    if (hashset.Count == 0)
+                    {
+                        v = "[ ]";
+                    }
+                    else
+                    {
+                        v = $"[{Environment.NewLine}      {string.Join($",{Environment.NewLine}      ", hashset.Select(i => $"\"{i}\""))}{Environment.NewLine}    ]";
                     }
                 }
                 else if (fieldValue is int)
@@ -102,10 +116,27 @@ namespace PgRoutiner
             AddEntry(nameof(Dump), Value.Dump);
             AddEntry(nameof(SkipIfExists), Value.SkipIfExists);
             AddEntry(nameof(SkipUpdateReferences), Value.SkipUpdateReferences);
-            AddEntry(nameof(Ident), Value.Ident);
             AddEntry(nameof(PgDump), Value.PgDump);
             AddEntry(nameof(PgDumpFallback), Value.PgDumpFallback);
+
+            sb.AppendLine();
+            AddSectionComment(
+                "Code generation general settings. Used in:", 
+                null,
+                $"- Routines code generation.",
+                $"- CRUD code generation.");
+            AddEntry(nameof(Namespace), Value.Namespace);
+           
+            AddEntry(nameof(UseStatementBody), Value.UseStatementBody);
+            AddEntry(nameof(UseRecords), Value.UseRecords);
+            AddEntry(nameof(Mapping), Value.Mapping);
+            AddEntry(nameof(CustomModels), Value.CustomModels);
+            AddEntry(nameof(ModelDir), Value.ModelDir);
+            AddEntry(nameof(SkipSyncMethods), Value.SkipSyncMethods);
+            AddEntry(nameof(SkipAsyncMethods), Value.SkipAsyncMethods);
+            AddEntry(nameof(MinNormVersion), Value.MinNormVersion);
             AddEntry(nameof(SourceHeader), Value.SourceHeader);
+            AddEntry(nameof(Ident), Value.Ident);
 
             sb.AppendLine();
             AddSectionComment(
@@ -119,17 +150,8 @@ namespace PgRoutiner
             AddEntry(nameof(OutputDir), Value.OutputDir);
             AddEntry(nameof(RoutinesOverwrite), Value.RoutinesOverwrite);
             AddEntry(nameof(RoutinesAskOverwrite), Value.RoutinesAskOverwrite);
-            AddEntry(nameof(Namespace), Value.Namespace);
             AddEntry(nameof(NotSimilarTo), Value.NotSimilarTo);
             AddEntry(nameof(SimilarTo), Value.SimilarTo);
-            AddEntry(nameof(MinNormVersion), Value.MinNormVersion);
-            AddEntry(nameof(SkipSyncMethods), Value.SkipSyncMethods);
-            AddEntry(nameof(SkipAsyncMethods), Value.SkipAsyncMethods);
-            AddEntry(nameof(UseStatementBody), Value.UseStatementBody);
-            AddEntry(nameof(ModelDir), Value.ModelDir);
-            AddEntry(nameof(Mapping), Value.Mapping);
-            AddEntry(nameof(CustomModels), Value.CustomModels);
-            AddEntry(nameof(UseRecords), Value.UseRecords);
 
             sb.AppendLine();
             AddSectionComment(
@@ -224,13 +246,35 @@ namespace PgRoutiner
             AddSectionComment(
                 "Diff scripts settings", 
                 "https://github.com/vb-consulting/PgRoutiner/wiki/9.-WORKING-WITH-DIFF-SCRIPTS#diff-scripts-settings",
-                $"- Use \"{DiffArgs.Alias}\" or \"--{DiffArgs.Original.ToKebabCase()}\" diff script generation from the command line.",
+                $"- Use \"{DiffArgs.Alias}\" or \"--{DiffArgs.Original.ToKebabCase()}\" switch to run diff script generation from the command line.",
                 $"- Use \"{DiffTargetArgs.Alias}\" or \"--{DiffTargetArgs.Original.ToKebabCase()}\" option to set target connection for the diff script generator from the command line.");
             AddEntry(nameof(Diff), Value.Diff);
             AddEntry(nameof(DiffTarget), Value.DiffTarget);
             AddEntry(nameof(DiffFilePattern), Value.DiffFilePattern);
             AddEntry(nameof(DiffPgDump), Value.DiffPgDump);
-            AddEntry(nameof(DiffPrivileges), Value.DiffPrivileges, "");
+            AddEntry(nameof(DiffPrivileges), Value.DiffPrivileges);
+
+            sb.AppendLine();
+            AddSectionComment(
+                "CRUD scripts settings",
+                "https://github.com/vb-consulting/PgRoutiner/wiki/10.-WORKING-WITH-CRUD#crud-settings",
+                $"- Use \"{CrudArgs.Alias}\" or \"--{CrudArgs.Original.ToKebabCase()}\" switch to run CRUD extension methods generation from the command line.",
+                $"- Use \"{CrudOutputDirArgs.Alias}\" or \"--{CrudOutputDirArgs.Original.ToKebabCase()}\" option to set the custom models output dir for the generated CRUD extension methods code from the command line.");
+            AddEntry(nameof(Crud), Value.Crud);
+            AddEntry(nameof(CrudOutputDir), Value.CrudOutputDir);
+            AddEntry(nameof(CrudOverwrite), Value.CrudOverwrite);
+            AddEntry(nameof(CrudAskOverwrite), Value.CrudAskOverwrite);
+            AddEntry(nameof(CrudNoPrepare), Value.CrudNoPrepare);
+            AddEntry(nameof(CrudCreate), Value.CrudCreate);
+            AddEntry(nameof(CrudCreateReturning), Value.CrudCreateReturning);
+            AddEntry(nameof(CrudCreateOnConflictDoNothing), Value.CrudCreateOnConflictDoNothing);
+            AddEntry(nameof(CrudCreateOnConflictDoNothingReturning), Value.CrudCreateOnConflictDoNothingReturning);
+            AddEntry(nameof(CrudCreateOnConflictDoUpdate), Value.CrudCreateOnConflictDoUpdate);
+            AddEntry(nameof(CrudCreateOnConflictDoUpdateReturning), Value.CrudCreateOnConflictDoUpdateReturning);
+            AddEntry(nameof(CrudRead), Value.CrudRead);
+            AddEntry(nameof(CrudUpdate), Value.CrudUpdate);
+            AddEntry(nameof(CrudUpdateReturning), Value.CrudUpdateReturning);
+            AddEntry(nameof(CrudDelete), Value.CrudDelete, "");
 
             if (wrap)
             {

@@ -108,7 +108,7 @@ namespace PgRoutiner
                 if (@return.IsVoid || @return.IsInstance)
                 {
                     Class.AppendLine(");");
-                    AddMethod();
+                    //AddMethod();
                     return;
                 }
                 Class.AppendLine(")");

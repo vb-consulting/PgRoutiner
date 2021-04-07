@@ -6,7 +6,7 @@ using Npgsql;
 
 namespace PgRoutiner
 {
-    public class Extension
+    public class ExtensionMethods
     {
         public List<Method> Methods { get; set; }
         public string Namespace { get; set; }
@@ -15,7 +15,6 @@ namespace PgRoutiner
 
     partial class Builder
     {
-        public static List<Extension> Extensions = new();
         public static string SchemaFile = null;
         public static string DataFile = null;
 
@@ -99,6 +98,12 @@ namespace PgRoutiner
             {
                 DumpTitle("** ROUTINE SOURCE CODE GENERATION **");
                 BuildDataAccess(connection);
+            }
+
+            if (Settings.Value.Crud)
+            {
+                DumpTitle("** CRUD SOURCE CODE GENERATION **");
+                //BuildDataAccess(connection);
             }
 
             if (Settings.Value.UnitTests)

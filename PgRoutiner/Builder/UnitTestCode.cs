@@ -8,11 +8,11 @@ namespace PgRoutiner
     public class UnitTestCode : CodeHelpers
     {
         private readonly string name;
-        private readonly Extension ext;
+        private readonly ExtensionMethods ext;
 
         public StringBuilder Class { get; } = new();
 
-        public UnitTestCode(Settings settings, string name, Extension ext) : base(settings)
+        public UnitTestCode(Settings settings, string name, ExtensionMethods ext) : base(settings)
         {
             this.name = name;
             this.ext = ext;
@@ -92,11 +92,24 @@ namespace PgRoutiner
                 {
                     Class.Append($"{I3}var result = ");
                 }
+                
+                
                 if (!m.Sync)
                 {
-                    Class.Append($"await ");
+                    if (!m.Returns.IsVoid && m.Returns.IsInstance)
+                    {
+                        Class.AppendLine($"await Connection.{name}({string.Join(", ", m.Params.Select(p => p.Name))}).ToListAsync();");
+                    }
+                    else
+                    {
+                        Class.AppendLine($"await Connection.{name}({string.Join(", ", m.Params.Select(p => p.Name))});");
+                    }
                 }
-                Class.AppendLine($"Connection.{name}({string.Join(", ", m.Params.Select(p => p.Name))});");
+                else
+                {
+                    Class.AppendLine($"Connection.{name}({string.Join(", ", m.Params.Select(p => p.Name))});");
+                }
+
                 Class.AppendLine();
 
                 Class.AppendLine($"{I3}// Assert");

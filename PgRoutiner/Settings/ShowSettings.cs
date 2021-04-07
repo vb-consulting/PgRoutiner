@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PgRoutiner
 {
@@ -7,14 +9,16 @@ namespace PgRoutiner
         public static void ShowSettings()
         {
             Program.WriteLine("", "Current settings:");
+            bool comment = false;
             foreach (var l in Settings.BuildFormatedSettings(wrap: false).Split(Environment.NewLine))
             {
                 var line = l;
                 var trim = l.Trim();
 
-                if (trim.StartsWith("/*"))
+                if (trim.StartsWith("/*") || comment)
                 {
                     Program.WriteLine(ConsoleColor.Green, $" {line.Replace("    ", "")}");
+                    comment = true;
                 }
                 else if (trim.StartsWith("\""))
                 {
@@ -37,6 +41,10 @@ namespace PgRoutiner
                 {
                     Program.WriteLine(ConsoleColor.Cyan, line.Replace("    ", " "));
                 }
+                if (trim.Contains("*/") && comment)
+                {
+                    comment = false;
+                }
             }
 
             ShowSettingsLink();
@@ -51,7 +59,7 @@ namespace PgRoutiner
         public static void ShowUpdatedSettings()
         { 
             bool settingsWritten = false;
-            void WriteSetting(string name, object value)
+            void WriteSetting(string name, object value, System.Type type)
             {
                 if (!settingsWritten)
                 {
@@ -63,14 +71,26 @@ namespace PgRoutiner
                     Program.Write(ConsoleColor.Yellow, $" {name.ToKebabCase()} = ");
                     Program.WriteLine(ConsoleColor.Cyan, "null");
                 }
-                else if (value.GetType() == typeof(bool) && (bool)value)
+                else if (type == typeof(bool) && (bool)value)
                 {
                     Program.WriteLine(ConsoleColor.Yellow, $" {name.ToKebabCase()}");
                 }
                 else
                 {
                     Program.Write(ConsoleColor.Yellow, $" {name.ToKebabCase()} = ");
-                    Program.WriteLine(ConsoleColor.Cyan, $"{value}");
+                    if (type == typeof(IList<string>))
+                    {
+                        Program.WriteLine(ConsoleColor.Cyan, $"{string.Join(", ", (value as IList<string>).ToArray())}");
+                    } 
+                    else
+                    if (type == typeof(HashSet<string>))
+                    {
+                        Program.WriteLine(ConsoleColor.Cyan, $"{string.Join(", ", (value as HashSet<string>).ToArray())}");
+                    }
+                    else
+                    {
+                        Program.WriteLine(ConsoleColor.Cyan, $"{value}");
+                    }
                 }
                 settingsWritten = true;
             }
@@ -87,7 +107,7 @@ namespace PgRoutiner
                     {
                         continue;
                     }
-                    WriteSetting(prop.Name, v1);
+                    WriteSetting(prop.Name, v1, prop.PropertyType);
                 }
                 if (prop.PropertyType == typeof(string))
                 {
@@ -97,7 +117,27 @@ namespace PgRoutiner
                     {
                         continue;
                     }
-                    WriteSetting(prop.Name, s1);
+                    WriteSetting(prop.Name, s1, prop.PropertyType);
+                }
+                if (prop.PropertyType == typeof(IList<string>))
+                {
+                    var l1 = (IList<string>)prop.GetValue(Value);
+                    var l2 = (IList<string>)prop.GetValue(defaultValue);
+                    if (l1.SequenceEqual(l2))
+                    {
+                        continue;
+                    }
+                    WriteSetting(prop.Name, l1, prop.PropertyType);
+                }
+                if (prop.PropertyType == typeof(HashSet<string>))
+                {
+                    var l1 = (HashSet<string>)prop.GetValue(Value);
+                    var l2 = (HashSet<string>)prop.GetValue(defaultValue);
+                    if (l1.SequenceEqual(l2))
+                    {
+                        continue;
+                    }
+                    WriteSetting(prop.Name, l1, prop.PropertyType);
                 }
             }
         }

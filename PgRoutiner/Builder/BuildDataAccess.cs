@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Npgsql;
@@ -104,20 +105,22 @@ namespace PgRoutiner
                     module.AddItems(models);
                 }
                 module.AddItems(code.Class);
-                if (code.Methods.Count > 0)
-                {
-                    Extensions.Add(new Extension { Methods = code.Methods, Namespace = module.Namespace, Name = code.Methods.First().Name });
-                }
                 DumpRelativePath("Creating file: {0} ...", fullFileName);
                 WriteFile(fullFileName, module.ToString());
             }
         }
 
-        private static void BuildDataAccessExtensions(NpgsqlConnection connection)
+        private static List<ExtensionMethods> BuildDataAccessExtensions(NpgsqlConnection connection)
         {
+            var outputDir = GetOutputDir();
+            var extensions = new List<ExtensionMethods>();
+
             foreach (var group in connection.GetRoutineGroups(Settings.Value, all: false))
             {
                 var name = group.Key;
+                var shortFilename = string.Concat(name.ToUpperCamelCase(), ".cs");
+                var fullFileName = Path.GetFullPath(Path.Join(outputDir, shortFilename));
+
                 var module = new RoutineModule(Settings.Value);
                 RoutineCode code;
                 try
@@ -128,11 +131,12 @@ namespace PgRoutiner
                 {
                     continue;
                 }
-                if (code.Methods.Count > 0)
+                if (code.Methods.Count > 0 && File.Exists(fullFileName))
                 {
-                    Extensions.Add(new Extension { Methods = code.Methods, Namespace = module.Namespace, Name = code.Methods.First().Name });
+                    extensions.Add(new ExtensionMethods { Methods = code.Methods, Namespace = module.Namespace, Name = code.Methods.First().Name });
                 }
             }
+            return extensions;
         }
 
         private static string GetOutputDir()

@@ -77,6 +77,8 @@ namespace PgRoutiner
             }
 
             var projectFile = Path.GetFullPath(Path.Join(dir, $"{name}.csproj"));
+            var extensions = BuildDataAccessExtensions(connection);
+
             if (!File.Exists(projectFile))
             {
                 DumpRelativePath("Creating file: {0} ...", projectFile);
@@ -86,6 +88,10 @@ namespace PgRoutiner
                 }
                 Program.RunProcess("dotnet", "add package Microsoft.NET.Test.Sdk", dir);
                 Program.RunProcess("dotnet", "add package Norm.net", dir);
+                if (extensions.Any(e => e.Methods.Any(m => m.Sync == false)))
+                {
+                    Program.RunProcess("dotnet", "add package System.Linq.Async", dir);
+                }
                 Program.RunProcess("dotnet", "add package Npgsql", dir);
                 Program.RunProcess("dotnet", "add package xunit", dir);
                 Program.RunProcess("dotnet", "add package xunit.runner.visualstudio", dir);
@@ -110,14 +116,9 @@ namespace PgRoutiner
                 DumpRelativePath("Skipping {0}, already exists ...", fixtureFile);
             }
 
-            if (Extensions.Count == 0)
+            if (extensions.Any())
             {
-                BuildDataAccessExtensions(connection);
-            }
-
-            if (Extensions.Any())
-            {
-                foreach (var ext in Extensions)
+                foreach (var ext in extensions)
                 {
                     var className = $"{ext.Name}UnitTests";
                     var moduleFile = Path.GetFullPath(Path.Join(dir, $"{className}.cs"));

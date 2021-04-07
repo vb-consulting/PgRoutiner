@@ -32,13 +32,15 @@ namespace PgRoutiner
                 if (arg.StartsWith("-"))
                 {
                     string name = arg;
+                    string[] split = null;
                     if (name.Contains("="))
                     {
                         name = name.Split("=").First().ToLower();
                     }
                     if (name.Contains(":"))
                     {
-                        name = name.Split(":").First().ToLower();
+                        split = name.Split(":");
+                        name = split.First().ToLower();
                     }
                     string prefix = "";
                     if (name.StartsWith("--"))
@@ -57,6 +59,10 @@ namespace PgRoutiner
                         return null;
                     }
 
+                    if (split != null)
+                    {
+                        name = $"{name}:{split[1]}";
+                    }
                     var to = arg.IndexOfAny(new[] { '=' });
                     if (to == -1)
                     {

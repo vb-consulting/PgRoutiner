@@ -1,5 +1,15 @@
 ﻿# VERSION HISTORY
 
+## 3.3.0
+
+- Fix indexing problem in command line
+- Fix current settings output comment coloring
+- Show list on currently using settings
+- Fix unit test async methods 
+- Fix double test methods
+- Add CRUD support settings and move shared code generation settings to general code generation settings section
+- Build unit test templates only on units that have existing generated file
+
 ## 3.2.0
 
 - Fix method body methods when on void functions
