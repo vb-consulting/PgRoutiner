@@ -9,9 +9,20 @@ namespace PgRoutiner
 {
     public static partial class DataAccess
     {
-        public static void GetTableDefintions(this NpgsqlConnection connection, Settings settings)
+        public static IEnumerable<IGrouping<(string Schema, string Name), PgColumnGroup>> 
+            GetTableDefintions(this NpgsqlConnection connection, Settings settings)
         {
-            connection.Read<(string Schema, string Name)>(@$"
+            return connection.Read<(
+                string Schema, 
+                string Table, 
+                string Name, 
+                int Ord, 
+                string Default, 
+                string IsNullable, 
+                string DataType, 
+                string TypeUdtName,
+                string IsIdentity,
+                string ConstraintType)>(@$"
 
             select 
                 t.table_schema, 
@@ -23,9 +34,6 @@ namespace PgRoutiner
                 c.data_type,
                 c.udt_name,
                 c.is_identity,
-                c.identity_generation,
-                c.is_generated,
-                c.is_updatable,
                 tc.constraint_type
             from 
                 information_schema.tables t
@@ -51,12 +59,20 @@ namespace PgRoutiner
                 c.ordinal_position
 
             ", ("schema", settings.Schema, DbType.AnsiString))
-            .Select(t => new PgItem
+            .Select(t => new PgColumnGroup
             {
                 Schema = t.Schema,
+                Table = t.Table,
                 Name = t.Name,
-                Type = PgType.Sequence
-            });
+                Ord = t.Ord,
+                Default = t.Default,
+                IsNullable = string.Equals(t.IsNullable, "YES"),
+                DataType = t.DataType,
+                TypeUdtName = t.TypeUdtName,
+                IsIdentity = string.Equals(t.IsIdentity, "YES"),
+                IsPk = string.Equals(t.ConstraintType, "PRIMARY KEY"),
+            })
+            .GroupBy(i => (i.Schema, i.Table));
         }
     }
 }

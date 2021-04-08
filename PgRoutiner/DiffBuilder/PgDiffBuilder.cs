@@ -26,7 +26,7 @@ namespace PgRoutiner
         public StringBuilder TableGrants { get; } = new();
     }
 
-    public partial class PgDiffBuilder : CodeHelpers
+    public partial class PgDiffBuilder : Code
     {
         private readonly NpgsqlConnection target;
         private readonly PgDumpBuilder sourceBuilder;
@@ -61,7 +61,7 @@ namespace PgRoutiner
             NpgsqlConnection target, 
             PgDumpBuilder sourceBuilder, 
             PgDumpBuilder targetBuilder,
-            string title) : base(settings)
+            string title) : base(settings, null)
         {
             this.target = target;
             this.sourceBuilder = sourceBuilder;

@@ -2,7 +2,7 @@
 
 namespace PgRoutiner
 {
-    public partial class RoutineCode : CodeHelpers
+    public partial class RoutineCode : Code
     {
         private static readonly Dictionary<string, (string Name, bool IsRange)> ParamTypeMapping = new()
         {

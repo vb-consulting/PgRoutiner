@@ -97,13 +97,14 @@ namespace PgRoutiner
             if (Settings.Value.Routines)
             {
                 DumpTitle("** ROUTINE SOURCE CODE GENERATION **");
-                BuildDataAccess(connection);
+                new CodeRoutinesBuilder(connection, Settings.Value, CodeSettings.ToRoutineSettings(Settings.Value)).Build();
             }
 
             if (Settings.Value.Crud)
             {
                 DumpTitle("** CRUD SOURCE CODE GENERATION **");
                 //BuildDataAccess(connection);
+                new CodeCrudBuilder(connection, Settings.Value, CodeSettings.ToRoutineSettings(Settings.Value)).Build();
             }
 
             if (Settings.Value.UnitTests)
@@ -121,7 +122,7 @@ namespace PgRoutiner
             DumpTitle("", "", "**** FINISHED ****");
         }
 
-        private static void Dump(params string[] lines)
+        public static void Dump(params string[] lines)
         {
             if (Settings.Value.Dump)
             {
@@ -130,7 +131,7 @@ namespace PgRoutiner
             Program.WriteLine(ConsoleColor.Yellow, lines);
         }
 
-        private static void DumpTitle(params string[] lines)
+        public static void DumpTitle(params string[] lines)
         {
             if (Settings.Value.Dump)
             {
@@ -139,7 +140,7 @@ namespace PgRoutiner
             Program.WriteLine(ConsoleColor.Green, lines);
         }
 
-        private static void DumpFormat(string msg, params object[] values)
+        public static void DumpFormat(string msg, params object[] values)
         {
             if (Settings.Value.Dump)
             {
@@ -161,12 +162,12 @@ namespace PgRoutiner
             Program.WriteLine("");
         }
 
-        private static void DumpRelativePath(string msg, string path)
+        public static void DumpRelativePath(string msg, string path)
         {
             DumpFormat(msg, path.GetRelativePath());
         }
 
-        private static void Error(string msg)
+        public static void Error(string msg)
         {
             Program.WriteLine(ConsoleColor.Red, $"ERROR: {msg}");
         }

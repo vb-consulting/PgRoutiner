@@ -77,7 +77,7 @@ namespace PgRoutiner
             }
 
             var projectFile = Path.GetFullPath(Path.Join(dir, $"{name}.csproj"));
-            var extensions = BuildDataAccessExtensions(connection);
+            var extensions = new CodeRoutinesBuilder(connection, Settings.Value, CodeSettings.ToRoutineSettings(Settings.Value)).GetMethods();
 
             if (!File.Exists(projectFile))
             {

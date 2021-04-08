@@ -5,25 +5,21 @@ using System.Text;
 
 namespace PgRoutiner
 {
-    public class UnitTestCode : CodeHelpers
+    public class UnitTestCode : Code
     {
-        private readonly string name;
         private readonly ExtensionMethods ext;
 
-        public StringBuilder Class { get; } = new();
-
-        public UnitTestCode(Settings settings, string name, ExtensionMethods ext) : base(settings)
+        public UnitTestCode(Settings settings, string name, ExtensionMethods ext) : base(settings, name)
         {
-            this.name = name;
             this.ext = ext;
             Build();
         }
 
         private void Build()
         {
-            Class.AppendLine($"{I1}public class {name} : PostgreSqlUnitTestFixture");
+            Class.AppendLine($"{I1}public class {Name} : PostgreSqlUnitTestFixture");
             Class.AppendLine($"{I1}{{");
-            Class.AppendLine($"{I2}public {name}(PostgreSqlFixture fixture) : base(fixture) {{ }}");
+            Class.AppendLine($"{I2}public {Name}(PostgreSqlFixture fixture) : base(fixture) {{ }}");
             if (ext == null || ext.Methods == null || !ext.Methods.Any())
             {
                 BuildEmptyTest();
@@ -61,18 +57,18 @@ namespace PgRoutiner
             List<string> names = new();
             foreach (var m in ext.Methods)
             {
-                var name = m.Name;
-                names.Add(name);
-                var count = names.Where(n => string.Equals(n, name)).Count();
+                var methodName = m.Name;
+                names.Add(methodName);
+                var count = names.Where(n => string.Equals(n, methodName)).Count();
                 Class.AppendLine();
                 Class.AppendLine($"{I2}[Fact]");
                 if (m.Sync)
                 {
-                    Class.AppendLine($"{I2}public void {name}_Test{count}()");
+                    Class.AppendLine($"{I2}public void {methodName}_Test{count}()");
                 }
                 else
                 {
-                    Class.AppendLine($"{I2}public async Task {name}_Test{count}()");
+                    Class.AppendLine($"{I2}public async Task {methodName}_Test{count}()");
                 }
                 Class.AppendLine($"{I2}{{");
 
@@ -98,16 +94,16 @@ namespace PgRoutiner
                 {
                     if (!m.Returns.IsVoid && m.Returns.IsInstance)
                     {
-                        Class.AppendLine($"await Connection.{name}({string.Join(", ", m.Params.Select(p => p.Name))}).ToListAsync();");
+                        Class.AppendLine($"await Connection.{methodName}({string.Join(", ", m.Params.Select(p => p.Name))}).ToListAsync();");
                     }
                     else
                     {
-                        Class.AppendLine($"await Connection.{name}({string.Join(", ", m.Params.Select(p => p.Name))});");
+                        Class.AppendLine($"await Connection.{methodName}({string.Join(", ", m.Params.Select(p => p.Name))});");
                     }
                 }
                 else
                 {
-                    Class.AppendLine($"Connection.{name}({string.Join(", ", m.Params.Select(p => p.Name))});");
+                    Class.AppendLine($"Connection.{methodName}({string.Join(", ", m.Params.Select(p => p.Name))});");
                 }
 
                 Class.AppendLine();

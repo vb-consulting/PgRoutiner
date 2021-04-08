@@ -2,7 +2,7 @@
 {
     public class RoutineModule : Module
     {
-        public RoutineModule(Settings settings) : base(settings)
+        public RoutineModule(Settings settings, CodeSettings codeSettings) : base(settings)
         {
             if (!settings.SkipAsyncMethods)
             {
@@ -11,9 +11,9 @@
             AddUsing("Norm");
             AddUsing("NpgsqlTypes");
             AddUsing("Npgsql");
-            if (!string.IsNullOrEmpty(settings.OutputDir))
+            if (!string.IsNullOrEmpty(codeSettings.OutputDir))
             {
-                AddNamespace(settings.OutputDir.PathToNamespace());
+                AddNamespace(codeSettings.OutputDir.PathToNamespace());
             }
         }
     }

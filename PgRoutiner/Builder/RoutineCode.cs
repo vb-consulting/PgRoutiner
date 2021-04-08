@@ -10,27 +10,20 @@ namespace PgRoutiner
     public record Param(string PgName, string Name, string PgType, string Type, string DbType);
     public record Method(string Name, string Namespace, List<Param> Params, Return Returns, string ActualReturns, bool Sync);
 
-    public partial class RoutineCode : CodeHelpers
+    public partial class RoutineCode : Code
     {
         private int recordModelCount = 0;
         private readonly string @namespace;
         private readonly IEnumerable<PgRoutineGroup> routines;
         private readonly NpgsqlConnection connection;
  
-        public string Name { get; }
-        public Dictionary<string, StringBuilder> Models { get; private set; } = new();
-        public Dictionary<string, StringBuilder> ModelContent { get; private set; } = new();
-        public StringBuilder Class { get; } = new();
-        public List<Method> Methods { get; } = new();
-
         public RoutineCode(
             Settings settings, 
             string name,
             string @namespace,
             IEnumerable<PgRoutineGroup> routines,
-            NpgsqlConnection connection) : base(settings)
+            NpgsqlConnection connection) : base(settings, name)
         {
-            this.Name = name;
             this.@namespace = @namespace;
             this.routines = routines;
             this.connection = connection;

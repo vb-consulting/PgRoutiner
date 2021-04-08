@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PgRoutiner
 {
-    public class Module : CodeHelpers
+    public class Module : Code
     {
         protected List<string> usings = new() 
         { 
@@ -15,7 +15,7 @@ namespace PgRoutiner
 
         public string Namespace { get; private set; }
 
-        public Module(Settings settings) : base(settings)
+        public Module(Settings settings) : base(settings, null)
         {
             Namespace = settings.Namespace;
         }
