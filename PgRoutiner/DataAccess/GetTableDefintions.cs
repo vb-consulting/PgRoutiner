@@ -32,7 +32,7 @@ namespace PgRoutiner
                 c.column_default,
                 c.is_nullable,
                 c.data_type,
-                c.udt_name,
+                regexp_replace(c.udt_name, '^[_]', '') as udt_name,
                 c.is_identity,
                 tc.constraint_type
             from 

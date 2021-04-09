@@ -31,6 +31,10 @@ namespace PgRoutiner
 
             foreach ((Code code, string name, string shortFilename, string fullFileName, string relative, Module module) in GetCodes(outputDir))
             {
+                if (code == null)
+                {
+                    continue;
+                }
                 var exists = File.Exists(fullFileName);
 
                 if (!settings.Dump && exists && codeSettings.Overwrite == false)
@@ -55,12 +59,21 @@ namespace PgRoutiner
                 }
 
                 var models = code.Models.Values.ToArray();
-                if (modelDir != null && models.Length > 0)
+                foreach (var (modelName, modelContent) in code.Models)
                 {
-                    foreach (var (modelName, modelContent) in code.Models)
+                    if (modelName == null)
+                    {
+                        continue;
+                    }
+
+                    if (modelDir == null && !code.UserDefinedModels.Contains(modelName))
+                    {
+                        module.AddItems(models);
+                    }
+                    else
                     {
                         var shortModelFilename = string.Concat(modelName.ToUpperCamelCase(), ".cs");
-                        var fullModelFileName = Path.Join(modelDir, shortModelFilename);
+                        var fullModelFileName = Path.Join(modelDir ?? outputDir, shortModelFilename);
                         var relativeModelName = fullModelFileName.GetRelativePath();
                         var modelExists = File.Exists(fullModelFileName);
 
@@ -86,7 +99,10 @@ namespace PgRoutiner
                         }
                         Builder.DumpFormat("Building {0}...", relativeModelName);
                         var modelModule = new Module(settings);
-                        modelModule.AddNamespace(settings.ModelDir.PathToNamespace());
+                        if (settings.ModelDir != null)
+                        {
+                            modelModule.AddNamespace(settings.ModelDir.PathToNamespace());
+                        }
                         modelModule.AddItems(modelContent);
                         if (modelModule.Namespace != module.Namespace)
                         {
@@ -96,10 +112,7 @@ namespace PgRoutiner
                         Builder.WriteFile(fullModelFileName, modelModule.ToString());
                     }
                 }
-                else
-                {
-                    module.AddItems(models);
-                }
+    
                 module.AddItems(code.Class);
                 Builder.DumpRelativePath("Creating file: {0} ...", fullFileName);
                 Builder.WriteFile(fullFileName, module.ToString());
@@ -113,6 +126,10 @@ namespace PgRoutiner
 
             foreach ((Code code, string name, string shortFilename, string fullFileName, string relative, Module module) in GetCodes(outputDir))
             {
+                if (code == null)
+                {
+                    continue;
+                }
                 if (code.Methods.Count > 0 && File.Exists(fullFileName))
                 {
                     extensions.Add(new ExtensionMethods { Methods = code.Methods, Namespace = module.Namespace, Name = code.Methods.First().Name });

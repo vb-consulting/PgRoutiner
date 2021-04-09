@@ -17,6 +17,7 @@ namespace PgRoutiner
 
         public string Name { get; }
         public Dictionary<string, StringBuilder> Models { get; private set; } = new();
+        public HashSet<string> UserDefinedModels { get; private set; } = new();
         public Dictionary<string, StringBuilder> ModelContent { get; private set; } = new();
         public StringBuilder Class { get; } = new();
         public List<Method> Methods { get; } = new();

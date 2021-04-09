@@ -101,7 +101,6 @@ namespace PgRoutiner
                 if (@return.IsVoid || @return.IsInstance)
                 {
                     Class.AppendLine(");");
-                    //AddMethod();
                     return;
                 }
                 Class.AppendLine(")");
@@ -223,7 +222,6 @@ namespace PgRoutiner
         {
             if (@params.Count > 0)
             {
-                //Class.Append(string.Join($",{NL}", @params.Select(p => $"{I4}(\"{p.PgName}\", {p.Name}, {p.DbType})")));
                 Class.Append(string.Join($",{NL}", @params.Select(p => $"{paramsTab}(\"{p.PgName}\", {p.Name}, {p.DbType})")));
             }
         }
@@ -351,13 +349,14 @@ namespace PgRoutiner
                 name = settings.CustomModels[routine.TypeUdtName];
             }
             BuildModel(name, connection => connection.GetRoutineReturnsTable(routine));
+            UserDefinedModels.Add(name);
             return name;
         }
 
         private string BuildRecordModel(PgRoutineGroup routine)
         {
             var suffix = ++recordModelCount == 1 ? "" : recordModelCount.ToString();
-            var name = $"{this.Name.ToUpperCamelCase()}{suffix}";
+            var name = $"{this.Name.ToUpperCamelCase()}{suffix}Result";
             return BuildModel(name, connection => connection.GetRoutineReturnsRecord(routine));
         }
 
