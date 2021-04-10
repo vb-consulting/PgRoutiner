@@ -64,15 +64,67 @@ namespace PgRoutiner
                 Schema = t.Schema,
                 Table = t.Table,
                 Name = t.Name,
-                Ord = t.Ord,
+                Ordinal = t.Ord,
                 Default = t.Default,
                 IsNullable = string.Equals(t.IsNullable, "YES"),
                 DataType = t.DataType,
-                TypeUdtName = t.TypeUdtName,
+                Type = t.TypeUdtName,
+                IsArray = string.Equals(t.ConstraintType, "ARRAY"),
                 IsIdentity = string.Equals(t.IsIdentity, "YES"),
                 IsPk = string.Equals(t.ConstraintType, "PRIMARY KEY"),
             })
             .GroupBy(i => (i.Schema, i.Table));
+        }
+
+        public static int GetTableDefintionsCount(this NpgsqlConnection connection, Settings settings)
+        {
+            int count = 0;
+
+            foreach (var group in connection.GetTableDefintions(settings))
+            {
+                var (schema, name) = group.Key;
+                if (CodeCrudBuilder.OptionContains(settings.CrudCreate, schema, name))
+                {
+                    count++;
+                }
+                if (CodeCrudBuilder.OptionContains(settings.CrudCreateOnConflictDoNothing, schema, name))
+                {
+                    count++;
+                }
+                if (CodeCrudBuilder.OptionContains(settings.CrudCreateOnConflictDoNothingReturning, schema, name))
+                {
+                    count++;
+                }
+                if (CodeCrudBuilder.OptionContains(settings.CrudCreateOnConflictDoUpdate, schema, name))
+                {
+                    count++;
+                }
+                if (CodeCrudBuilder.OptionContains(settings.CrudCreateOnConflictDoUpdateReturning, schema, name))
+                {
+                    count++;
+                }
+                if (CodeCrudBuilder.OptionContains(settings.CrudCreateReturning, schema, name))
+                {
+                    count++;
+                }
+                if (CodeCrudBuilder.OptionContains(settings.CrudUpdate, schema, name))
+                {
+                    count++;
+                }
+                if (CodeCrudBuilder.OptionContains(settings.CrudUpdateReturning, schema, name))
+                {
+                    count++;
+                }
+                if (CodeCrudBuilder.OptionContains(settings.CrudRead, schema, name))
+                {
+                    count++;
+                }
+                if (CodeCrudBuilder.OptionContains(settings.CrudDelete, schema, name))
+                {
+                    count++;
+                }
+            }
+            return count;
         }
     }
 }

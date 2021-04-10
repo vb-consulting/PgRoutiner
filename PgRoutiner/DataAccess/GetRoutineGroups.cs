@@ -41,7 +41,7 @@ namespace PgRoutiner
                                 'name', p.parameter_name,
                                 'type', regexp_replace(p.udt_name, '^[_]', ''),
                                 'dataType', p.data_type,
-                                'array', p.data_type = 'ARRAY'
+                                'isArray', p.data_type = 'ARRAY'
                             ) 
                             order by 
                                 p.ordinal_position

@@ -80,7 +80,7 @@ namespace PgRoutiner
                 .SelectMany(g => g)
                 .ToDictionary(r => new Routine(r.SpecificSchema, 
                     r.RoutineName, 
-                $"({string.Join(", ", r.Parameters.Select(p => $"{p.Name} {p.DataType}{(p.Array ? "[]" : "")}"))})"), 
+                $"({string.Join(", ", r.Parameters.Select(p => $"{p.Name} {p.DataType}{(p.IsArray ? "[]" : "")}"))})"), 
                     r => r);
             this.sourceDomains = source.GetDomains(new Settings { Schema = settings.Schema })
                 .ToDictionary(t => new Domain(t.Schema, t.Name), t => t);
@@ -105,7 +105,7 @@ namespace PgRoutiner
                 .SelectMany(g => g)
                 .ToDictionary(r => new Routine(r.SpecificSchema,
                     r.RoutineName,
-                $"({string.Join(", ", r.Parameters.Select(p => $"{p.Name} {p.DataType}{(p.Array ? "[]" : "")}"))})"),
+                $"({string.Join(", ", r.Parameters.Select(p => $"{p.Name} {p.DataType}{(p.IsArray ? "[]" : "")}"))})"),
                     r => r);
             this.targetDomains = target.GetDomains(new Settings { Schema = settings.Schema })
                 .ToDictionary(t => new Domain(t.Schema, t.Name), t => t);

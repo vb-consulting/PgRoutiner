@@ -72,9 +72,7 @@ namespace PgRoutiner
                     }
                     else
                     {
-                        var shortModelFilename = string.Concat(modelName.ToUpperCamelCase(), ".cs");
-                        var fullModelFileName = Path.Join(modelDir ?? outputDir, shortModelFilename);
-                        var relativeModelName = fullModelFileName.GetRelativePath();
+                        var (shortModelFilename, fullModelFileName, relativeModelName) = GetFileNames(modelName, modelDir ?? outputDir);
                         var modelExists = File.Exists(fullModelFileName);
 
                         if (!settings.Dump && modelExists && codeSettings.Overwrite == false)
@@ -99,10 +97,11 @@ namespace PgRoutiner
                         }
                         Builder.DumpFormat("Building {0}...", relativeModelName);
                         var modelModule = new Module(settings);
-                        if (settings.ModelDir != null)
-                        {
-                            modelModule.AddNamespace(settings.ModelDir.PathToNamespace());
-                        }
+                        //if (settings.ModelDir != null)
+                        //{
+                        //    modelModule.AddNamespace(settings.ModelDir.PathToNamespace());
+                        //}
+                        modelModule.AddNamespace((settings.ModelDir ?? codeSettings.OutputDir).PathToNamespace());
                         modelModule.AddItems(modelContent);
                         if (modelModule.Namespace != module.Namespace)
                         {
@@ -124,7 +123,7 @@ namespace PgRoutiner
             var outputDir = GetOutputDir();
             var extensions = new List<ExtensionMethods>();
 
-            foreach ((Code code, string name, string shortFilename, string fullFileName, string relative, Module module) in GetCodes(outputDir))
+            foreach ((Code code, string _, string _, string fullFileName, string _, Module module) in GetCodes(outputDir))
             {
                 if (code == null)
                 {
@@ -142,6 +141,15 @@ namespace PgRoutiner
 
         protected abstract IEnumerable<(Code code, string name, string shortFilename, string fullFileName, string relative, Module module)>
             GetCodes(string outputDir);
+
+        protected (string shortFilename, string fullFileName, string relative) GetFileNames(string name, string outputDir)
+        {
+            var shortFilename = string.Concat(name.ToUpperCamelCase(), ".cs");
+            var fullFileName = Path.GetFullPath(Path.Join(outputDir, shortFilename));
+            var relative = fullFileName.GetRelativePath();
+
+            return (shortFilename, fullFileName, relative);
+        }
 
         private string GetOutputDir()
         {

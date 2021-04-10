@@ -6,10 +6,6 @@ using Npgsql;
 
 namespace PgRoutiner
 {
-    public record Return(string PgName, string Name, bool IsVoid, bool IsInstance);
-    public record Param(string PgName, string Name, string PgType, string Type, string DbType);
-    public record Method(string Name, string Namespace, List<Param> Params, Return Returns, string ActualReturns, bool Sync);
-
     public partial class RoutineCode : Code
     {
         private int recordModelCount = 0;
@@ -267,45 +263,8 @@ namespace PgRoutiner
 
         private List<Param> GetParamsInfo(PgRoutineGroup routine)
         {
-            string getType(PgParameter p)
-            {
-                if (TryGetMapping(p, out var result))
-                {
-                    if (p.Array)
-                    {
-                        return $"{result}[]";
-                    }
-                    if (result != "string")
-                    {
-                        return $"{result}?";
-                    }
-                    return result;
-                }
-                throw new ArgumentException($"Could not find mapping \"{p.DataType}\" for parameter of routine  \"{this.Name}\"");
-
-            }
-            string getDbType(PgParameter p)
-            {
-                var type = "NpgsqlDbType.";
-                if (ParamTypeMapping.TryGetValue(p.Type, out var map))
-                {
-                    type = string.Concat(type, map.Name);
-                    if (p.Array)
-                    {
-                        type = string.Concat("NpgsqlDbType.Array | ", type);
-                    }
-                    if (map.IsRange)
-                    {
-                        type = string.Concat("NpgsqlDbType.Range | ", type);
-                    }
-                }
-                else
-                {
-                    type = string.Concat(type, "Unknown");
-                }
-                return type;
-            }
-            return routine.Parameters.Select(p => new Param(p.Name, p.Name.ToCamelCase(), p.DataType, getType(p), getDbType(p))).ToList();
+            return routine.Parameters.Select(p => 
+                new Param(p.Name, p.Name.ToCamelCase(), p.DataType, GetParamType(p), GetParamDbType(p))).ToList();
         }
 
         private Return GetReturnInfo(PgRoutineGroup routine)
@@ -314,7 +273,7 @@ namespace PgRoutiner
             {
                 return new Return("void", "void", true, false);
             }
-            if (TryGetMapping(routine, out var result))
+            if (TryGetRoutineMapping(routine, out var result))
             {
                 if (routine.DataType == "ARRAY")
                 {
@@ -368,7 +327,7 @@ namespace PgRoutiner
             }
             string getType(PgReturns returnModel)
             {
-                if (TryGetMapping(returnModel, out var result))
+                if (TryGetReturnMapping(returnModel, out var result))
                 {
                     if (returnModel.Array)
                     {
@@ -398,7 +357,8 @@ namespace PgRoutiner
             else
             {
                 model.Append($"{I1}public record {name}(");
-                model.Append(string.Join(", ", func(connection).Select(item => $"{getType(item)} {item.Name.ToUpperCamelCase()}")));
+                modelContent.Append(string.Join(", ", func(connection).Select(item => $"{getType(item)} {item.Name.ToUpperCamelCase()}")));
+                model.Append(modelContent);
                 model.AppendLine($");");
             }
             foreach(var (key, value) in ModelContent)
@@ -413,16 +373,7 @@ namespace PgRoutiner
             return name;
         }
 
-        private bool TryGetMapping(PgParameter p, out string value)
-        {
-            if (settings.Mapping.TryGetValue(p.Type, out value))
-            {
-                return true;
-            }
-            return settings.Mapping.TryGetValue(p.DataType, out value);
-        }
-
-        private bool TryGetMapping(PgRoutineGroup r, out string value)
+        private bool TryGetRoutineMapping(PgRoutineGroup r, out string value)
         {
             if (settings.Mapping.TryGetValue(r.TypeUdtName, out value))
             {
@@ -430,8 +381,8 @@ namespace PgRoutiner
             }
             return settings.Mapping.TryGetValue(r.DataType, out value);
         }
-
-        private bool TryGetMapping(PgReturns r, out string value)
+  
+        private bool TryGetReturnMapping(PgReturns r, out string value)
         {
             if (settings.Mapping.TryGetValue(r.Type, out value))
             {

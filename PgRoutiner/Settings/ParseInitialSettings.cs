@@ -28,7 +28,8 @@ namespace PgRoutiner
                 Program.Config.GetSection("PgRoutiner").GetChildren().Count() == 0 &&
                 Value.Execute == null &&
                 !Value.Psql &&
-                !Value.Routines && 
+                !Value.Routines &&
+                !Value.Crud &&
                 !Value.UnitTests && 
                 !Value.SchemaDump && 
                 !Value.DataDump && 
@@ -55,8 +56,11 @@ namespace PgRoutiner
                 }
             }
 
-            var count = connection.GetRoutineCount(Value);
-            if ((Value.Routines && Value.OutputDir != null && count > 0) || (Value.UnitTests && Value.UnitTestsDir != null))
+            var routineCount = connection.GetRoutineCount(Value);
+            var crudCount = connection.GetTableDefintionsCount(Value);
+            if ((Value.Routines && Value.OutputDir != null && routineCount > 0) ||
+                (Value.Crud && Value.CrudOutputDir != null && crudCount > 0) ||
+                (Value.UnitTests && Value.UnitTestsDir != null))
             {
                 ProjectInfo = ParseProjectFile();
                 if (ProjectInfo == null)

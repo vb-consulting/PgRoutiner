@@ -21,9 +21,7 @@ namespace PgRoutiner
             foreach (var group in connection.GetRoutineGroups(settings, all: false))
             {
                 var name = group.Key;
-                var shortFilename = string.Concat(name.ToUpperCamelCase(), ".cs");
-                var fullFileName = Path.GetFullPath(Path.Join(outputDir, shortFilename));
-                var relative = fullFileName.GetRelativePath();
+                var (shortFilename, fullFileName, relative) = GetFileNames(name, outputDir);
 
                 var module = GetModule(settings, codeSettings);
                 Code code;

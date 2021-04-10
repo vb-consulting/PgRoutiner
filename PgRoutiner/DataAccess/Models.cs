@@ -8,7 +8,7 @@ namespace PgRoutiner
         public string Name { get; set; }
         public string Type { get; set; }
         public string DataType { get; set; }
-        public bool Array { get; set; }
+        public bool IsArray { get; set; }
     }
 
     public class PgRoutineGroup
@@ -25,16 +25,12 @@ namespace PgRoutiner
         public IList<PgParameter> Parameters { get; set; }
     }
 
-    public class PgColumnGroup
+    public class PgColumnGroup : PgParameter
     {
         public string Schema { get; set; }
         public string Table { get; set; }
-        public string Name { get; set; }
-        public int Ord { get; set; }
         public string Default { get; set; }
         public bool IsNullable { get; set; }
-        public string DataType { get; set; }
-        public string TypeUdtName { get; set; }
         public bool IsIdentity { get; set; }
         public bool IsPk { get; set; }
     }
