@@ -230,7 +230,8 @@ namespace PgRoutiner
         public HashSet<string> CrudCreateOnConflictDoNothingReturning { get; set; } = new HashSet<string>();
         public HashSet<string> CrudCreateOnConflictDoUpdate { get; set; } = new HashSet<string>();
         public HashSet<string> CrudCreateOnConflictDoUpdateReturning { get; set; } = new HashSet<string>();
-        public HashSet<string> CrudRead { get; set; } = new HashSet<string>();
+        public HashSet<string> CrudReadBy { get; set; } = new HashSet<string>();
+        public HashSet<string> CrudReadAll { get; set; } = new HashSet<string>();
         public HashSet<string> CrudUpdate { get; set; } = new HashSet<string>();
         public HashSet<string> CrudUpdateReturning { get; set; } = new HashSet<string>();
         public HashSet<string> CrudDelete { get; set; } = new HashSet<string>();

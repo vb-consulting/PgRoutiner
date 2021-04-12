@@ -41,6 +41,11 @@ namespace PgRoutiner
             this.items.AddRange(items);
         }
 
+        public void Flush()
+        {
+            this.items.Clear();
+        }
+
         public override string ToString()
         {
             var builder = new StringBuilder();

@@ -115,7 +115,7 @@ namespace PgRoutiner
                 {
                     count++;
                 }
-                if (CodeCrudBuilder.OptionContains(settings.CrudRead, schema, name))
+                if (CodeCrudBuilder.OptionContains(settings.CrudReadBy, schema, name))
                 {
                     count++;
                 }

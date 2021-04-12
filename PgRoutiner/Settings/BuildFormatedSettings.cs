@@ -270,7 +270,8 @@ namespace PgRoutiner
             AddEntry(nameof(CrudCreateOnConflictDoNothingReturning), Value.CrudCreateOnConflictDoNothingReturning);
             AddEntry(nameof(CrudCreateOnConflictDoUpdate), Value.CrudCreateOnConflictDoUpdate);
             AddEntry(nameof(CrudCreateOnConflictDoUpdateReturning), Value.CrudCreateOnConflictDoUpdateReturning);
-            AddEntry(nameof(CrudRead), Value.CrudRead);
+            AddEntry(nameof(CrudReadBy), Value.CrudReadBy);
+            AddEntry(nameof(CrudReadAll), Value.CrudReadAll);
             AddEntry(nameof(CrudUpdate), Value.CrudUpdate);
             AddEntry(nameof(CrudUpdateReturning), Value.CrudUpdateReturning);
             AddEntry(nameof(CrudDelete), Value.CrudDelete, "");

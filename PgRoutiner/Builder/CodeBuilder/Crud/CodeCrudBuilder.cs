@@ -24,15 +24,28 @@ namespace PgRoutiner
                 var module = GetModule(settings, codeSettings);
                 string shortFilename = null, fullFileName = null, relative = null;
                 Code code = null;
-                if (OptionContains(settings.CrudRead, schema, name))
+                if (OptionContains(settings.CrudReadBy, schema, name))
                 {
                     try
                     {
-                        if (OptionContains(settings.CrudRead, schema, name))
-                        {
-                            (shortFilename, fullFileName, relative) = GetFileNames($"{name}_read", outputDir);
-                            code = new CrudReadCode(settings, group.Key, module.Namespace, group);
-                        }
+            
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_read_by", outputDir);
+                        code = new CrudReadByCode(settings, group.Key, module.Namespace, group);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Builder.Error($"File {relative} could not be generated. {e.Message}");
+                        continue;
+                    }
+                    yield return (code, name, shortFilename, fullFileName, relative, module);
+                }
+                if (OptionContains(settings.CrudReadAll, schema, name))
+                {
+                    try
+                    {
+
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_read_all", outputDir);
+                        code = new CrudReadAllCode(settings, group.Key, module.Namespace, group);
                     }
                     catch (ArgumentException e)
                     {

@@ -105,12 +105,14 @@ namespace PgRoutiner
                         }
                         Builder.DumpRelativePath("Creating file: {0} ...", fullModelFileName);
                         Builder.WriteFile(fullModelFileName, modelModule.ToString());
+                        modelModule.Flush();
                     }
                 }
     
                 module.AddItems(code.Class);
                 Builder.DumpRelativePath("Creating file: {0} ...", fullFileName);
                 Builder.WriteFile(fullFileName, module.ToString());
+                module.Flush();
             }
         }
 
