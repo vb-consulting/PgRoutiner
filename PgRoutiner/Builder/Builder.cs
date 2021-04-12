@@ -103,7 +103,7 @@ namespace PgRoutiner
             if (Settings.Value.Crud)
             {
                 DumpTitle("** CRUD SOURCE CODE GENERATION **");
-                new CodeCrudBuilder(connection, Settings.Value, CodeSettings.ToRoutineSettings(Settings.Value)).Build();
+                new CodeCrudBuilder(connection, Settings.Value, CodeSettings.ToCrudSettings(Settings.Value)).Build();
             }
 
             if (Settings.Value.UnitTests)

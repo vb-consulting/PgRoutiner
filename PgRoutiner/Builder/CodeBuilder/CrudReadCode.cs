@@ -35,10 +35,10 @@ namespace PgRoutiner
         {
             Class.AppendLine($"{I1}public static class {Name.ToUpperCamelCase()}Read");
             Class.AppendLine($"{I1}{{");
-            Class.AppendLine($"{I2}public const string Name = \"{this.table}\";");
+            BuildConsts();
             if (!settings.SkipSyncMethods)
             {
-                if (settings.UseStatementBody)
+                if (!settings.UseExpressionBody)
                 {
                     BuildStatementBodySyncMethod();
                 }
@@ -63,6 +63,19 @@ namespace PgRoutiner
             Class.AppendLine($"{I1}}}");
         }
 
+        private void BuildConsts()
+        {
+            Class.AppendLine($"{I2}public const string Name = \"{this.table}\";");
+            Class.AppendLine($"{I2}public const string Query = @\"");
+            Class.AppendLine($"{I3}select");
+            Class.AppendLine(string.Join($",{NL}", this.columns.Select(c => $"{I4}[{c.Name}]")));
+            Class.AppendLine($"{I3}from");
+            Class.AppendLine($"{I4}{this.table}");
+            Class.Append($"{I3}where{NL}{I4}");
+            Class.Append(string.Join($"{NL}{I1}and ", this.pk.Select(c => $"[{c.PgName}] = @{c.Name}")));
+            Class.AppendLine($"\";");
+        }
+
         private void BuildStatementBodySyncMethod()
         {
             var name = $"Read{Name.ToUpperCamelCase()}By{string.Join("And", pk.Select(p => p.Name.ToUpperCamelCase()).ToArray())}";
@@ -74,22 +87,12 @@ namespace PgRoutiner
             Class.AppendLine($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection, {string.Join(", ", this.pk.Select(p => $"{p.Type} {p.Name}").ToArray())})");
 
             Class.AppendLine($"{I2}{{");
-            
-            Class.AppendLine($"{I3}var query = @\"");
-            Class.AppendLine($"select");
-            Class.AppendLine(string.Join($",{NL}", this.columns.Select(c => $"{I1}[{c.Name}]")));
-            Class.AppendLine($"from");
-            Class.AppendLine($"{I1}{this.table}");
-            Class.Append($"where{NL}{I1}");
-            Class.AppendLine(string.Join($"{NL}{I1}and ", this.pk.Select(c => $"[{c.PgName}] = @{c.Name}")));
-            Class.AppendLine($"\";");
-
             Class.AppendLine($"{I3}return connection");
             if (!settings.CrudNoPrepare)
             {
                 Class.AppendLine($"{I4}.Prepared()");
             }
-            Class.Append($"{I4}.Read<{this.model}>(query");
+            Class.Append($"{I4}.Read<{this.model}>(Query");
 
             if (pk.Count > 0)
             {

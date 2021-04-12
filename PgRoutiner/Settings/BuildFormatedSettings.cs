@@ -126,9 +126,8 @@ namespace PgRoutiner
                 $"- Routines code generation.",
                 $"- CRUD code generation.");
             AddEntry(nameof(Namespace), Value.Namespace);
-           
-            AddEntry(nameof(UseStatementBody), Value.UseStatementBody);
             AddEntry(nameof(UseRecords), Value.UseRecords);
+            AddEntry(nameof(UseExpressionBody), Value.UseExpressionBody);
             AddEntry(nameof(Mapping), Value.Mapping);
             AddEntry(nameof(CustomModels), Value.CustomModels);
             AddEntry(nameof(ModelDir), Value.ModelDir);

@@ -97,10 +97,6 @@ namespace PgRoutiner
                         }
                         Builder.DumpFormat("Building {0}...", relativeModelName);
                         var modelModule = new Module(settings);
-                        //if (settings.ModelDir != null)
-                        //{
-                        //    modelModule.AddNamespace(settings.ModelDir.PathToNamespace());
-                        //}
                         modelModule.AddNamespace((settings.ModelDir ?? codeSettings.OutputDir).PathToNamespace());
                         modelModule.AddItems(modelContent);
                         if (modelModule.Namespace != module.Namespace)

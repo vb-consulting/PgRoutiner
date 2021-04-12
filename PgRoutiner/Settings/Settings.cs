@@ -35,21 +35,27 @@ namespace PgRoutiner
         public bool Overwrite { get; set; }
         public bool AskOverwrite { get; set; }
 
-        public static CodeSettings ToRoutineSettings(Settings settings) => new CodeSettings
+        public static CodeSettings ToRoutineSettings(Settings settings)
         {
-            Enabled = settings.Routines,
-            OutputDir = settings.OutputDir,
-            Overwrite = settings.RoutinesOverwrite,
-            AskOverwrite = settings.RoutinesAskOverwrite
-        };
+            return new CodeSettings
+            {
+                Enabled = settings.Routines,
+                OutputDir = settings.OutputDir,
+                Overwrite = settings.RoutinesOverwrite,
+                AskOverwrite = settings.RoutinesAskOverwrite
+            };
+        }
 
-        public static CodeSettings ToCrudSettings(Settings settings) => new CodeSettings
+        public static CodeSettings ToCrudSettings(Settings settings)
         {
-            Enabled = settings.Crud,
-            OutputDir = settings.CrudOutputDir,
-            Overwrite = settings.CrudOverwrite,
-            AskOverwrite = settings.CrudAskOverwrite
-        };
+            return new CodeSettings
+            {
+                Enabled = settings.Crud,
+                OutputDir = settings.CrudOutputDir,
+                Overwrite = settings.CrudOverwrite,
+                AskOverwrite = settings.CrudAskOverwrite
+            };
+        }
     }
 
     public partial class Settings
@@ -121,7 +127,6 @@ namespace PgRoutiner
 
         /*code generation general options*/
         public string Namespace { get; set; } = null;
-        public bool UseStatementBody { get; set; } = false;
         public bool UseRecords { get; set; } = false;
         public IDictionary<string, string> Mapping { get; set; } = new Dictionary<string, string>();
         public IDictionary<string, string> CustomModels { get; set; } = new Dictionary<string, string>();
@@ -139,6 +144,7 @@ namespace PgRoutiner
         public bool RoutinesAskOverwrite { get; set; } = false;
         public string NotSimilarTo { get; set; } = null;
         public string SimilarTo { get; set; } = null;
+        public bool UseExpressionBody { get; set; } = false;
 
         /*unit tests*/
         public bool UnitTests { get; set; } = false;

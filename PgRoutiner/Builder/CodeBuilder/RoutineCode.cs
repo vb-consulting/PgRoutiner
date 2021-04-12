@@ -103,7 +103,7 @@ namespace PgRoutiner
                 Class.AppendLine($"{bodyTab}.Single();");
             }
 
-            if (!settings.UseStatementBody)
+            if (settings.UseExpressionBody)
             {
                 Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
                 BuildMethodParams(@params);
@@ -176,7 +176,7 @@ namespace PgRoutiner
                 }
             }
 
-            if (!settings.UseStatementBody)
+            if (settings.UseExpressionBody)
             {
                 Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
                 BuildMethodParams(@params);
