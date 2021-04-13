@@ -132,7 +132,7 @@ namespace PgRoutiner
         protected override void BuildSyncMethodCommentHeader()
         {
             Class.AppendLine($"{I2}/// <summary>");
-            Class.AppendLine($"{I2}/// Select table {this.Table} by primary keys and return a single record mapped to am instance of a \"{Namespace}.{Model}\" class.");
+            Class.AppendLine($"{I2}/// Select table {this.Table} by primary keys and return a single record mapped to an instance of a \"{Namespace}.{Model}\" class.");
             Class.AppendLine($"{I2}/// </summary>");
             foreach (var p in this.Pk)
             {
@@ -144,7 +144,7 @@ namespace PgRoutiner
         protected override void BuildAsyncMethodCommentHeader()
         {
             Class.AppendLine($"{I2}/// <summary>");
-            Class.AppendLine($"{I2}/// Asynchronously select table {this.Table} by primary keys and return a single record mapped to am instance of a \"{Namespace}.{Model}\" class.");
+            Class.AppendLine($"{I2}/// Asynchronously select table {this.Table} by primary keys and return a single record mapped to an instance of a \"{Namespace}.{Model}\" class.");
             Class.AppendLine($"{I2}/// </summary>");
             foreach (var p in this.Pk)
             {

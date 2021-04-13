@@ -8,10 +8,12 @@
 - Fix unit test async methods 
 - Fix double test methods
 - Build unit test templates only on units that have existing generated file
-- Add CRUD support settings and move shared code generation settings to general code generation settings section
 - Model classes from routines generated from recor result gets new name "RoutineNameResult"
 - User defined model results from a rotines (table result) are always in separate model file
 - UseStatementBody replaced UseExpressionBody
+
+- Add CRUD support settings and move shared code generation settings to general code generation settings section
+- Add CRUD generators for ...
 
 ## 3.2.0
 

@@ -54,6 +54,21 @@ namespace PgRoutiner
                     }
                     yield return (code, name, shortFilename, fullFileName, relative, module);
                 }
+                if (OptionContains(settings.CrudUpdate, schema, name))
+                {
+                    try
+                    {
+
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_update", outputDir);
+                        code = new CrudUpdateCode(settings, group.Key, module.Namespace, group);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Builder.Error($"File {relative} could not be generated. {e.Message}");
+                        continue;
+                    }
+                    yield return (code, name, shortFilename, fullFileName, relative, module);
+                }
             }
             //Program.WriteLine(ConsoleColor.Yellow, "", $"WARNING: Table {schema}.{name} not found, skipping...");
         }

@@ -12,6 +12,8 @@ namespace PgRoutiner
         protected readonly Settings settings;
         protected readonly CodeSettings codeSettings;
 
+        private static HashSet<string> UserDefinedModels { get; } = new();
+
         public CodeBuilder(NpgsqlConnection connection, Settings settings, CodeSettings codeSettings)
         {
             this.connection = connection;
@@ -72,6 +74,11 @@ namespace PgRoutiner
                     }
                     else
                     {
+                        if (UserDefinedModels.Contains(modelName))
+                        {
+                            continue;
+                        }
+
                         var (shortModelFilename, fullModelFileName, relativeModelName) = GetFileNames(modelName, modelDir ?? outputDir);
                         var modelExists = File.Exists(fullModelFileName);
 
@@ -95,7 +102,7 @@ namespace PgRoutiner
                             Builder.DumpFormat("Skipping {0} ...", relativeModelName);
                             continue;
                         }
-                        Builder.DumpFormat("Building {0}...", relativeModelName);
+                        //Builder.DumpFormat("Building {0}...", relativeModelName);
                         var modelModule = new Module(settings);
                         modelModule.AddNamespace((settings.ModelDir ?? codeSettings.OutputDir).PathToNamespace());
                         modelModule.AddItems(modelContent);
@@ -106,6 +113,11 @@ namespace PgRoutiner
                         Builder.DumpRelativePath("Creating file: {0} ...", fullModelFileName);
                         Builder.WriteFile(fullModelFileName, modelModule.ToString());
                         modelModule.Flush();
+
+                        if (code.UserDefinedModels.Contains(modelName))
+                        {
+                            UserDefinedModels.Add(modelName);
+                        }
                     }
                 }
     
