@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PgRoutiner
 {
-    public partial class CrudReadAllCode : CrudCodeBase
+    public class CrudReadAllCode : CrudCodeBase
     {
         public CrudReadAllCode(
             Settings settings,

@@ -65,7 +65,7 @@ namespace PgRoutiner
                 Table = t.Table,
                 Name = t.Name,
                 Ordinal = t.Ord,
-                Default = t.Default,
+                HasDefault = !string.IsNullOrEmpty(t.Default),
                 IsNullable = string.Equals(t.IsNullable, "YES"),
                 DataType = t.DataType,
                 Type = t.TypeUdtName,

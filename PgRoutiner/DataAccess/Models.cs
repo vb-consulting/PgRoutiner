@@ -29,7 +29,7 @@ namespace PgRoutiner
     {
         public string Schema { get; set; }
         public string Table { get; set; }
-        public string Default { get; set; }
+        public bool HasDefault { get; set; }
         public bool IsNullable { get; set; }
         public bool IsIdentity { get; set; }
         public bool IsPk { get; set; }

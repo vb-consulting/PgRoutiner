@@ -143,7 +143,9 @@ namespace PgRoutiner
             { "point", ("Point", false) },
             { "varbit", ("Varbit", false) },
             { "oid", ("Oid", false) },
-            { "_int2", ("Smallint", false) }
+            { "_int2", ("Smallint", false) },
+            { "character", ("Char", false) },
+            { "bpchar", ("Char", false) }
         };
     }
 }
