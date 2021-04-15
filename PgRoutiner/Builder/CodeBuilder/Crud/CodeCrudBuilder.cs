@@ -189,6 +189,21 @@ namespace PgRoutiner
                     }
                     yield return (code, name, shortFilename, fullFileName, relative, module);
                 }
+                if (OptionContains(settings.CrudCreateOnConflictDoUpdateReturning, schema, name))
+                {
+                    try
+                    {
+
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_create_on_conflict_do_update_returning", outputDir);
+                        code = new CrudCreateOnConflictDoUpdateReturningCode(settings, group.Key, module.Namespace, group);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Builder.Error($"File {relative} could not be generated. {e.Message}");
+                        continue;
+                    }
+                    yield return (code, name, shortFilename, fullFileName, relative, module);
+                }
             }
             //Program.WriteLine(ConsoleColor.Yellow, "", $"WARNING: Table {schema}.{name} not found, skipping...");
         }

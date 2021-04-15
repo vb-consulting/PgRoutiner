@@ -5,13 +5,13 @@ using System.Text;
 
 namespace PgRoutiner
 {
-    public class CrudCreateOnConflictDoNothingReturningCode : CrudCodeBase
+    public class CrudCreateOnConflictDoUpdateReturningCode : CrudCodeBase
     {
-        public CrudCreateOnConflictDoNothingReturningCode(
+        public CrudCreateOnConflictDoUpdateReturningCode(
             Settings settings,
             (string schema, string name) item,
             string @namespace,
-            IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "CreateOnConflictDoNothingReturning")
+            IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "CreateOnConflictDoUpdateReturning")
         {
         }
 
@@ -31,22 +31,31 @@ namespace PgRoutiner
             Class.AppendLine(string.Join($",{NL}", this.Columns.Select(c =>
             {
                 var p = $"@{c.Name.ToCamelCase()}";
-                if (c.HasDefault || c.IsIdentity)
+                if (c.IsIdentity)
+                {
+                    return $"{I4}DEFAULT";
+                }
+                if (c.HasDefault)
                 {
                     return $"{I4}CASE WHEN {p} IS NULL THEN DEFAULT ELSE {p} END";
                 }
                 return $"{I4}{p}";
             })));
             Class.AppendLine($"{I3})");
-            var exp = "{(conflictedFields.Length == 0 ? \"\" : $\"({string.Join(\", \", conflictedFields)})\")}";
+            var exp = "({string.Join(\", \", conflictedFields)})";
             Class.AppendLine($"{I3}ON CONFLICT {exp}");
-            Class.AppendLine($"{I3}DO NOTHING");
+            Class.AppendLine($"{I3}DO UPDATE SET");
+
+            Class.AppendLine(string.Join($",{NL}", this.Columns.Where(c => !c.IsIdentity).Select(c =>
+            {
+                return $"{I4}[{c.Name}] = EXCLUDED.[{c.Name}]";
+            })));
             Class.AppendLine($"{I3}RETURNING{NL}{string.Join($",{NL}", this.Columns.Select(c => $"{I4}[{c.Name}]"))}\";");
         }
 
         protected override void BuildStatementBodySyncMethod()
         {
-            var name = $"CreateOnConflictDoNothingReturning{Name.ToUpperCamelCase()}";
+            var name = $"CreateOnConflictDoUpdateReturning{Name.ToUpperCamelCase()}";
             var actualReturns = this.Model;
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
@@ -57,7 +66,7 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I4}.Prepared()");
             }
-            Class.Append($"{I4}.Read<{this.Model}>(Sql(conflictedFields)");
+            Class.Append($"{I4}.Read<{this.Model}>(Sql(conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -68,7 +77,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodyAsyncMethod()
         {
-            var name = $"CreateOnConflictDoNothingReturning{Name.ToUpperCamelCase()}Async";
+            var name = $"CreateOnConflictDoUpdateReturning{Name.ToUpperCamelCase()}Async";
             var actualReturns = $"ValueTask<{this.Model}>";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
@@ -79,7 +88,7 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I4}.Prepared()");
             }
-            Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql(conflictedFields)");
+            Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql(conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -90,7 +99,7 @@ namespace PgRoutiner
 
         protected override void BuildExpressionBodySyncMethod()
         {
-            var name = $"CreateOnConflictDoNothingReturning{Name.ToUpperCamelCase()}";
+            var name = $"CreateOnConflictDoUpdateReturning{Name.ToUpperCamelCase()}";
             var actualReturns = this.Model;
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
@@ -99,7 +108,7 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I3}.Prepared()");
             }
-            Class.Append($"{I3}.Read<{this.Model}>(Sql(conflictedFields)");
+            Class.Append($"{I3}.Read<{this.Model}>(Sql(conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -109,7 +118,7 @@ namespace PgRoutiner
 
         protected override void BuildExpressionBodyAsyncMethod()
         {
-            var name = $"CreateOnConflictDoNothingReturning{Name.ToUpperCamelCase()}Async";
+            var name = $"CreateOnConflictDoUpdateReturning{Name.ToUpperCamelCase()}Async";
             var actualReturns = $"ValueTask<{this.Model}>";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
@@ -119,7 +128,7 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I3}.Prepared()");
             }
-            Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql(conflictedFields)");
+            Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql(conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -132,10 +141,10 @@ namespace PgRoutiner
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// Insert new record in table {this.Table} with values instance of a \"{Namespace}.{Model}\" class and return updated record mapped to an instance of a \"{Namespace}.{Model}\" class.");
             Class.AppendLine($"{I2}/// Fields with defined default values {string.Join(", ", this.Columns.Where(c => c.HasDefault || c.IsIdentity).Select(c => c.Name))} will have the default when null value is supplied.");
-            Class.AppendLine($"{I2}/// When conflict occures, do nothing (skip).");
+            Class.AppendLine($"{I2}/// When conflict occures, update with provided model.");
             Class.AppendLine($"{I2}/// </summary>");
             Class.AppendLine($"{I2}/// <param name=\"model\">Instance of a \"{Namespace}.{Model}\" model class.</param>");
-            Class.AppendLine($"{I2}/// <param name=\"conflictedFields\">Params list of field names that are tested for conflict. Default is none, all conflicts are tested.</param>");
+            Class.AppendLine($"{I2}/// <param name=\"conflictedFields\">Params list of field names that are tested for conflict. Default is list of primary keys.</param>");
             Class.AppendLine($"{I2}/// <returns>Single instance of a \"{Namespace}.{Model}\" class that is mapped to resulting record of table {this.Table}</returns>");
         }
 
@@ -144,10 +153,10 @@ namespace PgRoutiner
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// Asynchronously insert new record of table {this.Table} with values instance of a \"{Namespace}.{Model}\" class and return updated record mapped to an instance of a \"{Namespace}.{Model}\" class.");
             Class.AppendLine($"{I2}/// Fields with defined default values {string.Join(", ", this.Columns.Where(c => c.HasDefault || c.IsIdentity).Select(c => c.Name))} will have the default when null value is supplied.");
-            Class.AppendLine($"{I2}/// When conflict occures, do nothing (skip).");
+            Class.AppendLine($"{I2}/// When conflict occures, update with provided model.");
             Class.AppendLine($"{I2}/// </summary>");
             Class.AppendLine($"{I2}/// <param name=\"model\">Instance of a \"{Namespace}.{Model}\" model class.</param>");
-            Class.AppendLine($"{I2}/// <param name=\"conflictedFields\">Params list of field names that are tested for conflict. Default is none, all conflicts are tested.</param>");
+            Class.AppendLine($"{I2}/// <param name=\"conflictedFields\">Params list of field names that are tested for conflict. Default is list of primary keys.</param>");
             Class.AppendLine($"{I2}/// <returns>ValueTask whose Result property is a single instance of a \"{Namespace}.{Model}\" class that is mapped to resulting record of table {this.Table}</returns>");
         }
 
