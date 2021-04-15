@@ -13,6 +13,7 @@ namespace PgRoutiner
             string @namespace,
             IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "Create")
         {
+            Build();
         }
 
         protected override void AddSql()

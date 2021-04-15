@@ -7,12 +7,24 @@ namespace PgRoutiner
 {
     public class CrudUpdateCode : CrudCodeBase
     {
+        private readonly List<Param> Params;
+
         public CrudUpdateCode(
             Settings settings,
             (string schema, string name) item,
             string @namespace,
             IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "Update")
         {
+            this.Params = new()
+            {
+                new Param
+                {
+                    PgName = "model",
+                    Type = this.Model,
+                    IsInstance = true
+                }
+            };
+            Build();
             if (!this.PkParams.Any())
             {
                 throw new ArgumentException($"Table {this.Table} does not have any primary keys!");
@@ -133,7 +145,7 @@ namespace PgRoutiner
 
         private void AddMethod(string name, bool sync)
         {
-            Methods.Add(new Method(name, Namespace, this.ColumnParams, new Return("void", "void", true, true), "void", sync));
+            Methods.Add(new Method(name, Namespace, this.Params, new Return("void", "void", true, true), "void", sync));
         }
     }
 }

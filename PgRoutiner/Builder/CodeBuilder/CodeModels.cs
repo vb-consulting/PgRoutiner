@@ -16,6 +16,7 @@ namespace PgRoutiner
         public string PgName { get; init; }
         public string PgType { get; init; }
         public string Type { get; init; }
+        public bool IsInstance { get; init; } = false;
     }
 
     public record Method(string Name, string Namespace, List<Param> Params, Return Returns, string ActualReturns, bool Sync);

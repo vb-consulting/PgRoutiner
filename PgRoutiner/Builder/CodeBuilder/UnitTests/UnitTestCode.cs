@@ -75,7 +75,14 @@ namespace PgRoutiner
                 Class.AppendLine($"{I3}// Arrange");
                 foreach (var p in m.Params)
                 {
-                    Class.AppendLine($"{I3}{p.Type} {p.Name} = default;");
+                    if (p.IsInstance)
+                    {
+                        Class.AppendLine($"{I3}{p.Type} {p.Name} = new();");
+                    }
+                    else
+                    {
+                        Class.AppendLine($"{I3}{p.Type} {p.Name} = default;");
+                    }
                 }
                 Class.AppendLine();
 

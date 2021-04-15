@@ -13,6 +13,7 @@ namespace PgRoutiner
             string @namespace,
             IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "DeleteReturning")
         {
+            Build();
             if (!this.PkParams.Any())
             {
                 throw new ArgumentException($"Table {this.Table} does not have any primary keys!");

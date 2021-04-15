@@ -13,6 +13,7 @@ namespace PgRoutiner
             string @namespace,
             IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "ReadBy")
         {
+            Build();
             if (!this.PkParams.Any())
             {
                 throw new ArgumentException($"Table {this.Table} does not have any primary keys!");
@@ -155,7 +156,7 @@ namespace PgRoutiner
 
         private void NewMethod(string name, string actualReturns, bool sync)
         {
-            Methods.Add(new Method(name, Namespace, PkParams, new Return(this.Name, name, false, true), actualReturns, sync));
+            Methods.Add(new Method(name, Namespace, PkParams, new Return(this.Name, name, false, false), actualReturns, sync));
         }
     }
 }

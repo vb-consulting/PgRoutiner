@@ -9,6 +9,7 @@ namespace PgRoutiner
     {
         protected readonly string Namespace;
         protected readonly IEnumerable<PgColumnGroup> Columns;
+        private readonly string suffix;
         protected readonly List<Param> PkParams = new();
         protected readonly List<Param> ColumnParams = new();
         protected readonly string Model;
@@ -24,7 +25,13 @@ namespace PgRoutiner
             this.Table = item.schema == "public" ? $"[{item.name}]" : $"{ item.schema}.[{item.name}]";
             this.Namespace = @namespace;
             this.Columns = columns;
-            foreach(var column in this.Columns)
+            this.suffix = suffix;
+            this.Model = BuildModel();
+        }
+
+        protected void Build()
+        {
+            foreach (var column in this.Columns)
             {
                 var p = new Param
                 {
@@ -39,7 +46,6 @@ namespace PgRoutiner
                 }
                 ColumnParams.Add(p);
             }
-            this.Model = BuildModel();
             BeginClass(suffix);
             AddName();
             Class.AppendLine();
