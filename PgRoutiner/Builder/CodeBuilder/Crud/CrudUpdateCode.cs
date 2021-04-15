@@ -116,7 +116,7 @@ namespace PgRoutiner
         {
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// Update record of table {this.Table} with values instance of a \"{Namespace}.{Model}\" class by matching values of key fields: {string.Join(", ", this.PkParams.Select(p => p.Name))}");
-            Class.AppendLine($"{I2}/// Fields with defined default values {string.Join(", ", this.Columns.Where(c => c.HasDefault || c.IsIdentity).Select(c => c.Name))} will have tzhe default when null value is supplied.");
+            Class.AppendLine($"{I2}/// Fields with defined default values {string.Join(", ", this.Columns.Where(c => c.HasDefault || c.IsIdentity).Select(c => c.Name))} will have the default when null value is supplied.");
             Class.AppendLine($"{I2}/// </summary>");
             Class.AppendLine($"{I2}/// <param name=\"model\">Instance of a \"{Namespace}.{Model}\" model class.</param>");
         }
@@ -125,7 +125,7 @@ namespace PgRoutiner
         {
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// Asynchronously update record of table {this.Table} with values instance of a \"{Namespace}.{Model}\" class by matching values of key fields: {string.Join(", ", this.PkParams.Select(p => p.Name))}");
-            Class.AppendLine($"{I2}/// Fields with defined default values {string.Join(", ", this.Columns.Where(c => c.HasDefault || c.IsIdentity).Select(c => c.Name))} will have tzhe default when null value is supplied.");
+            Class.AppendLine($"{I2}/// Fields with defined default values {string.Join(", ", this.Columns.Where(c => c.HasDefault || c.IsIdentity).Select(c => c.Name))} will have the default when null value is supplied.");
             Class.AppendLine($"{I2}/// </summary>");
             Class.AppendLine($"{I2}/// <param name=\"model\">Instance of a \"{Namespace}.{Model}\" model class.</param>");
             Class.AppendLine($"{I2}/// <returns>ValueTask without result.</returns>");

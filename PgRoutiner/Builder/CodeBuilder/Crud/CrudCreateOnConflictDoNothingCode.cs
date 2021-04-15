@@ -5,18 +5,14 @@ using System.Text;
 
 namespace PgRoutiner
 {
-    public class CrudCreateReturningCode : CrudCodeBase
+    public class CrudCreateOnConflictDoNothingCode : CrudCodeBase
     {
-        public CrudCreateReturningCode(
+        public CrudCreateOnConflictDoNothingCode(
             Settings settings,
             (string schema, string name) item,
             string @namespace,
-            IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "CreateReturning")
+            IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "CreateOnConflictDoNothing")
         {
-            if (!this.PkParams.Any())
-            {
-                throw new ArgumentException($"Table {this.Table} does not have any primary keys!");
-            }
         }
 
         protected override void AddSql()
@@ -42,115 +38,108 @@ namespace PgRoutiner
                 return $"{I4}{p}";
             })));
             Class.AppendLine($"{I3})");
-            Class.AppendLine($"{I3}RETURNING{NL}{string.Join($",{NL}", this.Columns.Select(c => $"{I4}[{c.Name}]"))}\";");
+            Class.Append($"{I3}ON CONFLICT DO NOTHING");
+            Class.AppendLine($"\";");
         }
 
         protected override void BuildStatementBodySyncMethod()
         {
-            var name = $"CreateReturning{Name.ToUpperCamelCase()}";
-            var actualReturns = this.Model;
+            var name = $"CreateOnConflictDoNothing{Name.ToUpperCamelCase()}";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
-            Class.AppendLine($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection, {this.Model} model)");
+            Class.AppendLine($"{I2}public static void {name}(this NpgsqlConnection connection, {this.Model} model)");
             Class.AppendLine($"{I2}{{");
-            Class.AppendLine($"{I3}return connection");
+            Class.AppendLine($"{I3}connection");
             if (!settings.CrudNoPrepare)
             {
                 Class.AppendLine($"{I4}.Prepared()");
             }
-            Class.Append($"{I4}.Read<{this.Model}>(Sql");
+            Class.Append($"{I4}.Execute(Sql");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
-            Class.AppendLine($")");
-            Class.AppendLine($"{I4}.Single();");
+            Class.AppendLine($");");
             Class.AppendLine($"{I2}}}");
-            AddMethod(name, actualReturns, true);
+            AddMethod(name, true);
         }
 
         protected override void BuildStatementBodyAsyncMethod()
         {
-            var name = $"CreateReturning{Name.ToUpperCamelCase()}Async";
-            var actualReturns = $"ValueTask<{this.Model}>";
+            var name = $"CreateOnConflictDoNothing{Name.ToUpperCamelCase()}Async";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
-            Class.AppendLine($"{I2}public static async {actualReturns} {name}(this NpgsqlConnection connection, {this.Model} model)");
+            Class.AppendLine($"{I2}public static async ValueTask {name}(this NpgsqlConnection connection, {this.Model} model)");
             Class.AppendLine($"{I2}{{");
-            Class.AppendLine($"{I3}return await connection");
+            Class.AppendLine($"{I3}await connection");
             if (!settings.CrudNoPrepare)
             {
                 Class.AppendLine($"{I4}.Prepared()");
             }
-            Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql");
+            Class.Append($"{I4}.ExecuteAsync(Sql");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
-            Class.AppendLine($")");
-            Class.AppendLine($"{I4}.SingleAsync();");
+            Class.AppendLine($");");
             Class.AppendLine($"{I2}}}");
-            AddMethod(name, actualReturns, false);
+            AddMethod(name, false);
         }
 
         protected override void BuildExpressionBodySyncMethod()
         {
-            var name = $"CreateReturning{Name.ToUpperCamelCase()}";
-            var actualReturns = this.Model;
+            var name = $"CreateOnConflictDoNothing{Name.ToUpperCamelCase()}";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
-            Class.AppendLine($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection, {this.Model} model) => connection");
+            Class.AppendLine($"{I2}public static void {name}(this NpgsqlConnection connection, {this.Model} model) => connection");
             if (!settings.CrudNoPrepare)
             {
                 Class.AppendLine($"{I3}.Prepared()");
             }
-            Class.Append($"{I3}.Read<{this.Model}>(Sql");
+            Class.Append($"{I3}.Execute(Sql");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
-            Class.AppendLine($")");
-            Class.AppendLine($"{I3}.Single();");
-            AddMethod(name, actualReturns, true);
+            Class.AppendLine($");");
+            AddMethod(name, true);
         }
 
         protected override void BuildExpressionBodyAsyncMethod()
         {
-            var name = $"CreateReturning{Name.ToUpperCamelCase()}Async";
-            var actualReturns = $"ValueTask<{this.Model}>";
+            var name = $"CreateOnConflictDoNothing{Name.ToUpperCamelCase()}Async";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
-            Class.AppendLine($"{I2}public static async {actualReturns} {name}(this NpgsqlConnection connection, {this.Model} model) => await connection");
-
+            Class.AppendLine($"{I2}public static async ValueTask {name}(this NpgsqlConnection connection, {this.Model} model) => await connection");
             if (!settings.CrudNoPrepare)
             {
                 Class.AppendLine($"{I3}.Prepared()");
             }
-            Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql");
+            Class.Append($"{I3}.ExecuteAsync(Sql");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
-            Class.AppendLine($")");
-            Class.AppendLine($"{I3}.SingleAsync();");
-            AddMethod(name, actualReturns, false);
+            Class.AppendLine($");");
+            AddMethod(name, false);
         }
 
         protected override void BuildSyncMethodCommentHeader()
         {
             Class.AppendLine($"{I2}/// <summary>");
-            Class.AppendLine($"{I2}/// Insert new record in table {this.Table} with values instance of a \"{Namespace}.{Model}\" class and return updated record mapped to an instance of a \"{Namespace}.{Model}\" class.");
+            Class.AppendLine($"{I2}/// Insert new record in table {this.Table} with values instance of a \"{Namespace}.{Model}\" class.");
             Class.AppendLine($"{I2}/// Fields with defined default values {string.Join(", ", this.Columns.Where(c => c.HasDefault || c.IsIdentity).Select(c => c.Name))} will have the default when null value is supplied.");
+            Class.AppendLine($"{I2}/// When conflict occures, do nothing (skip).");
             Class.AppendLine($"{I2}/// </summary>");
             Class.AppendLine($"{I2}/// <param name=\"model\">Instance of a \"{Namespace}.{Model}\" model class.</param>");
-            Class.AppendLine($"{I2}/// <returns>Single instance of a \"{Namespace}.{Model}\" class that is mapped to resulting record of table {this.Table}</returns>");
         }
 
         protected override void BuildAsyncMethodCommentHeader()
         {
             Class.AppendLine($"{I2}/// <summary>");
-            Class.AppendLine($"{I2}/// Asynchronously insert new record of table {this.Table} with values instance of a \"{Namespace}.{Model}\" class and return updated record mapped to an instance of a \"{Namespace}.{Model}\" class.");
+            Class.AppendLine($"{I2}/// Asynchronously insert new record of table {this.Table} with values instance of a \"{Namespace}.{Model}\" class.");
             Class.AppendLine($"{I2}/// Fields with defined default values {string.Join(", ", this.Columns.Where(c => c.HasDefault || c.IsIdentity).Select(c => c.Name))} will have the default when null value is supplied.");
+            Class.AppendLine($"{I2}/// When conflict occures, do nothing (skip).");
             Class.AppendLine($"{I2}/// </summary>");
             Class.AppendLine($"{I2}/// <param name=\"model\">Instance of a \"{Namespace}.{Model}\" model class.</param>");
-            Class.AppendLine($"{I2}/// <returns>ValueTask whose Result property is a single instance of a \"{Namespace}.{Model}\" class that is mapped to resulting record of table {this.Table}</returns>");
+            Class.AppendLine($"{I2}/// <returns>ValueTask without result.</returns>");
         }
 
-        private void AddMethod(string name, string actualReturns, bool sync)
+        private void AddMethod(string name, bool sync)
         {
-            Methods.Add(new Method(name, Namespace, ColumnParams, new Return(this.Name, name, false, true), actualReturns, sync));
+            Methods.Add(new Method(name, Namespace, this.ColumnParams, new Return("void", "void", true, true), "void", sync));
         }
     }
 }
