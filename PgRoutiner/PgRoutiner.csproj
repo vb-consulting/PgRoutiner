@@ -50,4 +50,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Test\Models\" />
+  </ItemGroup>
+
 </Project>

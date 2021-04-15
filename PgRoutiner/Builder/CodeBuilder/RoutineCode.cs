@@ -308,11 +308,11 @@ namespace PgRoutiner
             }
             if (routine.DataType == "USER-DEFINED")
             {
-                return new Return { PgName = routine.TypeUdtName, Name = BuildUserDefinedModel(routine), IsVoid = false, IsEnumerable = false };
+                return new Return { PgName = routine.TypeUdtName, Name = BuildUserDefinedModel(routine), IsVoid = false, IsEnumerable = true };
             }
             if (routine.DataType == "record")
             {
-                return new Return { PgName = routine.TypeUdtName, Name = BuildRecordModel(routine), IsVoid = false, IsEnumerable = false };
+                return new Return { PgName = routine.TypeUdtName, Name = BuildRecordModel(routine), IsVoid = false, IsEnumerable = true };
             }
             throw new ArgumentException($"Could not find mapping \"{routine.DataType}\" for return type of routine \"{routine.RoutineName}\"");
         }
