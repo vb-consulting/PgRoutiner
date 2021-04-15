@@ -66,7 +66,15 @@ namespace PgRoutiner
             Class.AppendLine();
             BuildCommentHeader(routine, @return, @params, true);
             var actualReturns = @return.IsInstance ? $"IEnumerable<{@return.Name}>" : @return.Name;
-            void AddMethod() => Methods.Add(new Method(name, @namespace, @params, @return, actualReturns, true));
+            void AddMethod() => Methods.Add(new Method
+            {
+                Name = name,
+                Namespace = @namespace,
+                Params = @params,
+                Returns = @return,
+                ActualReturns = actualReturns,
+                Sync = true
+            });
 
             void AddBodyCode(string bodyTab, string paramsTab)
             {
@@ -136,7 +144,15 @@ namespace PgRoutiner
             Class.AppendLine();
             BuildCommentHeader(routine, @return, @params, false);
             var actualReturns = @return.IsInstance ? $"IAsyncEnumerable<{@return.Name}>" : (@return.IsVoid ? "async ValueTask" : $"async ValueTask<{@return.Name}>");
-            void AddMethod() => Methods.Add(new Method(name, @namespace, @params, @return, actualReturns, false));
+            void AddMethod() => Methods.Add(new Method
+            {
+                Name = name,
+                Namespace = @namespace,
+                Params = @params,
+                Returns = @return,
+                ActualReturns = actualReturns,
+                Sync = false
+            });
 
             void AddBodyCode(string bodyTab, string paramsTab)
             {
@@ -276,27 +292,27 @@ namespace PgRoutiner
         {
             if (routine == null || routine.DataType == null || routine.DataType == "void")
             {
-                return new Return("void", "void", true, false);
+                return new Return { PgName = "void", Name = "void", IsVoid = true, IsInstance = false };
             }
             if (TryGetRoutineMapping(routine, out var result))
             {
                 if (routine.DataType == "ARRAY")
                 {
-                    return new Return($"{routine.TypeUdtName}[]", $"{result}[]", false, false);
+                    return new Return { PgName = $"{routine.TypeUdtName}[]", Name = $"{result}[]", IsVoid = false, IsInstance = false };
                 }
                 if (result != "string")
                 {
-                    return new Return(routine.DataType, $"{result}?", false, false);
+                    return new Return { PgName = routine.DataType, Name = $"{result}?", IsVoid = false, IsInstance = false };
                 }
-                return new Return(routine.DataType, result, false, false);
+                return new Return { PgName = routine.DataType, Name = result, IsVoid = false, IsInstance = false };
             }
             if (routine.DataType == "USER-DEFINED")
             {
-                return new Return(routine.TypeUdtName, BuildUserDefinedModel(routine), false, true);
+                return new Return { PgName = routine.TypeUdtName, Name = BuildUserDefinedModel(routine), IsVoid = false, IsInstance = false };
             }
             if (routine.DataType == "record")
             {
-                return new Return(routine.TypeUdtName, BuildRecordModel(routine), false, true);
+                return new Return { PgName = routine.TypeUdtName, Name = BuildRecordModel(routine), IsVoid = false, IsInstance = false };
             }
             throw new ArgumentException($"Could not find mapping \"{routine.DataType}\" for return type of routine \"{routine.RoutineName}\"");
         }

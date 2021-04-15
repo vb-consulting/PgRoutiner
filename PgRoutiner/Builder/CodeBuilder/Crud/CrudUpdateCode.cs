@@ -145,7 +145,15 @@ namespace PgRoutiner
 
         private void AddMethod(string name, bool sync)
         {
-            Methods.Add(new Method(name, Namespace, this.Params, new Return("void", "void", true, true), "void", sync));
+            Methods.Add(new Method
+            {
+                Name = name,
+                Namespace = Namespace,
+                Params = this.Params,
+                Returns = new Return { PgName = "void", Name = "void", IsVoid = true, IsInstance = true },
+                ActualReturns = "void",
+                Sync = sync
+            });
         }
     }
 }

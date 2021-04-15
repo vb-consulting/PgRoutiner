@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Npgsql;
 
 namespace PgRoutiner
 {
-    public record Return(string PgName, string Name, bool IsVoid, bool IsInstance);
+    public class Return
+    {
+        public bool IsInstance { get; init; }
+        public bool IsVoid { get; init; }
+        public string Name { get; init; }
+        public string PgName { get; init; }
+    }
 
     public class Param
     {
@@ -19,5 +24,13 @@ namespace PgRoutiner
         public bool IsInstance { get; init; } = false;
     }
 
-    public record Method(string Name, string Namespace, List<Param> Params, Return Returns, string ActualReturns, bool Sync);
+    public class Method
+    {
+        public string ActualReturns { get; init; }
+        public string Name { get; init; }
+        public string Namespace { get; init; }
+        public List<Param> Params { get; init; }
+        public Return Returns { get; init; }
+        public bool Sync { get; init; }
+    }
 }
