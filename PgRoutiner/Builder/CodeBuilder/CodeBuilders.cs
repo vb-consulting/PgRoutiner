@@ -74,6 +74,15 @@ namespace PgRoutiner
                     }
                     else
                     {
+                        var modelModule = new Module(settings);
+                        modelModule.AddNamespace((settings.ModelDir ?? codeSettings.OutputDir).PathToNamespace());
+                        modelModule.AddItems(modelContent);
+                        if (modelModule.Namespace != module.Namespace)
+                        {
+                            module.AddUsing(modelModule.Namespace);
+                            code.ModuleNamespace = modelModule.Namespace;
+                        }
+
                         if (UserDefinedModels.Contains(modelName))
                         {
                             continue;
@@ -102,14 +111,6 @@ namespace PgRoutiner
                             Builder.DumpFormat("Skipping {0} ...", relativeModelName);
                             continue;
                         }
-                        //Builder.DumpFormat("Building {0}...", relativeModelName);
-                        var modelModule = new Module(settings);
-                        modelModule.AddNamespace((settings.ModelDir ?? codeSettings.OutputDir).PathToNamespace());
-                        modelModule.AddItems(modelContent);
-                        if (modelModule.Namespace != module.Namespace)
-                        {
-                            module.AddUsing(modelModule.Namespace);
-                        }
                         Builder.DumpRelativePath("Creating file: {0} ...", fullModelFileName);
                         Builder.WriteFile(fullModelFileName, modelModule.ToString());
                         modelModule.Flush();
@@ -120,7 +121,7 @@ namespace PgRoutiner
                         }
                     }
                 }
-    
+
                 module.AddItems(code.Class);
                 Builder.DumpRelativePath("Creating file: {0} ...", fullFileName);
                 Builder.WriteFile(fullFileName, module.ToString());
@@ -141,7 +142,23 @@ namespace PgRoutiner
                 }
                 if (code.Methods.Count > 0 && File.Exists(fullFileName))
                 {
-                    extensions.Add(new ExtensionMethods { Methods = code.Methods, Namespace = module.Namespace, Name = code.Methods.First().Name });
+                    string modelNamespace = null;
+                    if (code.Models.Any())
+                    {
+                        var modelModule = new Module(settings);
+                        modelModule.AddNamespace((settings.ModelDir ?? codeSettings.OutputDir).PathToNamespace());
+                        if (modelModule.Namespace != module.Namespace)
+                        {
+                            modelNamespace = modelModule.Namespace;
+                        }
+                    }
+                    extensions.Add(new ExtensionMethods
+                    { 
+                        Methods = code.Methods,
+                        Namespace = module.Namespace,
+                        Name = code.Methods.First().Name,
+                        ModelNamespace = modelNamespace
+                    });
                 }
             }
             return extensions;

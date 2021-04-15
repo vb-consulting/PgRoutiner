@@ -14,6 +14,7 @@ namespace PgRoutiner
         protected readonly List<Param> ColumnParams = new();
         protected readonly string Model;
         protected readonly string Table;
+        protected List<Param> Params;
 
         public CrudCodeBase(
             Settings settings,

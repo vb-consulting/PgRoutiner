@@ -21,7 +21,7 @@ namespace PgRoutiner
         public Dictionary<string, StringBuilder> ModelContent { get; private set; } = new();
         public StringBuilder Class { get; } = new();
         public List<Method> Methods { get; } = new();
-        public string ModuleNamespace { get; private set; }
+        public string ModuleNamespace { get; set; }
 
         public Code(Settings settings, string name)
         {

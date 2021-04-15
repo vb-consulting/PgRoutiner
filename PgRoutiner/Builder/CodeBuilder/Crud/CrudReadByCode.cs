@@ -160,8 +160,8 @@ namespace PgRoutiner
             {
                 Name = name,
                 Namespace = Namespace,
-                Params = this.PkParams, //!!
-                Returns = new Return { PgName = this.Name, Name = name, IsVoid = false, IsInstance = false },
+                Params = this.PkParams,
+                Returns = new Return { PgName = this.Name, Name = this.Model, IsVoid = false, IsEnumerable = false },
                 ActualReturns = actualReturns,
                 Sync = sync
             });

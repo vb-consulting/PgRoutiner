@@ -13,6 +13,15 @@ namespace PgRoutiner
             string @namespace,
             IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "UpdateReturning")
         {
+            this.Params = new()
+            {
+                new Param
+                {
+                    PgName = "model",
+                    Type = this.Model,
+                    IsInstance = true
+                }
+            };
             Build();
             if (!this.PkParams.Any())
             {
@@ -148,8 +157,8 @@ namespace PgRoutiner
             {
                 Name = name,
                 Namespace = Namespace,
-                Params = this.ColumnParams, //!!
-                Returns = new Return { PgName = this.Name, Name = name, IsVoid = false, IsInstance = true },
+                Params = this.Params,
+                Returns = new Return { PgName = this.Name, Name = this.Model, IsVoid = false, IsEnumerable = false },
                 ActualReturns = actualReturns,
                 Sync = sync
             });

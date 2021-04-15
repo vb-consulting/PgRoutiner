@@ -7,7 +7,7 @@ namespace PgRoutiner
 {
     public class Module : Code
     {
-        protected List<string> usings = new() 
+        protected HashSet<string> usings = new() 
         { 
             "System", "System.Linq", "System.Collections.Generic"
         };
@@ -22,7 +22,10 @@ namespace PgRoutiner
 
         public void AddUsing(params string[] usings)
         {
-            this.usings.AddRange(usings);
+            foreach(var u in usings)
+            {
+                this.usings.Add(u);
+            }
         }
 
         public void AddNamespace(params string[] namespaces)

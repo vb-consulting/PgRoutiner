@@ -5,9 +5,17 @@ using System.Text;
 
 namespace PgRoutiner
 {
+    public class ExtensionMethods
+    {
+        public List<Method> Methods { get; set; }
+        public string Namespace { get; set; }
+        public string ModelNamespace { get; set; }
+        public string Name { get; set; }
+    }
+
     public class Return
     {
-        public bool IsInstance { get; init; }
+        public bool IsEnumerable { get; init; }
         public bool IsVoid { get; init; }
         public string Name { get; init; }
         public string PgName { get; init; }

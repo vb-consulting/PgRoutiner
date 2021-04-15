@@ -13,6 +13,15 @@ namespace PgRoutiner
             string @namespace,
             IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "CreateOnConflictDoNothing")
         {
+            this.Params = new()
+            {
+                new Param
+                {
+                    PgName = "model",
+                    Type = this.Model,
+                    IsInstance = true
+                }
+            };
             Build();
         }
 
@@ -148,8 +157,8 @@ namespace PgRoutiner
             {
                 Name = name,
                 Namespace = Namespace,
-                Params = this.ColumnParams, //!!
-                Returns = new Return { PgName = "void", Name = "void", IsVoid = true, IsInstance = true },
+                Params = this.Params, 
+                Returns = new Return { PgName = "void", Name = "void", IsVoid = true, IsEnumerable = false },
                 ActualReturns = "void",
                 Sync = sync
             });

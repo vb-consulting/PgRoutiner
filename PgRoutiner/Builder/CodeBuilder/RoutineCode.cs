@@ -65,7 +65,7 @@ namespace PgRoutiner
             var name = routine.RoutineName.ToUpperCamelCase();
             Class.AppendLine();
             BuildCommentHeader(routine, @return, @params, true);
-            var actualReturns = @return.IsInstance ? $"IEnumerable<{@return.Name}>" : @return.Name;
+            var actualReturns = @return.IsEnumerable ? $"IEnumerable<{@return.Name}>" : @return.Name;
             void AddMethod() => Methods.Add(new Method
             {
                 Name = name,
@@ -102,7 +102,7 @@ namespace PgRoutiner
                     }
                 }
                 BuildParams(@params, paramsTab);
-                if (@return.IsVoid || @return.IsInstance)
+                if (@return.IsVoid || @return.IsEnumerable)
                 {
                     Class.AppendLine(");");
                     return;
@@ -143,7 +143,7 @@ namespace PgRoutiner
             var name = $"{routine.RoutineName.ToUpperCamelCase()}Async";
             Class.AppendLine();
             BuildCommentHeader(routine, @return, @params, false);
-            var actualReturns = @return.IsInstance ? $"IAsyncEnumerable<{@return.Name}>" : (@return.IsVoid ? "async ValueTask" : $"async ValueTask<{@return.Name}>");
+            var actualReturns = @return.IsEnumerable ? $"IAsyncEnumerable<{@return.Name}>" : (@return.IsVoid ? "async ValueTask" : $"async ValueTask<{@return.Name}>");
             void AddMethod() => Methods.Add(new Method
             {
                 Name = name,
@@ -180,7 +180,7 @@ namespace PgRoutiner
                     }
                 }
                 BuildParams(@params, paramsTab);
-                if (@return.IsVoid || @return.IsInstance)
+                if (@return.IsVoid || @return.IsEnumerable)
                 {
                     Class.AppendLine(");");
 
@@ -196,7 +196,7 @@ namespace PgRoutiner
             {
                 Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
                 BuildMethodParams(@params);
-                Class.AppendLine(@return.IsInstance ? ") => connection" : ") => await connection");
+                Class.AppendLine(@return.IsEnumerable ? ") => connection" : ") => await connection");
 
                 AddBodyCode(I3, I4);
             }
@@ -208,11 +208,11 @@ namespace PgRoutiner
                 Class.AppendLine($"{I2}{{");
                 if (@return.IsVoid)
                 {
-                    Class.AppendLine(@return.IsInstance ? $"{I3}connection" : $"{I3}await connection");
+                    Class.AppendLine(@return.IsEnumerable ? $"{I3}connection" : $"{I3}await connection");
                 }
                 else
                 {
-                    Class.AppendLine(@return.IsInstance ? $"{I3}return connection" : $"{I3}return await connection");
+                    Class.AppendLine(@return.IsEnumerable ? $"{I3}return connection" : $"{I3}return await connection");
                 }
                 AddBodyCode(I4, I5);
                 Class.AppendLine($"{I2}}}");
@@ -253,7 +253,7 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I2}/// <param name=\"{p.Name}\">{p.PgName} {p.PgType}</param>");
             }
-            if (@return.IsInstance)
+            if (@return.IsEnumerable)
             {
                 if (sync)
                 {
@@ -292,27 +292,27 @@ namespace PgRoutiner
         {
             if (routine == null || routine.DataType == null || routine.DataType == "void")
             {
-                return new Return { PgName = "void", Name = "void", IsVoid = true, IsInstance = false };
+                return new Return { PgName = "void", Name = "void", IsVoid = true, IsEnumerable = false };
             }
             if (TryGetRoutineMapping(routine, out var result))
             {
                 if (routine.DataType == "ARRAY")
                 {
-                    return new Return { PgName = $"{routine.TypeUdtName}[]", Name = $"{result}[]", IsVoid = false, IsInstance = false };
+                    return new Return { PgName = $"{routine.TypeUdtName}[]", Name = $"{result}[]", IsVoid = false, IsEnumerable = false };
                 }
                 if (result != "string")
                 {
-                    return new Return { PgName = routine.DataType, Name = $"{result}?", IsVoid = false, IsInstance = false };
+                    return new Return { PgName = routine.DataType, Name = $"{result}?", IsVoid = false, IsEnumerable = false };
                 }
-                return new Return { PgName = routine.DataType, Name = result, IsVoid = false, IsInstance = false };
+                return new Return { PgName = routine.DataType, Name = result, IsVoid = false, IsEnumerable = false };
             }
             if (routine.DataType == "USER-DEFINED")
             {
-                return new Return { PgName = routine.TypeUdtName, Name = BuildUserDefinedModel(routine), IsVoid = false, IsInstance = false };
+                return new Return { PgName = routine.TypeUdtName, Name = BuildUserDefinedModel(routine), IsVoid = false, IsEnumerable = false };
             }
             if (routine.DataType == "record")
             {
-                return new Return { PgName = routine.TypeUdtName, Name = BuildRecordModel(routine), IsVoid = false, IsInstance = false };
+                return new Return { PgName = routine.TypeUdtName, Name = BuildRecordModel(routine), IsVoid = false, IsEnumerable = false };
             }
             throw new ArgumentException($"Could not find mapping \"{routine.DataType}\" for return type of routine \"{routine.RoutineName}\"");
         }

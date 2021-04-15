@@ -77,7 +77,7 @@ namespace PgRoutiner
                 {
                     if (p.IsInstance)
                     {
-                        Class.AppendLine($"{I3}{p.Type} {p.Name} = new();");
+                        Class.AppendLine($"{I3}var {p.Name} = new {p.Type}();");
                     }
                     else
                     {
@@ -99,7 +99,7 @@ namespace PgRoutiner
                 
                 if (!m.Sync)
                 {
-                    if (!m.Returns.IsVoid && m.Returns.IsInstance)
+                    if (!m.Returns.IsVoid && m.Returns.IsEnumerable)
                     {
                         Class.AppendLine($"await Connection.{methodName}({string.Join(", ", m.Params.Select(p => p.Name))}).ToListAsync();");
                     }
@@ -110,7 +110,14 @@ namespace PgRoutiner
                 }
                 else
                 {
-                    Class.AppendLine($"Connection.{methodName}({string.Join(", ", m.Params.Select(p => p.Name))});");
+                    if (!m.Returns.IsVoid && m.Returns.IsEnumerable)
+                    {
+                        Class.AppendLine($"Connection.{methodName}({string.Join(", ", m.Params.Select(p => p.Name))}).ToList();");
+                    }
+                    else
+                    {
+                        Class.AppendLine($"Connection.{methodName}({string.Join(", ", m.Params.Select(p => p.Name))});");
+                    }
                 }
 
                 Class.AppendLine();
@@ -118,11 +125,18 @@ namespace PgRoutiner
                 Class.AppendLine($"{I3}// Assert");
                 if (m.Returns.IsVoid)
                 {
-                    Class.Append($"{I3}// Assert.Equal(default(string), Connection.Read<string>(\"select your assertion value\").Single());");
+                    Class.Append($"{I3}Assert.Equal(default(string), Connection.Read<string>(\"select your assertion value\").Single());");
                 }
                 else
                 {
-                    Class.Append($"{I3}// Assert.Equal(default({m.Returns.Name}), result);");
+                    if (!m.Returns.IsVoid && m.Returns.IsEnumerable)
+                    {
+                        Class.Append($"{I3}Assert.Equal(default(List<{m.Returns.Name}>), result);");
+                    }
+                    else
+                    {
+                        Class.Append($"{I3}Assert.Equal(default({m.Returns.Name}), result);");
+                    }
                 }
                 Class.AppendLine();
 

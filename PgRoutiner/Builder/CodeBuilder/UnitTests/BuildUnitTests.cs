@@ -134,10 +134,13 @@ namespace PgRoutiner
                     {
                         module.AddUsing("System.Threading.Tasks");
                     }
-                    module.AddUsing(ext.Namespace);
                     module.AddUsing("Xunit");
                     module.AddUsing("Norm");
-
+                    module.AddUsing(ext.Namespace);
+                    if (!string.IsNullOrEmpty(ext.ModelNamespace))
+                    {
+                        module.AddUsing(ext.ModelNamespace);
+                    }
                     var code = new UnitTestCode(Settings.Value, className, ext);
                     module.AddItems(code.Class);
                     DumpRelativePath("Creating file: {0} ...", moduleFile);

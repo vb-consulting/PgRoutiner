@@ -7,8 +7,6 @@ namespace PgRoutiner
 {
     public class CrudUpdateCode : CrudCodeBase
     {
-        private readonly List<Param> Params;
-
         public CrudUpdateCode(
             Settings settings,
             (string schema, string name) item,
@@ -150,7 +148,7 @@ namespace PgRoutiner
                 Name = name,
                 Namespace = Namespace,
                 Params = this.Params,
-                Returns = new Return { PgName = "void", Name = "void", IsVoid = true, IsInstance = true },
+                Returns = new Return { PgName = "void", Name = "void", IsVoid = true, IsEnumerable = true },
                 ActualReturns = "void",
                 Sync = sync
             });

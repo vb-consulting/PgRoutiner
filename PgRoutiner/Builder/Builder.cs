@@ -6,13 +6,6 @@ using Npgsql;
 
 namespace PgRoutiner
 {
-    public class ExtensionMethods
-    {
-        public List<Method> Methods { get; set; }
-        public string Namespace { get; set; }
-        public string Name { get; set; }
-    }
-
     partial class Builder
     {
         public static string SchemaFile = null;

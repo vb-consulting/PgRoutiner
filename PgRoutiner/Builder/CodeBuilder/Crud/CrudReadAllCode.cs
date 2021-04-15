@@ -114,7 +114,7 @@ namespace PgRoutiner
                 Name = name,
                 Namespace = Namespace,
                 Params = new(),
-                Returns = new Return { PgName = this.Name, Name = name, IsVoid = false, IsInstance = true },
+                Returns = new Return { PgName = this.Name, Name = this.Model, IsVoid = false, IsEnumerable = true },
                 ActualReturns = actualReturns,
                 Sync = sync
             });
