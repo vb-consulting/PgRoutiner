@@ -9,7 +9,8 @@ namespace PgRoutiner
     {
         protected readonly string Namespace;
         protected readonly IEnumerable<PgColumnGroup> Columns;
-        protected readonly List<Param> Pk;
+        protected readonly List<Param> PkParams = new();
+        protected readonly List<Param> ColumnParams = new();
         protected readonly string Model;
         protected readonly string Table;
 
@@ -23,11 +24,25 @@ namespace PgRoutiner
             this.Table = item.schema == "public" ? $"[{item.name}]" : $"{ item.schema}.[{item.name}]";
             this.Namespace = @namespace;
             this.Columns = columns;
-            this.Pk = GetParamsFromPk();
+            foreach(var column in this.Columns)
+            {
+                var p = new Param
+                {
+                    PgName = column.Name,
+                    PgType = column.DataType,
+                    Type = GetParamType(column),
+                    DbType = GetParamDbType(column)
+                };
+                if (column.IsPk)
+                {
+                    PkParams.Add(p);
+                }
+                ColumnParams.Add(p);
+            }
             this.Model = BuildModel();
             BeginClass(suffix);
             AddName();
-            AddQuery();
+            AddSql();
             if (!settings.SkipSyncMethods)
             {
                 if (!settings.UseExpressionBody)
@@ -53,7 +68,7 @@ namespace PgRoutiner
             EndClass();
         }
 
-        protected abstract void AddQuery();
+        protected abstract void AddSql();
 
         protected abstract void BuildStatementBodySyncMethod();
 
@@ -107,14 +122,6 @@ namespace PgRoutiner
             UserDefinedModels.Add(name);
             Models.Add(name, model);
             return name;
-        }
-
-        private List<Param> GetParamsFromPk()
-        {
-            return this.Columns
-                .Where(c => c.IsPk)
-                .Select(p => new Param(p.Name, p.Name.ToCamelCase(), p.DataType, GetParamType(p), GetParamDbType(p)))
-                .ToList();
         }
     }
 }

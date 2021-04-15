@@ -84,6 +84,36 @@ namespace PgRoutiner
                     }
                     yield return (code, name, shortFilename, fullFileName, relative, module);
                 }
+                if (OptionContains(settings.CrudDelete, schema, name))
+                {
+                    try
+                    {
+
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_delete", outputDir);
+                        code = new CrudDeleteCode(settings, group.Key, module.Namespace, group);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Builder.Error($"File {relative} could not be generated. {e.Message}");
+                        continue;
+                    }
+                    yield return (code, name, shortFilename, fullFileName, relative, module);
+                }
+                if (OptionContains(settings.CrudDeleteReturning, schema, name))
+                {
+                    try
+                    {
+
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_delete_returning", outputDir);
+                        code = new CrudDeleteReturningCode(settings, group.Key, module.Namespace, group);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Builder.Error($"File {relative} could not be generated. {e.Message}");
+                        continue;
+                    }
+                    yield return (code, name, shortFilename, fullFileName, relative, module);
+                }
             }
             //Program.WriteLine(ConsoleColor.Yellow, "", $"WARNING: Table {schema}.{name} not found, skipping...");
         }

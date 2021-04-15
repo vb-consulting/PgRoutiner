@@ -5,13 +5,13 @@ using System.Text;
 
 namespace PgRoutiner
 {
-    public class CrudUpdateCode : CrudCodeBase
+    public class CrudDeleteCode : CrudCodeBase
     {
-        public CrudUpdateCode(
+        public CrudDeleteCode(
             Settings settings,
             (string schema, string name) item,
             string @namespace,
-            IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "Update")
+            IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "Delete")
         {
             if (!this.PkParams.Any())
             {
@@ -22,17 +22,7 @@ namespace PgRoutiner
         protected override void AddSql()
         {
             Class.AppendLine($"{I2}public const string Sql = @\"");
-            Class.AppendLine($"{I3}UPDATE {this.Table}");
-            Class.AppendLine($"{I3}SET");
-            Class.AppendLine(string.Join($",{NL}", this.Columns.Where(c => !c.IsPk).Select(c =>
-            {
-                var p = $"@{c.Name.ToCamelCase()}";
-                if (c.HasDefault)
-                {
-                    return $"{I4}[{c.Name}] = CASE WHEN {p} IS NULL THEN DEFAULT ELSE {p} END";
-                }
-                return $"{I4}[{c.Name}] = {p}";
-            })));
+            Class.AppendLine($"{I3}DELETE FROM {this.Table}");
             Class.Append($"{I3}WHERE{NL}{I4}");
             Class.Append(string.Join($"{NL}{I1}AND ", this.PkParams.Select(c => $"[{c.PgName}] = @{c.Name}")));
             Class.AppendLine($"\";");
@@ -40,7 +30,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodySyncMethod()
         {
-            var name = $"Update{Name.ToUpperCamelCase()}";
+            var name = $"Delete{Name.ToUpperCamelCase()}";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
             Class.AppendLine($"{I2}public static void {name}(this NpgsqlConnection connection, {this.Model} model)");
@@ -52,7 +42,7 @@ namespace PgRoutiner
             }
             Class.Append($"{I4}.Execute(Sql");
             Class.AppendLine(", ");
-            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
+            Class.Append(string.Join($",{NL}", this.PkParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($");");
             Class.AppendLine($"{I2}}}");
             AddMethod(name, true);
@@ -72,7 +62,7 @@ namespace PgRoutiner
             }
             Class.Append($"{I4}.ExecuteAsync(Sql");
             Class.AppendLine(", ");
-            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
+            Class.Append(string.Join($",{NL}", this.PkParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($");");
             Class.AppendLine($"{I2}}}");
             AddMethod(name, false);
@@ -90,7 +80,7 @@ namespace PgRoutiner
             }
             Class.Append($"{I3}.Execute(Sql");
             Class.AppendLine(", ");
-            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
+            Class.Append(string.Join($",{NL}", this.PkParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($");");
             AddMethod(name, true);
         }
@@ -107,7 +97,7 @@ namespace PgRoutiner
             }
             Class.Append($"{I3}.ExecuteAsync(Sql");
             Class.AppendLine(", ");
-            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
+            Class.Append(string.Join($",{NL}", this.PkParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($");");
             AddMethod(name, false);
         }
@@ -115,7 +105,7 @@ namespace PgRoutiner
         protected override void BuildSyncMethodCommentHeader()
         {
             Class.AppendLine($"{I2}/// <summary>");
-            Class.AppendLine($"{I2}/// Update record of table {this.Table} with values instance of a \"{Namespace}.{Model}\" class by matching values of key fields: {string.Join(", ", this.PkParams.Select(p => p.Name))}");
+            Class.AppendLine($"{I2}/// Delete record of table {this.Table} by matching values of key fields: {string.Join(", ", this.PkParams.Select(p => p.Name))}");
             Class.AppendLine($"{I2}/// </summary>");
             Class.AppendLine($"{I2}/// <param name=\"model\">Instance of a \"{Namespace}.{Model}\" model class.</param>");
         }
@@ -123,7 +113,7 @@ namespace PgRoutiner
         protected override void BuildAsyncMethodCommentHeader()
         {
             Class.AppendLine($"{I2}/// <summary>");
-            Class.AppendLine($"{I2}/// Asynchronously update record of table {this.Table} with values instance of a \"{Namespace}.{Model}\" class by matching values of key fields: {string.Join(", ", this.PkParams.Select(p => p.Name))}");
+            Class.AppendLine($"{I2}/// Asynchronously delete record of table {this.Table} by matching values of key fields: {string.Join(", ", this.PkParams.Select(p => p.Name))}");
             Class.AppendLine($"{I2}/// </summary>");
             Class.AppendLine($"{I2}/// <param name=\"model\">Instance of a \"{Namespace}.{Model}\" model class.</param>");
             Class.AppendLine($"{I2}/// <returns>ValueTask without result.</returns>");
@@ -131,7 +121,7 @@ namespace PgRoutiner
 
         private void AddMethod(string name, bool sync)
         {
-            Methods.Add(new Method(name, Namespace, this.ColumnParams, new Return("void", "void", true, true), "void", sync));
+            Methods.Add(new Method(name, Namespace, PkParams, new Return("void", "void", true, true), "void", sync));
         }
     }
 }

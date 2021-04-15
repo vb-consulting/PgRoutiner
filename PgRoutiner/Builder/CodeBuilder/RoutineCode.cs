@@ -263,8 +263,13 @@ namespace PgRoutiner
 
         private List<Param> GetParamsInfo(PgRoutineGroup routine)
         {
-            return routine.Parameters.Select(p => 
-                new Param(p.Name, p.Name.ToCamelCase(), p.DataType, GetParamType(p), GetParamDbType(p))).ToList();
+            return routine.Parameters.Select(p => new Param
+            {
+                PgName = p.Name,
+                PgType = p.DataType,
+                Type = GetParamType(p),
+                DbType = GetParamDbType(p)
+            }).ToList();
         }
 
         private Return GetReturnInfo(PgRoutineGroup routine)

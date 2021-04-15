@@ -235,6 +235,7 @@ namespace PgRoutiner
         public HashSet<string> CrudUpdate { get; set; } = new HashSet<string>();
         public HashSet<string> CrudUpdateReturning { get; set; } = new HashSet<string>();
         public HashSet<string> CrudDelete { get; set; } = new HashSet<string>();
+        public HashSet<string> CrudDeleteReturning { get; set; } = new HashSet<string>();
 
         public static readonly Settings Value = new();
     }

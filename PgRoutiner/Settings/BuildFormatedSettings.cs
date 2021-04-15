@@ -274,7 +274,8 @@ namespace PgRoutiner
             AddEntry(nameof(CrudReadAll), Value.CrudReadAll);
             AddEntry(nameof(CrudUpdate), Value.CrudUpdate);
             AddEntry(nameof(CrudUpdateReturning), Value.CrudUpdateReturning);
-            AddEntry(nameof(CrudDelete), Value.CrudDelete, "");
+            AddEntry(nameof(CrudDelete), Value.CrudDelete);
+            AddEntry(nameof(CrudDeleteReturning), Value.CrudDeleteReturning, "");
 
             if (wrap)
             {

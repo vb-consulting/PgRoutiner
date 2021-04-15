@@ -15,12 +15,12 @@ namespace PgRoutiner
         {
         }
 
-        protected override void AddQuery()
+        protected override void AddSql()
         {
-            Class.AppendLine($"{I2}public const string Query = @\"");
-            Class.AppendLine($"{I3}select");
+            Class.AppendLine($"{I2}public const string Sql = @\"");
+            Class.AppendLine($"{I3}SELECT");
             Class.AppendLine(string.Join($",{NL}", this.Columns.Select(c => $"{I4}[{c.Name}]")));
-            Class.AppendLine($"{I3}from");
+            Class.AppendLine($"{I3}FROM");
             Class.AppendLine($"{I4}{this.Table}\";");
         }
 
@@ -37,9 +37,9 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I4}.Prepared()");
             }
-            Class.AppendLine($"{I4}.Read<{this.Model}>(Query);");
+            Class.AppendLine($"{I4}.Read<{this.Model}>(Sql);");
             Class.AppendLine($"{I2}}}");
-            Methods.Add(new Method(name, Namespace, Pk, new Return(this.Name, name, false, true), actualReturns, true));
+            AddMethod(name, actualReturns, true);
         }
 
         protected override void BuildStatementBodyAsyncMethod()
@@ -55,9 +55,9 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I4}.Prepared()");
             }
-            Class.AppendLine($"{I4}.ReadAsync<{this.Model}>(Query);");
+            Class.AppendLine($"{I4}.ReadAsync<{this.Model}>(Sql);");
             Class.AppendLine($"{I2}}}");
-            Methods.Add(new Method(name, Namespace, Pk, new Return(this.Name, name, false, true), actualReturns, false));
+            AddMethod(name, actualReturns, false);
         }
 
         protected override void BuildExpressionBodySyncMethod()
@@ -71,8 +71,8 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I3}.Prepared()");
             }
-            Class.AppendLine($"{I3}.Read<{this.Model}>(Query);");
-            Methods.Add(new Method(name, Namespace, Pk, new Return(this.Name, name, false, true), actualReturns, true));
+            Class.AppendLine($"{I3}.Read<{this.Model}>(Sql);");
+            AddMethod(name, actualReturns, true);
         }
 
         protected override void BuildExpressionBodyAsyncMethod()
@@ -86,8 +86,8 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I3}.Prepared()");
             }
-            Class.AppendLine($"{I3}.ReadAsync<{this.Model}>(Query);");
-            Methods.Add(new Method(name, Namespace, Pk, new Return(this.Name, name, false, true), actualReturns, false));
+            Class.AppendLine($"{I3}.ReadAsync<{this.Model}>(Sql);");
+            AddMethod(name, actualReturns, false);
         }
 
         protected override void BuildSyncMethodCommentHeader()
@@ -104,6 +104,11 @@ namespace PgRoutiner
             Class.AppendLine($"{I2}/// Asynchronously select table {this.Table} and return enumerator of instances of a \"{this.Model}\" class.");
             Class.AppendLine($"{I2}/// </summary>");
             Class.AppendLine($"{I2}/// <returns>IAsyncEnumerable of \"{Namespace}.{Model}\" instances.</returns>");
+        }
+
+        private void AddMethod(string name, string actualReturns, bool sync)
+        {
+            Methods.Add(new Method(name, Namespace, new(), new Return(this.Name, name, false, true), actualReturns, sync));
         }
     }
 }
