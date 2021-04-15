@@ -42,6 +42,7 @@ namespace PgRoutiner
             this.Model = BuildModel();
             BeginClass(suffix);
             AddName();
+            Class.AppendLine();
             AddSql();
             if (!settings.SkipSyncMethods)
             {

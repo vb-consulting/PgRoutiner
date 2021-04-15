@@ -21,7 +21,7 @@ namespace PgRoutiner
 
         protected override void AddSql()
         {
-            Class.AppendLine($"{I2}public const string Sql = @\"");
+            Class.AppendLine($"{I2}public static string Sql(string[] conflictedFields) => $@\"");
             Class.AppendLine($"{I3}INSERT INTO {this.Table}");
             Class.AppendLine($"{I3}(");
             Class.AppendLine(string.Join($",{NL}", this.Columns.Select(c => $"{I4}[{c.Name}]")));
@@ -42,7 +42,9 @@ namespace PgRoutiner
                 return $"{I4}{p}";
             })));
             Class.AppendLine($"{I3})");
-            Class.AppendLine($"{I3}ON CONFLICT DO NOTHING");
+            var exp = "{(conflictedFields.Length == 0 ? \"\" : $\"({string.Join(\", \", conflictedFields)})\")}";
+            Class.AppendLine($"{I3}ON CONFLICT {exp}");
+            Class.AppendLine($"{I3}DO NOTHING");
             Class.AppendLine($"{I3}RETURNING{NL}{string.Join($",{NL}", this.Columns.Select(c => $"{I4}[{c.Name}]"))}\";");
         }
 
@@ -52,14 +54,14 @@ namespace PgRoutiner
             var actualReturns = this.Model;
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
-            Class.AppendLine($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection, {this.Model} model)");
+            Class.AppendLine($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection, {this.Model} model, params string[] conflictedFields)");
             Class.AppendLine($"{I2}{{");
             Class.AppendLine($"{I3}return connection");
             if (!settings.CrudNoPrepare)
             {
                 Class.AppendLine($"{I4}.Prepared()");
             }
-            Class.Append($"{I4}.Read<{this.Model}>(Sql");
+            Class.Append($"{I4}.Read<{this.Model}>(Sql(conflictedFields)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -74,14 +76,14 @@ namespace PgRoutiner
             var actualReturns = $"ValueTask<{this.Model}>";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
-            Class.AppendLine($"{I2}public static async {actualReturns} {name}(this NpgsqlConnection connection, {this.Model} model)");
+            Class.AppendLine($"{I2}public static async {actualReturns} {name}(this NpgsqlConnection connection, {this.Model} model, params string[] conflictedFields)");
             Class.AppendLine($"{I2}{{");
             Class.AppendLine($"{I3}return await connection");
             if (!settings.CrudNoPrepare)
             {
                 Class.AppendLine($"{I4}.Prepared()");
             }
-            Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql");
+            Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql(conflictedFields)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -96,12 +98,12 @@ namespace PgRoutiner
             var actualReturns = this.Model;
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
-            Class.AppendLine($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection, {this.Model} model) => connection");
+            Class.AppendLine($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection, {this.Model} model, params string[] conflictedFields) => connection");
             if (!settings.CrudNoPrepare)
             {
                 Class.AppendLine($"{I3}.Prepared()");
             }
-            Class.Append($"{I3}.Read<{this.Model}>(Sql");
+            Class.Append($"{I3}.Read<{this.Model}>(Sql(conflictedFields)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -115,13 +117,13 @@ namespace PgRoutiner
             var actualReturns = $"ValueTask<{this.Model}>";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
-            Class.AppendLine($"{I2}public static async {actualReturns} {name}(this NpgsqlConnection connection, {this.Model} model) => await connection");
+            Class.AppendLine($"{I2}public static async {actualReturns} {name}(this NpgsqlConnection connection, {this.Model} model, params string[] conflictedFields) => await connection");
 
             if (!settings.CrudNoPrepare)
             {
                 Class.AppendLine($"{I3}.Prepared()");
             }
-            Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql");
+            Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql(conflictedFields)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -137,6 +139,7 @@ namespace PgRoutiner
             Class.AppendLine($"{I2}/// When conflict occures, do nothing (skip).");
             Class.AppendLine($"{I2}/// </summary>");
             Class.AppendLine($"{I2}/// <param name=\"model\">Instance of a \"{Namespace}.{Model}\" model class.</param>");
+            Class.AppendLine($"{I2}/// <param name=\"conflictedFields\">Params list of field names that are tested for conflict. Default is none, all conflicts are tested.</param>");
             Class.AppendLine($"{I2}/// <returns>Single instance of a \"{Namespace}.{Model}\" class that is mapped to resulting record of table {this.Table}</returns>");
         }
 
@@ -148,6 +151,7 @@ namespace PgRoutiner
             Class.AppendLine($"{I2}/// When conflict occures, do nothing (skip).");
             Class.AppendLine($"{I2}/// </summary>");
             Class.AppendLine($"{I2}/// <param name=\"model\">Instance of a \"{Namespace}.{Model}\" model class.</param>");
+            Class.AppendLine($"{I2}/// <param name=\"conflictedFields\">Params list of field names that are tested for conflict. Default is none, all conflicts are tested.</param>");
             Class.AppendLine($"{I2}/// <returns>ValueTask whose Result property is a single instance of a \"{Namespace}.{Model}\" class that is mapped to resulting record of table {this.Table}</returns>");
         }
 
