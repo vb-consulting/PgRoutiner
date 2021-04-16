@@ -131,7 +131,15 @@ namespace PgRoutiner
                 Class.AppendLine($"{I3}// Assert");
                 if (m.Returns.IsVoid)
                 {
-                    Class.Append($"{I3}Assert.Equal(default(string), Connection.Read<string>(\"select your assertion value\").Single());");
+                    if (m.Params.Any())
+                    {
+                        var p = m.Params.First();
+                        Class.Append($"{I3}Assert.Equal(default({p.Type}), Connection.Read<{p.Type}>(\"select * from {p.PgType}\").Single());");
+                    }
+                    else
+                    {
+                        Class.Append($"{I3}Assert.Equal(default(string), Connection.Read<string>(\"select your assertion value\").Single());");
+                    }
                 }
                 else
                 {

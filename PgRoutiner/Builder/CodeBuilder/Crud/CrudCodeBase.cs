@@ -7,6 +7,7 @@ namespace PgRoutiner
 {
     public abstract class CrudCodeBase : Code
     {
+        private readonly (string schema, string name) item;
         protected readonly string Namespace;
         protected readonly IEnumerable<PgColumnGroup> Columns;
         private readonly string suffix;
@@ -23,7 +24,8 @@ namespace PgRoutiner
             IEnumerable<PgColumnGroup> columns,
             string suffix) : base(settings, item.name)
         {
-            this.Table = item.schema == "public" ? $"[{item.name}]" : $"{ item.schema}.[{item.name}]";
+            this.Table = item.schema == "public" ? $"\"\"{item.name}\"\"" : $"{item.schema}.\"\"{item.name}\"\"";
+            this.item = item;
             this.Namespace = @namespace;
             this.Columns = columns;
             this.suffix = suffix;
@@ -103,7 +105,8 @@ namespace PgRoutiner
 
         private void AddName()
         {
-            Class.AppendLine($"{I2}public const string Name = \"{this.Table}\";");
+            var name = item.schema == "public" ? item.name : $"{item.schema}.{item.name}";
+            Class.AppendLine($"{I2}public const string Name = \"{name}\";");
         }
 
         private string BuildModel()

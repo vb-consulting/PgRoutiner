@@ -18,6 +18,7 @@ namespace PgRoutiner
                 new Param
                 {
                     PgName = "model",
+                    PgType = this.Name,
                     Type = this.Model,
                     IsInstance = true
                 }
@@ -30,7 +31,7 @@ namespace PgRoutiner
             Class.AppendLine($"{I2}public static string Sql(string[] conflictedFields) => $@\"");
             Class.AppendLine($"{I3}INSERT INTO {this.Table}");
             Class.AppendLine($"{I3}(");
-            Class.AppendLine(string.Join($",{NL}", this.Columns.Select(c => $"{I4}[{c.Name}]")));
+            Class.AppendLine(string.Join($",{NL}", this.Columns.Select(c => $"{I4}\"\"{c.Name}\"\"")));
             Class.AppendLine($"{I3})");
             Class.AppendLine($"{I3}VALUES");
             Class.AppendLine($"{I3}(");
@@ -54,7 +55,7 @@ namespace PgRoutiner
 
             Class.Append(string.Join($",{NL}", this.Columns.Where(c => !c.IsIdentity).Select(c =>
             {
-                return $"{I4}[{c.Name}] = EXCLUDED.[{c.Name}]";
+                return $"{I4}[{c.Name}] = EXCLUDED.\"\"{c.Name}\"\"";
             })));
             Class.AppendLine($"\";");
         }

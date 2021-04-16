@@ -18,6 +18,7 @@ namespace PgRoutiner
                 new Param
                 {
                     PgName = "model",
+                    PgType = this.Name,
                     Type = this.Model,
                     IsInstance = true
                 }
@@ -34,7 +35,7 @@ namespace PgRoutiner
             Class.AppendLine($"{I2}public const string Sql = @\"");
             Class.AppendLine($"{I3}DELETE FROM {this.Table}");
             Class.Append($"{I3}WHERE{NL}{I4}");
-            Class.Append(string.Join($"{NL}{I1}AND ", this.PkParams.Select(c => $"[{c.PgName}] = @{c.Name}")));
+            Class.Append(string.Join($"{NL}{I1}AND ", this.PkParams.Select(c => $"\"\"{c.PgName}\"\" = @{c.Name}")));
             Class.AppendLine($"\";");
         }
 

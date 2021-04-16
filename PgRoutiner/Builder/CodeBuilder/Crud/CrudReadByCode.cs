@@ -24,11 +24,11 @@ namespace PgRoutiner
         {
             Class.AppendLine($"{I2}public const string Sql = @\"");
             Class.AppendLine($"{I3}SELECT");
-            Class.AppendLine(string.Join($",{NL}", this.Columns.Select(c => $"{I4}[{c.Name}]")));
+            Class.AppendLine(string.Join($",{NL}", this.Columns.Select(c => $"{I4}\"\"{c.Name}\"\"")));
             Class.AppendLine($"{I3}FROM");
             Class.AppendLine($"{I4}{this.Table}");
             Class.Append($"{I3}WHERE{NL}{I4}");
-            Class.Append(string.Join($"{NL}{I1}AND ", this.PkParams.Select(c => $"[{c.PgName}] = @{c.Name}")));
+            Class.Append(string.Join($"{NL}{I1}AND ", this.PkParams.Select(c => $"\"\"{c.PgName}\"\" = @{c.Name}")));
             Class.AppendLine($"\";");
         }
 

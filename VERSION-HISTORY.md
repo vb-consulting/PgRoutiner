@@ -11,7 +11,7 @@
 - Model classes from routines generated from recor result gets new name "RoutineNameResult"
 - User defined model results from a rotines (table result) are always in separate model file
 - UseStatementBody replaced UseExpressionBody
-- Fix char type mapping in paramter type
+- Fix char type mapping in parameter type
 - Fix and uncomment unit tests assert part
 - Added SingleLinqMethod setting to be able to change Linq method that returns single value and set it to SingleOrDefault
 - Added UnitTestsSkipSyncMethods and UnitTestsSkipAsyncMethods settings to be able to skip async or sync test methods generation

@@ -18,6 +18,7 @@ namespace PgRoutiner
                 new Param
                 {
                     PgName = "model",
+                    PgType = this.Name,
                     Type = this.Model,
                     IsInstance = true
                 }
@@ -30,7 +31,7 @@ namespace PgRoutiner
             Class.AppendLine($"{I2}public static string Sql(string[] conflictedFields) => $@\"");
             Class.AppendLine($"{I3}INSERT INTO {this.Table}");
             Class.AppendLine($"{I3}(");
-            Class.AppendLine(string.Join($",{NL}", this.Columns.Select(c => $"{I4}[{c.Name}]")));
+            Class.AppendLine(string.Join($",{NL}", this.Columns.Select(c => $"{I4}\"\"{c.Name}\"\"")));
             Class.AppendLine($"{I3})");
             if (this.Columns.Any(c => c.IsIdentity))
             {
@@ -51,7 +52,7 @@ namespace PgRoutiner
             var exp = "{(conflictedFields.Length == 0 ? \"\" : $\"({string.Join(\", \", conflictedFields)})\")}";
             Class.AppendLine($"{I3}ON CONFLICT {exp}");
             Class.AppendLine($"{I3}DO NOTHING");
-            Class.AppendLine($"{I3}RETURNING{NL}{string.Join($",{NL}", this.Columns.Select(c => $"{I4}[{c.Name}]"))}\";");
+            Class.AppendLine($"{I3}RETURNING{NL}{string.Join($",{NL}", this.Columns.Select(c => $"{I4}\"\"{c.Name}\"\""))}\";");
         }
 
         protected override void BuildStatementBodySyncMethod()
