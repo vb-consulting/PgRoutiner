@@ -13,7 +13,8 @@
 - UseStatementBody replaced UseExpressionBody
 - Fix char type mapping in paramter type
 - Fix and uncomment unit tests assert part
-- Add SingleLinqMethod setting to be able to change Linq method that returns single value and set it to SingleOrDefault
+- Added SingleLinqMethod setting to be able to change Linq method that returns single value and set it to SingleOrDefault
+- Added UnitTestsSkipSyncMethods and UnitTestsSkipAsyncMethods settings to be able to skip async or sync test methods generation
 
 - Add CRUD support settings and move shared code generation settings to general code generation settings section
 - Add CRUD generators for ...

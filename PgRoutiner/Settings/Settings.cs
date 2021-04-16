@@ -151,6 +151,8 @@ namespace PgRoutiner
         public bool UnitTests { get; set; } = false;
         public string UnitTestsDir { get; set; } = "../{0}Tests";
         public bool UnitTestsAskRecreate { get; set; } = false;
+        public bool UnitTestsSkipSyncMethods { get; set; } = false;
+        public bool UnitTestsSkipAsyncMethods { get; set; } = false;
 
         /*schema dump*/
         public bool SchemaDump { get; set; } = false;

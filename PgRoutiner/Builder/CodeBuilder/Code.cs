@@ -55,6 +55,23 @@ namespace PgRoutiner
             throw new ArgumentException($"Could not find mapping \"{p.DataType}\" for parameter of routine  \"{this.Name}\"");
         }
 
+        protected string GetParamType(PgColumnGroup p)
+        {
+            if (TryGetParamMapping(p, out var result))
+            {
+                if (p.IsArray)
+                {
+                    return $"{result}[]";
+                }
+                if (result != "string" && p.IsNullable)
+                {
+                    return $"{result}?";
+                }
+                return result;
+            }
+            throw new ArgumentException($"Could not find mapping \"{p.DataType}\" for parameter of routine  \"{this.Name}\"");
+        }
+
         protected string GetParamDbType(PgParameter p)
         {
             var type = "NpgsqlDbType.";

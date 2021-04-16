@@ -55,7 +55,13 @@ namespace PgRoutiner
         private void BuildTests()
         {
             List<string> names = new();
-            foreach (var m in ext.Methods)
+            var skipSync = settings.UnitTestsSkipSyncMethods;
+            var skipAsync = settings.UnitTestsSkipAsyncMethods;
+            if (skipSync && skipAsync)
+            {
+                return;
+            }
+            foreach (var m in ext.Methods.Where(m => (!skipSync && !skipAsync) || ((skipSync || m.Sync) && (skipAsync || !m.Sync))))
             {
                 var methodName = m.Name;
                 names.Add(methodName);

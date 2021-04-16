@@ -162,6 +162,8 @@ namespace PgRoutiner
             AddEntry(nameof(UnitTests), Value.UnitTests);
             AddEntry(nameof(UnitTestsDir), Value.UnitTestsDir);
             AddEntry(nameof(UnitTestsAskRecreate), Value.UnitTestsAskRecreate);
+            AddEntry(nameof(UnitTestsSkipSyncMethods), Value.UnitTestsSkipSyncMethods);
+            AddEntry(nameof(UnitTestsSkipAsyncMethods), Value.UnitTestsSkipAsyncMethods);
 
             sb.AppendLine();
             AddSectionComment(
