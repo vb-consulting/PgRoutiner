@@ -98,6 +98,7 @@ namespace PgRoutiner
                 Program.RunProcess("dotnet", "add package xunit", dir);
                 Program.RunProcess("dotnet", "add package xunit.runner.visualstudio", dir);
                 Program.RunProcess("dotnet", "add package coverlet.collector", dir);
+                Program.RunProcess("dotnet", "add package FluentAssertions", dir);
             }
             else
             {
@@ -136,6 +137,7 @@ namespace PgRoutiner
                     }
                     module.AddUsing("Xunit");
                     module.AddUsing("Norm");
+                    module.AddUsing("FluentAssertions");
                     module.AddUsing(ext.Namespace);
                     if (!string.IsNullOrEmpty(ext.ModelNamespace))
                     {

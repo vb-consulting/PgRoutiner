@@ -134,7 +134,7 @@ namespace PgRoutiner
                     if (m.Params.Any())
                     {
                         var p = m.Params.First();
-                        Class.Append($"{I3}Assert.Equal(default({p.Type}), Connection.Read<{p.Type}>(\"select * from {p.PgType}\").Single());");
+                        Class.Append($"{I3}{p.Name}.Should().BeEquivalentTo(Connection.Read<{p.Type}>(\"select * from {p.PgType}\").Single());");
                     }
                     else
                     {
@@ -143,7 +143,11 @@ namespace PgRoutiner
                 }
                 else
                 {
-                    if (!m.Returns.IsVoid && m.Returns.IsEnumerable)
+                    if (m.Params.Any() && string.Equals(m.Returns.Name, m.Params.FirstOrDefault().Type) && m.Returns.IsVoid == false)
+                    {
+                        Class.Append($"{I3}{m.Params.FirstOrDefault().Name}.Should().BeEquivalentTo(result);");
+                    }
+                    else if (!m.Returns.IsVoid && m.Returns.IsEnumerable)
                     {
                         Class.Append($"{I3}Assert.Equal(default(List<{m.Returns.Name}>), result);");
                     }

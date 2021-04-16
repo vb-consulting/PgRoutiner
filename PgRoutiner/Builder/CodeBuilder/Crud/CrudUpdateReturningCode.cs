@@ -32,15 +32,15 @@ namespace PgRoutiner
 
         protected override void AddSql()
         {
-            Class.AppendLine($"{I2}public const string Sql = @\"");
+            Class.AppendLine($"{I2}public static string Sql({this.Model} model) => $@\"");
             Class.AppendLine($"{I3}UPDATE {this.Table}");
             Class.AppendLine($"{I3}SET");
             Class.AppendLine(string.Join($",{NL}", this.Columns.Where(c => !c.IsPk).Select(c =>
             {
                 var p = $"@{c.Name.ToCamelCase()}";
-                if (c.HasDefault)
+                if (c.HasDefault || c.IsIdentity)
                 {
-                    return $"{I4}\"\"{c.Name}\"\" = CASE WHEN {p} IS NULL THEN DEFAULT ELSE {p} END";
+                    return $"{I4}\"\"{c.Name}\"\" = {{(model.{c.Name.ToUpperCamelCase()} == default ? \"DEFAULT\" : \"{p}\")}}";
                 }
                 return $"{I4}\"\"{c.Name}\"\" = {p}";
             })));
@@ -62,7 +62,7 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I4}.Prepared()");
             }
-            Class.Append($"{I4}.Read<{this.Model}>(Sql");
+            Class.Append($"{I4}.Read<{this.Model}>(Sql(model)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -84,7 +84,7 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I4}.Prepared()");
             }
-            Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql");
+            Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql(model)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -104,7 +104,7 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I3}.Prepared()");
             }
-            Class.Append($"{I3}.Read<{this.Model}>(Sql");
+            Class.Append($"{I3}.Read<{this.Model}>(Sql(model)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -124,7 +124,7 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I3}.Prepared()");
             }
-            Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql");
+            Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql(model)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");

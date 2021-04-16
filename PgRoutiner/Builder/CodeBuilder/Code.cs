@@ -63,7 +63,7 @@ namespace PgRoutiner
                 {
                     return $"{result}[]";
                 }
-                if (result != "string" /*&& p.IsNullable*/)
+                if (result != "string" && p.IsNullable)
                 {
                     return $"{result}?";
                 }

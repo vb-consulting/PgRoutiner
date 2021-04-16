@@ -28,14 +28,17 @@ namespace PgRoutiner
 
         protected override void AddSql()
         {
-            Class.AppendLine($"{I2}public static string Sql(string[] conflictedFields) => $@\"");
+            Class.AppendLine($"{I2}public static string Sql({this.Model} model, params string[] conflictedFields) => $@\"");
             Class.AppendLine($"{I3}INSERT INTO {this.Table}");
             Class.AppendLine($"{I3}(");
             Class.AppendLine(string.Join($",{NL}", this.Columns.Select(c => $"{I4}\"\"{c.Name}\"\"")));
             Class.AppendLine($"{I3})");
-            if (this.Columns.Any(c => c.IsIdentity))
+            var identites = this.Columns.Where(c => c.IsIdentity).Select(c => $"model.{c.Name.ToUpperCamelCase()}").ToArray();
+            string exp;
+            if (identites.Any())
             {
-                Class.AppendLine($"{I3}OVERRIDING SYSTEM VALUE");
+                exp = identites.Length == 1 ? $"{identites[0]} != default" : $"({string.Join(" || ", identites.Select(i => $"{i} != default"))})";
+                Class.AppendLine($"{I3}{{({exp} ? \"OVERRIDING SYSTEM VALUE\" : \"\")}}");
             }
             Class.AppendLine($"{I3}VALUES");
             Class.AppendLine($"{I3}(");
@@ -44,12 +47,12 @@ namespace PgRoutiner
                 var p = $"@{c.Name.ToCamelCase()}";
                 if (c.HasDefault || c.IsIdentity)
                 {
-                    return $"{I4}CASE WHEN {p} IS NULL THEN DEFAULT ELSE {p} END";
+                    return $"{I4}{{(model.{c.Name.ToUpperCamelCase()} == default ? \"DEFAULT\" : \"{p}\")}}";
                 }
                 return $"{I4}{p}";
             })));
             Class.AppendLine($"{I3})");
-            var exp = "{(conflictedFields.Length == 0 ? \"\" : $\"({string.Join(\", \", conflictedFields)})\")}";
+            exp = "{(conflictedFields.Length == 0 ? \"\" : $\"({string.Join(\", \", conflictedFields)})\")}";
             Class.AppendLine($"{I3}ON CONFLICT {exp}");
             Class.AppendLine($"{I3}DO NOTHING");
             Class.AppendLine($"{I3}RETURNING{NL}{string.Join($",{NL}", this.Columns.Select(c => $"{I4}\"\"{c.Name}\"\""))}\";");
@@ -68,7 +71,7 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I4}.Prepared()");
             }
-            Class.Append($"{I4}.Read<{this.Model}>(Sql(conflictedFields)");
+            Class.Append($"{I4}.Read<{this.Model}>(Sql(model, conflictedFields)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -90,7 +93,7 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I4}.Prepared()");
             }
-            Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql(conflictedFields)");
+            Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql(model, conflictedFields)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -110,7 +113,7 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I3}.Prepared()");
             }
-            Class.Append($"{I3}.Read<{this.Model}>(Sql(conflictedFields)");
+            Class.Append($"{I3}.Read<{this.Model}>(Sql(model, conflictedFields)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
@@ -130,7 +133,7 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I3}.Prepared()");
             }
-            Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql(conflictedFields)");
+            Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql(model, conflictedFields)");
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
