@@ -12,6 +12,8 @@
 - User defined model results from a rotines (table result) are always in separate model file
 - UseStatementBody replaced UseExpressionBody
 - Fix char type mapping in paramter type
+- Fix and uncomment unit tests assert part
+- Add SingleLinqMethod setting to be able to change Linq method that returns single value and set it to SingleOrDefault
 
 - Add CRUD support settings and move shared code generation settings to general code generation settings section
 - Add CRUD generators for ...

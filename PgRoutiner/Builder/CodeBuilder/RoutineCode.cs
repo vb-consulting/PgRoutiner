@@ -108,7 +108,7 @@ namespace PgRoutiner
                     return;
                 }
                 Class.AppendLine(")");
-                Class.AppendLine($"{bodyTab}.Single();");
+                Class.AppendLine($"{bodyTab}.{settings.SingleLinqMethod}();");
             }
 
             if (settings.UseExpressionBody)
@@ -188,7 +188,7 @@ namespace PgRoutiner
                 else
                 {
                     Class.AppendLine(")");
-                    Class.AppendLine($"{bodyTab}.SingleAsync();");
+                    Class.AppendLine($"{bodyTab}.{settings.SingleLinqMethod}Async();");
                 }
             }
 

@@ -141,6 +141,12 @@ namespace PgRoutiner
                 Value.Markdown = false;
             }
 
+            if (!new string[] { "Single", "SingleOrDefault", "First", "FirstOrDefault" }.Contains(Value.SingleLinqMethod))
+            {
+                Program.DumpError($"SingleLinqMethod setting must be one of the allowed values: Single, SingleOrDefault, First or FirstOrDefault");
+                return null;
+            }
+
             return config;
         }
     }
