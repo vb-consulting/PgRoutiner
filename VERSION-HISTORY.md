@@ -16,8 +16,26 @@
 - Added SingleLinqMethod setting to be able to change Linq method that returns single value and set it to SingleOrDefault
 - Added UnitTestsSkipSyncMethods and UnitTestsSkipAsyncMethods settings to be able to skip async or sync test methods generation
 
-- Add CRUD support settings and move shared code generation settings to general code generation settings section
-- Add CRUD generators for ...
+- Add CRUD support settings and move shared code generation settings to general code generation settings section.
+- New CRUD support generator settings:
+
+  - `"Crud": true,` eneables/disables crud generartion
+  - `"CrudOutputDir": "./Test",` - generated source files output dir
+  - `"CrudOverwrite": true,` - should generated source files be overwitten or not
+  - `"CrudAskOverwrite": false,` - should program ask shout it overwrite generated source files or not
+  - `"CrudNoPrepare": false,` - don't prepare generated statements
+  - `"CrudCreate": [ "test" ],` - generate a create extension for tables in list
+  - `"CrudCreateReturning": [ "test" ],` - generate a create returning extension for tables in list
+  - `"CrudCreateOnConflictDoNothing": [ "test" ],` - generate a create on conflict do nothing extension for tables in list
+  - `"CrudCreateOnConflictDoNothingReturning": [ "test" ],` - generate a  on conflict do nothing returning extension for tables in list
+  - `"CrudCreateOnConflictDoUpdate": [ "test" ],` - generate a create on conflict do update extension for tables in list
+  - `"CrudCreateOnConflictDoUpdateReturning": [ "test" ],` - generate a create on conflict do update returning  extension for tables in list
+  - `"CrudReadBy": [ "test" ],` - generate a ready by extension for tables in list
+  - `"CrudReadAll": [ "test" ],` - generate a read all extension for tables in list
+  - `"CrudUpdate": [ "test" ],` - generate a update extension for tables in list
+  - `"CrudUpdateReturning": [ "test" ],` - generate a update returning extension for tables in list
+  - `"CrudDelete": [ "test" ],` - generate a delee extension for tables in list
+  - `"CrudDeleteReturning": [ "test" ]` - generate a delete returning extension for tables in list
 
 ## 3.2.0
 
