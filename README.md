@@ -1,4 +1,7 @@
-﻿# PgRoutiner - Database-First Development with PostgreSQL
+﻿# PgRoutiner - A Different Kind of Object-relational Mapping Tool for .NET projects and PostgreSQL
+
+## What is it?
+
 
 **PgRoutiner** is a set of a **command-line tools** - for the **database-first development** support using **PostgreSQL**.
 

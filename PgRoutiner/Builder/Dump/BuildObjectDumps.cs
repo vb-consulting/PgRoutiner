@@ -191,7 +191,7 @@ namespace PgRoutiner
                 DumpRelativePath("Creating dir: {0} ...", dir);
                 Directory.CreateDirectory(dir);
             }
-            else if (!skipDelete && !Settings.Value.Dump && !Settings.Value.DbObjectsSkipDelete)
+            else if (!skipDelete && !Settings.Value.Dump && !Settings.Value.DbObjectsSkipDeleteDir)
             {
                 if (Directory.GetFiles(dir).Length > 0)
                 {
@@ -206,7 +206,7 @@ namespace PgRoutiner
 
         private static void RemoveDir(string dir)
         {
-            if (!Settings.Value.Dump && !Settings.Value.DbObjectsSkipDelete && Directory.Exists(dir))
+            if (!Settings.Value.Dump && !Settings.Value.DbObjectsSkipDeleteDir && Directory.Exists(dir))
             {
                 DumpRelativePath("Removing dir: {0} ...", dir);
                 if (Directory.GetFiles(dir).Length > 0)

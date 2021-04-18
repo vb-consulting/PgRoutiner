@@ -13,6 +13,7 @@ namespace PgRoutiner
         protected readonly CodeSettings codeSettings;
 
         private static HashSet<string> UserDefinedModels { get; } = new();
+        private static HashSet<string> DirsEmptied { get; } = new();
 
         public CodeBuilder(NpgsqlConnection connection, Settings settings, CodeSettings codeSettings)
         {
@@ -30,6 +31,16 @@ namespace PgRoutiner
 
             var outputDir = GetOutputDir();
             var modelDir = GetModelDir();
+
+            if (codeSettings.EmptyOutputDir)
+            {
+                EmptyDir(outputDir);
+            }
+
+            if (settings.EmptyModelDir)
+            {
+                EmptyDir(modelDir);
+            }
 
             foreach ((Code code, string name, string shortFilename, string fullFileName, string relative, Module module) in GetCodes(outputDir))
             {
@@ -202,6 +213,35 @@ namespace PgRoutiner
                 }
             }
             return dir;
+        }
+
+        private void EmptyDir(string dir)
+        {
+            if (dir.PathEquals(Program.CurrentDir))
+            {
+                Program.WriteLine(ConsoleColor.Yellow, "",
+                    $"WARNING: Cannot delete output dir that is project root. Combining RoutinesDeleteOutputDir or CrudOutputDir with CrudDeleteOutputDir or RoutinesDeleteOutputDir is not allowed. Don't ever try to delete your project root. Not a good idea. Ignoring these settings for now...");
+            }
+            else
+            {
+                if (!DirsEmptied.Contains(dir))
+                {
+                    DeleteDirFiles(dir);
+                    DirsEmptied.Add(dir);
+                }
+            }
+        }
+
+        private static void DeleteDirFiles(string dir)
+        {
+            Builder.DumpRelativePath("Emptying dir of cs files: {0} ...", dir);
+            if (Directory.GetFiles(dir, "*.cs").Length > 0)
+            {
+                foreach (FileInfo fi in new DirectoryInfo(dir).GetFiles())
+                {
+                    fi.Delete();
+                }
+            }
         }
     }
 }

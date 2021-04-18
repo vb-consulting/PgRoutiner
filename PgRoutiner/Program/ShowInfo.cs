@@ -108,7 +108,7 @@ namespace PgRoutiner
             WriteSetting(Settings.DbObjectsOverwriteArgs, "If this switch is included data object files will be overwritten.");
             WriteSetting(Settings.DbObjectsAskOverwriteArgs, "If this switch is included prompt with the question will be displayed for object data file overwrite.", newLine: true);
             WriteSetting(nameof(Settings.DbObjectsDirNames), "Database object subdirectory names mapping. Default is Tables, Views, Function and Procedures", "VALUE", "KEY", newLine: true);
-            WriteSetting(nameof(Settings.DbObjectsSkipDelete), "Don't delete any existing file in tree subdirectories (Tables, Views, Functions, Procedures).");
+            WriteSetting(nameof(Settings.DbObjectsSkipDeleteDir), "Don't delete any existing file in tree subdirectories (Tables, Views, Functions, Procedures).");
             WriteSetting(nameof(Settings.DbObjectsOwners), "Include object owners in each object file.");
             WriteSetting(nameof(Settings.DbObjectsPrivileges), "Include object privileges in each object file. Default is false.");
             WriteSetting(nameof(Settings.DbObjectsDropIfExists), "Include drop \"drop object if exists\" for each object in a file.");

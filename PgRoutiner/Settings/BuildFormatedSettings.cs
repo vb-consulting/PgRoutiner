@@ -131,6 +131,7 @@ namespace PgRoutiner
             AddEntry(nameof(Mapping), Value.Mapping);
             AddEntry(nameof(CustomModels), Value.CustomModels);
             AddEntry(nameof(ModelDir), Value.ModelDir);
+            AddEntry(nameof(EmptyModelDir), Value.EmptyModelDir);
             AddEntry(nameof(SkipSyncMethods), Value.SkipSyncMethods);
             AddEntry(nameof(SkipAsyncMethods), Value.SkipAsyncMethods);
             AddEntry(nameof(MinNormVersion), Value.MinNormVersion);
@@ -148,6 +149,7 @@ namespace PgRoutiner
                 $"- Use \"{ModelDirArgs.Alias}\" or \"--{ModelDirArgs.Original.ToKebabCase()}\" option to set the custom models output dir for the generated code from the command line.");
             AddEntry(nameof(Routines), Value.Routines);
             AddEntry(nameof(OutputDir), Value.OutputDir);
+            AddEntry(nameof(RoutinesEmptyOutputDir), Value.RoutinesEmptyOutputDir);
             AddEntry(nameof(RoutinesOverwrite), Value.RoutinesOverwrite);
             AddEntry(nameof(RoutinesAskOverwrite), Value.RoutinesAskOverwrite);
             AddEntry(nameof(NotSimilarTo), Value.NotSimilarTo);
@@ -210,7 +212,7 @@ namespace PgRoutiner
             AddEntry(nameof(DbObjectsOverwrite), Value.DbObjectsOverwrite);
             AddEntry(nameof(DbObjectsAskOverwrite), Value.DbObjectsAskOverwrite);
             AddEntry(nameof(DbObjectsDirNames), Value.DbObjectsDirNames);
-            AddEntry(nameof(DbObjectsSkipDelete), Value.DbObjectsSkipDelete);
+            AddEntry(nameof(DbObjectsSkipDeleteDir), Value.DbObjectsSkipDeleteDir);
             AddEntry(nameof(DbObjectsOwners), Value.DbObjectsOwners);
             AddEntry(nameof(DbObjectsPrivileges), Value.DbObjectsPrivileges);
             AddEntry(nameof(DbObjectsDropIfExists), Value.DbObjectsDropIfExists);
@@ -264,6 +266,7 @@ namespace PgRoutiner
                 $"- Use \"{CrudOutputDirArgs.Alias}\" or \"--{CrudOutputDirArgs.Original.ToKebabCase()}\" option to set the custom models output dir for the generated CRUD extension methods code from the command line.");
             AddEntry(nameof(Crud), Value.Crud);
             AddEntry(nameof(CrudOutputDir), Value.CrudOutputDir);
+            AddEntry(nameof(CrudEmptyOutputDir), Value.CrudEmptyOutputDir);
             AddEntry(nameof(CrudOverwrite), Value.CrudOverwrite);
             AddEntry(nameof(CrudAskOverwrite), Value.CrudAskOverwrite);
             AddEntry(nameof(CrudNoPrepare), Value.CrudNoPrepare);

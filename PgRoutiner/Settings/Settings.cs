@@ -32,6 +32,7 @@ namespace PgRoutiner
     {
         public bool Enabled { get; set; }
         public string OutputDir { get; set; }
+        public bool EmptyOutputDir { get; set; }
         public bool Overwrite { get; set; }
         public bool AskOverwrite { get; set; }
 
@@ -41,6 +42,7 @@ namespace PgRoutiner
             {
                 Enabled = settings.Routines,
                 OutputDir = settings.OutputDir,
+                EmptyOutputDir = settings.RoutinesEmptyOutputDir,
                 Overwrite = settings.RoutinesOverwrite,
                 AskOverwrite = settings.RoutinesAskOverwrite
             };
@@ -52,6 +54,7 @@ namespace PgRoutiner
             {
                 Enabled = settings.Crud,
                 OutputDir = settings.CrudOutputDir,
+                EmptyOutputDir = settings.CrudEmptyOutputDir,
                 Overwrite = settings.CrudOverwrite,
                 AskOverwrite = settings.CrudAskOverwrite
             };
@@ -130,7 +133,8 @@ namespace PgRoutiner
         public bool UseRecords { get; set; } = false;
         public IDictionary<string, string> Mapping { get; set; } = new Dictionary<string, string>();
         public IDictionary<string, string> CustomModels { get; set; } = new Dictionary<string, string>();
-        public string ModelDir { get; set; } = null;
+        public string ModelDir { get; set; } = "./Models";
+        public bool EmptyModelDir { get; set; } = false;
         public bool SkipSyncMethods { get; set; } = false;
         public bool SkipAsyncMethods { get; set; } = false;
         public string MinNormVersion { get; set; } = "3.2.0";
@@ -140,7 +144,8 @@ namespace PgRoutiner
 
         /*routines data-access extensions*/
         public bool Routines { get; set; } = false;
-        public string OutputDir { get; set; } = "./DataAccess";
+        public string OutputDir { get; set; } = "./Extensions";
+        public bool RoutinesEmptyOutputDir { get; set; } = false;
         public bool RoutinesOverwrite { get; set; } = false;
         public bool RoutinesAskOverwrite { get; set; } = false;
         public string NotSimilarTo { get; set; } = null;
@@ -188,7 +193,7 @@ namespace PgRoutiner
             { "Schemas", "Schemas" },
             { "Sequences", "Sequences" }
         };
-        public bool DbObjectsSkipDelete { get; set; } = false;
+        public bool DbObjectsSkipDeleteDir { get; set; } = false;
         public bool DbObjectsOverwrite { get; set; } = false;
         public bool DbObjectsAskOverwrite { get; set; } = false;
         public bool DbObjectsOwners { get; set; } = false;
@@ -199,7 +204,7 @@ namespace PgRoutiner
 
         /*comments markdown file*/
         public bool Markdown { get; set; } = false;
-        public string MdFile { get; set; } = "./Database/{0}/Dictionary.md";
+        public string MdFile { get; set; } = "./Database/{0}/README.md";
         public bool MdOverwrite { get; set; } = false;
         public bool MdAskOverwrite { get; set; } = false;
         public bool MdSkipRoutines { get; set; } = false;
@@ -223,7 +228,8 @@ namespace PgRoutiner
 
         /*crud settings*/
         public bool Crud { get; set; } = false;
-        public string CrudOutputDir { get; set; } = "./DataAccess";
+        public string CrudOutputDir { get; set; } = "./Extensions";
+        public bool CrudEmptyOutputDir { get; set; } = false;
         public bool CrudOverwrite { get; set; } = false;
         public bool CrudAskOverwrite { get; set; } = false;
         public bool CrudNoPrepare { get; set; } = false;

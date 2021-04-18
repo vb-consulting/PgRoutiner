@@ -237,5 +237,13 @@ namespace PgRoutiner
             var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
             return $"postgresql://{connection.UserName}:{password}@{connection.Host}:{connection.Port}/{connection.Database}";
         }
+
+        public static bool PathEquals(this string path1, string path2)
+        {
+            return Path
+                .GetFullPath(path1).TrimEnd('/').TrimEnd('\\')
+                .Equals(Path.GetFullPath(path2).TrimEnd('/').TrimEnd('\\'), StringComparison.InvariantCultureIgnoreCase);
+            ;
+        }
     }
 }
