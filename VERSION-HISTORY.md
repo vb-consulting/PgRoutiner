@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.3.3
+
+- Fix bug when emtying dirs. Don't remove non cs files.
+
 ## 3.3.2
 
 - Add custom names support for crud generation (Settings dictionary `CustomModels` that changes model name to something else).
