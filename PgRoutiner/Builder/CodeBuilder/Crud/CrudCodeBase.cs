@@ -24,6 +24,11 @@ namespace PgRoutiner
             IEnumerable<PgColumnGroup> columns,
             string suffix) : base(settings, item.name)
         {
+            this.Name = this.Name.ToUpperCamelCase();
+            if (settings.CustomModels.ContainsKey(this.Name))
+            {
+                this.Name = settings.CustomModels[this.Name];
+            }
             this.Table = item.schema == "public" ? $"\"\"{item.name}\"\"" : $"{item.schema}.\"\"{item.name}\"\"";
             this.item = item;
             this.Namespace = @namespace;

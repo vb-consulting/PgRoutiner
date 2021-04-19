@@ -27,7 +27,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodySyncMethod()
         {
-            var name = $"Read{Name.ToUpperCamelCase()}All";
+            var name = $"Read{this.Name}All";
             var actualReturns = $"IEnumerable<{this.Model}>";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
@@ -45,7 +45,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodyAsyncMethod()
         {
-            var name = $"Read{Name.ToUpperCamelCase()}AllAsync";
+            var name = $"Read{this.Name}AllAsync";
             var actualReturns = $"IAsyncEnumerable<{this.Model}>";
             Class.AppendLine();
             BuildAsyncMethodCommentHeader();
@@ -63,7 +63,7 @@ namespace PgRoutiner
 
         protected override void BuildExpressionBodySyncMethod()
         {
-            var name = $"Read{Name.ToUpperCamelCase()}All";
+            var name = $"Read{this.Name}All";
             var actualReturns = $"IEnumerable<{this.Model}>";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
@@ -78,7 +78,7 @@ namespace PgRoutiner
 
         protected override void BuildExpressionBodyAsyncMethod()
         {
-            var name = $"Read{Name.ToUpperCamelCase()}AllAsync";
+            var name = $"Read{this.Name}AllAsync";
             var actualReturns = $"IAsyncEnumerable<{this.Model}>";
             Class.AppendLine();
             BuildAsyncMethodCommentHeader();

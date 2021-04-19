@@ -60,7 +60,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodySyncMethod()
         {
-            var name = $"CreateOnConflictDoNothingReturning{Name.ToUpperCamelCase()}";
+            var name = $"Create{this.Name}OnConflictDoNothingReturning";
             var actualReturns = this.Model;
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
@@ -82,7 +82,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodyAsyncMethod()
         {
-            var name = $"CreateOnConflictDoNothingReturning{Name.ToUpperCamelCase()}Async";
+            var name = $"Create{this.Name}OnConflictDoNothingReturningAsync";
             var actualReturns = $"ValueTask<{this.Model}>";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
@@ -104,7 +104,7 @@ namespace PgRoutiner
 
         protected override void BuildExpressionBodySyncMethod()
         {
-            var name = $"CreateOnConflictDoNothingReturning{Name.ToUpperCamelCase()}";
+            var name = $"Create{this.Name}OnConflictDoNothingReturning";
             var actualReturns = this.Model;
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
@@ -123,7 +123,7 @@ namespace PgRoutiner
 
         protected override void BuildExpressionBodyAsyncMethod()
         {
-            var name = $"CreateOnConflictDoNothingReturning{Name.ToUpperCamelCase()}Async";
+            var name = $"Create{this.Name}OnConflictDoNothingReturningAsync";
             var actualReturns = $"ValueTask<{this.Model}>";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();

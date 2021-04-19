@@ -15,7 +15,7 @@ namespace PgRoutiner
         protected readonly string NL = Environment.NewLine;
         protected readonly Settings settings;
 
-        public string Name { get; }
+        public string Name { get; set; }
         public Dictionary<string, StringBuilder> Models { get; private set; } = new();
         public HashSet<string> UserDefinedModels { get; private set; } = new();
         public Dictionary<string, StringBuilder> ModelContent { get; private set; } = new();

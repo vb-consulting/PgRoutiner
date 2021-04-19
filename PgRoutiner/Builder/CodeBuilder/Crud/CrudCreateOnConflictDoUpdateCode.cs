@@ -65,7 +65,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodySyncMethod()
         {
-            var name = $"CreateOnConflictDoUpdate{Name.ToUpperCamelCase()}";
+            var name = $"Create{this.Name}OnConflictDoUpdate";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
             Class.AppendLine($"{I2}public static void {name}(this NpgsqlConnection connection, {this.Model} model, params string[] conflictedFields)");
@@ -85,7 +85,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodyAsyncMethod()
         {
-            var name = $"CreateOnConflictDoUpdate{Name.ToUpperCamelCase()}Async";
+            var name = $"Create{this.Name}OnConflictDoUpdateAsync";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
             Class.AppendLine($"{I2}public static async ValueTask {name}(this NpgsqlConnection connection, {this.Model} model, params string[] conflictedFields)");
@@ -105,7 +105,7 @@ namespace PgRoutiner
 
         protected override void BuildExpressionBodySyncMethod()
         {
-            var name = $"CreateOnConflictDoUpdate{Name.ToUpperCamelCase()}";
+            var name = $"Create{this.Name}OnConflictDoUpdate";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
             Class.AppendLine($"{I2}public static void {name}(this NpgsqlConnection connection, {this.Model} model, params string[] conflictedFields) => connection");
@@ -122,7 +122,7 @@ namespace PgRoutiner
 
         protected override void BuildExpressionBodyAsyncMethod()
         {
-            var name = $"CreateOnConflictDoUpdate{Name.ToUpperCamelCase()}Async";
+            var name = $"Create{this.Name}OnConflictDoUpdateAsync";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
             Class.AppendLine($"{I2}public static async ValueTask {name}(this NpgsqlConnection connection, {this.Model} model, params string[] conflictedFields) => await connection");

@@ -34,7 +34,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodySyncMethod()
         {
-            var name = $"Read{Name.ToUpperCamelCase()}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()))}";
+            var name = $"Read{this.Name}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()))}";
             var actualReturns = this.Model;
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
@@ -60,7 +60,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodyAsyncMethod()
         {
-            var name = $"Read{Name.ToUpperCamelCase()}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()))}Async";
+            var name = $"Read{this.Name}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()))}Async";
             var actualReturns = $"ValueTask<{this.Model}>";
             Class.AppendLine();
             BuildAsyncMethodCommentHeader();
@@ -86,7 +86,7 @@ namespace PgRoutiner
 
         protected override void BuildExpressionBodySyncMethod()
         {
-            var name = $"Read{Name.ToUpperCamelCase()}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()).ToArray())}";
+            var name = $"Read{this.Name}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()).ToArray())}";
             var actualReturns = this.Model;
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
@@ -109,7 +109,7 @@ namespace PgRoutiner
 
         protected override void BuildExpressionBodyAsyncMethod()
         {
-            var name = $"Read{Name.ToUpperCamelCase()}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()).ToArray())}Async";
+            var name = $"Read{this.Name}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()).ToArray())}Async";
             var actualReturns = $"ValueTask<{this.Model}>";
             Class.AppendLine();
             BuildAsyncMethodCommentHeader();

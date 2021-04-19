@@ -41,7 +41,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodySyncMethod()
         {
-            var name = $"Delete{Name.ToUpperCamelCase()}";
+            var name = $"Delete{this.Name}";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
             Class.AppendLine($"{I2}public static void {name}(this NpgsqlConnection connection, {this.Model} model)");
@@ -61,7 +61,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodyAsyncMethod()
         {
-            var name = $"Delete{Name.ToUpperCamelCase()}Async";
+            var name = $"Delete{this.Name}Async";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
             Class.AppendLine($"{I2}public static async ValueTask {name}(this NpgsqlConnection connection, {this.Model} model)");
@@ -81,7 +81,7 @@ namespace PgRoutiner
 
         protected override void BuildExpressionBodySyncMethod()
         {
-            var name = $"Delete{Name.ToUpperCamelCase()}";
+            var name = $"Delete{this.Name}";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
             Class.AppendLine($"{I2}public static void {name}(this NpgsqlConnection connection, {this.Model} model) => connection");
@@ -98,7 +98,7 @@ namespace PgRoutiner
 
         protected override void BuildExpressionBodyAsyncMethod()
         {
-            var name = $"Delete{Name.ToUpperCamelCase()}Async";
+            var name = $"Delete{this.Name}Async";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
             Class.AppendLine($"{I2}public static async ValueTask {name}(this NpgsqlConnection connection, {this.Model} model) => await connection");

@@ -21,6 +21,12 @@ namespace PgRoutiner
             foreach (var group in connection.GetTableDefintions(settings))
             {
                 var (schema, name) = group.Key;
+                
+                var modelName = name.ToUpperCamelCase();
+                if (settings.CustomModels.ContainsKey(modelName))
+                {
+                    modelName = settings.CustomModels[modelName];
+                }
                 var module = GetModule(settings, codeSettings);
                 string shortFilename = null, fullFileName = null, relative = null;
                 Code code = null;
@@ -29,7 +35,7 @@ namespace PgRoutiner
                     try
                     {
             
-                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_read_by", outputDir);
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_read_by", outputDir);
                         code = new CrudReadByCode(settings, group.Key, module.Namespace, group);
                     }
                     catch (ArgumentException e)
@@ -44,7 +50,7 @@ namespace PgRoutiner
                     try
                     {
 
-                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_read_all", outputDir);
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_read_all", outputDir);
                         code = new CrudReadAllCode(settings, group.Key, module.Namespace, group);
                     }
                     catch (ArgumentException e)
@@ -59,7 +65,7 @@ namespace PgRoutiner
                     try
                     {
 
-                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_update", outputDir);
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_update", outputDir);
                         code = new CrudUpdateCode(settings, group.Key, module.Namespace, group);
                     }
                     catch (ArgumentException e)
@@ -74,7 +80,7 @@ namespace PgRoutiner
                     try
                     {
 
-                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_update_returning", outputDir);
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_update_returning", outputDir);
                         code = new CrudUpdateReturningCode(settings, group.Key, module.Namespace, group);
                     }
                     catch (ArgumentException e)
@@ -89,7 +95,7 @@ namespace PgRoutiner
                     try
                     {
 
-                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_delete", outputDir);
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_delete", outputDir);
                         code = new CrudDeleteCode(settings, group.Key, module.Namespace, group);
                     }
                     catch (ArgumentException e)
@@ -104,7 +110,7 @@ namespace PgRoutiner
                     try
                     {
 
-                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_delete_returning", outputDir);
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_delete_returning", outputDir);
                         code = new CrudDeleteReturningCode(settings, group.Key, module.Namespace, group);
                     }
                     catch (ArgumentException e)
@@ -119,7 +125,7 @@ namespace PgRoutiner
                     try
                     {
 
-                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_create", outputDir);
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_create", outputDir);
                         code = new CrudCreateCode(settings, group.Key, module.Namespace, group);
                     }
                     catch (ArgumentException e)
@@ -134,7 +140,7 @@ namespace PgRoutiner
                     try
                     {
 
-                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_create_returning", outputDir);
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_create_returning", outputDir);
                         code = new CrudCreateReturningCode(settings, group.Key, module.Namespace, group);
                     }
                     catch (ArgumentException e)
@@ -149,7 +155,7 @@ namespace PgRoutiner
                     try
                     {
 
-                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_create_on_conflict_do_nothing", outputDir);
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_create_on_conflict_do_nothing", outputDir);
                         code = new CrudCreateOnConflictDoNothingCode(settings, group.Key, module.Namespace, group);
                     }
                     catch (ArgumentException e)
@@ -164,7 +170,7 @@ namespace PgRoutiner
                     try
                     {
 
-                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_create_on_conflict_do_nothing_returning", outputDir);
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_create_on_conflict_do_nothing_returning", outputDir);
                         code = new CrudCreateOnConflictDoNothingReturningCode(settings, group.Key, module.Namespace, group);
                     }
                     catch (ArgumentException e)
@@ -179,7 +185,7 @@ namespace PgRoutiner
                     try
                     {
 
-                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_create_on_conflict_do_update", outputDir);
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_create_on_conflict_do_update", outputDir);
                         code = new CrudCreateOnConflictDoUpdateCode(settings, group.Key, module.Namespace, group);
                     }
                     catch (ArgumentException e)
@@ -194,7 +200,7 @@ namespace PgRoutiner
                     try
                     {
 
-                        (shortFilename, fullFileName, relative) = GetFileNames($"{name}_create_on_conflict_do_update_returning", outputDir);
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_create_on_conflict_do_update_returning", outputDir);
                         code = new CrudCreateOnConflictDoUpdateReturningCode(settings, group.Key, module.Namespace, group);
                     }
                     catch (ArgumentException e)

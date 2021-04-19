@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.3.7
+
+- Apply custom names to crud extensions and files
+
 ## 3.3.6
 
 - Fix snake name parameter names on crud generated code

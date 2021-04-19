@@ -56,7 +56,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodySyncMethod()
         {
-            var name = $"Create{Name.ToUpperCamelCase()}";
+            var name = $"Create{this.Name}";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
             Class.AppendLine($"{I2}public static void {name}(this NpgsqlConnection connection, {this.Model} model)");
@@ -76,7 +76,7 @@ namespace PgRoutiner
 
         protected override void BuildStatementBodyAsyncMethod()
         {
-            var name = $"Create{Name.ToUpperCamelCase()}Async";
+            var name = $"Create{this.Name}Async";
             Class.AppendLine();
             BuildSyncMethodCommentHeader();
             Class.AppendLine($"{I2}public static async ValueTask {name}(this NpgsqlConnection connection, {this.Model} model)");
