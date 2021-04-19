@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.3.6
+
+- Fix snake name parameter names on crud generated code
+
 ## 3.3.5
 
 - Add missing Microsoft.Extensions.Configuration.Json and Microsoft.Extensions.Configuration.Binder in tests projects

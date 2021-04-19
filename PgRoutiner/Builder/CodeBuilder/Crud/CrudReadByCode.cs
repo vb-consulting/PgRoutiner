@@ -50,7 +50,7 @@ namespace PgRoutiner
             if (PkParams.Count > 0)
             {
                 Class.AppendLine(", ");
-                Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I5}(\"{p.PgName}\", {p.Name}, {p.DbType})")));
+                Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I5}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
             Class.AppendLine($")");
             Class.AppendLine($"{I4}.{settings.SingleLinqMethod}();");
@@ -76,7 +76,7 @@ namespace PgRoutiner
             if (PkParams.Count > 0)
             {
                 Class.AppendLine(", ");
-                Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I5}(\"{p.PgName}\", {p.Name}, {p.DbType})")));
+                Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I5}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
             Class.AppendLine($")");
             Class.AppendLine($"{I4}.{settings.SingleLinqMethod}Async();");
@@ -100,7 +100,7 @@ namespace PgRoutiner
             if (PkParams.Count > 0)
             {
                 Class.AppendLine(", ");
-                Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I4}(\"{p.PgName}\", {p.Name}, {p.DbType})")));
+                Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I4}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
             Class.AppendLine($")");
             Class.AppendLine($"{I3}.{settings.SingleLinqMethod}();");
@@ -123,7 +123,7 @@ namespace PgRoutiner
             if (PkParams.Count > 0)
             {
                 Class.AppendLine(", ");
-                Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I4}(\"{p.PgName}\", {p.Name}, {p.DbType})")));
+                Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I4}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
             Class.AppendLine($")");
             Class.AppendLine($"{I3}.{settings.SingleLinqMethod}Async();");

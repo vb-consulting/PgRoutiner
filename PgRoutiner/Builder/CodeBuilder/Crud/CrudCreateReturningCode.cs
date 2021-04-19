@@ -74,7 +74,7 @@ namespace PgRoutiner
             }
             Class.Append($"{I4}.Read<{this.Model}>(Sql(model)");
             Class.AppendLine(", ");
-            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
+            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
             Class.AppendLine($"{I4}.{settings.SingleLinqMethod}();");
             Class.AppendLine($"{I2}}}");
@@ -96,7 +96,7 @@ namespace PgRoutiner
             }
             Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql(model)");
             Class.AppendLine(", ");
-            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
+            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
             Class.AppendLine($"{I4}.{settings.SingleLinqMethod}Async();");
             Class.AppendLine($"{I2}}}");
@@ -116,7 +116,7 @@ namespace PgRoutiner
             }
             Class.Append($"{I3}.Read<{this.Model}>(Sql(model)");
             Class.AppendLine(", ");
-            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
+            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
             Class.AppendLine($"{I3}.{settings.SingleLinqMethod}();");
             AddMethod(name, actualReturns, true);
@@ -136,7 +136,7 @@ namespace PgRoutiner
             }
             Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql(model)");
             Class.AppendLine(", ");
-            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
+            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
             Class.AppendLine($"{I3}.{settings.SingleLinqMethod}Async();");
             AddMethod(name, actualReturns, false);

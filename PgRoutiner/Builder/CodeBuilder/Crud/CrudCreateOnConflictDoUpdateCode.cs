@@ -77,7 +77,7 @@ namespace PgRoutiner
             }
             Class.Append($"{I4}.Execute(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
             Class.AppendLine(", ");
-            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
+            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($");");
             Class.AppendLine($"{I2}}}");
             AddMethod(name, true);
@@ -97,7 +97,7 @@ namespace PgRoutiner
             }
             Class.Append($"{I4}.ExecuteAsync(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
             Class.AppendLine(", ");
-            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
+            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($");");
             Class.AppendLine($"{I2}}}");
             AddMethod(name, false);
@@ -115,7 +115,7 @@ namespace PgRoutiner
             }
             Class.Append($"{I3}.Execute(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
             Class.AppendLine(", ");
-            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
+            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($");");
             AddMethod(name, true);
         }
@@ -132,7 +132,7 @@ namespace PgRoutiner
             }
             Class.Append($"{I3}.ExecuteAsync(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
             Class.AppendLine(", ");
-            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
+            Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($");");
             AddMethod(name, false);
         }
