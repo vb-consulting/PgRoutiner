@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.3.5
+
+- Add missing Microsoft.Extensions.Configuration.Json and Microsoft.Extensions.Configuration.Binder in tests projects
+
 ## 3.3.4
 
 - For new unit tests project add package Microsoft.Extensions.Configuration 
