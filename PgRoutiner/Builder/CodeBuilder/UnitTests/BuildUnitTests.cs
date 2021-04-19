@@ -89,6 +89,7 @@ namespace PgRoutiner
                     return;
                 }
                 Program.RunProcess("dotnet", "add package Microsoft.NET.Test.Sdk", dir);
+                Program.RunProcess("dotnet", "add package Microsoft.Extensions.Configuration", dir);
                 Program.RunProcess("dotnet", "add package Norm.net", dir);
                 if (extensions.Any(e => e.Methods.Any(m => m.Sync == false)))
                 {

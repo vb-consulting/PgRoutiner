@@ -1,5 +1,10 @@
 ﻿# VERSION HISTORY
 
+## 3.3.4
+
+- For new unit tests project add package Microsoft.Extensions.Configuration 
+- Add missing custom namespace into generated tests
+
 ## 3.3.3
 
 - Fix bug when emtying dirs. Don't remove non cs files.
