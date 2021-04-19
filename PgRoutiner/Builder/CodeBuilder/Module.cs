@@ -13,11 +13,11 @@ namespace PgRoutiner
         };
         protected List<object> items = new();
 
-        public string Namespace { get; private set; }
+        public string Namespace { get; set; }
 
         public Module(Settings settings) : base(settings, null)
         {
-            Namespace = settings.Namespace;
+            Namespace = settings.Namespace.Trim('.');
         }
 
         public void AddUsing(params string[] usings)
@@ -34,7 +34,7 @@ namespace PgRoutiner
             {
                 if (!string.IsNullOrEmpty(ns))
                 {
-                    Namespace = string.Concat(this.Namespace, ".", ns);
+                    Namespace = string.Concat(this.Namespace, ".", ns).Trim('.');
                 }
             }
         }

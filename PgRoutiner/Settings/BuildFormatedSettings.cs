@@ -131,6 +131,7 @@ namespace PgRoutiner
             AddEntry(nameof(Mapping), Value.Mapping);
             AddEntry(nameof(CustomModels), Value.CustomModels);
             AddEntry(nameof(ModelDir), Value.ModelDir);
+            AddEntry(nameof(ModelCustomNamespace), Value.ModelCustomNamespace);
             AddEntry(nameof(EmptyModelDir), Value.EmptyModelDir);
             AddEntry(nameof(SkipSyncMethods), Value.SkipSyncMethods);
             AddEntry(nameof(SkipAsyncMethods), Value.SkipAsyncMethods);

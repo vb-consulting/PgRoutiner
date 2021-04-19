@@ -14,9 +14,9 @@
     <PackageProjectUrl>https://github.com/vb-consulting/PgRoutiner</PackageProjectUrl>
     <PackageTags>PostgreSQL</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.3.1</Version>
+    <Version>3.3.2</Version>
     <PackageId>dotnet-pgroutiner</PackageId>
-    <AssemblyVersion>3.3.1.0</AssemblyVersion>
+    <AssemblyVersion>3.3.2.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

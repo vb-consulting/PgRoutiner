@@ -88,6 +88,10 @@ namespace PgRoutiner
                         var modelModule = new Module(settings);
                         modelModule.AddNamespace((settings.ModelDir ?? codeSettings.OutputDir).PathToNamespace());
                         modelModule.AddItems(modelContent);
+                        if (settings.ModelCustomNamespace != null)
+                        {
+                            modelModule.Namespace = settings.ModelCustomNamespace;
+                        }
                         if (modelModule.Namespace != module.Namespace)
                         {
                             module.AddUsing(modelModule.Namespace);

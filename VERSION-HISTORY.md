@@ -1,5 +1,10 @@
 ﻿# VERSION HISTORY
- 
+
+## 3.3.2
+
+- Add custom names support for crud generation (Settings dictionary `CustomModels` that changes model name to something else).
+- New settings key `ModelCustomNamespace` - if not null, sets custom namespace for generated models.
+
 ## 3.3.1
  
 - Following settings changed the default values:

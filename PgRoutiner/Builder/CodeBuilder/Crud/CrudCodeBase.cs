@@ -112,6 +112,14 @@ namespace PgRoutiner
         private string BuildModel()
         {
             var name = Name.ToUpperCamelCase();
+            if (settings.CustomModels.ContainsKey(name))
+            {
+                name = settings.CustomModels[name];
+            }
+            else if (settings.CustomModels.ContainsKey(Name))
+            {
+                name = settings.CustomModels[Name];
+            }
             var model = new StringBuilder();
             if (!settings.UseRecords)
             {

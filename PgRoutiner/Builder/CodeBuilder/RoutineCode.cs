@@ -337,6 +337,14 @@ namespace PgRoutiner
         {
             var suffix = ++recordModelCount == 1 ? "" : recordModelCount.ToString();
             var name = $"{this.Name.ToUpperCamelCase()}{suffix}Result";
+            if (settings.CustomModels.ContainsKey(name))
+            {
+                name = settings.CustomModels[name];
+            }
+            else if (settings.CustomModels.ContainsKey(routine.TypeUdtName))
+            {
+                name = settings.CustomModels[routine.TypeUdtName];
+            }
             return BuildModel(name, connection => connection.GetRoutineReturnsRecord(routine));
         }
 

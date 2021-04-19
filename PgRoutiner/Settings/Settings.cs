@@ -134,6 +134,7 @@ namespace PgRoutiner
         public IDictionary<string, string> Mapping { get; set; } = new Dictionary<string, string>();
         public IDictionary<string, string> CustomModels { get; set; } = new Dictionary<string, string>();
         public string ModelDir { get; set; } = "./Models";
+        public string ModelCustomNamespace { get; set; } = null;
         public bool EmptyModelDir { get; set; } = false;
         public bool SkipSyncMethods { get; set; } = false;
         public bool SkipAsyncMethods { get; set; } = false;
