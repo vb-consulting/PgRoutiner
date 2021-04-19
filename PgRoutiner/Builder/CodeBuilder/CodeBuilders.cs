@@ -241,7 +241,7 @@ namespace PgRoutiner
             Builder.DumpRelativePath("Emptying dir of cs files: {0} ...", dir);
             if (Directory.GetFiles(dir, "*.cs").Length > 0)
             {
-                foreach (FileInfo fi in new DirectoryInfo(dir).GetFiles())
+                foreach (FileInfo fi in new DirectoryInfo(dir).GetFiles("*.cs"))
                 {
                     fi.Delete();
                 }
