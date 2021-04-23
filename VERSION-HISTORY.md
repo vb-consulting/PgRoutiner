@@ -1,5 +1,6 @@
 ﻿# VERSION HISTORY
 
+## 3.3.11
 ## 3.3.10
 
 - Fix unit test fixture for external config files
