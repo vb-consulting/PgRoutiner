@@ -279,16 +279,13 @@ namespace PgRoutiner
             sb.AppendLine(@"            var config = new ConfigurationBuilder().AddJsonFile(""testsettings.json"", false, false).Build();");
             sb.AppendLine(@"            config.GetSection(""TestSettings"").Bind(Value);");
 
-            sb.AppendLine(@"            if (Value.ConfigPath != null)");
+            sb.AppendLine(@"            string externalConnectionString = null;");
+            sb.AppendLine(@"            if (Value.ConfigPath != null && File.Exists(Value.ConfigPath))");
             sb.AppendLine(@"            {");
-            sb.AppendLine(@"                config = new ConfigurationBuilder()");
-            sb.AppendLine(@"                    .AddJsonFile(""testsettings.json"", false, false)");
-            sb.AppendLine(@"                    .AddJsonFile(Value.ConfigPath, true, false)");
-            sb.AppendLine(@"                    .Build();");
-            sb.AppendLine(@"                config.GetSection(""TestSettings"").Bind(Value);");
+            sb.AppendLine(@"                var external = new ConfigurationBuilder().AddJsonFile(Path.Join(Directory.GetCurrentDirectory(), Value.ConfigPath), false, false).Build();");
+            sb.AppendLine(@"                externalConnectionString = external.GetConnectionString(Value.TestConnection);");
             sb.AppendLine(@"            }");
-
-            sb.AppendLine(@"            ConnectionString = config.GetConnectionString(Value.TestConnection);");
+            sb.AppendLine(@"            ConnectionString = config.GetConnectionString(Value.TestConnection) ?? externalConnectionString;");
             sb.AppendLine(@"        }");
             sb.AppendLine(@"    }");
             sb.AppendLine(@"");

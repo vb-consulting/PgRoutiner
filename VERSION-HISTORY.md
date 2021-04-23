@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.3.10
+
+- Fix unit test fixture for external config files
+
 ## 3.3.9
 
 - Fix generation of DeleteBy unit test template
