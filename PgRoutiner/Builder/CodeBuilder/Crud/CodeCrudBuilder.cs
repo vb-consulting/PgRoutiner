@@ -120,6 +120,36 @@ namespace PgRoutiner
                     }
                     yield return (code, name, shortFilename, fullFileName, relative, module);
                 }
+                if (OptionContains(settings.CrudDeleteBy, schema, name))
+                {
+                    try
+                    {
+
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_delete_by", outputDir);
+                        code = new CrudDeleteByCode(settings, group.Key, module.Namespace, group);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Builder.Error($"File {relative} could not be generated. {e.Message}");
+                        continue;
+                    }
+                    yield return (code, name, shortFilename, fullFileName, relative, module);
+                }
+                if (OptionContains(settings.CrudDeleteByReturning, schema, name))
+                {
+                    try
+                    {
+
+                        (shortFilename, fullFileName, relative) = GetFileNames($"{modelName}_delete_by_returning", outputDir);
+                        code = new CrudDeleteByReturningCode(settings, group.Key, module.Namespace, group);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Builder.Error($"File {relative} could not be generated. {e.Message}");
+                        continue;
+                    }
+                    yield return (code, name, shortFilename, fullFileName, relative, module);
+                }
                 if (OptionContains(settings.CrudCreate, schema, name))
                 {
                     try

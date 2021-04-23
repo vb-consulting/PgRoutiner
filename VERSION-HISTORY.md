@@ -1,5 +1,13 @@
 ﻿# VERSION HISTORY
 
+## 3.3.8
+
+- Added ConfigPath settings to be able to reference configuration from another dir or project. This is useful in solutions with multiple projects to avoid repeating connection string.
+- Added source header to auto generated unit test files (testsettings.json and TestFixtures.cs)
+- Added ConfigPath settings in a test configuration along with comments for each key
+- Added DeleteBy and DeleteBy missing CRUD generators
+- Fix command line help abnd add missing settings
+
 ## 3.3.7
 
 - Apply custom names to crud extensions and files

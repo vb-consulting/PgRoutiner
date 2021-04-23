@@ -127,6 +127,7 @@ namespace PgRoutiner
         public string PgDumpFallback { get; set; } = OperatingSystem.IsWindows() ? 
             "C:\\Program Files\\PostgreSQL\\{0}\\bin\\pg_dump.exe" :
             "/usr/lib/postgresql/{0}/bin/pg_dump";
+        public string ConfigPath { get; set; } = null;
 
         /*code generation general options*/
         public string Namespace { get; set; } = null;
@@ -246,6 +247,8 @@ namespace PgRoutiner
         public HashSet<string> CrudUpdateReturning { get; set; } = new HashSet<string>();
         public HashSet<string> CrudDelete { get; set; } = new HashSet<string>();
         public HashSet<string> CrudDeleteReturning { get; set; } = new HashSet<string>();
+        public HashSet<string> CrudDeleteBy { get; set; } = new HashSet<string>();
+        public HashSet<string> CrudDeleteByReturning { get; set; } = new HashSet<string>();
 
         public static readonly Settings Value = new();
     }

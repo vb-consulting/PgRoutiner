@@ -201,13 +201,26 @@ namespace PgRoutiner
 
         private static string GetTestSettingsContent(NpgsqlConnection connection, string dir)
         {
-            StringBuilder sb = new(@"{");
-            sb.AppendLine();
+            StringBuilder sb = new();
+            if (!string.IsNullOrEmpty(Settings.Value.SourceHeader))
+            {
+                sb.AppendLine(string.Format(Settings.Value.SourceHeader, DateTime.Now));
+            }
+            sb.AppendLine(@"{");
             sb.AppendLine(@"  ""ConnectionStrings"": {");
             sb.AppendLine(@$"    ""DefaultConnection"": ""{connection.ConnectionString}""");
             sb.AppendLine(@"  },");
+            
             sb.AppendLine(@"  ""TestSettings"": {");
+            sb.AppendLine(@"    //");
+            sb.AppendLine(@"    // Name of connection used for testing.");
+            sb.AppendLine(@"    // A connection can be defined in this config file or in the config file defined in the ConfigPath value. ");
+            sb.AppendLine(@"    //");
             sb.AppendLine(@"    ""TestConnection"": ""DefaultConnection"",");
+            sb.AppendLine(@"    ""ConfigPath"": null,");
+            sb.AppendLine(@"    //");
+            sb.AppendLine(@"    // Name of the database recreated on each testing session. ");
+            sb.AppendLine(@"    //");
             sb.AppendLine(@$"    ""TestDatabaseName"": ""{ConnectionName.ToKebabCase().Replace("-", "_")}_test_{Guid.NewGuid().ToString().Substring(0, 8)}"",");
             dir = Path.Join(dir, "bin/Debug/net5.0");
             List<string> scripts = new();
@@ -219,7 +232,13 @@ namespace PgRoutiner
             {
                 scripts.Add($"\"{Path.GetRelativePath(dir, DataFile).Replace("\\", "/")}\"");
             }
+            sb.AppendLine(@"    //");
+            sb.AppendLine(@"    // List of scripts to be executed in order after the testing database is created and before testing starts. ");
+            sb.AppendLine(@"    //");
             sb.AppendLine(@$"    ""UpScripts"": [ {string.Join(", ", scripts)} ],");
+            sb.AppendLine(@"    //");
+            sb.AppendLine(@"    // List of scripts to be executed in order before the testing database is dropped and after testing starts. ");
+            sb.AppendLine(@"    //");
             sb.AppendLine(@"    ""DownScripts"": []");
             sb.AppendLine(@"  }");
             sb.AppendLine(@"}");
@@ -229,6 +248,10 @@ namespace PgRoutiner
         private static string GetTestFixturesFile(string ns)
         {
             StringBuilder sb = new();
+            if (!string.IsNullOrEmpty(Settings.Value.SourceHeader))
+            {
+                sb.AppendLine(string.Format(Settings.Value.SourceHeader, DateTime.Now));
+            }
             sb.AppendLine(@"using System;");
             sb.AppendLine(@"using System.Collections.Generic;");
             sb.AppendLine(@"using System.IO;");
@@ -242,6 +265,7 @@ namespace PgRoutiner
             sb.AppendLine(@"    public class Config");
             sb.AppendLine(@"    {");
             sb.AppendLine(@"        public string TestConnection { get; set; }");
+            sb.AppendLine(@"        public string ConfigPath { get; set; }");
             sb.AppendLine(@"        public string TestDatabaseName { get; set; }");
             sb.AppendLine(@"        public List<string> UpScripts { get; set; } = new();");
             sb.AppendLine(@"        public List<string> DownScripts { get; set; } = new();");
@@ -254,6 +278,16 @@ namespace PgRoutiner
             sb.AppendLine(@"            Value = new Config();");
             sb.AppendLine(@"            var config = new ConfigurationBuilder().AddJsonFile(""testsettings.json"", false, false).Build();");
             sb.AppendLine(@"            config.GetSection(""TestSettings"").Bind(Value);");
+
+            sb.AppendLine(@"            if (Value.ConfigPath != null)");
+            sb.AppendLine(@"            {");
+            sb.AppendLine(@"                config = new ConfigurationBuilder()");
+            sb.AppendLine(@"                    .AddJsonFile(""testsettings.json"", false, false)");
+            sb.AppendLine(@"                    .AddJsonFile(Value.ConfigPath, true, false)");
+            sb.AppendLine(@"                    .Build();");
+            sb.AppendLine(@"                config.GetSection(""TestSettings"").Bind(Value);");
+            sb.AppendLine(@"            }");
+
             sb.AppendLine(@"            ConnectionString = config.GetConnectionString(Value.TestConnection);");
             sb.AppendLine(@"        }");
             sb.AppendLine(@"    }");

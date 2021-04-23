@@ -118,6 +118,7 @@ namespace PgRoutiner
             AddEntry(nameof(SkipUpdateReferences), Value.SkipUpdateReferences);
             AddEntry(nameof(PgDump), Value.PgDump);
             AddEntry(nameof(PgDumpFallback), Value.PgDumpFallback);
+            AddEntry(nameof(ConfigPath), Value.ConfigPath);
 
             sb.AppendLine();
             AddSectionComment(
@@ -282,7 +283,9 @@ namespace PgRoutiner
             AddEntry(nameof(CrudUpdate), Value.CrudUpdate);
             AddEntry(nameof(CrudUpdateReturning), Value.CrudUpdateReturning);
             AddEntry(nameof(CrudDelete), Value.CrudDelete);
-            AddEntry(nameof(CrudDeleteReturning), Value.CrudDeleteReturning, "");
+            AddEntry(nameof(CrudDeleteReturning), Value.CrudDeleteReturning);
+            AddEntry(nameof(CrudDeleteBy), Value.CrudDeleteBy);
+            AddEntry(nameof(CrudDeleteByReturning), Value.CrudDeleteByReturning, "");
 
             if (wrap)
             {

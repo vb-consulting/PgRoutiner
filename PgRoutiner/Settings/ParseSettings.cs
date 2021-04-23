@@ -65,12 +65,6 @@ namespace PgRoutiner
             {
                 files.Add(" " + Path.GetFileName(settingsFile));
             }
-            if (files.Count > 0)
-            {
-                Program.WriteLine("", "Using configuration files: ");
-                Program.WriteLine(ConsoleColor.Cyan, files.ToArray());
-            }
-
             IConfigurationRoot config;
             try
             {
@@ -81,6 +75,23 @@ namespace PgRoutiner
                 config = configBuilder.Build();
                 config.GetSection("PgRoutiner").Bind(Value);
                 config.Bind(Value);
+
+                if (Value.ConfigPath != null)
+                {
+                    Value.ConfigPath = Path.Join(Program.CurrentDir, Value.ConfigPath);
+                    if (File.Exists(settingsFile))
+                    {
+                        files.Add(" " + Path.GetFileName(Value.ConfigPath));
+                    }
+                    configBuilder = new ConfigurationBuilder()
+                        .AddJsonFile(pgroutinerFile, optional: true, reloadOnChange: false)
+                        .AddJsonFile(settingsFile, optional: true, reloadOnChange: false)
+                        .AddJsonFile(devSettingsFile, optional: true, reloadOnChange: false)
+                        .AddJsonFile(Value.ConfigPath, optional: true, reloadOnChange: false);
+                    config = configBuilder.Build();
+                    config.GetSection("PgRoutiner").Bind(Value);
+                    config.Bind(Value);
+                }
 
                 Dictionary<string, string> switchMappings = new();
                 foreach (var f in typeof(Settings).GetFields())
@@ -101,6 +112,11 @@ namespace PgRoutiner
             {
                 Program.DumpError($"Failed to bind configuration: {e.Message}");
                 return null;
+            }
+            if (files.Count > 0)
+            {
+                Program.WriteLine("", "Using configuration files: ");
+                Program.WriteLine(ConsoleColor.Cyan, files.ToArray());
             }
 
             foreach (var prop in typeof(Settings).GetProperties())

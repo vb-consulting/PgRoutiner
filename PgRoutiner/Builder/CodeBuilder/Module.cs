@@ -17,7 +17,7 @@ namespace PgRoutiner
 
         public Module(Settings settings) : base(settings, null)
         {
-            Namespace = settings.Namespace.Trim('.');
+            Namespace = settings.Namespace?.Trim('.');
         }
 
         public void AddUsing(params string[] usings)
