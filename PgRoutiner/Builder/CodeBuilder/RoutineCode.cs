@@ -244,9 +244,10 @@ namespace PgRoutiner
             Class.AppendLine($"{I2}/// {(sync ? "Executes" : "Asynchronously executes")} {routine.Language} {routine.RoutineType} \"{Name}\"");
             if (!string.IsNullOrEmpty(routine.Description))
             {
+                var description = routine.Description.Replace("\r\n", "\n").Trim('\n');
                 Class.Append(I2);
-                Class.AppendLine(string.Join($"{Environment.NewLine}{I2}", 
-                    routine.Description.Split("\n").Select(d => $"/// {d}")));
+                Class.AppendLine(string.Join($"{Environment.NewLine}{I2}",
+                    description.Split("\n").Select(d => $"/// {d}")));
             }
             Class.AppendLine($"{I2}/// </summary>");
             foreach(var p in @params)

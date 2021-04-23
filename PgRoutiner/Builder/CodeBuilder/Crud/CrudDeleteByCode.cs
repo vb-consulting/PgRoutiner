@@ -147,7 +147,7 @@ namespace PgRoutiner
             {
                 Name = name,
                 Namespace = Namespace,
-                Params = this.Params,
+                Params = this.PkParams,
                 Returns = new Return { PgName = "void", Name = "void", IsVoid = true, IsEnumerable = true },
                 ActualReturns = "void",
                 Sync = sync
