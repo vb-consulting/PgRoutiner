@@ -63,9 +63,10 @@ namespace PgRoutiner
         private void BuildSyncMethod(PgRoutineGroup routine, Return @return, List<Param> @params)
         {
             var name = routine.RoutineName.ToUpperCamelCase();
+            var returnMethod = GetReturnMethod(routine, name);
             Class.AppendLine();
-            BuildCommentHeader(routine, @return, @params, true);
-            var actualReturns = @return.IsEnumerable ? $"IEnumerable<{@return.Name}>" : @return.Name;
+            BuildCommentHeader(routine, @return, @params, true, returnMethod);
+            var actualReturns = @return.IsEnumerable ? $"IEnumerable<{@return.Name}>" : (returnMethod == null ? $"IEnumerable<{@return.Name}>" : @return.Name);
             void AddMethod() => Methods.Add(new Method
             {
                 Name = name,
@@ -102,13 +103,13 @@ namespace PgRoutiner
                     }
                 }
                 BuildParams(@params, paramsTab);
-                if (@return.IsVoid || @return.IsEnumerable)
+                if (@return.IsVoid || @return.IsEnumerable || returnMethod == null)
                 {
                     Class.AppendLine(");");
                     return;
                 }
                 Class.AppendLine(")");
-                Class.AppendLine($"{bodyTab}.{settings.SingleLinqMethod}();");
+                Class.AppendLine($"{bodyTab}.{returnMethod}();");
             }
 
             if (settings.UseExpressionBody)
@@ -141,9 +142,10 @@ namespace PgRoutiner
         private void BuildAsyncMethod(PgRoutineGroup routine, Return @return, List<Param> @params)
         {
             var name = $"{routine.RoutineName.ToUpperCamelCase()}Async";
+            var returnMethod = GetReturnMethod(routine, name);
             Class.AppendLine();
-            BuildCommentHeader(routine, @return, @params, false);
-            var actualReturns = @return.IsEnumerable ? $"IAsyncEnumerable<{@return.Name}>" : (@return.IsVoid ? "async ValueTask" : $"async ValueTask<{@return.Name}>");
+            BuildCommentHeader(routine, @return, @params, false, returnMethod);
+            var actualReturns = @return.IsEnumerable ? $"IAsyncEnumerable<{@return.Name}>" : (@return.IsVoid ? "async ValueTask" : (returnMethod == null ? $"IAsyncEnumerable<{@return.Name}>" : $"async ValueTask<{@return.Name}>"));
             void AddMethod() => Methods.Add(new Method
             {
                 Name = name,
@@ -180,7 +182,7 @@ namespace PgRoutiner
                     }
                 }
                 BuildParams(@params, paramsTab);
-                if (@return.IsVoid || @return.IsEnumerable)
+                if (@return.IsVoid || @return.IsEnumerable || returnMethod == null)
                 {
                     Class.AppendLine(");");
 
@@ -188,7 +190,7 @@ namespace PgRoutiner
                 else
                 {
                     Class.AppendLine(")");
-                    Class.AppendLine($"{bodyTab}.{settings.SingleLinqMethod}Async();");
+                    Class.AppendLine($"{bodyTab}.{returnMethod}Async();");
                 }
             }
 
@@ -196,7 +198,7 @@ namespace PgRoutiner
             {
                 Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
                 BuildMethodParams(@params);
-                Class.AppendLine(@return.IsEnumerable ? ") => connection" : ") => await connection");
+                Class.AppendLine(@return.IsEnumerable || returnMethod == null ? ") => connection" : ") => await connection");
 
                 AddBodyCode(I3, I4);
             }
@@ -208,17 +210,30 @@ namespace PgRoutiner
                 Class.AppendLine($"{I2}{{");
                 if (@return.IsVoid)
                 {
-                    Class.AppendLine(@return.IsEnumerable ? $"{I3}connection" : $"{I3}await connection");
+                    Class.AppendLine(@return.IsEnumerable || returnMethod == null ? $"{I3}connection" : $"{I3}await connection");
                 }
                 else
                 {
-                    Class.AppendLine(@return.IsEnumerable ? $"{I3}return connection" : $"{I3}return await connection");
+                    Class.AppendLine(@return.IsEnumerable || returnMethod == null ? $"{I3}return connection" : $"{I3}return await connection");
                 }
                 AddBodyCode(I4, I5);
                 Class.AppendLine($"{I2}}}");
             }
             
             AddMethod();
+        }
+
+        private string GetReturnMethod(PgRoutineGroup routine, string name)
+        {
+            if (settings.RoutinesReturnMethods.TryGetValue(routine.RoutineName, out var result))
+            {
+                return string.IsNullOrEmpty(result) ? null : result;
+            }
+            if (settings.RoutinesReturnMethods.TryGetValue(name, out result))
+            {
+                return string.IsNullOrEmpty(result) ? null : result;
+            }
+            return settings.ReturnMethod;
         }
 
         private void BuildMethodParams(List<Param> @params)
@@ -238,7 +253,7 @@ namespace PgRoutiner
             }
         }
 
-        private void BuildCommentHeader(PgRoutineGroup routine, Return @return, List<Param> @params, bool sync)
+        private void BuildCommentHeader(PgRoutineGroup routine, Return @return, List<Param> @params, bool sync, string returnMethod)
         {
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// {(sync ? "Executes" : "Asynchronously executes")} {routine.Language} {routine.RoutineType} \"{Name}\"");
@@ -254,15 +269,15 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I2}/// <param name=\"{p.Name}\">{p.PgName} {p.PgType}</param>");
             }
-            if (@return.IsEnumerable)
+            if (@return.IsEnumerable || returnMethod == null)
             {
                 if (sync)
                 {
-                    Class.AppendLine($"{I2}/// <returns>IEnumerable of {@namespace}.{@return.Name} instances</returns>");
+                    Class.AppendLine($"{I2}/// <returns>IEnumerable of {@return.Name} instances</returns>");
                 }
                 else
                 {
-                    Class.AppendLine($"{I2}/// <returns>IAsyncEnumerable of {@namespace}.{@return.Name} instances</returns>");
+                    Class.AppendLine($"{I2}/// <returns>IAsyncEnumerable of {@return.Name} instances</returns>");
                 }
             }
             else

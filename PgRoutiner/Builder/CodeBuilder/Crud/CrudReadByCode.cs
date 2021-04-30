@@ -53,7 +53,7 @@ namespace PgRoutiner
                 Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I5}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
             Class.AppendLine($")");
-            Class.AppendLine($"{I4}.{settings.SingleLinqMethod}();");
+            Class.AppendLine($"{I4}.{settings.ReturnMethod}();");
             Class.AppendLine($"{I2}}}");
             NewMethod(name, actualReturns, true);
         }
@@ -79,7 +79,7 @@ namespace PgRoutiner
                 Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I5}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
             Class.AppendLine($")");
-            Class.AppendLine($"{I4}.{settings.SingleLinqMethod}Async();");
+            Class.AppendLine($"{I4}.{settings.ReturnMethod}Async();");
             Class.AppendLine($"{I2}}}");
             NewMethod(name, actualReturns, false);
         }
@@ -103,7 +103,7 @@ namespace PgRoutiner
                 Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I4}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
             Class.AppendLine($")");
-            Class.AppendLine($"{I3}.{settings.SingleLinqMethod}();");
+            Class.AppendLine($"{I3}.{settings.ReturnMethod}();");
             NewMethod(name, actualReturns, true);
         }
 
@@ -126,7 +126,7 @@ namespace PgRoutiner
                 Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I4}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
             Class.AppendLine($")");
-            Class.AppendLine($"{I3}.{settings.SingleLinqMethod}Async();");
+            Class.AppendLine($"{I3}.{settings.ReturnMethod}Async();");
             NewMethod(name, actualReturns, false);
         }
 

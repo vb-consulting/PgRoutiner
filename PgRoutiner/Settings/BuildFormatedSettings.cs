@@ -139,7 +139,7 @@ namespace PgRoutiner
             AddEntry(nameof(MinNormVersion), Value.MinNormVersion);
             AddEntry(nameof(SourceHeader), Value.SourceHeader);
             AddEntry(nameof(Ident), Value.Ident);
-            AddEntry(nameof(SingleLinqMethod), Value.SingleLinqMethod);
+            AddEntry(nameof(ReturnMethod), Value.ReturnMethod);
 
             sb.AppendLine();
             AddSectionComment(

@@ -1,5 +1,12 @@
 ﻿# VERSION HISTORY
 
+## 3.3.12
+
+- Rename setting name `SingleLinqMethod` to `ReturnMethod`
+- Add `RoutinesReturnMethods` dictionary settings. This settings overrides `ReturnMethod` for individual routines.
+  - Key is either routine method or a generated method name.
+  - Value is name of the .NET method (Linq) that yield single result (like Single or First) or NULL to yield an enumeration.
+
 ## 3.3.11
 ## 3.3.10
 

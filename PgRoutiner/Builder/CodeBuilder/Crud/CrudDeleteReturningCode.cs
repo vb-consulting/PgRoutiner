@@ -56,7 +56,7 @@ namespace PgRoutiner
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.PkParams.Select(p => $"{I5}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
-            Class.AppendLine($"{I4}.{settings.SingleLinqMethod}();");
+            Class.AppendLine($"{I4}.{settings.ReturnMethod}();");
             Class.AppendLine($"{I2}}}");
             AddMethod(name, actualReturns, true);
         }
@@ -78,7 +78,7 @@ namespace PgRoutiner
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.PkParams.Select(p => $"{I5}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
-            Class.AppendLine($"{I4}.{settings.SingleLinqMethod}Async();");
+            Class.AppendLine($"{I4}.{settings.ReturnMethod}Async();");
             Class.AppendLine($"{I2}}}");
             AddMethod(name, actualReturns, false);
         }
@@ -98,7 +98,7 @@ namespace PgRoutiner
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.PkParams.Select(p => $"{I5}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
-            Class.AppendLine($"{I3}.{settings.SingleLinqMethod}();");
+            Class.AppendLine($"{I3}.{settings.ReturnMethod}();");
             AddMethod(name, actualReturns, true);
         }
 
@@ -118,7 +118,7 @@ namespace PgRoutiner
             Class.AppendLine(", ");
             Class.Append(string.Join($",{NL}", this.PkParams.Select(p => $"{I5}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
             Class.AppendLine($")");
-            Class.AppendLine($"{I3}.{settings.SingleLinqMethod}Async();");
+            Class.AppendLine($"{I3}.{settings.ReturnMethod}Async();");
             AddMethod(name, actualReturns, false);
         }
 
