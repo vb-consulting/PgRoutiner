@@ -236,6 +236,7 @@ namespace PgRoutiner
         public bool CrudOverwrite { get; set; } = false;
         public bool CrudAskOverwrite { get; set; } = false;
         public bool CrudNoPrepare { get; set; } = false;
+        public IDictionary<string, string> CrudReturnMethods { get; set; } = new Dictionary<string, string>();
         public HashSet<string> CrudCreate { get; set; } = new HashSet<string>();
         public HashSet<string> CrudCreateReturning { get; set; } = new HashSet<string>();
         public HashSet<string> CrudCreateOnConflictDoNothing { get; set; } = new HashSet<string>();

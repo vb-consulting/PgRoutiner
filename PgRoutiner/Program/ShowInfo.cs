@@ -161,7 +161,7 @@ namespace PgRoutiner
             WriteSetting(nameof(Settings.CrudOverwrite), "If this switch is included CRUD files will be overwritten.");
             WriteSetting(nameof(Settings.CrudAskOverwrite), "If this switch is included prompt with the question will be displayed for CRUD file overwrite.");
             WriteSetting(nameof(Settings.CrudNoPrepare), "If this switch is included CRUD extensions will not prepare command. All CRUD commands are prepared in advance.");
-
+            WriteSetting(nameof(Settings.CrudReturnMethods), $"Linq method name that should be used to yield a single value from enumaration for individual crud routine. Overrides {nameof(Settings.ReturnMethod)} setting. Key is either table name or method name and value is linq method name that returns the result. If value is null routine yields enumeration.", "VALUE", "KEY", newLine: true);
             WriteSetting(nameof(Settings.CrudCreate), "CRUD create tables list.", "NAME", "INDEX");
             WriteSetting(nameof(Settings.CrudCreateReturning), "CRUD create returning tables list.", "NAME", "INDEX", newLine: true);
             WriteSetting(nameof(Settings.CrudCreateOnConflictDoNothing), "CRUD create on conflict do nothing tables list.", "NAME", "INDEX", newLine: true);

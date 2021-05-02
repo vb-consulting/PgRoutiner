@@ -87,7 +87,7 @@ namespace PgRoutiner
         {
             var name = $"Create{this.Name}OnConflictDoUpdateAsync";
             Class.AppendLine();
-            BuildSyncMethodCommentHeader();
+            BuildAsyncMethodCommentHeader();
             Class.AppendLine($"{I2}public static async ValueTask {name}(this NpgsqlConnection connection, {this.Model} model, params string[] conflictedFields)");
             Class.AppendLine($"{I2}{{");
             Class.AppendLine($"{I3}await connection");
@@ -124,7 +124,7 @@ namespace PgRoutiner
         {
             var name = $"Create{this.Name}OnConflictDoUpdateAsync";
             Class.AppendLine();
-            BuildSyncMethodCommentHeader();
+            BuildAsyncMethodCommentHeader();
             Class.AppendLine($"{I2}public static async ValueTask {name}(this NpgsqlConnection connection, {this.Model} model, params string[] conflictedFields) => await connection");
             if (!settings.CrudNoPrepare)
             {
@@ -137,7 +137,7 @@ namespace PgRoutiner
             AddMethod(name, false);
         }
 
-        protected override void BuildSyncMethodCommentHeader()
+        private void BuildSyncMethodCommentHeader()
         {
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// Insert new record in table {this.Table} with values instance of a \"{Namespace}.{Model}\" class.");
@@ -148,7 +148,7 @@ namespace PgRoutiner
             Class.AppendLine($"{I2}/// <param name=\"conflictedFields\">Params list of field names that are tested for conflict. Default is list of primary keys.</param>");
         }
 
-        protected override void BuildAsyncMethodCommentHeader()
+        private void BuildAsyncMethodCommentHeader()
         {
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// Asynchronously insert new record of table {this.Table} with values instance of a \"{Namespace}.{Model}\" class.");

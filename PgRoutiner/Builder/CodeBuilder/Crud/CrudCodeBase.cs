@@ -83,6 +83,31 @@ namespace PgRoutiner
             EndClass();
         }
 
+        protected string GetReturnMethod(string name)
+        {
+            if (settings.CrudReturnMethods.TryGetValue(name, out var result))
+            {
+                return string.IsNullOrEmpty(result) ? null : result;
+            }
+            if (settings.CrudReturnMethods.TryGetValue(item.name, out result))
+            {
+                return string.IsNullOrEmpty(result) ? null : result;
+            }
+            if (settings.CrudReturnMethods.TryGetValue($"\"{item.name}\"", out result))
+            {
+                return string.IsNullOrEmpty(result) ? null : result;
+            }
+            if (settings.CrudReturnMethods.TryGetValue($"{item.schema}.{item.name}", out result))
+            {
+                return string.IsNullOrEmpty(result) ? null : result;
+            }
+            if (settings.CrudReturnMethods.TryGetValue($"{item.schema}.\"{item.name}\"", out result))
+            {
+                return string.IsNullOrEmpty(result) ? null : result;
+            }
+            return settings.ReturnMethod;
+        }
+
         protected abstract void AddSql();
 
         protected abstract void BuildStatementBodySyncMethod();
@@ -93,9 +118,9 @@ namespace PgRoutiner
 
         protected abstract void BuildExpressionBodyAsyncMethod();
 
-        protected abstract void BuildSyncMethodCommentHeader();
+        //protected abstract void BuildSyncMethodCommentHeader();
 
-        protected abstract void BuildAsyncMethodCommentHeader();
+        //protected abstract void BuildAsyncMethodCommentHeader();
 
         private void BeginClass(string suffix)
         {

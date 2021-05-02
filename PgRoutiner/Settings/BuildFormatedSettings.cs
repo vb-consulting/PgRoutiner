@@ -272,6 +272,7 @@ namespace PgRoutiner
             AddEntry(nameof(CrudOverwrite), Value.CrudOverwrite);
             AddEntry(nameof(CrudAskOverwrite), Value.CrudAskOverwrite);
             AddEntry(nameof(CrudNoPrepare), Value.CrudNoPrepare);
+            AddEntry(nameof(CrudReturnMethods), Value.CrudReturnMethods);
             AddEntry(nameof(CrudCreate), Value.CrudCreate);
             AddEntry(nameof(CrudCreateReturning), Value.CrudCreateReturning);
             AddEntry(nameof(CrudCreateOnConflictDoNothing), Value.CrudCreateOnConflictDoNothing);

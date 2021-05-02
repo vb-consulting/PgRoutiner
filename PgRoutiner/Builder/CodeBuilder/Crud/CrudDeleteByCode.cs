@@ -119,7 +119,7 @@ namespace PgRoutiner
             AddMethod(name, false);
         }
 
-        protected override void BuildSyncMethodCommentHeader()
+        private void BuildSyncMethodCommentHeader()
         {
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}///  Delete record of table {this.Table} by primary keys.");
@@ -130,7 +130,7 @@ namespace PgRoutiner
             }
         }
 
-        protected override void BuildAsyncMethodCommentHeader()
+        private void BuildAsyncMethodCommentHeader()
         {
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// Asynchronously delete record of table {this.Table} by primary keys.");

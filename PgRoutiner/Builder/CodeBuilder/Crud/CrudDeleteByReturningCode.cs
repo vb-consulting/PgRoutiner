@@ -32,9 +32,10 @@ namespace PgRoutiner
         protected override void BuildStatementBodySyncMethod()
         {
             var name = $"Delete{this.Name}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()))}Returning";
-            var actualReturns = this.Model;
+            var returnMethod = GetReturnMethod(name);
+            var actualReturns = returnMethod == null ? $"IEnumerable<{this.Model}>" : this.Model;
             Class.AppendLine();
-            BuildSyncMethodCommentHeader();
+            BuildSyncMethodCommentHeader(returnMethod == null);
             Class.AppendLine($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection, {string.Join(", ", this.PkParams.Select(p => $"{p.Type} {p.Name}"))})");
             Class.AppendLine($"{I2}{{");
             Class.AppendLine($"{I3}return connection");
@@ -49,8 +50,16 @@ namespace PgRoutiner
                 Class.AppendLine(", ");
                 Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I5}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
-            Class.AppendLine($")");
-            Class.AppendLine($"{I4}.{settings.ReturnMethod}();");
+            if (returnMethod == null)
+            {
+                Class.AppendLine($");");
+            }
+            else
+            {
+                Class.AppendLine($")");
+                Class.AppendLine($"{I4}.{settings.ReturnMethod}();");
+            }
+            
             Class.AppendLine($"{I2}}}");
             NewMethod(name, actualReturns, true);
         }
@@ -58,12 +67,13 @@ namespace PgRoutiner
         protected override void BuildStatementBodyAsyncMethod()
         {
             var name = $"Delete{this.Name}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()))}ReturningAsync";
-            var actualReturns = $"ValueTask<{this.Model}>";
+            var returnMethod = GetReturnMethod(name);
+            var actualReturns = returnMethod == null ? $"IAsyncEnumerable<{this.Model}>" : $"async ValueTask<{this.Model}>";
             Class.AppendLine();
-            BuildAsyncMethodCommentHeader();
-            Class.AppendLine($"{I2}public static async {actualReturns} {name}(this NpgsqlConnection connection, {string.Join(", ", this.PkParams.Select(p => $"{p.Type} {p.Name}"))})");
+            BuildAsyncMethodCommentHeader(returnMethod == null);
+            Class.AppendLine($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection, {string.Join(", ", this.PkParams.Select(p => $"{p.Type} {p.Name}"))})");
             Class.AppendLine($"{I2}{{");
-            Class.AppendLine($"{I3}return await connection");
+            Class.AppendLine($"{I3}return {(returnMethod == null ? "" : "await")} connection");
             if (!settings.CrudNoPrepare)
             {
                 Class.AppendLine($"{I4}.Prepared()");
@@ -75,8 +85,15 @@ namespace PgRoutiner
                 Class.AppendLine(", ");
                 Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I5}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
-            Class.AppendLine($")");
-            Class.AppendLine($"{I4}.{settings.ReturnMethod}Async();");
+            if (returnMethod == null)
+            {
+                Class.AppendLine($");");
+            }
+            else
+            {
+                Class.AppendLine($")");
+                Class.AppendLine($"{I4}.{settings.ReturnMethod}Async();");
+            }
             Class.AppendLine($"{I2}}}");
             NewMethod(name, actualReturns, false);
         }
@@ -84,9 +101,10 @@ namespace PgRoutiner
         protected override void BuildExpressionBodySyncMethod()
         {
             var name = $"Delete{this.Name}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()).ToArray())}Returning";
-            var actualReturns = this.Model;
+            var returnMethod = GetReturnMethod(name);
+            var actualReturns = returnMethod == null ? $"IEnumerable<{this.Model}>" : this.Model;
             Class.AppendLine();
-            BuildSyncMethodCommentHeader();
+            BuildSyncMethodCommentHeader(returnMethod == null);
             Class.AppendLine($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection, {string.Join(", ", this.PkParams.Select(p => $"{p.Type} {p.Name}").ToArray())}) => connection");
             if (!settings.CrudNoPrepare)
             {
@@ -99,18 +117,26 @@ namespace PgRoutiner
                 Class.AppendLine(", ");
                 Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I4}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
-            Class.AppendLine($")");
-            Class.AppendLine($"{I3}.{settings.ReturnMethod}();");
+            if (returnMethod == null)
+            {
+                Class.AppendLine($");");
+            }
+            else
+            {
+                Class.AppendLine($")");
+                Class.AppendLine($"{I3}.{settings.ReturnMethod}();");
+            }
             NewMethod(name, actualReturns, true);
         }
 
         protected override void BuildExpressionBodyAsyncMethod()
         {
             var name = $"Delete{this.Name}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()).ToArray())}ReturningAsync";
-            var actualReturns = $"ValueTask<{this.Model}>";
+            var returnMethod = GetReturnMethod(name);
+            var actualReturns = returnMethod == null ? $"IAsyncEnumerable<{this.Model}>" : $"async ValueTask<{this.Model}>";
             Class.AppendLine();
-            BuildAsyncMethodCommentHeader();
-            Class.AppendLine($"{I2}public static async {actualReturns} {name}(this NpgsqlConnection connection, {string.Join(", ", this.PkParams.Select(p => $"{p.Type} {p.Name}"))}) => await connection");
+            BuildAsyncMethodCommentHeader(returnMethod == null);
+            Class.AppendLine($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection, {string.Join(", ", this.PkParams.Select(p => $"{p.Type} {p.Name}"))}) => {(returnMethod == null ? "" : "await")} connection");
             if (!settings.CrudNoPrepare)
             {
                 Class.AppendLine($"{I3}.Prepared()");
@@ -122,12 +148,19 @@ namespace PgRoutiner
                 Class.AppendLine(", ");
                 Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I4}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
-            Class.AppendLine($")");
-            Class.AppendLine($"{I3}.{settings.ReturnMethod}Async();");
+            if (returnMethod == null)
+            {
+                Class.AppendLine($");");
+            }
+            else
+            {
+                Class.AppendLine($")");
+                Class.AppendLine($"{I3}.{settings.ReturnMethod}Async();");
+            }
             NewMethod(name, actualReturns, false);
         }
 
-        protected override void BuildSyncMethodCommentHeader()
+        private void BuildSyncMethodCommentHeader(bool enumerable)
         {
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// Delete record of table {this.Table} by primary keys and return a single record mapped to an instance of a \"{Namespace}.{Model}\" class.");
@@ -136,10 +169,17 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I2}/// <param name=\"{p.Name}\">Select table {this.Table} where field {p.PgName} {p.PgType} is this value.</param>");
             }
-            Class.AppendLine($"{I2}/// <returns>Single instance of a \"{Namespace}.{Model}\" class that is mapped to resulting record of table {this.Table}</returns>");
+            if (!enumerable)
+            {
+                Class.AppendLine($"{I2}/// <returns>Single instance of a \"{Namespace}.{Model}\" class that is mapped to resulting record of table {this.Table}</returns>");
+            }
+            else
+            {
+                Class.AppendLine($"{I2}/// <returns>Enumerable of instances of a \"{Namespace}.{Model}\" class that is mapped to resulting record of table {this.Table}</returns>");
+            }
         }
 
-        protected override void BuildAsyncMethodCommentHeader()
+        private void BuildAsyncMethodCommentHeader(bool enumerable)
         {
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// Asynchronously delete record of table {this.Table} by primary keys and return a single record mapped to an instance of a \"{Namespace}.{Model}\" class.");
@@ -148,7 +188,14 @@ namespace PgRoutiner
             {
                 Class.AppendLine($"{I2}/// <param name=\"{p.Name}\">Select table {this.Table} where field {p.PgName} {p.PgType} is this value.</param>");
             }
-            Class.AppendLine($"{I2}/// <returns>ValueTask whose Result property is a single instance of a \"{Namespace}.{Model}\" class that is mapped to resulting record of table {this.Table}</returns>");
+            if (!enumerable)
+            {
+                Class.AppendLine($"{I2}/// <returns>ValueTask whose Result property is a single instance of a \"{Namespace}.{Model}\" class that is mapped to resulting record of table {this.Table}</returns>");
+            }
+            else
+            {
+                Class.AppendLine($"{I2}/// <returns>Async Enumerable of instances of a \"{Namespace}.{Model}\" class that is mapped to resulting record of table {this.Table}</returns>");
+            }
         }
 
         private void NewMethod(string name, string actualReturns, bool sync)

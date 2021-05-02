@@ -1,5 +1,10 @@
 ﻿# VERSION HISTORY
 
+## 3.3.13
+
+- Add `CrudReturnMethods` dictionary settings. Same settings as `RoutinesReturnMethods`, but only for CRUD methods. Key can be either table name or generated method name. Added for consistency.
+- Fix automatic comments on async CRUD methods
+
 ## 3.3.12
 
 - Rename setting name `SingleLinqMethod` to `ReturnMethod`

@@ -91,7 +91,7 @@ namespace PgRoutiner
             AddMethod(name, actualReturns, false);
         }
 
-        protected override void BuildSyncMethodCommentHeader()
+        private void BuildSyncMethodCommentHeader()
         {
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// Select table {this.Table} and return enumerator of instances of a \"{Namespace}.{Model}\" class.");
@@ -99,7 +99,7 @@ namespace PgRoutiner
             Class.AppendLine($"{I2}/// <returns>Single instance of a \"{Namespace}.{Model}\" class that is mapped to resulting record of table {this.Table}</returns>");
         }
 
-        protected override void BuildAsyncMethodCommentHeader()
+        private void BuildAsyncMethodCommentHeader()
         {
             Class.AppendLine($"{I2}/// <summary>");
             Class.AppendLine($"{I2}/// Asynchronously select table {this.Table} and return enumerator of instances of a \"{this.Model}\" class.");
