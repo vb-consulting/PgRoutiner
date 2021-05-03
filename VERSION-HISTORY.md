@@ -1,6 +1,6 @@
 ﻿# VERSION HISTORY
 
-## 3.3.2
+## 3.4.0
 
 - Remove help url comment from auto generated configuration (until website is build)
 
