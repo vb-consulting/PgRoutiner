@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		VERSION-HISTORY.md = VERSION-HISTORY.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PgRoutinerTests", "PgRoutinerTests\PgRoutinerTests.csproj", "{CBFC6027-9A1A-4FE8-A1A7-1EB54F35406C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,6 +24,10 @@ Global
 		{BCCC67BF-188D-4107-902A-5930CBDD8688}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCCC67BF-188D-4107-902A-5930CBDD8688}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCCC67BF-188D-4107-902A-5930CBDD8688}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBFC6027-9A1A-4FE8-A1A7-1EB54F35406C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBFC6027-9A1A-4FE8-A1A7-1EB54F35406C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBFC6027-9A1A-4FE8-A1A7-1EB54F35406C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBFC6027-9A1A-4FE8-A1A7-1EB54F35406C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

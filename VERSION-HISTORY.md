@@ -1,5 +1,50 @@
 ﻿# VERSION HISTORY
 
+## 3.3.2
+
+- Remove help url comment from auto generated configuration (until website is build)
+
+- If there is no any command-line argument present and no PgRoutiner file-based configuration, prompt a question:
+
+> You don't seem to be using any available command-line commands and PgRoutiner configuration seems to be missing.
+Would you like to create a custom settings file "appsettings.PgRoutiner.json" with your current values?
+This settings configuration file can be used to change settings for this directory without using a command-line.
+Create "appsettings.PgRoutiner.json" in this dir [Y/N]?
+
+- Previosly, it is was only on some commands, now Pgroutiner check if any valid command-line is issued. And the text sucked, this one is better.
+
+- Now `Connection` settings doesn't have to be a connection name. It can be entire connection string. This is convinient when you want to set connection from the command line:
+
+`$ pgroutiner -c "postgresql://postgres:postgres@localhost:5434/database"`
+or
+`$ pgroutiner -c "Host=localhost;Database=venture;Port=5434;Username=postgres;Password=postgres"`
+or
+`$ pgroutiner --connection "postgresql://postgres:postgres@localhost:5434/database"`
+or
+`$ pgroutiner --connection "Host=localhost;Database=venture;Port=5434;Username=postgres;Password=postgres"`
+
+Is some parts are missing, user will be prompted to enter (unless `SkipConnectionPrompt` is set to true).
+
+- Added warning for tables that don't exists in a database but exists in a CRUD code generation configuration:
+> WARNING: Some of the tables in CRUD configuration are not found in the database. Following tables will be skiped for the CRUD code generation: a, b, c
+
+- Unit test fixtures new settings:
+  - `TestDatabaseFromTemplate` true or false: if set to true, test database will be created by using database from a TestConnection as database template.
+  - `UnitTestsUnderTransaction` true or false: if set to true, each unit test is under new transaction that is rolled back after test is done.
+  - `UnitTestsNewDatabaseFromTemplate` true or false: if set to true, each unit test creates a new, unique database by using database from a TestConnection as database template.
+
+Creating database from a template copies all schema and data instantly.
+
+Configuration settings TestDatabaseFromTemplate=true and UnitTestsNewDatabaseFromTemplate=true doesn't make any sense.
+There is no point of creating a test database from a template and to do that again for each unit test.
+
+Configuration settings UnitTestsNewDatabaseFromTemplate=true and UnitTestsUnderTransaction=true doesn't make any sense.
+There is no point of creating a new test database from a template for each test and then use transaction on a database where only one test runs.
+
+Configuration settings UnitTestsNewDatabaseFromTemplate=true and up or down scripts (UpScripts, DownScripts) doesn't make any sense.
+Up or down scripts are only applied on a test database created for all tests.
+
+
 ## 3.3.13
 
 - Add `CrudReturnMethods` dictionary settings. Same settings as `RoutinesReturnMethods`, but only for CRUD methods. Key can be either table name or generated method name. Added for consistency.

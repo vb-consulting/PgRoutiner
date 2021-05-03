@@ -20,10 +20,12 @@ namespace PgRoutiner
                 {
                     sb.AppendLine($"      {tip}");
                 }
+                /*
                 if (helpUrl != null)
                 {
                     sb.AppendLine($"      - For more info see: {helpUrl}");
                 }
+                */
                 sb.AppendLine($"    */");
             }
 

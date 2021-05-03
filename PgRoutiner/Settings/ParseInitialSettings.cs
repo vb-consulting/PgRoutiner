@@ -19,31 +19,20 @@ namespace PgRoutiner
     {
         public static Project ProjectInfo = null;
 
-        public static bool ParseInitialSettings(NpgsqlConnection connection)
+        public static bool ParseInitialSettings(NpgsqlConnection connection, bool haveArguments)
         {
             var pgroutinerFile = Path.Join(Program.CurrentDir, pgroutinerSettingsFile);
             var exists = File.Exists(Path.Join(pgroutinerFile));
 
-            if (!exists &&
-                Program.Config.GetSection("PgRoutiner").GetChildren().Count() == 0 &&
-                Value.Execute == null &&
-                !Value.Psql &&
-                !Value.Routines &&
-                !Value.Crud &&
-                !Value.UnitTests && 
-                !Value.SchemaDump && 
-                !Value.DataDump && 
-                !Value.DbObjects && 
-                !Value.Markdown && 
-                !Value.Diff)
+            if (!exists && Program.Config.GetSection("PgRoutiner").GetChildren().Count() == 0 && !haveArguments)
             {
                 Program.WriteLine(ConsoleColor.Yellow, "",
-                    "You don't seem to be using any available commands and PgRoutiner configuration seems to be missing.");
+                    "You don't seem to be using any available command-line commands and PgRoutiner configuration seems to be missing.");
                 Program.Write(ConsoleColor.Yellow, 
                     $"Would you like to create a custom settings file \"");
                 Program.Write(ConsoleColor.Cyan, pgroutinerSettingsFile);
                 Program.WriteLine(ConsoleColor.Yellow, "\" with your current values?",
-                    "This file can be used to change settings and run tasks without command line arguments.");
+                    "This settings configuration file can be used to change settings for this directory without using a command-line.");
                 Program.Write(ConsoleColor.Yellow,
                     $"Create \"");
                 Program.Write(ConsoleColor.Cyan, pgroutinerSettingsFile);

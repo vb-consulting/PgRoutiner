@@ -48,7 +48,7 @@ namespace PgRoutiner
             {
                 return;
             }
-            if (!Settings.ParseInitialSettings(connection))
+            if (!Settings.ParseInitialSettings(connection, args.Length > 0))
             {
                 return;
             }

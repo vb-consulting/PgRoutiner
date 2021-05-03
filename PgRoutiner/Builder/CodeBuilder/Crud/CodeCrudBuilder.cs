@@ -18,6 +18,26 @@ namespace PgRoutiner
         protected override IEnumerable<(Code code, string name, string shortFilename, string fullFileName, string relative, Module module)>
             GetCodes(string outputDir)
         {
+            var nonExisting = connection.GetTablesThatDontExist(settings.CrudReadBy
+                .Union(settings.CrudReadAll)
+                .Union(settings.CrudUpdate)
+                .Union(settings.CrudUpdateReturning)
+                .Union(settings.CrudDelete)
+                .Union(settings.CrudDeleteReturning)
+                .Union(settings.CrudDeleteBy)
+                .Union(settings.CrudDeleteByReturning)
+                .Union(settings.CrudCreate)
+                .Union(settings.CrudCreateReturning)
+                .Union(settings.CrudCreateOnConflictDoNothing)
+                .Union(settings.CrudCreateOnConflictDoNothingReturning)
+                .Union(settings.CrudCreateOnConflictDoUpdate)
+                .Union(settings.CrudCreateOnConflictDoUpdateReturning).ToList()).ToArray();
+
+            if (nonExisting.Any())
+            {
+                Program.WriteLine(ConsoleColor.Yellow, "", $"WARNING: Some of the tables in CRUD configuration are not found in the database. Following tables will be skiped for the CRUD code generation: {string.Join(", ", nonExisting)}");
+            }
+
             foreach (var group in connection.GetTableDefintions(settings))
             {
                 var (schema, name) = group.Key;

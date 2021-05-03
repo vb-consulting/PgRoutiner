@@ -61,7 +61,7 @@ namespace PgRoutiner
             }
 
 
-            var title = string.Format("{0}__diff__{1}", ConnectionName, targetName).SanitazeName();
+            var title = string.Format("{0}__diff__{1}", connection.Database, target.Database).SanitazeName();
             var builder = new PgDiffBuilder(Settings.Value, connection, target, sourceBuilder, targetBuilder, title);
             var content = builder.Build((msg, step, total) => 
             {

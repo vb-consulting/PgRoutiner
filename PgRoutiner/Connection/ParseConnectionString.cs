@@ -14,10 +14,13 @@ namespace PgRoutiner
                 var connectionStr = config.GetConnectionString(name);
                 if (string.IsNullOrEmpty(connectionStr))
                 {
-                    Program.DumpError($"Connection name {name} could not be found in any of the setting files, exiting...");
-                    return null;
+                    connectionStr = ParseConnStringInternal(name);
                 }
-                connectionStr = ParseConnStringInternal(connectionStr);
+                else
+                {
+                    connectionStr = ParseConnStringInternal(connectionStr);
+                }
+                
                 if (connectionStr == null)
                 {
                     return null;

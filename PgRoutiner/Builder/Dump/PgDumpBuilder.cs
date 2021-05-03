@@ -190,7 +190,7 @@ namespace PgRoutiner
 
             if (!settings.SchemaDumpNoTransaction)
             {
-                return GetPgDumpTransactionContent(args, $"{settings.Connection}_schema");
+                return GetPgDumpTransactionContent(args, $"{Connection.Database}_schema");
             }
             return GetPgDumpContent(args);
         }
@@ -210,7 +210,7 @@ namespace PgRoutiner
 
             if (!settings.DataDumpNoTransaction)
             {
-                return GetPgDumpTransactionContent(args, $"{settings.Connection}_data");
+                return GetPgDumpTransactionContent(args, $"{Connection.Database}_data");
             }
             return GetPgDumpContent(args);
         }
