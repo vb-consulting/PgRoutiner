@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.4.1
+
+- Add missing RoutinesReturnMethods settings key when creating settings file.
+
 ## 3.4.0
 
 - Remove help url comment from auto generated configuration (until website is build)

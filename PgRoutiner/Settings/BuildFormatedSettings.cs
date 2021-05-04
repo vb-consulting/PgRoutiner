@@ -158,6 +158,7 @@ namespace PgRoutiner
             AddEntry(nameof(RoutinesAskOverwrite), Value.RoutinesAskOverwrite);
             AddEntry(nameof(NotSimilarTo), Value.NotSimilarTo);
             AddEntry(nameof(SimilarTo), Value.SimilarTo);
+            AddEntry(nameof(RoutinesReturnMethods), Value.RoutinesReturnMethods);
 
             sb.AppendLine();
             AddSectionComment(
