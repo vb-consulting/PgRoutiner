@@ -48,11 +48,8 @@ namespace PgRoutiner
             where 
                 table_type = 'BASE TABLE'
                 and
-                (
-                    (   @schema is not null and t.table_schema similar to @schema   )
-                    or
-                    (   {GetSchemaExpression("t.table_schema")}  )
-                )
+                (   @schema is null or (t.table_schema similar to @schema)   )
+                and (   {GetSchemaExpression("t.table_schema")}  )
             order by 
                 t.table_schema, 
                 t.table_name, 
@@ -119,7 +116,15 @@ namespace PgRoutiner
                 {
                     count++;
                 }
-                if (CodeCrudBuilder.OptionContains(settings.CrudDelete, schema, name))
+                if (CodeCrudBuilder.OptionContains(settings.CrudReadAll, schema, name))
+                {
+                    count++;
+                }
+                if (CodeCrudBuilder.OptionContains(settings.CrudDeleteBy, schema, name))
+                {
+                    count++;
+                }
+                if (CodeCrudBuilder.OptionContains(settings.CrudDeleteByReturning, schema, name))
                 {
                     count++;
                 }

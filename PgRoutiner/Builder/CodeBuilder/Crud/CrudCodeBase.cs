@@ -41,7 +41,7 @@ namespace PgRoutiner
         {
             foreach (var column in this.Columns)
             {
-                var p = new Param
+                var p = new Param(settings)
                 {
                     PgName = column.Name,
                     PgType = column.DataType,

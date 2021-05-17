@@ -19,11 +19,8 @@ namespace PgRoutiner
                 from
                     information_schema.domains d
                 where
-                    (
-                        (   @schema is not null and d.domain_schema similar to @schema   )
-                        or
-                        (   {GetSchemaExpression("d.domain_schema")}  )
-                    )
+                    (   @schema is null or (d.domain_schema similar to @schema)   )
+                    and (   {GetSchemaExpression("d.domain_schema")}  )
 
             ", ("schema", settings.Schema, DbType.AnsiString))
             .Select(t => new PgItem

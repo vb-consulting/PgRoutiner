@@ -172,8 +172,6 @@ namespace PgRoutiner
             WriteSetting(nameof(Settings.CrudReadAll), "CRUD read all tables list.", "NAME", "INDEX");
             WriteSetting(nameof(Settings.CrudUpdate), "CRUD update tables list.", "NAME", "INDEX");
             WriteSetting(nameof(Settings.CrudUpdateReturning), "CRUD update returning tables list.", "NAME", "INDEX", newLine: true);
-            WriteSetting(nameof(Settings.CrudDelete), "CRUD delete tables list.", "NAME", "INDEX", newLine: true);
-            WriteSetting(nameof(Settings.CrudDeleteReturning), "CRUD delete returning tables list.", "NAME", "INDEX", newLine: true);
             WriteSetting(nameof(Settings.CrudDeleteBy), "CRUD delete by primary keys tables list.", "NAME", "INDEX");
             WriteSetting(nameof(Settings.CrudDeleteByReturning), "CRUD delete by primary keys returning tables list.", "NAME", "INDEX", newLine: true);
 

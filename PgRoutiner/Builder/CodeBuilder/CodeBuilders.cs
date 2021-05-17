@@ -6,6 +6,16 @@ using Npgsql;
 
 namespace PgRoutiner
 {
+    public class CodeResult
+    {
+        public Code Code { get; set; }
+        public string Name { get; set; }
+        public Module Module { get; set; }
+        public string Schema { get; set; }
+        public string ForName { get; set; }
+        public string NameSuffix { get; set; }
+    }
+
     public abstract class CodeBuilder
     {
         protected readonly NpgsqlConnection connection;
@@ -29,73 +39,65 @@ namespace PgRoutiner
                 return;
             }
 
-            var outputDir = GetOutputDir();
-            var modelDir = GetModelDir();
+            var baseOutputDir = GetOutputDir();
+            var baseModelDir = GetModelDir();
 
-            if (codeSettings.EmptyOutputDir)
+            foreach (var codeResult in GetCodes())
             {
-                EmptyDir(outputDir);
-            }
-
-            if (settings.EmptyModelDir)
-            {
-                EmptyDir(modelDir);
-            }
-
-            foreach ((Code code, string name, string shortFilename, string fullFileName, string relative, Module module) in GetCodes(outputDir))
-            {
-                if (code == null)
+                if (codeResult.Code == null)
                 {
                     continue;
                 }
-                var exists = File.Exists(fullFileName);
+                var fileName = GetFileNames(codeResult, baseOutputDir, codeSettings.EmptyOutputDir);
+
+                var exists = File.Exists(fileName.FullFileName);
 
                 if (!settings.Dump && exists && codeSettings.Overwrite == false)
                 {
-                    Builder.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", fullFileName);
+                    Builder.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", fileName.FullFileName);
                     continue;
                 }
                 if (!settings.Dump && exists && settings.SkipIfExists != null && (
-                    settings.SkipIfExists.Contains(name) ||
-                    settings.SkipIfExists.Contains(shortFilename) ||
-                    settings.SkipIfExists.Contains(relative))
+                    settings.SkipIfExists.Contains(codeResult.Name) ||
+                    settings.SkipIfExists.Contains(fileName.ShortFilename) ||
+                    settings.SkipIfExists.Contains(fileName.Relative))
                     )
                 {
-                    Builder.DumpFormat("Skipping {0}, already exists ... ", relative);
+                    Builder.DumpFormat("Skipping {0}, already exists ... ", fileName.Relative);
                     continue;
                 }
                 if (!settings.Dump && exists && codeSettings.AskOverwrite &&
-                    Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
+                    Program.Ask($"File {fileName.Relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
                 {
-                    Builder.DumpFormat("Skipping {0} ... ", relative);
+                    Builder.DumpFormat("Skipping {0} ... ", fileName.Relative);
                     continue;
                 }
 
-                var models = code.Models.Values.ToArray();
-                foreach (var (modelName, modelContent) in code.Models)
+                var models = codeResult.Code.Models.Values.ToArray();
+                foreach (var (modelName, modelContent) in codeResult.Code.Models)
                 {
                     if (modelName == null)
                     {
                         continue;
                     }
 
-                    if (modelDir == null && !code.UserDefinedModels.Contains(modelName))
+                    if (baseModelDir == null && !codeResult.Code.UserDefinedModels.Contains(modelName))
                     {
-                        module.AddItems(models);
+                        codeResult.Module.AddItems(models);
                     }
                     else
                     {
                         var modelModule = new Module(settings);
-                        modelModule.AddNamespace((settings.ModelDir ?? codeSettings.OutputDir).PathToNamespace());
+                        modelModule.AddNamespace(string.Format(settings.ModelDir ?? codeSettings.OutputDir, codeResult.Schema == "public" ? "" : codeResult.Schema.ToUpperCamelCase()).PathToNamespace().Replace("..", "."));
                         modelModule.AddItems(modelContent);
                         if (settings.ModelCustomNamespace != null)
                         {
                             modelModule.Namespace = settings.ModelCustomNamespace;
                         }
-                        if (modelModule.Namespace != module.Namespace)
+                        if (modelModule.Namespace != codeResult.Module.Namespace)
                         {
-                            module.AddUsing(modelModule.Namespace);
-                            code.ModuleNamespace = modelModule.Namespace;
+                            codeResult.Module.AddUsing(modelModule.Namespace);
+                            codeResult.Code.ModuleNamespace = modelModule.Namespace;
                         }
 
                         if (UserDefinedModels.Contains(modelName))
@@ -103,44 +105,44 @@ namespace PgRoutiner
                             continue;
                         }
 
-                        var (shortModelFilename, fullModelFileName, relativeModelName) = GetFileNames(modelName, modelDir ?? outputDir);
-                        var modelExists = File.Exists(fullModelFileName);
+                        var modelFileName = GetFileNames(modelName, baseModelDir ?? baseOutputDir, schema: codeResult.Schema, empty: settings.EmptyModelDir);
+                        var modelExists = File.Exists(modelFileName.FullFileName);
 
                         if (!settings.Dump && modelExists && codeSettings.Overwrite == false)
                         {
-                            Builder.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relativeModelName);
+                            Builder.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", modelFileName.Relative);
                             continue;
                         }
                         if (!settings.Dump && modelExists && settings.SkipIfExists != null && (
                             settings.SkipIfExists.Contains(modelName) ||
-                            settings.SkipIfExists.Contains(shortModelFilename) ||
-                            settings.SkipIfExists.Contains(relativeModelName))
+                            settings.SkipIfExists.Contains(modelFileName.ShortFilename) ||
+                            settings.SkipIfExists.Contains(modelFileName.Relative))
                             )
                         {
-                            Builder.DumpFormat("Skipping {0}, already exists ...", relativeModelName);
+                            Builder.DumpFormat("Skipping {0}, already exists ...", modelFileName.Relative);
                             continue;
                         }
                         if (!settings.Dump && modelExists && settings.RoutinesAskOverwrite &&
-                            Program.Ask($"File {relativeModelName} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
+                            Program.Ask($"File {modelFileName.Relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
                         {
-                            Builder.DumpFormat("Skipping {0} ...", relativeModelName);
+                            Builder.DumpFormat("Skipping {0} ...", modelFileName.Relative);
                             continue;
                         }
-                        Builder.DumpRelativePath("Creating file: {0} ...", fullModelFileName);
-                        Builder.WriteFile(fullModelFileName, modelModule.ToString());
+                        Builder.DumpRelativePath("Creating file: {0} ...", modelFileName.FullFileName);
+                        Builder.WriteFile(modelFileName.FullFileName, modelModule.ToString());
                         modelModule.Flush();
 
-                        if (code.UserDefinedModels.Contains(modelName))
+                        if (codeResult.Code.UserDefinedModels.Contains(modelName))
                         {
                             UserDefinedModels.Add(modelName);
                         }
                     }
                 }
 
-                module.AddItems(code.Class);
-                Builder.DumpRelativePath("Creating file: {0} ...", fullFileName);
-                Builder.WriteFile(fullFileName, module.ToString());
-                module.Flush();
+                codeResult.Module.AddItems(codeResult.Code.Class);
+                Builder.DumpRelativePath("Creating file: {0} ...", fileName.FullFileName);
+                Builder.WriteFile(fileName.FullFileName, codeResult.Module.ToString());
+                codeResult.Module.Flush();
             }
         }
 
@@ -149,16 +151,17 @@ namespace PgRoutiner
             var outputDir = GetOutputDir();
             var extensions = new List<ExtensionMethods>();
 
-            foreach ((Code code, string _, string _, string fullFileName, string _, Module module) in GetCodes(outputDir))
+            foreach (var codeResult in GetCodes())
             {
-                if (code == null)
+                if (codeResult.Code == null)
                 {
                     continue;
                 }
-                if (code.Methods.Count > 0 && File.Exists(fullFileName))
+                var fileName = GetFileNames(codeResult, outputDir, false);
+                if (codeResult.Code.Methods.Count > 0 && File.Exists(fileName.FullFileName))
                 {
                     string modelNamespace = null;
-                    if (code.Models.Any())
+                    if (codeResult.Code.Models.Any())
                     {
                         var modelModule = new Module(settings);
                         modelModule.AddNamespace((settings.ModelDir ?? codeSettings.OutputDir).PathToNamespace());
@@ -166,16 +169,16 @@ namespace PgRoutiner
                         {
                             modelModule.Namespace = settings.ModelCustomNamespace;
                         }
-                        if (modelModule.Namespace != module.Namespace)
+                        if (modelModule.Namespace != codeResult.Module.Namespace)
                         {
                             modelNamespace = modelModule.Namespace;
                         }
                     }
                     extensions.Add(new ExtensionMethods
                     { 
-                        Methods = code.Methods,
-                        Namespace = module.Namespace,
-                        Name = code.Methods.First().Name,
+                        Methods = codeResult.Code.Methods,
+                        Namespace = codeResult.Module.Namespace,
+                        Name = codeResult.Code.Methods.First().Name,
                         ModelNamespace = modelNamespace
                     });
                 }
@@ -183,42 +186,44 @@ namespace PgRoutiner
             return extensions;
         }
 
-        protected abstract Module GetModule(Settings settings, CodeSettings codeSettings);
+        protected abstract IEnumerable<CodeResult> GetCodes();
 
-        protected abstract IEnumerable<(Code code, string name, string shortFilename, string fullFileName, string relative, Module module)>
-            GetCodes(string outputDir);
-
-        protected (string shortFilename, string fullFileName, string relative) GetFileNames(string name, string outputDir)
+        protected (string ShortFilename, string FullFileName, string Relative) GetFileNames(string name, string outputDir, 
+            string schema = null, bool empty = false)
         {
+            var dir = schema == null ? outputDir : string.Format(outputDir, schema == "public" ? "" : schema.ToUpperCamelCase())
+                .Replace("//", "/")
+                .Replace("\\\\", "\\");
+
+            if (empty)
+            {
+                EmptyDir(dir);
+            }
+
             var shortFilename = string.Concat(name.ToUpperCamelCase(), ".cs");
-            var fullFileName = Path.GetFullPath(Path.Join(outputDir, shortFilename));
+            var fullFileName = Path.GetFullPath(Path.Join(dir, shortFilename));
             var relative = fullFileName.GetRelativePath();
 
             return (shortFilename, fullFileName, relative);
         }
 
+        protected (string ShortFilename, string FullFileName, string Relative) GetFileNames(CodeResult code, string outputDir, bool empty = false)
+        {
+            var name = code.ForName ?? code.Name;
+            return GetFileNames(code.NameSuffix == null ? name : $"{name}_{code.NameSuffix}", outputDir, code.Schema, empty);
+        }
+
         private string GetOutputDir()
         {
-            var dir = Path.Combine(Program.CurrentDir, codeSettings.OutputDir);
-            if (!Directory.Exists(dir))
-            {
-                Builder.DumpRelativePath("Creating dir: {0} ...", dir);
-                Directory.CreateDirectory(dir);
-            }
-            return dir;
+            return Path.Combine(Program.CurrentDir, codeSettings.OutputDir);
         }
 
         private string GetModelDir()
         {
-            var dir = settings.ModelDir;
+            var dir = settings.ModelDir; 
             if (dir != null)
             {
                 dir = Path.Combine(Program.CurrentDir, dir);
-                if (!Directory.Exists(dir))
-                {
-                    Builder.DumpRelativePath("Creating dir: {0} ...", dir);
-                    Directory.CreateDirectory(dir);
-                }
             }
             return dir;
         }
@@ -234,7 +239,14 @@ namespace PgRoutiner
             {
                 if (!DirsEmptied.Contains(dir))
                 {
-                    DeleteDirFiles(dir);
+                    if (Directory.Exists(dir))
+                    {
+                        DeleteDirFiles(dir);
+                    }
+                    else
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
                     DirsEmptied.Add(dir);
                 }
             }

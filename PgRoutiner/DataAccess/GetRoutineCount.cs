@@ -17,11 +17,9 @@ namespace PgRoutiner
                 where
                     r.external_language <> 'INTERNAL'
                     and
-                    (
-                        (   @schema is not null and r.specific_schema similar to @schema   )
-                        or
-                        (   {GetSchemaExpression("r.specific_schema")}  )
-                    )
+                    (   @schema is null or (r.specific_schema similar to @schema)   )
+                    and (   {GetSchemaExpression("r.specific_schema")}  )
+
                     and (@notSimilarTo is null or r.routine_name not similar to @notSimilarTo)
                     and (@similarTo is null or r.routine_name similar to @similarTo)
             ",

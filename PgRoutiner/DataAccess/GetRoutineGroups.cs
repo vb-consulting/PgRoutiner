@@ -10,8 +10,9 @@ namespace PgRoutiner
 {
     public static partial class DataAccess
     {
-        public static IEnumerable<IGrouping<string, PgRoutineGroup>> GetRoutineGroups(this NpgsqlConnection connection, Settings settings, bool all = true) =>
-            connection.Read<(
+        public static IEnumerable<IGrouping<(string Schema, string Name), PgRoutineGroup>> GetRoutineGroups(this NpgsqlConnection connection, Settings settings, bool all = true)
+        {
+            return connection.Read<(
                 uint Oid,
                 string SpecificSchema,
                 string SpecificName,
@@ -65,11 +66,8 @@ namespace PgRoutiner
                 where
                     r.external_language <> 'INTERNAL'
                     and
-                    (
-                        (   @schema is not null and r.specific_schema similar to @schema   )
-                        or
-                        (   {GetSchemaExpression("r.specific_schema")}  )
-                    )
+                    (   @schema is null or (r.specific_schema similar to @schema)   )
+                    and (   {GetSchemaExpression("r.specific_schema")}  )
                     and (@notSimilarTo is null or r.routine_name not similar to @notSimilarTo)
                     and (@similarTo is null or r.routine_name similar to @similarTo)
                     and (@all is true or (r.type_udt_name <> 'trigger' and r.type_udt_name <> 'refcursor'))
@@ -86,24 +84,23 @@ namespace PgRoutiner
                 order by 
                     r.routine_name
 
-            ",
-                ("schema", settings.Schema, DbType.AnsiString),
-                ("notSimilarTo", settings.NotSimilarTo, DbType.AnsiString),
-                ("similarTo", settings.SimilarTo, DbType.AnsiString),
-                ("all", all, DbType.Boolean))
-                .Select(t => new PgRoutineGroup
-                {
-                    Oid = t.Oid,
-                    SpecificSchema = t.SpecificSchema,
-                    SpecificName = t.SpecificName,
-                    RoutineName = t.RoutineName,
-                    Description = t.Description,
-                    Language = t.Language,
-                    RoutineType = t.RoutineType,
-                    TypeUdtName = t.TypeUdtName,
-                    DataType = t.DataType,
-                    Parameters = JsonConvert.DeserializeObject<IList<PgParameter>>(t.Parameters)
-                })
-                .GroupBy(i => i.RoutineName);
+            ", 
+            ("schema", settings.Schema, DbType.AnsiString),
+            ("notSimilarTo", settings.NotSimilarTo, DbType.AnsiString),
+            ("similarTo", settings.SimilarTo, DbType.AnsiString),
+            ("all", all, DbType.Boolean)).Select(t => new PgRoutineGroup
+            {
+                Oid = t.Oid,
+                SpecificSchema = t.SpecificSchema,
+                SpecificName = t.SpecificName,
+                RoutineName = t.RoutineName,
+                Description = t.Description,
+                Language = t.Language,
+                RoutineType = t.RoutineType,
+                TypeUdtName = t.TypeUdtName,
+                DataType = t.DataType,
+                Parameters = JsonConvert.DeserializeObject<IList<PgParameter>>(t.Parameters)
+            }).GroupBy(i => (i.SpecificSchema, i.RoutineName));
+        }
     }
 }

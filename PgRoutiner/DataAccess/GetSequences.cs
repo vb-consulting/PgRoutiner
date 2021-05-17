@@ -18,11 +18,8 @@ namespace PgRoutiner
                 from
                     information_schema.sequences s
                 where
-                    (
-                        (   @schema is not null and s.sequence_schema similar to @schema   )
-                        or
-                        (   {GetSchemaExpression("s.sequence_schema")}  )
-                    )
+                    (   @schema is null or (s.sequence_schema similar to @schema)   )
+                    and (   {GetSchemaExpression("s.sequence_schema")}  )
 
             ", ("schema", settings.Schema, DbType.AnsiString))
             .Select(t => new PgItem

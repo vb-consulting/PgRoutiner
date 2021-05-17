@@ -142,6 +142,7 @@ namespace PgRoutiner
             AddEntry(nameof(SourceHeader), Value.SourceHeader);
             AddEntry(nameof(Ident), Value.Ident);
             AddEntry(nameof(ReturnMethod), Value.ReturnMethod);
+            AddEntry(nameof(MethodParameterNames), Value.MethodParameterNames);
 
             sb.AppendLine();
             AddSectionComment(
@@ -159,6 +160,7 @@ namespace PgRoutiner
             AddEntry(nameof(NotSimilarTo), Value.NotSimilarTo);
             AddEntry(nameof(SimilarTo), Value.SimilarTo);
             AddEntry(nameof(RoutinesReturnMethods), Value.RoutinesReturnMethods);
+            AddEntry(nameof(RoutinesModelPropertyTypes), Value.RoutinesModelPropertyTypes);
 
             sb.AppendLine();
             AddSectionComment(
@@ -286,8 +288,6 @@ namespace PgRoutiner
             AddEntry(nameof(CrudReadAll), Value.CrudReadAll);
             AddEntry(nameof(CrudUpdate), Value.CrudUpdate);
             AddEntry(nameof(CrudUpdateReturning), Value.CrudUpdateReturning);
-            AddEntry(nameof(CrudDelete), Value.CrudDelete);
-            AddEntry(nameof(CrudDeleteReturning), Value.CrudDeleteReturning);
             AddEntry(nameof(CrudDeleteBy), Value.CrudDeleteBy);
             AddEntry(nameof(CrudDeleteByReturning), Value.CrudDeleteByReturning, "");
 

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace PgRoutiner
@@ -15,8 +16,14 @@ namespace PgRoutiner
                 {
                     return version;
                 }
+                string location;
+#if SELFCONTAINED
+                location = $"{System.AppContext.BaseDirectory}pgroutiner.exe";
+#else
                 Assembly assembly = Assembly.GetExecutingAssembly();
-                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+                location = assembly.Location;
+#endif
+                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(location);
                 version = fvi.FileVersion;
                 return version;
             }

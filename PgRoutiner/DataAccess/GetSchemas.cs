@@ -20,9 +20,8 @@ namespace PgRoutiner
                 from
                     information_schema.schemata
                 where
-                    (   @schema is not null and schema_name similar to @schema   )
-                    or
-                    (   {GetSchemaExpression("schema_name")}  )
+                    (   @schema is null or (schema_name similar to @schema)   )
+                    and (   {GetSchemaExpression("schema_name")}  )
             ",
                 ("schema", settings.Schema, DbType.AnsiString));
     }

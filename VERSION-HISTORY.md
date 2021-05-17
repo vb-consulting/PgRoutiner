@@ -1,5 +1,25 @@
 ﻿# VERSION HISTORY
 
+## 3.5.0
+
+- Include build script for a single stand-alone executable builds: `build.bat` and `build.sh`.
+
+- Fix schema settings bug that prevented filtering specific schemas.
+
+- Remove CrudDelete and CrudDeleteReturning because they are essentially same as CrudDeleteBy and CrudDeleteByReturning
+
+- For output dir settings (ModelDir, OutputDir and CrudOutputDir) add default {0} formatter that, if present, is replaced with non public schema.
+ 
+- Added MethodParameterNames dictionary settings. You can map generated parameter names here. 
+
+For example, `event` or `var` are generated C# keyword, so if you have parameter with that name, you can map the name to something else:
+`"MethodParameterNames": {"event": "@event"},`
+
+
+-  RoutinesModelPropertyTypes dictionary settings. You can map custom model types here. 
+
+For example `RoutinesModelPropertyTypes: {"ModelClass.Field": "int"}` forces property `Field` or model `ModelClass` to always fallback to type `int`.
+
 ## 3.4.1
 
 - Add missing RoutinesReturnMethods settings key when creating settings file.

@@ -15,7 +15,7 @@ namespace PgRoutiner
         {
             this.Params = new()
             {
-                new Param
+                new Param(settings)
                 {
                     PgName = "model",
                     PgType = this.Name,

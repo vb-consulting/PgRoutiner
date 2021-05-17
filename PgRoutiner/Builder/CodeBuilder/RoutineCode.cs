@@ -295,7 +295,7 @@ namespace PgRoutiner
 
         private List<Param> GetParamsInfo(PgRoutineGroup routine)
         {
-            return routine.Parameters.Select(p => new Param
+            return routine.Parameters.Select(p => new Param(settings)
             {
                 PgName = p.Name,
                 PgType = p.DataType,
@@ -380,6 +380,11 @@ namespace PgRoutiner
                     }
                     if (result != "string" && returnModel.Nullable)
                     {
+                        var key = $"{name}.{returnModel.Name.ToUpperCamelCase()}";
+                        if (settings.RoutinesModelPropertyTypes.TryGetValue(key, out var value))
+                        {
+                            return value;
+                        }
                         return $"{result}?";
                     }
                     return result;

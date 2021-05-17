@@ -9,8 +9,9 @@ namespace PgRoutiner
 {
     public static partial class DataAccess
     {
-        public static IEnumerable<PgItem> GetRoutines(this NpgsqlConnection connection, Settings settings) =>
-            connection.Read<(string Schema, string Name, string Type)>(@$"
+        public static IEnumerable<PgItem> GetRoutines(this NpgsqlConnection connection, Settings settings)
+        {
+            return connection.Read<(string Schema, string Name, string Type)>(@$"
 
                 select 
                     distinct
@@ -22,14 +23,10 @@ namespace PgRoutiner
                 where
                     r.external_language <> 'INTERNAL'
                     and
-                    (
-                        (   @schema is not null and r.specific_schema similar to @schema   )
-                        or
-                        (   {GetSchemaExpression("r.specific_schema")}  )
-                    )
+                    (   @schema is null or (r.specific_schema similar to @schema)   )
+                    and (   {GetSchemaExpression("r.specific_schema")}  )
 
-            ", ("schema", settings.Schema, DbType.AnsiString))
-            .Select(t => new PgItem
+            ", ("schema", settings.Schema, DbType.AnsiString)).Select(t => new PgItem
             {
                 Schema = t.Schema,
                 Name = t.Name,
@@ -41,5 +38,6 @@ namespace PgRoutiner
                     _ => PgType.Unknown
                 }
             });
+        }
     }
 }

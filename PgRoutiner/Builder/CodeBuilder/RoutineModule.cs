@@ -2,7 +2,7 @@
 {
     public class RoutineModule : Module
     {
-        public RoutineModule(Settings settings, CodeSettings codeSettings) : base(settings)
+        public RoutineModule(Settings settings, CodeSettings codeSettings, string schema) : base(settings)
         {
             if (!settings.SkipAsyncMethods)
             {
@@ -13,7 +13,8 @@
             AddUsing("Npgsql");
             if (!string.IsNullOrEmpty(codeSettings.OutputDir))
             {
-                AddNamespace(codeSettings.OutputDir.PathToNamespace());
+                var dir = string.Format(codeSettings.OutputDir, schema == "public" ? "" : schema.ToUpperCamelCase());
+                AddNamespace(dir.PathToNamespace().Replace("..", "."));
             }
         }
     }
