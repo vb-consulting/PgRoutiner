@@ -1,5 +1,10 @@
 ﻿# VERSION HISTORY
 
+## 3.5.1
+
+- Fix create schema dump transformer bug
+- Add schema name to generated routine name const
+
 ## 3.5.0
 
 - Include build script for a single stand-alone executable builds: `build.bat` and `build.sh`.

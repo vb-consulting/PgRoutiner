@@ -9,6 +9,7 @@ namespace PgRoutiner
     public partial class RoutineCode : Code
     {
         private int recordModelCount = 0;
+        private readonly string schema;
         private readonly string @namespace;
         private readonly IEnumerable<PgRoutineGroup> routines;
         private readonly NpgsqlConnection connection;
@@ -16,10 +17,12 @@ namespace PgRoutiner
         public RoutineCode(
             Settings settings, 
             string name,
+            string schema,
             string @namespace,
             IEnumerable<PgRoutineGroup> routines,
             NpgsqlConnection connection) : base(settings, name)
         {
+            this.schema = schema;
             this.@namespace = @namespace;
             this.routines = routines;
             this.connection = connection;
@@ -30,7 +33,7 @@ namespace PgRoutiner
         {
             Class.AppendLine($"{I1}public static class PgRoutine{Name.ToUpperCamelCase()}");
             Class.AppendLine($"{I1}{{");
-            Class.AppendLine($"{I2}public const string Name = \"{Name}\";");
+            Class.AppendLine($"{I2}public const string Name = \"{schema}.{Name}\";");
             foreach (var routine in routines)
             {
                 PrepareParams(routine);

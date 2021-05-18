@@ -18,11 +18,12 @@ namespace PgRoutiner
             foreach (var group in connection.GetRoutineGroups(settings, all: false))
             {
                 var name = group.Key.Name;
+                var schema = group.Key.Schema;
                 var module = new RoutineModule(settings, codeSettings, group.Key.Schema);
                 Code code;
                 try
                 {
-                    code = new RoutineCode(settings, name, module.Namespace, group, connection);
+                    code = new RoutineCode(settings, name, schema, module.Namespace, group, connection);
                 }
                 catch (ArgumentException e)
                 {
@@ -34,7 +35,7 @@ namespace PgRoutiner
                     Code = code, 
                     Name = name,  
                     Module = module,
-                    Schema = group.Key.Schema
+                    Schema = schema
                 };
             }
         }

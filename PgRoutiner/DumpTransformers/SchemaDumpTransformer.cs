@@ -38,8 +38,7 @@ namespace PgRoutiner
             bool shouldContinue(string line)
             {
                 return !isCreate && string.IsNullOrEmpty(statement) &&
-                    !line.Contains(string.Concat(this.Name, ";")) &&
-                    !line.Contains(string.Concat(this.Name, " "));
+                    !line.Contains($"SCHEMA {this.Name}");
             }
 
             foreach (var l in lines)
@@ -97,6 +96,7 @@ namespace PgRoutiner
                     }
                 }
             }
+
             return this;
         }
     }
