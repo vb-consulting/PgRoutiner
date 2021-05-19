@@ -189,14 +189,14 @@ namespace PgRoutiner
         public string DbObjectsDir { get; set; } = "./Database/{0}/";
         public IDictionary<string, string> DbObjectsDirNames { get; set; } = new Dictionary<string, string>() 
         {   
-            { "Tables", "Tables" }, 
-            { "Views", "Views" }, 
-            { "Functions", "Functions" }, 
-            { "Procedures", "Procedures" }, 
-            { "Domains", "Domains" },
-            { "Types", "Types" },
+            { "Tables", "Tables/{0}" }, 
+            { "Views", "Views/{0}" }, 
+            { "Functions", "Functions/{0}" }, 
+            { "Procedures", "Procedures/{0}" }, 
+            { "Domains", "Domains/{0}" },
+            { "Types", "Types/{0}" },
             { "Schemas", "Schemas" },
-            { "Sequences", "Sequences" }
+            { "Sequences", "Sequences/{0}" }
         };
         public bool DbObjectsSkipDeleteDir { get; set; } = false;
         public bool DbObjectsOverwrite { get; set; } = false;

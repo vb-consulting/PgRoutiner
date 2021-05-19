@@ -1,5 +1,26 @@
 ﻿# VERSION HISTORY
 
+## 3.5.2
+
+- If key for settings DbObjectsDirNames (Tables, Views, etc) has null value, that section is skipped.
+
+- Settings DbObjectsDirNames supports subdirectories by object schema. If schema is public, subdirectory is not applied. New defaults are:
+
+```
+    "DbObjectsDirNames": {
+      "Tables": "Tables/{0}",
+      "Views": "Views/{0}",
+      "Functions": "Functions/{0}",
+      "Procedures": "Procedures/{0}",
+      "Domains": "Domains/{0}",
+      "Types": "Types/{0}",
+      "Schemas": "Schemas",
+      "Sequences": "Sequences/{0}"
+    }
+```
+
+- Format placeholders `{0}` are replaced with schema name if schema is not public.
+
 ## 3.5.1
 
 - Fix create schema dump transformer bug

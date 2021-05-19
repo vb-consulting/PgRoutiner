@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -17,43 +18,59 @@ namespace PgRoutiner
             {
                 if (Settings.Value.DbObjectsDirNames.TryGetValue(name, out var value))
                 {
-                    return value;
+                    return string.IsNullOrEmpty(value) ? @default : value;
                 }
                 return @default;
             }
+
             var baseDir = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.DbObjectsDir)), ConnectionName);
             CreateDir(baseDir, true);
-            var tablesDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Tables", "Tables"))), ConnectionName);
-            var viewsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Views", "Views"))), ConnectionName);
-            var functionsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Functions", "Functions"))), ConnectionName);
-            var proceduresDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Procedures", "Procedures"))), ConnectionName);
-            var domainsDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Domains", "Domains"))), ConnectionName);
-            var typesDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Types", "Types"))), ConnectionName);
-            var schemasDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Schemas", "Schemas"))), ConnectionName);
-            var sequencesDir = string.Format(Path.GetFullPath(Path.Combine(baseDir, GetOrDefault("Sequences", "Sequences"))), ConnectionName);
 
-            var tableCreated = false;
-            var viewCreated = false;
-            var functionCreated = false;
-            var proceduresCreated = false;
-            var domainsCreated = false;
-            var typesCreated = false;
-            var schemaCreated = false;
-            var sequencesCreated = false;
-
-            foreach (var (shortFilename, content, type) in builder.GetDatabaseObjects())
+            string GetDir(string name)
             {
-                var dir = type switch 
-                { 
-                    PgType.Table => tablesDir, 
-                    PgType.View => viewsDir,
-                    PgType.Function => functionsDir,
-                    PgType.Procedure => proceduresDir,
-                    PgType.Domain => domainsDir,
-                    PgType.Type => typesDir,
-                    PgType.Schema => schemasDir,
-                    PgType.Sequence => sequencesDir,
-                    _ => null 
+                var dir = GetOrDefault(name, null);
+                if (dir == null)
+                {
+                    return dir;
+                }
+                return Path.GetFullPath(Path.Combine(string.Format(baseDir, ConnectionName), dir.TrimStart('/').TrimStart('\\')));
+            }
+
+            var baseTablesDir = GetDir("Tables");
+            var baseViewsDir = GetDir("Views");
+            var baseFunctionsDir = GetDir("Functions");
+            var baseProceduresDir = GetDir("Procedures");
+            var baseDomainsDir = GetDir("Domains");
+            var baseTypesDir = GetDir("Types");
+            var baseSchemasDir = GetDir("Schemas");
+            var baseSequencesDir = GetDir("Sequences");
+
+
+            static string ParseSchema(string dir, string schema)
+            {
+                if (dir == null)
+                {
+                    return null;
+                }
+                return string.Format(dir, schema == "public" ? "" : schema).Replace("//", "/").Replace("\\\\", "\\");
+            }
+
+
+            HashSet<string> dirs = new();
+
+            foreach (var (shortFilename, content, type, schema) in builder.GetDatabaseObjects())
+            {
+                var dir = type switch
+                {
+                    PgType.Table => ParseSchema(baseTablesDir, schema),
+                    PgType.View => ParseSchema(baseViewsDir, schema),
+                    PgType.Function => ParseSchema(baseFunctionsDir, schema),
+                    PgType.Procedure => ParseSchema(baseProceduresDir, schema),
+                    PgType.Domain => ParseSchema(baseDomainsDir, schema),
+                    PgType.Type => ParseSchema(baseTypesDir, schema),
+                    PgType.Schema => ParseSchema(baseSchemasDir, schema),
+                    PgType.Sequence => ParseSchema(baseSequencesDir, schema),
+                    _ => null
                 };
 
                 if (dir == null)
@@ -64,64 +81,10 @@ namespace PgRoutiner
                 var file = string.Format(Path.GetFullPath(Path.Combine(dir, shortFilename)), ConnectionName);
                 var relative = file.GetRelativePath();
 
-                switch (type)
+                if (!dirs.Contains(dir.TrimEnd('/').TrimEnd('\\')))
                 {
-                    case PgType.Table:
-                        if (!tableCreated)
-                        {
-                            CreateDir(tablesDir);
-                        }
-                        tableCreated = true;
-                        break;
-                    case PgType.View:
-                        if (!viewCreated)
-                        {
-                            CreateDir(viewsDir);
-                        };
-                        viewCreated = true;
-                        break;
-                    case PgType.Function:
-                        if (!functionCreated)
-                        {
-                            CreateDir(functionsDir);
-                        }
-                        functionCreated = true;
-                        break;
-                    case PgType.Procedure:
-                        if (!proceduresCreated)
-                        {
-                            CreateDir(proceduresDir);
-                        }
-                        proceduresCreated = true;
-                        break;
-                    case PgType.Domain:
-                        if (!domainsCreated)
-                        {
-                            CreateDir(domainsDir);
-                        }
-                        domainsCreated = true;
-                        break;
-                    case PgType.Type:
-                        if (!typesCreated)
-                        {
-                            CreateDir(typesDir);
-                        }
-                        typesCreated = true;
-                        break;
-                    case PgType.Schema:
-                        if (!schemaCreated)
-                        {
-                            CreateDir(schemasDir);
-                        }
-                        schemaCreated = true;
-                        break;
-                    case PgType.Sequence:
-                        if (!sequencesCreated)
-                        {
-                            CreateDir(sequencesDir);
-                        }
-                        sequencesCreated = true;
-                        break;
+                    CreateDir(dir);
+                    dirs.Add(dir.TrimEnd('/').TrimEnd('\\'));
                 }
 
                 var exists = File.Exists(file);
@@ -131,14 +94,14 @@ namespace PgRoutiner
                     DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
                     continue;
                 }
-                if (exists && Settings.Value.SkipIfExists != null && 
-                    (Settings.Value.SkipIfExists.Contains(shortFilename) || 
+                if (exists && Settings.Value.SkipIfExists != null &&
+                    (Settings.Value.SkipIfExists.Contains(shortFilename) ||
                     Settings.Value.SkipIfExists.Contains(relative)))
                 {
                     DumpFormat("Skipping {0}, already exists ...", relative);
                     continue;
                 }
-                if (exists && Settings.Value.DbObjectsAskOverwrite && 
+                if (exists && Settings.Value.DbObjectsAskOverwrite &&
                     Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
                 {
                     DumpFormat("Skipping {0} ...", relative);
@@ -147,39 +110,17 @@ namespace PgRoutiner
 
                 DumpFormat("Creating dump file {0} ...", relative);
                 WriteFile(file, content);
-                
+            }
 
-                if (!tableCreated)
+            foreach (var dir in Directory.GetDirectories(baseDir, "*", SearchOption.TopDirectoryOnly))
+            {
+                if (Directory.GetDirectories(dir).Length > 0)
                 {
-                    RemoveDir(tablesDir);
+                    continue;
                 }
-                if (!viewCreated)
+                if (!dirs.Contains(dir.TrimEnd('/').TrimEnd('\\')))
                 {
-                    RemoveDir(viewsDir);
-                }
-                if (!functionCreated)
-                {
-                    RemoveDir(functionsDir);
-                }
-                if (!proceduresCreated)
-                {
-                    RemoveDir(proceduresDir);
-                }
-                if (!domainsCreated)
-                {
-                    RemoveDir(domainsDir);
-                }
-                if (!typesCreated)
-                {
-                    RemoveDir(typesDir);
-                }
-                if (!schemaCreated)
-                {
-                    RemoveDir(schemasDir);
-                }
-                if (!sequencesCreated)
-                {
-                    RemoveDir(sequencesDir);
+                    RemoveDir(dir);
                 }
             }
         }

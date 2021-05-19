@@ -33,7 +33,7 @@ namespace PgRoutiner
             pgDumpCmd = name;
         }
 
-        public IEnumerable<(string name, string content, PgType type)> GetDatabaseObjects()
+        public IEnumerable<(string name, string content, PgType type, string schema)> GetDatabaseObjects()
         {
             var args = string.Concat(
                 baseArg,
@@ -62,7 +62,7 @@ namespace PgRoutiner
                     continue;
                 }
 
-                yield return (name, content, table.Type);
+                yield return (name, content, table.Type, table.Schema);
             }
 
             foreach (var seq in Connection.GetSequences(settings))
@@ -78,7 +78,7 @@ namespace PgRoutiner
                     Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
                     continue;
                 }
-                yield return (name, content, seq.Type);
+                yield return (name, content, seq.Type, seq.Schema);
             }
 
             List<string> lines = null;
@@ -109,7 +109,7 @@ namespace PgRoutiner
                         Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
                         continue;
                     }
-                    yield return (name, content, routine.Type);
+                    yield return (name, content, routine.Type, routine.Schema);
                 }
 
                 foreach (var domain in Connection.GetDomains(settings))
@@ -127,7 +127,7 @@ namespace PgRoutiner
                         Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
                         continue;
                     }
-                    yield return (name, content, domain.Type);
+                    yield return (name, content, domain.Type, domain.Schema);
                 }
 
                 foreach (var type in Connection.FilterTypes(types, settings))
@@ -145,7 +145,7 @@ namespace PgRoutiner
                         Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
                         continue;
                     }
-                    yield return (name, content, type.Type);
+                    yield return (name, content, type.Type, type.Schema);
                 }
 
                 foreach (var schema in Connection.GetSchemas(settings))
@@ -169,7 +169,7 @@ namespace PgRoutiner
                         Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
                         continue;
                     }
-                    yield return (name, content, PgType.Schema);
+                    yield return (name, content, PgType.Schema, null);
                 }
             }
         }
