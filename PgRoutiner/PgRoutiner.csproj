@@ -35,6 +35,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="appsettings.Development.json" />
+    <None Remove="appsettings.json" />
+    <None Remove="appsettings.PgRoutiner.json" />
     <None Remove="build.bat" />
     <None Remove="build.sh" />
     <None Include="..\LICENSE">
@@ -52,18 +55,6 @@
     <PackageReference Include="Norm.net" Version="3.2.0" />
     <PackageReference Include="Npgsql" Version="5.0.4" />
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="appsettings.Development.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="appsettings.PgRoutiner.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
