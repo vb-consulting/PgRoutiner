@@ -79,7 +79,7 @@ namespace PgRoutiner
             var projectFile = Path.GetFullPath(Path.Join(dir, $"{name}.csproj"));
             List<ExtensionMethods> extensions = new();
             extensions.AddRange(new CodeRoutinesBuilder(connection, Settings.Value, CodeSettings.ToRoutineSettings(Settings.Value)).GetMethods());
-            extensions.AddRange(new CodeCrudBuilder(connection, Settings.Value, CodeSettings.ToRoutineSettings(Settings.Value)).GetMethods());
+            extensions.AddRange(new CodeCrudBuilder(connection, Settings.Value, CodeSettings.ToCrudSettings(Settings.Value)).GetMethods());
 
             if (!File.Exists(projectFile))
             {
@@ -212,18 +212,38 @@ namespace PgRoutiner
             sb.AppendLine(@"  },");
             
             sb.AppendLine(@"  ""TestSettings"": {");
+
+            sb.AppendLine();
             sb.AppendLine(@"    //");
-            sb.AppendLine(@"    // Name of connection used for testing.");
-            sb.AppendLine(@"    // A connection can be defined in this config file or in the config file defined in the ConfigPath value. ");
+            sb.AppendLine(@"    // Name of the connection string used for testing.");
+            sb.AppendLine(@"    // This connection string should point to an ctual development or test database. ");
+            sb.AppendLine(@"    // The real test database is re-created based on this connection string.");
+            sb.AppendLine(@"    // Connection string can be defined in this config file or in the config file defined by the ConfigPath value. ");
             sb.AppendLine(@"    //");
             sb.AppendLine(@"    ""TestConnection"": ""DefaultConnection"",");
-            sb.AppendLine(@"    ""ConfigPath"": null,");
+
+            sb.AppendLine();
             sb.AppendLine(@"    //");
-            sb.AppendLine(@"    // Name of the database recreated on each testing session. ");
+            sb.AppendLine(@"    // Path to the external json configuration file.");
+            sb.AppendLine(@"    // External configuration is only used to parse the ConnectionStrings section.");
+            sb.AppendLine(@"    // Use this setting to set TestConnection in a different configuration file, so that connection string doesn't have to be duplicated.");
+            sb.AppendLine(@"    //");
+
+            sb.AppendLine(@"    ""ConfigPath"": null,");
+
+            sb.AppendLine();
+            sb.AppendLine(@"    //");
+            sb.AppendLine(@"    // Name of the database recreated on each testing session.");
+            sb.AppendLine(@"    // Database on server defined by the TestConnection with this name will be created before first test starts and dropped after last test ends.");
+            sb.AppendLine(@"    // Make sure that database with name doesn't already exists on server.");
             sb.AppendLine(@"    //");
             sb.AppendLine(@$"    ""TestDatabaseName"": ""{connection.Database}_test_{Guid.NewGuid().ToString().Substring(0, 8)}"",");
+
+            sb.AppendLine();
             sb.AppendLine(@"    //");
-            sb.AppendLine(@"    // If set to true, the test database will be created by using database template from a TestConnection. It will have schema and the data of a TestConnection.");
+            sb.AppendLine(@"    // If set to true, the test database (defined by TestDatabaseName) - will not be created created - but replicated by using database template from a TestConnection.");
+            sb.AppendLine(@"    // Replicated database (using database template) has exactly the same schema and as well as the data as original database.");
+            sb.AppendLine(@"    // If set to false, the test database is created as empty database and, if migrations are applied (if any).");
             sb.AppendLine(@"    //");
             sb.AppendLine(@"    ""TestDatabaseFromTemplate"": false,");
 
@@ -237,20 +257,33 @@ namespace PgRoutiner
             {
                 scripts.Add($"\"{Path.GetRelativePath(dir, DataFile).Replace("\\", "/")}\"");
             }
+
+            sb.AppendLine();
             sb.AppendLine(@"    //");
-            sb.AppendLine(@"    // List of scripts to be executed in order after the testing database is created and before testing starts. ");
+            sb.AppendLine(@"    // List of the SQL scripts to be executed in order after the test database has been created and just before the first test starts.");
+            sb.AppendLine(@"    // This can be any SQL script file like migrations, schema or data dumps.");
             sb.AppendLine(@"    //");
             sb.AppendLine(@$"    ""UpScripts"": [ {string.Join(", ", scripts)} ],");
+
+            sb.AppendLine();
             sb.AppendLine(@"    //");
-            sb.AppendLine(@"    // List of scripts to be executed in order before the testing database is dropped and after testing starts. ");
+            sb.AppendLine(@"    // List of the SQL scripts to be executed in order before the test database is dropped and after the last is finished.");
             sb.AppendLine(@"    //");
             sb.AppendLine(@"    ""DownScripts"": [ ],");
+
+            sb.AppendLine();
             sb.AppendLine(@"    //");
-            sb.AppendLine(@"    // Run each unit test Connection under transaction that is rolled back when test is finished.");
+            sb.AppendLine(@"    // Set this to true to run each test in isolated transaction.");
+            sb.AppendLine(@"    // Transaction is created before each test starts and rolled back after each test finishes.");
             sb.AppendLine(@"    //");
+
             sb.AppendLine(@"    ""UnitTestsUnderTransaction"": true,");
+
+            sb.AppendLine();
             sb.AppendLine(@"    //");
-            sb.AppendLine(@"    // Run each unit test Connection in new and unique database that is created by using template from a TestConnection. It will have schema and the data of a TestConnection.");
+            sb.AppendLine(@"    // Set his to true to run each unit test connection in new and uniqly created database that is created by using template from the test database. ");
+            sb.AppendLine(@"    // New database is created as a template database from a test database before each test starts and droped after test finishes.");
+            sb.AppendLine(@"    // That new database will be named same as test database plus new guid.");
             sb.AppendLine(@"    // This settings cannot be combined with TestDatabaseFromTemplate, UnitTestsUnderTransaction, UpScripts and DownScripts");
             sb.AppendLine(@"    //");
             sb.AppendLine(@"    ""UnitTestsNewDatabaseFromTemplate"": false");

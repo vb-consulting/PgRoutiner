@@ -1,4 +1,13 @@
 ﻿# VERSION HISTORY
+## 3.5.3
+
+- Fix unit test assert code
+- Fix import models in generated unit test
+- Fix file creation unknown directory bug
+- Fix unit tests not creating crud templates bug
+- Fix "async void" on generetad delete by method
+- Add comment in generated unit test template in assert section: // todo: adjust assert logic template to match actual logic
+- Improve unit test template project configuration comments
 
 ## 3.5.2
 

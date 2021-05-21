@@ -88,7 +88,7 @@ namespace PgRoutiner
                     else
                     {
                         var modelModule = new Module(settings);
-                        modelModule.AddNamespace(string.Format(settings.ModelDir ?? codeSettings.OutputDir, codeResult.Schema == "public" ? "" : codeResult.Schema.ToUpperCamelCase()).PathToNamespace().Replace("..", "."));
+                        modelModule.AddNamespace(GetModelNamespace(codeResult));
                         modelModule.AddItems(modelContent);
                         if (settings.ModelCustomNamespace != null)
                         {
@@ -128,6 +128,7 @@ namespace PgRoutiner
                             Builder.DumpFormat("Skipping {0} ...", modelFileName.Relative);
                             continue;
                         }
+
                         Builder.DumpRelativePath("Creating file: {0} ...", modelFileName.FullFileName);
                         Builder.WriteFile(modelFileName.FullFileName, modelModule.ToString());
                         modelModule.Flush();
@@ -164,7 +165,8 @@ namespace PgRoutiner
                     if (codeResult.Code.Models.Any())
                     {
                         var modelModule = new Module(settings);
-                        modelModule.AddNamespace((settings.ModelDir ?? codeSettings.OutputDir).PathToNamespace());
+                        modelModule.AddNamespace(GetModelNamespace(codeResult));
+
                         if (settings.ModelCustomNamespace != null)
                         {
                             modelModule.Namespace = settings.ModelCustomNamespace;
@@ -173,6 +175,8 @@ namespace PgRoutiner
                         {
                             modelNamespace = modelModule.Namespace;
                         }
+
+
                     }
                     extensions.Add(new ExtensionMethods
                     { 
@@ -211,6 +215,13 @@ namespace PgRoutiner
         {
             var name = code.ForName ?? code.Name;
             return GetFileNames(code.NameSuffix == null ? name : $"{name}_{code.NameSuffix}", outputDir, code.Schema, empty);
+        }
+
+        private string GetModelNamespace(CodeResult codeResult)
+        {
+            return string.Format(
+                settings.ModelDir ?? codeSettings.OutputDir, 
+                codeResult.Schema == "public" ? "" : codeResult.Schema.ToUpperCamelCase()).PathToNamespace().Replace("..", ".");
         }
 
         private string GetOutputDir()

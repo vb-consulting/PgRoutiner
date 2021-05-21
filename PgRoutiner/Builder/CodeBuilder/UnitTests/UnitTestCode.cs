@@ -48,6 +48,7 @@ namespace PgRoutiner
             Class.AppendLine();
 
             Class.AppendLine($"{I3}// Assert");
+            Class.AppendLine($"{I3}// todo: adjust assert logic template to match actual logic");
             Class.AppendLine($"{I3}// Assert.Equal(default(?), result);");
             Class.AppendLine($"{I2}}}");
         }
@@ -129,12 +130,21 @@ namespace PgRoutiner
                 Class.AppendLine();
 
                 Class.AppendLine($"{I3}// Assert");
+                Class.AppendLine($"{I3}// todo: adjust assert logic template to match actual logic");
                 if (m.Returns.IsVoid)
                 {
                     if (m.Params.Any())
                     {
                         var p = m.Params.First();
-                        Class.Append($"{I3}{p.Name}.Should().BeEquivalentTo(Connection.Read<{p.Type}>(\"select * from {p.PgType}\").Single());");
+                        if (p.Type == "string")
+                        {
+                            Class.Append($"{I3}{p.Name}.Should().BeEquivalentTo(Connection.Read<{p.Type}>(\"select * from {p.PgType}\").Single());");
+                        }
+                        else
+                        {
+                            Class.Append($"{I3}{p.Name}.Should().Be(Connection.Read<{p.Type}>(\"select * from {p.PgType}\").Single());");
+                        }
+                        
                     }
                     else
                     {

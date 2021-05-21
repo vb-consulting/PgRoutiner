@@ -58,7 +58,7 @@ namespace PgRoutiner
             var name = $"Delete{this.Name}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()))}Async";
             Class.AppendLine();
             BuildAsyncMethodCommentHeader();
-            Class.AppendLine($"{I2}public static async void {name}(this NpgsqlConnection connection, {string.Join(", ", this.PkParams.Select(p => $"{p.Type} {p.Name}"))})");
+            Class.AppendLine($"{I2}public static async ValueTask {name}(this NpgsqlConnection connection, {string.Join(", ", this.PkParams.Select(p => $"{p.Type} {p.Name}"))})");
             Class.AppendLine($"{I2}{{");
             Class.AppendLine($"{I3}await connection");
             if (!settings.CrudNoPrepare)
@@ -103,7 +103,7 @@ namespace PgRoutiner
             var name = $"Delete{this.Name}By{string.Join("And", PkParams.Select(p => p.Name.ToUpperCamelCase()).ToArray())}Async";
             Class.AppendLine();
             BuildAsyncMethodCommentHeader();
-            Class.AppendLine($"{I2}public static async void {name}(this NpgsqlConnection connection, {string.Join(", ", this.PkParams.Select(p => $"{p.Type} {p.Name}"))}) => await connection");
+            Class.AppendLine($"{I2}public static async ValueTask {name}(this NpgsqlConnection connection, {string.Join(", ", this.PkParams.Select(p => $"{p.Type} {p.Name}"))}) => await connection");
             if (!settings.CrudNoPrepare)
             {
                 Class.AppendLine($"{I3}.Prepared()");

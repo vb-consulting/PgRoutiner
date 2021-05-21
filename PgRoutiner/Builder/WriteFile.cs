@@ -16,6 +16,11 @@ namespace PgRoutiner
             }
             try
             {
+                var dir = Path.GetDirectoryName(path);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
                 File.WriteAllText(path, content);
                 return true;
             }
