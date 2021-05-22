@@ -13,6 +13,10 @@ It also can be used with any project type to:
 - Generate documentation markdown (MD) from comments and commit changes back to the database.
 - Generate the difference between two databases and create migration scripts on command.
 
+High level concept info-graphics:
+
+<img src="https://raw.githubusercontent.com/vb-consulting/PgRoutinerDemo/master/pgroutiner%20-%20concept.png" alt="concept" width="640"/>
+
 ## Features
 
 ### 1. .NET Feature: Build PostgreSQL routines (functions and procedures) data access code
@@ -57,7 +61,7 @@ It also can be used with any project type to:
 
 ## Installation
 
-This version is distributed only as a .NET Global tool.
+1) .NET Global tool.
 
 In order to install, you'll have to have .NET Runtime installed first and run the following command from your terminal:
 
@@ -69,10 +73,10 @@ You will receive the following message on successful installation:
 
 > ```
 > You can invoke the tool using the following command: PgRoutiner
-> Tool 'dotnet-pgroutiner' (version '3.0.0') was successfully installed.
+> Tool 'dotnet-pgroutiner' (version '3.5.3') was successfully installed.
 > ```
 
-Alterternativly, you can download or copy standalone binary executable for a specific platform and set a global path for that file.
+2) Download from executable for your system from [releases page](https://github.com/vb-consulting/PgRoutiner/releases)
 
 ## Usage
 
