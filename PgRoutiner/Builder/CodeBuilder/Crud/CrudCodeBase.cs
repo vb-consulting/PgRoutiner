@@ -142,6 +142,10 @@ namespace PgRoutiner
         private string BuildModel()
         {
             var name = Name.ToUpperCamelCase();
+            if (settings.Mapping.TryGetValue(name, out var custom))
+            {
+                return custom;
+            }
             if (settings.CustomModels.ContainsKey(name))
             {
                 name = settings.CustomModels[name];

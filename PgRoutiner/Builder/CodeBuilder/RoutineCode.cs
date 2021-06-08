@@ -339,6 +339,10 @@ namespace PgRoutiner
         private string BuildUserDefinedModel(PgRoutineGroup routine)
         {
             var name = routine.TypeUdtName.ToUpperCamelCase();
+            if (settings.Mapping.TryGetValue(name, out var custom))
+            {
+                return custom;
+            }
             if (settings.CustomModels.ContainsKey(name))
             {
                 name = settings.CustomModels[name];
@@ -356,6 +360,11 @@ namespace PgRoutiner
         {
             var suffix = ++recordModelCount == 1 ? "" : recordModelCount.ToString();
             var name = $"{this.Name.ToUpperCamelCase()}{suffix}Result";
+            if (settings.Mapping.TryGetValue(name, out var custom))
+            {
+                recordModelCount--;
+                return custom;
+            }
             if (settings.CustomModels.ContainsKey(name))
             {
                 name = settings.CustomModels[name];

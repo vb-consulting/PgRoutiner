@@ -1,4 +1,22 @@
 ﻿# VERSION HISTORY
+
+## 3.5.4
+
+Settings `Maping` now can contain a custom model name that will replace the result of routine or a crud operation.
+
+For example if Routine result should serialize to an existing class or a record model in your system you can do following:
+
+```json
+    "Mapping": {
+        // ... existing mappings
+        "YourGeneratedModelName": "CustomModelName"
+    }
+```
+
+This "CustomModelName" is a model that already exists in your system and therefor it will not be generated.
+
+This applies to routines and crud operations.
+
 ## 3.5.3
 
 - Fix unit test assert code
