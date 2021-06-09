@@ -11,8 +11,13 @@ namespace PgRoutiner
 
         static void Main(string[] rawArgs)
         {
-            //var args = ParseArgs(new string[] {  "--crud-delete:0", "bla", "--data-dump-tables:0", "t1" });
             var args = ParseArgs(rawArgs);
+
+            //var args = ParseArgs(new string[] {  "--crud-delete:0", "bla", "--data-dump-tables:0", "t1" });
+            //var args = ParseArgs(new string[] { "--settings", "bla" });
+            //var args = ParseArgs(new string[] { "--settings=bla" });
+            //var args = ParseArgs(new string[] { "--settings" });
+
             if (args == null)
             {
                 return;
@@ -33,12 +38,14 @@ namespace PgRoutiner
             {
                 return;
             }
-            Config = Settings.ParseSettings(args);
+
+            var (settingsFile, customSettings) = Settings.GetSettingsFile(args);
+            Config = Settings.ParseSettings(args, settingsFile);
             if (Config == null)
             {
                 return;
             }
-            if (ShowDebug())
+            if (ShowDebug(customSettings))
             {
                 return;
             }
@@ -48,7 +55,7 @@ namespace PgRoutiner
             {
                 return;
             }
-            if (!Settings.ParseInitialSettings(connection, args.Length > 0))
+            if (!Settings.ParseInitialSettings(connection, args.Length > 0, settingsFile))
             {
                 return;
             }
@@ -62,9 +69,9 @@ namespace PgRoutiner
             WriteLine("");
         }
 
-        private static bool ShowDebug()
+        private static bool ShowDebug(bool customSettings)
         {
-            if (Switches.Value.Settings)
+            if (Switches.Value.Settings && !customSettings)
             {
                 Settings.ShowSettings();
                 return true;

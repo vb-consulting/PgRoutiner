@@ -19,7 +19,7 @@ namespace PgRoutiner
     {
         public static Project ProjectInfo = null;
 
-        public static bool ParseInitialSettings(NpgsqlConnection connection, bool haveArguments)
+        public static bool ParseInitialSettings(NpgsqlConnection connection, bool haveArguments, string pgroutinerSettingsFile)
         {
             var pgroutinerFile = Path.Join(Program.CurrentDir, pgroutinerSettingsFile);
             var exists = File.Exists(Path.Join(pgroutinerFile));
@@ -41,7 +41,7 @@ namespace PgRoutiner
                 var answer = Program.Ask(null, ConsoleKey.Y, ConsoleKey.N);
                 if (answer == ConsoleKey.Y)
                 {
-                    BuildSettingsFile(pgroutinerFile, connection);
+                    BuildSettingsFile(pgroutinerFile, connection, pgroutinerSettingsFile);
                 }
             }
 
@@ -205,7 +205,7 @@ namespace PgRoutiner
             return result;
         }
 
-        private static void BuildSettingsFile(string file, NpgsqlConnection connection)
+        private static void BuildSettingsFile(string file, NpgsqlConnection connection, string pgroutinerSettingsFile)
         {
             try 
             {

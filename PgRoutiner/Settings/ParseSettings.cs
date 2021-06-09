@@ -8,9 +8,7 @@ namespace PgRoutiner
 {
     public partial class Settings
     {
-        private const string pgroutinerSettingsFile = "appsettings.PgRoutiner.json";
-
-        public static IConfigurationRoot ParseSettings(string[] args)
+        public static IConfigurationRoot ParseSettings(string[] args, string pgroutinerSettingsFile)
         {
             var argsList = args.ToList();
 
@@ -76,7 +74,7 @@ namespace PgRoutiner
                 config.GetSection("PgRoutiner").Bind(Value);
                 config.Bind(Value);
 
-                if (Value.ConfigPath != null)
+                if (!string.IsNullOrEmpty(Value.ConfigPath))
                 {
                     Value.ConfigPath = Path.Join(Program.CurrentDir, Value.ConfigPath);
                     if (File.Exists(settingsFile))
@@ -164,6 +162,29 @@ namespace PgRoutiner
             }
 
             return config;
+        }
+
+        public static (string settingsFile, bool customSettings) GetSettingsFile(string[] args)
+        {
+            string result = null;
+            var index = Array.IndexOf(args, SettingsArgs.Alias);
+            if (index == -1)
+            {
+                index = Array.IndexOf(args, $"--{SettingsArgs.Original}");
+            }
+            if (index > -1 && index < args.Length - 1)
+            {
+                var value = args[index + 1];
+                if (!value.StartsWith("-"))
+                {
+                    result = value;
+                }
+            }
+            if (result == null)
+            {
+                return ("appsettings.PgRoutiner.json", false);
+            }
+            return (result, true);
         }
     }
 }

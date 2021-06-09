@@ -1,5 +1,43 @@
 ﻿# VERSION HISTORY
 
+## 3.5.5
+
+### Fix output of using configuration files to not include ConfigPath when not used. Very minor fix.
+
+### Command line switch `--settings` or shorter `-s` can now have value of custom configuration file.
+
+By default program will try to use `appsettings.PgRoutiner.json` is it exists.
+
+You can change this value by supplying a value to this command line switch. For example:
+
+```
+$ pgroutiner -s myconfig.json
+```
+
+or
+
+```
+$ pgroutiner -s=myconfig.json
+```
+
+or
+
+```
+$ pgroutiner --settings myconfig.json
+```
+
+or
+
+```
+$ pgroutiner --settings=myconfig.json
+```
+
+This will change this default from `appsettings.PgRoutiner.json` to `myconfig.json`.
+
+Program will not raise an exception if the config doesn't exists.
+
+This is useful if you want to separate configurations for code generation and for script generation in a scenarion where code generation is triggered after succeseuful build event for exampple.
+
 ## 3.5.4
 
 Settings `Maping` now can contain a custom model name that will replace the result of routine or a crud operation.
