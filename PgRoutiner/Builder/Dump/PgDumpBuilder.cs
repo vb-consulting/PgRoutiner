@@ -22,7 +22,11 @@ namespace PgRoutiner
             this.settings = settings;
             this.Connection = connection;
             var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
-            baseArg = $"--dbname=postgresql://{connection.UserName}:{password}@{connection.Host}:{connection.Port}/{connection.Database} --encoding=UTF8";
+
+            //baseArg = $"--dbname=postgresql://{connection.UserName}:{password}@{connection.Host}:{connection.Port}/{connection.Database} --encoding=UTF8";
+            Environment.SetEnvironmentVariable("PGPASSWORD", password);
+            baseArg = $"-h {connection.Host} -p {connection.Port} -U {connection.UserName} --encoding=UTF8";
+
             PgDumpName = dumpName;
             pgDumpCmd = typeof(Settings).GetProperty(dumpName).GetValue(settings) as string;
         }
@@ -366,7 +370,10 @@ namespace PgRoutiner
             var error = "";
             using var process = new Process();
             process.StartInfo.FileName = pgDumpCmd;
-            process.StartInfo.Arguments = args;
+            
+            //process.StartInfo.Arguments = args;
+            process.StartInfo.Arguments = string.Concat(args, " ", Connection.Database);
+            
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.RedirectStandardOutput = true;

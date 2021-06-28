@@ -13,11 +13,6 @@ namespace PgRoutiner
         {
             var args = ParseArgs(rawArgs);
 
-            //var args = ParseArgs(new string[] {  "--crud-delete:0", "bla", "--data-dump-tables:0", "t1" });
-            //var args = ParseArgs(new string[] { "--settings", "bla" });
-            //var args = ParseArgs(new string[] { "--settings=bla" });
-            //var args = ParseArgs(new string[] { "--settings" });
-
             if (args == null)
             {
                 return;

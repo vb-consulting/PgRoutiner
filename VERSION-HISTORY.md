@@ -1,5 +1,10 @@
 ﻿# VERSION HISTORY
 
+## 3.5.6
+
+- Fix connection managamanet to accept any additional parameters (like SslMode).
+- Fix pg_dmup command to be able to use azure connection string format (user is username@database).
+
 ## 3.5.5
 
 ### Fix output of using configuration files to not include ConfigPath when not used. Very minor fix.

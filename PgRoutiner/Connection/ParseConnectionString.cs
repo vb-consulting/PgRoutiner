@@ -101,6 +101,7 @@ namespace PgRoutiner
             string server = null;
             string port = null;
             string database = null;
+            string addition = null;
             try
             {
                 if (connectionStr.StartsWith("postgresql://"))
@@ -177,6 +178,11 @@ namespace PgRoutiner
                             database = $"Db={second};";
                             continue;
                         }
+                        if (!string.IsNullOrEmpty(part))
+                        {
+                            addition = string.Concat(addition == null ? "" : $"{addition};", part);
+                        }
+                        
                     }
                 }
             }
@@ -206,8 +212,8 @@ namespace PgRoutiner
             {
                 pass = GetPassword(Settings.Value.SkipConnectionPrompt);
             }
-           
-            return $"{server}{database}{port}{user}{pass}";
+
+            return $"{server}{database}{port}{user}{pass}{addition}"; 
         }
     }
 }
