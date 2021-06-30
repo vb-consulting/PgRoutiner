@@ -264,6 +264,7 @@ namespace PgRoutiner
             AddEntry(nameof(DiffFilePattern), Value.DiffFilePattern);
             AddEntry(nameof(DiffPgDump), Value.DiffPgDump);
             AddEntry(nameof(DiffPrivileges), Value.DiffPrivileges);
+            AddEntry(nameof(DiffSkipSimilarTo), Value.DiffSkipSimilarTo);
 
             sb.AppendLine();
             AddSectionComment(

@@ -230,6 +230,7 @@ namespace PgRoutiner
         public string DiffTarget { get; set; } = null;
         public string DiffFilePattern { get; set; } = "./Database/{0}-{1}/{2}-diff-{3:yyyyMMdd}.sql";
         public bool DiffPrivileges { get; set; } = false;
+        public string DiffSkipSimilarTo { get; set; } = "pg_%";
 
         /*crud settings*/
         public bool Crud { get; set; } = false;

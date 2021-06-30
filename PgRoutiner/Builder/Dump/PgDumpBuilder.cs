@@ -21,10 +21,10 @@ namespace PgRoutiner
         {
             this.settings = settings;
             this.Connection = connection;
-            var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
 
+            //var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
             //baseArg = $"--dbname=postgresql://{connection.UserName}:{password}@{connection.Host}:{connection.Port}/{connection.Database} --encoding=UTF8";
-            Environment.SetEnvironmentVariable("PGPASSWORD", password);
+
             baseArg = $"-h {connection.Host} -p {connection.Port} -U {connection.UserName} --encoding=UTF8";
 
             PgDumpName = dumpName;
@@ -362,6 +362,9 @@ namespace PgRoutiner
 
         private string GetPgDumpContent(string args, string start = null, string end = null, Func<string, string> lineFunc = null)
         {
+            var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this.Connection) as string;
+            Environment.SetEnvironmentVariable("PGPASSWORD", password);
+
             var content = "";
             if (start != null)
             {

@@ -10,7 +10,8 @@ namespace PgRoutiner
 {
     public static partial class DataAccess
     {
-        public static IEnumerable<IGrouping<(string Schema, string Name), PgRoutineGroup>> GetRoutineGroups(this NpgsqlConnection connection, Settings settings, bool all = true)
+        public static IEnumerable<IGrouping<(string Schema, string Name), PgRoutineGroup>> GetRoutineGroups(
+            this NpgsqlConnection connection, Settings settings, bool all = true, string skipSimilar = null)
         {
             return connection.Read<(
                 uint Oid,
@@ -71,6 +72,7 @@ namespace PgRoutiner
                     and (@notSimilarTo is null or r.routine_name not similar to @notSimilarTo)
                     and (@similarTo is null or r.routine_name similar to @similarTo)
                     and (@all is true or (r.type_udt_name <> 'trigger' and r.type_udt_name <> 'refcursor'))
+                    and (   @skipSimilar is null or (r.routine_name not similar to @skipSimilar)   )
                 group by
                     proc.oid,
                     r.specific_schema,
@@ -88,7 +90,8 @@ namespace PgRoutiner
             ("schema", settings.Schema, DbType.AnsiString),
             ("notSimilarTo", settings.NotSimilarTo, DbType.AnsiString),
             ("similarTo", settings.SimilarTo, DbType.AnsiString),
-            ("all", all, DbType.Boolean)).Select(t => new PgRoutineGroup
+            ("all", all, DbType.Boolean), 
+            ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgRoutineGroup
             {
                 Oid = t.Oid,
                 SpecificSchema = t.SpecificSchema,

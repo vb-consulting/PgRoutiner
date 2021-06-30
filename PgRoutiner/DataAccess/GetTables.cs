@@ -9,7 +9,7 @@ namespace PgRoutiner
 {
     public static partial class DataAccess
     {
-        public static IEnumerable<PgItem> GetTables(this NpgsqlConnection connection, Settings settings)
+        public static IEnumerable<PgItem> GetTables(this NpgsqlConnection connection, Settings settings, string skipSimilar = null)
         {
             return connection.Read<(string Schema, string Name, string Type)>(@$"
 
@@ -20,8 +20,9 @@ namespace PgRoutiner
             where
                 (   @schema is null or (table_schema similar to @schema)   )
                 and (   {GetSchemaExpression("table_schema")}  )
+                and (   @skipSimilar is null or (table_name not similar to @skipSimilar)   )
 
-            ", ("schema", settings.Schema, DbType.AnsiString)).Select(t => new PgItem
+            ", ("schema", settings.Schema, DbType.AnsiString), ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgItem
             {
                 Schema = t.Schema,
                 Name = t.Name,

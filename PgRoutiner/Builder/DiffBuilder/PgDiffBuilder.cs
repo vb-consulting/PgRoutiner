@@ -68,7 +68,7 @@ namespace PgRoutiner
             this.title = title;
             this.targetBuilder = targetBuilder;
 
-            var ste = source.GetTables(new Settings { Schema = settings.Schema });
+            var ste = source.GetTables(new Settings { Schema = settings.Schema }, skipSimilar: settings.DiffSkipSimilarTo);
             this.sourceTables = ste
                 .Where(t => t.Type == PgType.Table)
                 .ToDictionary(t => new Table(t.Schema, t.Name), t => t);
@@ -76,24 +76,24 @@ namespace PgRoutiner
                 .Where(t => t.Type == PgType.View)
                 .ToDictionary(t => new Table(t.Schema, t.Name), t => t);
             this.sourceRoutines = source
-                .GetRoutineGroups(new Settings { Schema = settings.Schema })
+                .GetRoutineGroups(new Settings { Schema = settings.Schema }, skipSimilar: settings.DiffSkipSimilarTo)
                 .SelectMany(g => g)
                 .ToDictionary(r => new Routine(r.SpecificSchema, 
                     r.RoutineName, 
                 $"({string.Join(", ", r.Parameters.Select(p => $"{p.Name} {p.DataType}{(p.IsArray ? "[]" : "")}"))})"), 
                     r => r);
-            this.sourceDomains = source.GetDomains(new Settings { Schema = settings.Schema })
+            this.sourceDomains = source.GetDomains(new Settings { Schema = settings.Schema }, skipSimilar: settings.DiffSkipSimilarTo)
                 .ToDictionary(t => new Domain(t.Schema, t.Name), t => t);
             this._sourceLines = sourceBuilder.GetRawRoutinesDumpLines(settings.DiffPrivileges, out var sourceTypes);
-            this.sourceTypes = source.FilterTypes(sourceTypes, new Settings { Schema = settings.Schema })
+            this.sourceTypes = source.FilterTypes(sourceTypes, new Settings { Schema = settings.Schema }, skipSimilar: settings.DiffSkipSimilarTo)
                 .ToDictionary(t => new Type(t.Schema, t.Name), t => t);
-            this.sourceSchemas = source.GetSchemas(new Settings { Schema = settings.Schema })
+            this.sourceSchemas = source.GetSchemas(new Settings { Schema = settings.Schema }, skipSimilar: settings.DiffSkipSimilarTo)
                 .Where(s => !string.Equals(s, "public"))
                 .ToHashSet();
-            this.sourceSeqs = source.GetSequences(new Settings { Schema = settings.Schema })
+            this.sourceSeqs = source.GetSequences(new Settings { Schema = settings.Schema }, skipSimilar: settings.DiffSkipSimilarTo)
                 .ToDictionary(t => new Seq(t.Schema, t.Name), t => t);
 
-            var tte = target.GetTables(new Settings { Schema = settings.Schema });
+            var tte = target.GetTables(new Settings { Schema = settings.Schema }, skipSimilar: settings.DiffSkipSimilarTo);
             this.targetTables = tte
                 .Where(t => t.Type == PgType.Table)
                 .ToDictionary(t => new Table(t.Schema, t.Name), t => t);
@@ -101,21 +101,21 @@ namespace PgRoutiner
                 .Where(t => t.Type == PgType.View)
                 .ToDictionary(t => new Table(t.Schema, t.Name), t => t);
             this.targetRoutines = target
-                .GetRoutineGroups(new Settings { Schema = settings.Schema })
+                .GetRoutineGroups(new Settings { Schema = settings.Schema }, skipSimilar: settings.DiffSkipSimilarTo)
                 .SelectMany(g => g)
                 .ToDictionary(r => new Routine(r.SpecificSchema,
                     r.RoutineName,
                 $"({string.Join(", ", r.Parameters.Select(p => $"{p.Name} {p.DataType}{(p.IsArray ? "[]" : "")}"))})"),
                     r => r);
-            this.targetDomains = target.GetDomains(new Settings { Schema = settings.Schema })
+            this.targetDomains = target.GetDomains(new Settings { Schema = settings.Schema }, skipSimilar: settings.DiffSkipSimilarTo)
                 .ToDictionary(t => new Domain(t.Schema, t.Name), t => t);
             this._targetLines = targetBuilder.GetRawRoutinesDumpLines(settings.DiffPrivileges, out var targetTypes);
-            this.targetTypes = target.FilterTypes(targetTypes, new Settings { Schema = settings.Schema })
+            this.targetTypes = target.FilterTypes(targetTypes, new Settings { Schema = settings.Schema }, skipSimilar: settings.DiffSkipSimilarTo)
                 .ToDictionary(t => new Type(t.Schema, t.Name), t => t);
-            this.targetSchemas = target.GetSchemas(new Settings { Schema = settings.Schema })
+            this.targetSchemas = target.GetSchemas(new Settings { Schema = settings.Schema }, skipSimilar: settings.DiffSkipSimilarTo)
                 .Where(s => !string.Equals(s, "public"))
                 .ToHashSet();
-            this.targetSeqs = target.GetSequences(new Settings { Schema = settings.Schema })
+            this.targetSeqs = target.GetSequences(new Settings { Schema = settings.Schema }, skipSimilar: settings.DiffSkipSimilarTo)
                 .ToDictionary(t => new Seq(t.Schema, t.Name), t => t);
         }
 

@@ -1,5 +1,17 @@
 ﻿# VERSION HISTORY
 
+## 3.5.7
+
+### Fix diff engine connectivity bug.
+
+### Added `DiffSkipSimilarTo` settings.
+
+
+This option, if it is not null - will force the diff engine to skip objects that names are [similar](https://www.postgresql.org/docs/9.0/functions-matching.html) to its value.
+
+Default value is "`pg_%`" which will skip all objects that have names that starts with `pg_`.
+
+
 ## 3.5.6
 
 - Fix connection managamanet to accept any additional parameters (like SslMode).

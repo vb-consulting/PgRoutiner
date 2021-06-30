@@ -9,8 +9,9 @@ namespace PgRoutiner
 {
     public static partial class DataAccess
     {
-        public static IEnumerable<PgItem> GetDomains(this NpgsqlConnection connection, Settings settings) =>
-            connection.Read<(string Schema, string Name)>(@$"
+        public static IEnumerable<PgItem> GetDomains(this NpgsqlConnection connection, Settings settings, string skipSimilar = null)
+        {
+            return connection.Read<(string Schema, string Name)>(@$"
 
                 select 
                     distinct
@@ -21,13 +22,14 @@ namespace PgRoutiner
                 where
                     (   @schema is null or (d.domain_schema similar to @schema)   )
                     and (   {GetSchemaExpression("d.domain_schema")}  )
+                    and (   @skipSimilar is null or (d.domain_name not similar to @skipSimilar)   )
 
-            ", ("schema", settings.Schema, DbType.AnsiString))
-            .Select(t => new PgItem
+            ", ("schema", settings.Schema, DbType.AnsiString), ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgItem
             {
                 Schema = t.Schema,
                 Name = t.Name,
                 Type = PgType.Domain
             });
+        }
     }
 }

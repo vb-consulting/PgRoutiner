@@ -12,8 +12,9 @@ namespace PgRoutiner
             return $"{field} not like 'pg_temp%' and {field} not like 'pg_toast%' and {field} <> 'information_schema' and {field} <> 'pg_catalog'";
         }
 
-        public static IEnumerable<string> GetSchemas(this NpgsqlConnection connection, Settings settings) =>
-            connection.Read<string>(@$"
+        public static IEnumerable<string> GetSchemas(this NpgsqlConnection connection, Settings settings, string skipSimilar = null)
+        {
+            return connection.Read<string>(@$"
 
                 select
                     schema_name
@@ -22,7 +23,9 @@ namespace PgRoutiner
                 where
                     (   @schema is null or (schema_name similar to @schema)   )
                     and (   {GetSchemaExpression("schema_name")}  )
-            ",
-                ("schema", settings.Schema, DbType.AnsiString));
+                    and (   @skipSimilar is null or (schema_name not similar to @skipSimilar)   )
+            ", 
+            ("schema", settings.Schema, DbType.AnsiString), ("skipSimilar", skipSimilar, DbType.AnsiString));
+        }
     }
 }
