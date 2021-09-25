@@ -44,12 +44,13 @@ namespace PgRoutiner
                     return false;
                 }
                 Program.WriteLine(ConsoleColor.Yellow, "",
-                    $"WARNING: Using fall-back path for pg_dump: {value}. To remove this warning set the {option} setting to point to this path.");
+                    $"WARNING: Using fall-back path for pg_dump: {value}. To remove this warning set the {option} setting to point to this path.",
+                    "");
             }
             return true;
         }
 
-        private static void PgDumpMistmatch(NpgsqlConnection connection, string connVersion, string fullDumpVersion, string dumpVersion, 
+        private static void PgDumpMistmatch(NpgsqlConnection connection, string connVersion, string fullDumpVersion, string dumpVersion,
             object value, string option)
         {
             Program.WriteLine("");

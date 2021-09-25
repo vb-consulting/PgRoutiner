@@ -78,7 +78,7 @@ namespace PgRoutiner
                 Class.AppendLine($"{I4}.Prepared()");
             }
             Class.Append($"{I4}.Read<{this.Model}>(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
-            Class.AppendLine(", ");
+            Class.AppendLine(",");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
 
             if (returnMethod == null)
@@ -90,7 +90,7 @@ namespace PgRoutiner
                 Class.AppendLine($")");
                 Class.AppendLine($"{I4}.{settings.ReturnMethod}();");
             }
-            
+
             Class.AppendLine($"{I2}}}");
             AddMethod(name, actualReturns, true);
         }
@@ -110,7 +110,7 @@ namespace PgRoutiner
                 Class.AppendLine($"{I4}.Prepared()");
             }
             Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
-            Class.AppendLine(", ");
+            Class.AppendLine(",");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
 
             if (returnMethod == null)
@@ -140,7 +140,7 @@ namespace PgRoutiner
                 Class.AppendLine($"{I3}.Prepared()");
             }
             Class.Append($"{I3}.Read<{this.Model}>(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
-            Class.AppendLine(", ");
+            Class.AppendLine(",");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
 
             if (returnMethod == null)
@@ -170,7 +170,7 @@ namespace PgRoutiner
                 Class.AppendLine($"{I3}.Prepared()");
             }
             Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
-            Class.AppendLine(", ");
+            Class.AppendLine(",");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
 
             if (returnMethod == null)
@@ -182,7 +182,7 @@ namespace PgRoutiner
                 Class.AppendLine($")");
                 Class.AppendLine($"{I3}.{settings.ReturnMethod}Async();");
             }
-            
+
             AddMethod(name, actualReturns, false);
         }
 

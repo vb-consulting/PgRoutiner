@@ -7,8 +7,8 @@ namespace PgRoutiner
 {
     public class Module : Code
     {
-        protected HashSet<string> usings = new() 
-        { 
+        protected HashSet<string> usings = new()
+        {
             "System", "System.Linq", "System.Collections.Generic"
         };
         protected List<object> items = new();
@@ -61,10 +61,19 @@ namespace PgRoutiner
                 builder.AppendLine($"using {ns};");
             }
             builder.AppendLine();
-            builder.AppendLine($"namespace {Namespace}");
-            builder.AppendLine("{");
-            builder.Append(string.Join(NL, items.Where(i => i != null)));
-            builder.AppendLine("}");
+            if (!settings.UseFileScopedNamespaces)
+            {
+                builder.AppendLine($"namespace {Namespace}");
+                builder.AppendLine("{");
+                builder.Append(string.Join(NL, items.Where(i => i != null)));
+                builder.AppendLine("}");
+            }
+            else
+            {
+                builder.AppendLine($"namespace {Namespace};");
+                builder.AppendLine("");
+                builder.Append(string.Join(NL, items.Where(i => i != null)));
+            }
             return builder.ToString();
         }
     }

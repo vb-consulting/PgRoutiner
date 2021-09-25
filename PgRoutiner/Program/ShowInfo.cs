@@ -24,7 +24,7 @@ namespace PgRoutiner
             Console.WriteLine();
             Console.WriteLine("General options and settings: ");
             Console.WriteLine("  https://github.com/vb-consulting/PgRoutiner/wiki/1.-WORKING-WITH-SETTINGS#general-settings");
-            
+
             WriteSetting(Settings.DirArgs, "Set working directory, default is current.", "DIR");
             WriteSetting(Settings.HelpArgs, "Show command-line help.");
             WriteSetting(Settings.VersionArgs, "Show current version.");
@@ -36,7 +36,7 @@ namespace PgRoutiner
             WriteSetting(nameof(Settings.SkipConnectionPrompt), "If connection part value exists as enviorment variable, skip the prompt (don't ask).");
             WriteSetting(Settings.SchemaArgs, "Use only schemas similar to this expression. Default is null (all schemas).", "EXP");
             WriteSetting(nameof(Settings.SkipIfExists),
-                "List of filenames without a path to be skipped. Default is an empty list.", 
+                "List of filenames without a path to be skipped. Default is an empty list.",
                 "NAME", "INDEX");
             WriteSetting(nameof(Settings.SkipUpdateReferences), "Don't ask to update project references required by generated code.");
             WriteSetting(Settings.PgDumpArgs, "File path for pg_dump command. Default is pg_dump.", "FILEPATH");
@@ -122,7 +122,7 @@ namespace PgRoutiner
             WriteSetting(nameof(Settings.DbObjectsDropIfExists), "Include drop \"drop object if exists\" for each object in a file.");
             WriteSetting(nameof(Settings.DbObjectsCreateOrReplace), "Use \"create or replace\" for views and routines in object files.", newLine: true);
             WriteSetting(nameof(Settings.DbObjectsRaw), "Use raw dump without any parsing for each object file.");
-            
+
             Console.WriteLine();
             Console.WriteLine("Markdown (MD) database dictionaries options and settings:");
             Console.WriteLine("  https://github.com/vb-consulting/PgRoutiner/wiki/7.-WORKING-WITH-MARKDOWN-DATABASE-DICTIONARIES#markdown-md-database-dictionaries-settings");
@@ -150,7 +150,7 @@ namespace PgRoutiner
             WriteSetting(nameof(Settings.DiffFilePattern), "Diff script file pattern. {0} is source connection name, {1} is target connection name, {2} is script number and {3} is current date. Set to null or empty to dump difference script content to console output. Default is \"./Database/{0}-{1}/{2}-diff-{3:yyyyMMdd}.sql\".", "FILEPATH");
             WriteSetting(Settings.DiffPgDumpArgs, "File path for pg_dump command for the target connection. Default is pg_dump.", "FILEPATH");
             WriteSetting(nameof(Settings.DiffPrivileges), "Include object privileges in the diff script file. Default is false.");
-            
+
             Console.WriteLine();
             Console.WriteLine("CRUD data-access extensions code-generation options and settings: ");
             Console.WriteLine("  ");
@@ -212,7 +212,7 @@ namespace PgRoutiner
             Console.WriteLine(value);
         }
 
-        private static string Join(Arg value) => 
+        private static string Join(Arg value) =>
             string.Join(",", new[] { value.Alias.ToKebabCase(), $"--{value.Original.ToKebabCase()}" }.Where(i => i != null));
     }
 }

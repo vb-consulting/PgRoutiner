@@ -1,5 +1,23 @@
 ﻿# VERSION HISTORY
 
+## 3.6.0
+
+- Added `DumpPgCommands` setting with default value true. This will write all `pg_dump` and `psql` system calls to prompt without passwords.
+
+- Added `PsqlFallback` setting for fallback for psql command if version doesn't match. Default is `C:\\Program Files\\PostgreSQL\\{0}\\bin\\psql.exe` for windows and `/usr/lib/postgresql/{0}/bin/psql` for other operationg systems. `{0}` is format placeholder for version number.
+
+- `-psq` command now connects using the same method as `pg_dump` that adds `PGPASSWORD` enviorment variable at the runtime so that it can be used for Azure connections.
+
+- Added `UseFileScopedNamespaces` setting with default value true. This will produce modules with file-scoped namespaces. File-scoped namespaces are only supported with C#10 (default for .NET6).
+
+- Added `UnitTestProjectTargetFramework` setting that will set the target framework when generating unit test project file. Allowed values are `net5.0` and `net6.0` (default).
+
+- Added `UnitTestProjectLangVersion`: setting that will set the languague version when generating unit test project file. Alloed values are `9`, `10` or null (skips this entry, default).
+
+- Bug fix: fix hardcoded namespace for the Unit Test fixtures code file.
+
+- Added `NullableStrings` setting that will use nullable string format `string?` in all parameters or in models where associated field is nullable. Default is true.
+
 ## 3.5.7
 
 ### Fix diff engine connectivity bug.
@@ -327,7 +345,7 @@ If "SkipConnectionPrompt" is true and enviorment variable is defined, enviorment
  
 - Added `-i` or `--info` command-line switch that just display current info (dir, config files, used settings and connection). and exits without any file file generation.
 - If following switches are on: `Execute`, `Psql` or `CommitMd`, all other file generations switches are off (`DbObjects`, `SchemaDump`, `DataDump`, `Diff`, `Routines`, `UnitTests` and `Markdown`)
-- If `PsqlTerminal` program is not supported by the operations system, fallback to the default shell execute of the operationg system.
+- If `PsqlTerminal` program is not supported by the operations system, fallback to the default shell execute of the operating system.
  
 ## 3.1.9
 ## 3.1.8

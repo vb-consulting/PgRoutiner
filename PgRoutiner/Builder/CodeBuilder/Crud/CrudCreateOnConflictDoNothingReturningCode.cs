@@ -73,7 +73,7 @@ namespace PgRoutiner
                 Class.AppendLine($"{I4}.Prepared()");
             }
             Class.Append($"{I4}.Read<{this.Model}>(Sql(model, conflictedFields)");
-            Class.AppendLine(", ");
+            Class.AppendLine(",");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
 
             if (returnMethod == null)
@@ -105,7 +105,7 @@ namespace PgRoutiner
                 Class.AppendLine($"{I4}.Prepared()");
             }
             Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql(model, conflictedFields)");
-            Class.AppendLine(", ");
+            Class.AppendLine(",");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I5}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
 
             if (returnMethod == null)
@@ -135,7 +135,7 @@ namespace PgRoutiner
                 Class.AppendLine($"{I3}.Prepared()");
             }
             Class.Append($"{I3}.Read<{this.Model}>(Sql(model, conflictedFields)");
-            Class.AppendLine(", ");
+            Class.AppendLine(",");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
 
             if (returnMethod == null)
@@ -165,7 +165,7 @@ namespace PgRoutiner
                 Class.AppendLine($"{I3}.Prepared()");
             }
             Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql(model, conflictedFields)");
-            Class.AppendLine(", ");
+            Class.AppendLine(",");
             Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.Name}\", model.{p.ClassName}, {p.DbType})")));
 
             if (returnMethod == null)

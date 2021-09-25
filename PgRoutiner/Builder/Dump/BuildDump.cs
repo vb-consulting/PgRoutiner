@@ -27,7 +27,7 @@ namespace PgRoutiner
                 DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
                 return;
             }
-            if (!Settings.Value.Dump && exists && Settings.Value.SkipIfExists != null && 
+            if (!Settings.Value.Dump && exists && Settings.Value.SkipIfExists != null &&
                 (
                 Settings.Value.SkipIfExists.Contains(shortFilename) ||
                 Settings.Value.SkipIfExists.Contains(relative))
@@ -36,7 +36,7 @@ namespace PgRoutiner
                 DumpFormat("Skipping {0}, already exists ...", relative);
                 return;
             }
-            if (!Settings.Value.Dump && exists && askOverwrite && 
+            if (!Settings.Value.Dump && exists && askOverwrite &&
                 Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
             {
                 DumpFormat("Skipping {0} ...", relative);

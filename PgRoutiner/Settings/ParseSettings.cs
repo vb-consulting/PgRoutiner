@@ -49,7 +49,7 @@ namespace PgRoutiner
             var pgroutinerFile = Path.Join(Program.CurrentDir, pgroutinerSettingsFile);
             var settingsFile = Path.Join(Program.CurrentDir, "appsettings.json");
             var devSettingsFile = Path.Join(Program.CurrentDir, "appsettings.Development.json");
-            
+
             var files = new List<string>();
             if (File.Exists(pgroutinerFile))
             {
@@ -128,7 +128,7 @@ namespace PgRoutiner
                 {
                     prop.SetValue(Value, null);
                 }
-            } 
+            }
             if (Value.Mapping != null && Value.Mapping.Values.Count > 0)
             {
                 foreach (var (key, value) in Value.Mapping)

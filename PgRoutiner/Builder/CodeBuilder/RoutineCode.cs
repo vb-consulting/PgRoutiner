@@ -13,9 +13,9 @@ namespace PgRoutiner
         private readonly string @namespace;
         private readonly IEnumerable<PgRoutineGroup> routines;
         private readonly NpgsqlConnection connection;
- 
+
         public RoutineCode(
-            Settings settings, 
+            Settings settings,
             string name,
             string schema,
             string @namespace,
@@ -222,7 +222,7 @@ namespace PgRoutiner
                 AddBodyCode(I4, I5);
                 Class.AppendLine($"{I2}}}");
             }
-            
+
             AddMethod();
         }
 
@@ -242,7 +242,7 @@ namespace PgRoutiner
         private void BuildMethodParams(List<Param> @params)
         {
             if (@params.Count > 0)
-            { 
+            {
                 Class.Append(", ");
                 Class.Append(string.Join(", ", @params.Select(p => $"{p.Type} {p.Name}")));
             }
@@ -318,6 +318,10 @@ namespace PgRoutiner
                 if (routine.DataType == "ARRAY")
                 {
                     return new Return { PgName = $"{routine.TypeUdtName}[]", Name = $"{result}[]", IsVoid = false, IsEnumerable = false };
+                }
+                if (settings.UseNullableStrings)
+                {
+                    return new Return { PgName = routine.DataType, Name = $"{result}?", IsVoid = false, IsEnumerable = false };
                 }
                 if (result != "string")
                 {
@@ -399,6 +403,10 @@ namespace PgRoutiner
                         }
                         return $"{result}?";
                     }
+                    if (settings.UseNullableStrings && result == "string" && returnModel.Nullable)
+                    {
+                        return $"{result}?";
+                    }
                     return result;
                 }
                 throw new ArgumentException($"Could not find mapping \"{returnModel.DataType}\" for result type of routine  \"{this.Name}\"");
@@ -443,7 +451,7 @@ namespace PgRoutiner
             }
             return settings.Mapping.TryGetValue(r.DataType, out value);
         }
-  
+
         private bool TryGetReturnMapping(PgReturns r, out string value)
         {
             if (settings.Mapping.TryGetValue(r.Type, out value))

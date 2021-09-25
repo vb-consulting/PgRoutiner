@@ -61,20 +61,7 @@ namespace PgRoutiner
                 DumpFormat("Creating dir: {0} ...", relativeDir);
                 Directory.CreateDirectory(dir);
             }
-           
-            var settingsFile = Path.GetFullPath(Path.Join(dir, "testsettings.json"));
-            if (!File.Exists(settingsFile))
-            {
-                DumpRelativePath("Creating file: {0} ...", settingsFile);
-                if (!WriteFile(settingsFile, GetTestSettingsContent(connection, dir)))
-                {
-                    return;
-                }
-            }
-            else
-            {
-                DumpRelativePath("Skipping {0}, already exists ...", settingsFile);
-            }
+
 
             var projectFile = Path.GetFullPath(Path.Join(dir, $"{name}.csproj"));
             List<ExtensionMethods> extensions = new();
@@ -84,7 +71,7 @@ namespace PgRoutiner
             if (!File.Exists(projectFile))
             {
                 DumpRelativePath("Creating file: {0} ...", projectFile);
-                if (!WriteFile(projectFile, GetTestCsprojContent(dir)))
+                if (!WriteFile(projectFile, new UnitTestProjectCsprojFile(Settings.Value, dir).ToString()))
                 {
                     return;
                 }
@@ -108,11 +95,28 @@ namespace PgRoutiner
                 DumpRelativePath("Skipping {0}, already exists ...", projectFile);
             }
 
+            var settingsFile = Path.GetFullPath(Path.Join(dir, "testsettings.json"));
+            if (!File.Exists(settingsFile))
+            {
+                DumpRelativePath("Creating file: {0} ...", settingsFile);
+                if (!WriteFile(settingsFile, GetTestSettingsContent(connection, dir)))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                DumpRelativePath("Skipping {0}, already exists ...", settingsFile);
+            }
+
+            var settings = new Settings { Namespace = name, UseFileScopedNamespaces = Settings.Value.UseFileScopedNamespaces };
+
             var fixtureFile = Path.GetFullPath(Path.Join(dir, "TestFixtures.cs"));
             if (!File.Exists(fixtureFile))
             {
                 DumpRelativePath("Creating file: {0} ...", fixtureFile);
-                if (!WriteFile(fixtureFile, GetTestFixturesFile(name)))
+                var fixtureCode = new TestFixtures(settings);
+                if (!WriteFile(fixtureFile, fixtureCode.Class.ToString()))
                 {
                     return;
                 }
@@ -133,7 +137,7 @@ namespace PgRoutiner
                         DumpRelativePath("Skipping {0}, already exists ...", moduleFile);
                         continue;
                     }
-                    var module = new Module(new Settings { Namespace = name });
+                    var module = new Module(settings);
                     if (ext.Methods.Any(m => m.Sync == false))
                     {
                         module.AddUsing("System.Threading.Tasks");
@@ -161,7 +165,7 @@ namespace PgRoutiner
                     DumpRelativePath("Skipping {0}, already exists ...", moduleFile);
                     return;
                 }
-                var module = new Module(new Settings { Namespace = name });
+                var module = new Module(settings);
                 module.AddUsing("Xunit");
                 module.AddUsing("Norm");
 
@@ -170,33 +174,6 @@ namespace PgRoutiner
                 DumpRelativePath("Creating file: {0} ...", moduleFile);
                 WriteFile(moduleFile, module.ToString());
             }
-        }
-
-        private static string GetTestCsprojContent(string dir)
-        {
-            StringBuilder sb = new(@"<Project Sdk=""Microsoft.NET.Sdk"">");
-            sb.AppendLine();
-            sb.AppendLine();
-            sb.AppendLine(@"  <PropertyGroup>");
-            sb.AppendLine(@"    <TargetFramework>net5.0</TargetFramework>");
-            sb.AppendLine(@"    <IsPackable>false</IsPackable>");
-            sb.AppendLine(@"  </PropertyGroup>");
-            sb.AppendLine();
-            sb.AppendLine(@"  <ItemGroup>");
-            sb.AppendLine(@"    <None Update=""testsettings.json"">");
-            sb.AppendLine(@"      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>");
-            sb.AppendLine(@"    </None>");
-            sb.AppendLine(@"  </ItemGroup>");
-            sb.AppendLine();
-            if (Settings.ProjectInfo?.ProjectFile != null)
-            {
-                sb.AppendLine(@"  <ItemGroup>");
-                sb.AppendLine(@$"    <ProjectReference Include=""{Path.GetRelativePath(dir, Settings.ProjectInfo.ProjectFile)}"" />");
-                sb.AppendLine(@"  </ItemGroup>");
-            }
-            sb.AppendLine();
-            sb.AppendLine(@"</Project>");
-            return sb.ToString();
         }
 
         private static string GetTestSettingsContent(NpgsqlConnection connection, string dir)
@@ -210,7 +187,7 @@ namespace PgRoutiner
             sb.AppendLine(@"  ""ConnectionStrings"": {");
             sb.AppendLine(@$"    ""DefaultConnection"": ""{connection.ConnectionString}""");
             sb.AppendLine(@"  },");
-            
+
             sb.AppendLine(@"  ""TestSettings"": {");
 
             sb.AppendLine();
@@ -288,203 +265,6 @@ namespace PgRoutiner
             sb.AppendLine(@"    //");
             sb.AppendLine(@"    ""UnitTestsNewDatabaseFromTemplate"": false");
             sb.AppendLine(@"  }");
-            sb.AppendLine(@"}");
-            return sb.ToString();
-        }
-
-        private static string GetTestFixturesFile(string ns)
-        {
-            StringBuilder sb = new();
-            if (!string.IsNullOrEmpty(Settings.Value.SourceHeader))
-            {
-                sb.AppendLine(string.Format(Settings.Value.SourceHeader, DateTime.Now));
-            }
-            sb.AppendLine(@"using System;");
-            sb.AppendLine(@"using System.Collections.Generic;");
-            sb.AppendLine(@"using System.IO;");
-            sb.AppendLine(@"using System.Linq;");
-            sb.AppendLine(@"using Microsoft.Extensions.Configuration;");
-            sb.AppendLine(@"using Norm;");
-            sb.AppendLine(@"using Npgsql;");
-            sb.AppendLine(@"using Xunit;");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"namespace PgRoutinerTests");
-            sb.AppendLine(@"{");
-            sb.AppendLine(@"    public class Config");
-            sb.AppendLine(@"    {");
-            sb.AppendLine(@"        public string TestConnection { get; set; }");
-            sb.AppendLine(@"        public string ConfigPath { get; set; }");
-            sb.AppendLine(@"        public string TestDatabaseName { get; set; }");
-            sb.AppendLine(@"        public bool TestDatabaseFromTemplate { get; set; }");
-            sb.AppendLine(@"        public List<string> UpScripts { get; set; } = new();");
-            sb.AppendLine(@"        public List<string> DownScripts { get; set; } = new();");
-            sb.AppendLine(@"        public bool UnitTestsUnderTransaction { get; set; }");
-            sb.AppendLine(@"        public bool UnitTestsNewDatabaseFromTemplate { get; set; }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"        public static Config Value { get; }");
-            sb.AppendLine(@"        public static string ConnectionString { get; }");
-            sb.AppendLine(@"        ");
-            sb.AppendLine(@"        static Config()");
-            sb.AppendLine(@"        {");
-            sb.AppendLine(@"            Value = new Config();");
-            sb.AppendLine(@"            var config = new ConfigurationBuilder().AddJsonFile(""testsettings.json"", false, false).Build();");
-            sb.AppendLine(@"            config.GetSection(""TestSettings"").Bind(Value);");
-            sb.AppendLine(@"            if (Value.TestDatabaseFromTemplate && Value.UnitTestsNewDatabaseFromTemplate)");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                throw new ArgumentException(@""Configuration settings TestDatabaseFromTemplate=true and UnitTestsNewDatabaseFromTemplate=true doesn't make any sense.");
-            sb.AppendLine(@"There is no point of creating a test database from a template and to do that again for each unit test.");
-            sb.AppendLine(@"Set one of TestDatabaseFromTemplate or UnitTestsNewDatabaseFromTemplate to false."");");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"            if (Value.UnitTestsNewDatabaseFromTemplate && Value.UnitTestsUnderTransaction)");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                throw new ArgumentException(@""Configuration settings UnitTestsNewDatabaseFromTemplate=true and UnitTestsUnderTransaction=true doesn't make any sense.");
-            sb.AppendLine(@"There is no point of creating a new test database from a template for each test and then use transaction on a database where only one test runs.");
-            sb.AppendLine(@"Set one of UnitTestsNewDatabaseFromTemplate or UnitTestsUnderTransaction to false."");");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"            if (Value.UnitTestsNewDatabaseFromTemplate && (Value.UpScripts.Any() || Value.DownScripts.Any()))");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                throw new ArgumentException(@""Configuration settings UnitTestsNewDatabaseFromTemplate=true and up or down scripts (UpScripts, DownScripts) doesn't make any sense.");
-            sb.AppendLine(@"Up or down scripts are only applied on a test database created for all tests.");
-            sb.AppendLine(@"Set one of UnitTestsNewDatabaseFromTemplate or clear UpScripts and DownScripts."");");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"            string externalConnectionString = null;");
-            sb.AppendLine(@"            if (Value.ConfigPath != null && File.Exists(Value.ConfigPath))");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                var external = new ConfigurationBuilder().AddJsonFile(Path.Join(Directory.GetCurrentDirectory(), Value.ConfigPath), false, false).Build();");
-            sb.AppendLine(@"                externalConnectionString = external.GetConnectionString(Value.TestConnection);");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"            ConnectionString = config.GetConnectionString(Value.TestConnection) ?? externalConnectionString;");
-            sb.AppendLine(@"        }");
-            sb.AppendLine(@"    }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"    public sealed class PostgreSqlFixture : IDisposable");
-            sb.AppendLine(@"    {");
-            sb.AppendLine(@"        public NpgsqlConnection Connection { get; }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"        public PostgreSqlFixture()");
-            sb.AppendLine(@"        {");
-            sb.AppendLine(@"            Connection = new NpgsqlConnection(Config.ConnectionString);");
-            sb.AppendLine(@"            CreateTestDatabase(Connection);");
-            sb.AppendLine(@"            Connection.ChangeDatabase(Config.Value.TestDatabaseName);");
-            sb.AppendLine(@"            ApplyMigrations(Connection, Config.Value.UpScripts);");
-            sb.AppendLine(@"        }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"        public void Dispose()");
-            sb.AppendLine(@"        {");
-            sb.AppendLine(@"            ApplyMigrations(Connection, Config.Value.DownScripts);");
-            sb.AppendLine(@"            Connection.Close();");
-            sb.AppendLine(@"            Connection.Dispose();");
-            sb.AppendLine(@"            using var connection = new NpgsqlConnection(Config.ConnectionString);");
-            sb.AppendLine(@"            DropTestDatabase(connection);");
-            sb.AppendLine(@"        }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"        public static void CreateDatabase(NpgsqlConnection connection, string database, string template = null)");
-            sb.AppendLine(@"        {");
-            sb.AppendLine(@"            void DoCreate() => connection.Execute($""create database {database}{(template == null ? """" : $"" template {template}"")}"");");
-            sb.AppendLine(@"            if (template != null)");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                connection.Execute(RevokeUsersCmd(template));");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"            try");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                DoCreate();");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"            catch (PostgresException e)");
-            sb.AppendLine(@"            when (e.SqlState == ""42P04"") // 42P04=duplicate_database, see https://www.postgresql.org/docs/9.3/errcodes-appendix.html");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                DropDatabase(connection, database);");
-            sb.AppendLine(@"                DoCreate();");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"        }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"        public static void DropDatabase(NpgsqlConnection connection, string database)");
-            sb.AppendLine(@"        {");
-            sb.AppendLine(@"            connection.Execute($@""");
-            sb.AppendLine(@"            {RevokeUsersCmd(database)}");
-            sb.AppendLine(@"            drop database {database};"");");
-            sb.AppendLine(@"        }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"        private static void CreateTestDatabase(NpgsqlConnection connection)");
-            sb.AppendLine(@"        {");
-            sb.AppendLine(@"            if (Config.Value.TestDatabaseFromTemplate)");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                CreateDatabase(connection, Config.Value.TestDatabaseName, connection.Database);");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"            else");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                CreateDatabase(connection, Config.Value.TestDatabaseName);");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"        }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"        private static void DropTestDatabase(NpgsqlConnection connection)");
-            sb.AppendLine(@"        {");
-            sb.AppendLine(@"            DropDatabase(connection, Config.Value.TestDatabaseName);");
-            sb.AppendLine(@"        }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"        private static void ApplyMigrations(NpgsqlConnection connection, List<string> scriptPaths)");
-            sb.AppendLine(@"        {");
-            sb.AppendLine(@"            foreach (var path in scriptPaths)");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                connection.Execute(File.ReadAllText(path));");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"        }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"        private static string RevokeUsersCmd(string database)");
-            sb.AppendLine(@"        {");
-            sb.AppendLine(@"            return $@""");
-            sb.AppendLine(@"            revoke connect on database {database} from public;");
-            sb.AppendLine(@"            select pg_terminate_backend(pid) from pg_stat_activity where datname = '{database}' and pid <> pg_backend_pid();");
-            sb.AppendLine(@"            "";");
-            sb.AppendLine(@"        }");
-            sb.AppendLine(@"    }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"    [CollectionDefinition(""PostgreSqlDatabase"")]");
-            sb.AppendLine(@"    public class DatabaseFixtureCollection : ICollectionFixture<PostgreSqlFixture> { }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"    [Collection(""PostgreSqlDatabase"")]");
-            sb.AppendLine(@"    public abstract class PostgreSqlUnitTestFixture : IDisposable");
-            sb.AppendLine(@"    {");
-            sb.AppendLine(@"        protected NpgsqlConnection Connection { get; }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"        protected PostgreSqlUnitTestFixture(PostgreSqlFixture fixture)");
-            sb.AppendLine(@"        {");
-            sb.AppendLine(@"            if (Config.Value.UnitTestsNewDatabaseFromTemplate)");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                var dbName = string.Concat(Config.Value.TestDatabaseName, ""_"", Guid.NewGuid().ToString().Replace(""-"", ""_""));");
-            sb.AppendLine(@"                using var connection = new NpgsqlConnection(Config.ConnectionString);");
-            sb.AppendLine(@"                PostgreSqlFixture.CreateDatabase(connection, dbName, connection.Database);");
-            sb.AppendLine(@"                Connection = fixture.Connection.CloneWith(fixture.Connection.ConnectionString);");
-            sb.AppendLine(@"                Connection.Open();");
-            sb.AppendLine(@"                Connection.ChangeDatabase(dbName);");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"            else");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                Connection = fixture.Connection.CloneWith(fixture.Connection.ConnectionString);");
-            sb.AppendLine(@"                Connection.Open();");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"            ");
-            sb.AppendLine(@"            if (Config.Value.UnitTestsUnderTransaction)");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                Connection.Execute(""begin"");");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"        }");
-            sb.AppendLine(@"");
-            sb.AppendLine(@"        [System.Diagnostics.CodeAnalysis.SuppressMessage(""Usage"", ""CA1816:Dispose methods should call SuppressFinalize"", Justification = ""XUnit"")]");
-            sb.AppendLine(@"        public void Dispose()");
-            sb.AppendLine(@"        {");
-            sb.AppendLine(@"            if (Config.Value.UnitTestsUnderTransaction)");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                Connection.Execute(""rollback"");");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"            Connection.Close();");
-            sb.AppendLine(@"            Connection.Dispose();");
-            sb.AppendLine(@"            if (Config.Value.UnitTestsNewDatabaseFromTemplate)");
-            sb.AppendLine(@"            {");
-            sb.AppendLine(@"                using var connection = new NpgsqlConnection(Config.ConnectionString);");
-            sb.AppendLine(@"                PostgreSqlFixture.DropDatabase(connection, Connection.Database);");
-            sb.AppendLine(@"            }");
-            sb.AppendLine(@"        }");
-            sb.AppendLine(@"    }");
             sb.AppendLine(@"}");
             return sb.ToString();
         }

@@ -102,8 +102,7 @@ namespace PgRoutiner
                 {
                     Class.Append($"{I3}var result = ");
                 }
-                
-                
+
                 if (!m.Sync)
                 {
                     if (!m.Returns.IsVoid && m.Returns.IsEnumerable)
@@ -144,7 +143,7 @@ namespace PgRoutiner
                         {
                             Class.Append($"{I3}{p.Name}.Should().Be(Connection.Read<{p.Type}>(\"select * from {p.PgType}\").Single());");
                         }
-                        
+
                     }
                     else
                     {

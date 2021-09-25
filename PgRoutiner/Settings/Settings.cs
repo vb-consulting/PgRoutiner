@@ -119,12 +119,13 @@ namespace PgRoutiner
         /*general*/
         public string Connection { get; set; } = null;
         public bool SkipConnectionPrompt { get; set; } = false;
+        public bool DumpPgCommands { get; set; } = true;
         public string Schema { get; set; } = null;
 
         public IList<string> SkipIfExists { get; set; } = new List<string>();
         public bool SkipUpdateReferences { get; set; } = false;
         public string PgDump { get; set; } = "pg_dump";
-        public string PgDumpFallback { get; set; } = OperatingSystem.IsWindows() ? 
+        public string PgDumpFallback { get; set; } = OperatingSystem.IsWindows() ?
             "C:\\Program Files\\PostgreSQL\\{0}\\bin\\pg_dump.exe" :
             "/usr/lib/postgresql/{0}/bin/pg_dump";
         public string ConfigPath { get; set; } = null;
@@ -132,6 +133,9 @@ namespace PgRoutiner
         /*code generation general options*/
         public string Namespace { get; set; } = null;
         public bool UseRecords { get; set; } = false;
+        public bool UseExpressionBody { get; set; } = false;
+        public bool UseFileScopedNamespaces { get; set; } = true;
+        public bool UseNullableStrings { get; set; } = true;
         public IDictionary<string, string> Mapping { get; set; } = new Dictionary<string, string>();
         public IDictionary<string, string> CustomModels { get; set; } = new Dictionary<string, string>();
         public string ModelDir { get; set; } = "./Models/{0}/";
@@ -153,12 +157,13 @@ namespace PgRoutiner
         public bool RoutinesAskOverwrite { get; set; } = false;
         public string NotSimilarTo { get; set; } = null;
         public string SimilarTo { get; set; } = null;
-        public bool UseExpressionBody { get; set; } = false;
         public IDictionary<string, string> RoutinesReturnMethods { get; set; } = new Dictionary<string, string>();
         public IDictionary<string, string> RoutinesModelPropertyTypes { get; set; } = new Dictionary<string, string>();
 
         /*unit tests*/
         public bool UnitTests { get; set; } = false;
+        public string UnitTestProjectTargetFramework { get; set; } = "net6.0";
+        public string UnitTestProjectLangVersion { get; set; } = null;
         public string UnitTestsDir { get; set; } = "../{0}Tests";
         public bool UnitTestsAskRecreate { get; set; } = false;
         public bool UnitTestsSkipSyncMethods { get; set; } = false;
@@ -187,12 +192,12 @@ namespace PgRoutiner
         /*object tree*/
         public bool DbObjects { get; set; } = false;
         public string DbObjectsDir { get; set; } = "./Database/{0}/";
-        public IDictionary<string, string> DbObjectsDirNames { get; set; } = new Dictionary<string, string>() 
-        {   
-            { "Tables", "Tables/{0}" }, 
-            { "Views", "Views/{0}" }, 
-            { "Functions", "Functions/{0}" }, 
-            { "Procedures", "Procedures/{0}" }, 
+        public IDictionary<string, string> DbObjectsDirNames { get; set; } = new Dictionary<string, string>()
+        {
+            { "Tables", "Tables/{0}" },
+            { "Views", "Views/{0}" },
+            { "Functions", "Functions/{0}" },
+            { "Procedures", "Procedures/{0}" },
             { "Domains", "Domains/{0}" },
             { "Types", "Types/{0}" },
             { "Schemas", "Schemas" },
@@ -222,6 +227,9 @@ namespace PgRoutiner
         public bool Psql { get; set; } = false;
         public string PsqlTerminal { get; set; } = "wt";
         public string PsqlCommand { get; set; } = "psql";
+        public string PsqlFallback { get; set; } = OperatingSystem.IsWindows() ?
+            "C:\\Program Files\\PostgreSQL\\{0}\\bin\\psql.exe" :
+            "/usr/lib/postgresql/{0}/bin/psql";
         public string PsqlOptions { get; set; } = null;
 
         /*diff settings*/

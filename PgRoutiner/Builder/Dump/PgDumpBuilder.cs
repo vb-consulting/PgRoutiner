@@ -162,11 +162,11 @@ namespace PgRoutiner
                     string content;
                     try
                     {
-                        
+
                         content = new SchemaDumpTransformer(schema, lines)
                             .BuildLines()
                             .ToString();
-                        
+
                     }
                     catch (Exception e)
                     {
@@ -188,8 +188,8 @@ namespace PgRoutiner
                 settings.SchemaDumpNoDropIfExists ? "" : " --clean --if-exists",
                 settings.Schema != null ? $" --schema=\\\"{settings.Schema}\\\"" : "",
                 string.IsNullOrEmpty(settings.SchemaDumpOptions) ? "" :
-                    (settings.SchemaDumpOptions.StartsWith(" ") ? 
-                    settings.SchemaDumpOptions : 
+                    (settings.SchemaDumpOptions.StartsWith(" ") ?
+                    settings.SchemaDumpOptions :
                     string.Concat(" ", settings.SchemaDumpOptions)));
 
             if (!settings.SchemaDumpNoTransaction)
@@ -373,10 +373,19 @@ namespace PgRoutiner
             var error = "";
             using var process = new Process();
             process.StartInfo.FileName = pgDumpCmd;
-            
-            //process.StartInfo.Arguments = args;
-            process.StartInfo.Arguments = string.Concat(args, " ", Connection.Database);
-            
+            if (string.Equals(args, "--version"))
+            {
+                process.StartInfo.Arguments = args;
+            }
+            else
+            {
+                process.StartInfo.Arguments = string.Concat(args, " ", Connection.Database);
+            }
+            if (settings.DumpPgCommands)
+            {
+                Program.WriteLine(ConsoleColor.White, $"{pgDumpCmd} {process.StartInfo.Arguments}");
+            }
+
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.RedirectStandardOutput = true;

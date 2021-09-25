@@ -7,11 +7,27 @@ namespace PgRoutiner
 {
     public abstract class Code
     {
-        protected string I1 => string.Join("", Enumerable.Repeat(" ", settings.Ident));
-        protected string I2 => string.Join("", Enumerable.Repeat(" ", settings.Ident * 2));
-        protected string I3 => string.Join("", Enumerable.Repeat(" ", settings.Ident * 3));
-        protected string I4 => string.Join("", Enumerable.Repeat(" ", settings.Ident * 4));
-        protected string I5 => string.Join("", Enumerable.Repeat(" ", settings.Ident * 5));
+        protected string Ident(int times)
+        {
+            if (settings.UseFileScopedNamespaces)
+            {
+                if (times == 1)
+                {
+                    return "";
+                }
+                else
+                {
+                    return string.Join("", Enumerable.Repeat(" ", settings.Ident * (times - 1)));
+                }
+            }
+            return string.Join("", Enumerable.Repeat(" ", settings.Ident * times));
+        }
+        protected string I1 => Ident(1);
+        protected string I2 => Ident(2);
+        protected string I3 => Ident(3);
+        protected string I4 => Ident(4);
+        protected string I5 => Ident(5);
+
         protected readonly string NL = Environment.NewLine;
         protected readonly Settings settings;
 
@@ -19,7 +35,7 @@ namespace PgRoutiner
         public Dictionary<string, StringBuilder> Models { get; private set; } = new();
         public HashSet<string> UserDefinedModels { get; private set; } = new();
         public Dictionary<string, StringBuilder> ModelContent { get; private set; } = new();
-        public StringBuilder Class { get; } = new();
+        public StringBuilder Class { get; protected set; } = new();
         public List<Method> Methods { get; } = new();
         public string ModuleNamespace { get; set; }
 
@@ -46,6 +62,10 @@ namespace PgRoutiner
                 {
                     return $"{result}[]";
                 }
+                if (settings.UseNullableStrings)
+                {
+                    return $"{result}?";
+                }
                 if (result != "string")
                 {
                     return $"{result}?";
@@ -62,6 +82,10 @@ namespace PgRoutiner
                 if (p.IsArray)
                 {
                     return $"{result}[]";
+                }
+                if (settings.UseNullableStrings && p.IsNullable)
+                {
+                    return $"{result}?";
                 }
                 if (result != "string" && p.IsNullable)
                 {

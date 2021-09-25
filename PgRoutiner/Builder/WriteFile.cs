@@ -7,6 +7,10 @@ namespace PgRoutiner
     {
         public static bool WriteFile(string path, string content)
         {
+            if (content == null)
+            {
+                return false;
+            }
             if (Settings.Value.Dump)
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;

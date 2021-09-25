@@ -50,7 +50,7 @@ namespace PgRoutiner
 
             if (PkParams.Count > 0)
             {
-                Class.AppendLine(", ");
+                Class.AppendLine(",");
                 Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I5}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
 
@@ -86,7 +86,7 @@ namespace PgRoutiner
 
             if (PkParams.Count > 0)
             {
-                Class.AppendLine(", ");
+                Class.AppendLine(",");
                 Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I5}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
 
@@ -120,7 +120,7 @@ namespace PgRoutiner
 
             if (PkParams.Count > 0)
             {
-                Class.AppendLine(", ");
+                Class.AppendLine(",");
                 Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I4}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
 
@@ -153,7 +153,7 @@ namespace PgRoutiner
 
             if (PkParams.Count > 0)
             {
-                Class.AppendLine(", ");
+                Class.AppendLine(",");
                 Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I4}(\"{p.Name}\", {p.Name}, {p.DbType})")));
             }
 

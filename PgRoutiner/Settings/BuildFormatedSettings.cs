@@ -96,7 +96,7 @@ namespace PgRoutiner
                     sb.AppendLine($"    \"{Value.Connection}\": \"{connection.ToPsqlFormatString()}\"");
                 }
                 sb.AppendLine("    //\"Connection1\": \"Server={server};Db={database};Port={port};User Id={user};Password={password};\"");
-                sb.AppendLine("    //\"Connection2\": \"postgresql://{user}:{password}@{server}:{port}/{database}\" ");
+                sb.AppendLine("    //\"Connection2\": \"postgresql://{user}:{password}@{server}:{port}/{database}\"");
 
                 sb.AppendLine("  },");
                 sb.AppendLine("  /* see https://github.com/vb-consulting/PgRoutiner/wiki/1.-WORKING-WITH-SETTINGS for more info */");
@@ -105,7 +105,7 @@ namespace PgRoutiner
             }
 
             AddSectionComment(
-                "General settings:", 
+                "General settings:",
                 "https://github.com/vb-consulting/PgRoutiner/wiki/1.-WORKING-WITH-SETTINGS#general-settings",
                 $"- Use \"{ConnectionArgs.Alias}\" or \"--{ConnectionArgs.Original.ToKebabCase()}\" option to set working connection from the command line.",
                 $"- Use \"{SchemaArgs.Alias}\" or \"--{SchemaArgs.Original.ToKebabCase()}\" option to set schema similar to expression from the command line.",
@@ -113,6 +113,7 @@ namespace PgRoutiner
                 $"- Use \"{DumpArgs.Alias}\" or \"--{DumpArgs.Original.ToKebabCase()}\" switch to redirect all outputs to the command line.");
             AddEntry(nameof(Connection), Value.Connection);
             AddEntry(nameof(SkipConnectionPrompt), Value.SkipConnectionPrompt);
+            AddEntry(nameof(DumpPgCommands), Value.DumpPgCommands);
             AddEntry(nameof(Schema), Value.Schema);
             AddEntry(nameof(Execute), Value.Execute);
             AddEntry(nameof(Dump), Value.Dump);
@@ -124,13 +125,15 @@ namespace PgRoutiner
 
             sb.AppendLine();
             AddSectionComment(
-                "Code generation general settings. Used in:", 
+                "Code generation general settings. Used in:",
                 null,
                 $"- Routines code generation.",
                 $"- CRUD code generation.");
             AddEntry(nameof(Namespace), Value.Namespace);
             AddEntry(nameof(UseRecords), Value.UseRecords);
             AddEntry(nameof(UseExpressionBody), Value.UseExpressionBody);
+            AddEntry(nameof(UseFileScopedNamespaces), Value.UseFileScopedNamespaces);
+            AddEntry(nameof(UseNullableStrings), Value.UseNullableStrings);
             AddEntry(nameof(Mapping), Value.Mapping);
             AddEntry(nameof(CustomModels), Value.CustomModels);
             AddEntry(nameof(ModelDir), Value.ModelDir);
@@ -146,7 +149,7 @@ namespace PgRoutiner
 
             sb.AppendLine();
             AddSectionComment(
-                "Routines data-access extensions code-generation", 
+                "Routines data-access extensions code-generation",
                 "https://github.com/vb-consulting/PgRoutiner/wiki/2.-WORKING-WITH-ROUTINES#routines-data-access-extensions-code-generation-settings",
                 $"- Use \"{RoutinesArgs.Alias}\" or \"--{RoutinesArgs.Original.ToKebabCase()}\" switch to run routines data-access extensions code-generation from the command line.",
                 $"- Use \"{OutputDirArgs.Alias}\" or \"--{OutputDirArgs.Original.ToKebabCase()}\" option to set the output dir for the generated code from the command line.",
@@ -164,11 +167,13 @@ namespace PgRoutiner
 
             sb.AppendLine();
             AddSectionComment(
-                "Unit tests code-generation settings", 
+                "Unit tests code-generation settings",
                 "https://github.com/vb-consulting/PgRoutiner/wiki/3.-WORKING-WITH-UNIT-TESTS#unit-tests-code-generation-settings",
                 $"- Use \"{UnitTestsArgs.Alias}\" or \"--{UnitTestsArgs.Original.ToKebabCase()}\" switch to run unit tests code-generation from the command line.",
                 $"- Use \"{UnitTestsDirArgs.Alias}\" or \"--{UnitTestsDirArgs.Original.ToKebabCase()}\" option to set the output dir for the generated unit test project from the command line.");
             AddEntry(nameof(UnitTests), Value.UnitTests);
+            AddEntry(nameof(UnitTestProjectTargetFramework), Value.UnitTestProjectTargetFramework);
+            AddEntry(nameof(UnitTestProjectLangVersion), Value.UnitTestProjectLangVersion);
             AddEntry(nameof(UnitTestsDir), Value.UnitTestsDir);
             AddEntry(nameof(UnitTestsAskRecreate), Value.UnitTestsAskRecreate);
             AddEntry(nameof(UnitTestsSkipSyncMethods), Value.UnitTestsSkipSyncMethods);
@@ -176,7 +181,7 @@ namespace PgRoutiner
 
             sb.AppendLine();
             AddSectionComment(
-                "Schema dump script settings", 
+                "Schema dump script settings",
                 "https://github.com/vb-consulting/PgRoutiner/wiki/4.-WORKING-WITH-SCHEMA-DUMP-SCRIPT#schema-dump-script-settings",
                 $"- Use \"{SchemaDumpArgs.Alias}\" or \"--{SchemaDumpArgs.Original.ToKebabCase()}\" switch to run schema script dump from the command line.",
                 $"- Use \"{SchemaDumpFileArgs.Alias}\" or \"--{SchemaDumpFileArgs.Original.ToKebabCase()}\" option to set generated schema file name from the command line.",
@@ -194,7 +199,7 @@ namespace PgRoutiner
 
             sb.AppendLine();
             AddSectionComment(
-                "Data dump script settings", 
+                "Data dump script settings",
                 "https://github.com/vb-consulting/PgRoutiner/wiki/5.-WORKING-WITH-DATA-DUMP-SCRIPT#data-dump-script-settings",
                 $"- Use \"{DataDumpArgs.Alias}\" or \"--{DataDumpArgs.Original.ToKebabCase()}\" switch to run data script dump from the command line.",
                 $"- Use \"{DataDumpFileArgs.Alias}\" or \"--{DataDumpFileArgs.Original.ToKebabCase()}\" option to set generated data script file name from the command line.",
@@ -228,7 +233,7 @@ namespace PgRoutiner
 
             sb.AppendLine();
             AddSectionComment(
-                "Markdown (MD) database dictionaries settings", 
+                "Markdown (MD) database dictionaries settings",
                 "https://github.com/vb-consulting/PgRoutiner/wiki/7.-WORKING-WITH-MARKDOWN-DATABASE-DICTIONARIES#markdown-md-database-dictionaries-settings",
                 $"- Use \"{MarkdownArgs.Alias}\" or \"--{MarkdownArgs.Original.ToKebabCase()}\" switch to run markdown (MD) database dictionary file from the command line.",
                 $"- Use \"{MdFileArgs.Alias}\" or \"--{MdFileArgs.Original.ToKebabCase()}\" option to set generated dictionary file name from the command line.",
@@ -245,17 +250,18 @@ namespace PgRoutiner
 
             sb.AppendLine();
             AddSectionComment(
-                "PSQL command-line utility settings", 
+                "PSQL command-line utility settings",
                 "https://github.com/vb-consulting/PgRoutiner/wiki/8.-WORKING-WITH-PSQL#psql-command-line-utility-settings",
                 $"- Use \"{PsqlArgs.Alias}\" or \"--{PsqlArgs.Original.ToKebabCase()}\" switch to open PSQL command-line utility from the command line.");
             AddEntry(nameof(Psql), Value.Psql);
             AddEntry(nameof(PsqlTerminal), Value.PsqlTerminal);
             AddEntry(nameof(PsqlCommand), Value.PsqlCommand);
+            AddEntry(nameof(PsqlFallback), Value.PsqlFallback);
             AddEntry(nameof(PsqlOptions), Value.PsqlOptions);
 
             sb.AppendLine();
             AddSectionComment(
-                "Diff scripts settings", 
+                "Diff scripts settings",
                 "https://github.com/vb-consulting/PgRoutiner/wiki/9.-WORKING-WITH-DIFF-SCRIPTS#diff-scripts-settings",
                 $"- Use \"{DiffArgs.Alias}\" or \"--{DiffArgs.Original.ToKebabCase()}\" switch to run diff script generation from the command line.",
                 $"- Use \"{DiffTargetArgs.Alias}\" or \"--{DiffTargetArgs.Original.ToKebabCase()}\" option to set target connection for the diff script generator from the command line.");
