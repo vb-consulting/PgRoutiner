@@ -1,28 +1,26 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using Norm;
-using Npgsql;
+using PgRoutiner.Builder.CodeBuilders.Crud;
+using PgRoutiner.DataAccess.Models;
 
-namespace PgRoutiner
+namespace PgRoutiner.DataAccess;
+
+public static partial class DataAccessConnectionExtensions
 {
-    public static partial class DataAccess
+    public static IEnumerable<IGrouping<(string Schema, string Name), PgColumnGroup>>
+        GetTableDefintions(this NpgsqlConnection connection, Settings settings)
     {
-        public static IEnumerable<IGrouping<(string Schema, string Name), PgColumnGroup>> 
-            GetTableDefintions(this NpgsqlConnection connection, Settings settings)
-        {
-            return connection.Read<(
-                string Schema, 
-                string Table, 
-                string Name, 
-                int Ord, 
-                string Default, 
-                string IsNullable, 
-                string DataType, 
-                string TypeUdtName,
-                string IsIdentity,
-                string ConstraintType)>(@$"
+        return connection.Read<(
+            string Schema,
+            string Table,
+            string Name,
+            int Ord,
+            string Default,
+            string IsNullable,
+            string DataType,
+            string TypeUdtName,
+            string IsIdentity,
+            string ConstraintType)>(@$"
 
             select 
                 t.table_schema, 
@@ -56,80 +54,79 @@ namespace PgRoutiner
                 c.ordinal_position
 
             ", ("schema", settings.Schema, DbType.AnsiString))
-            .Select(t => new PgColumnGroup
-            {
-                Schema = t.Schema,
-                Table = t.Table,
-                Name = t.Name,
-                Ordinal = t.Ord,
-                HasDefault = !string.IsNullOrEmpty(t.Default),
-                IsNullable = string.Equals(t.IsNullable, "YES"),
-                DataType = t.DataType,
-                Type = t.TypeUdtName,
-                IsArray = string.Equals(t.ConstraintType, "ARRAY"),
-                IsIdentity = string.Equals(t.IsIdentity, "YES"),
-                IsPk = string.Equals(t.ConstraintType, "PRIMARY KEY"),
-            })
-            .GroupBy(i => (i.Schema, i.Table));
-        }
-
-        public static int GetTableDefintionsCount(this NpgsqlConnection connection, Settings settings)
+        .Select(t => new PgColumnGroup
         {
-            int count = 0;
+            Schema = t.Schema,
+            Table = t.Table,
+            Name = t.Name,
+            Ordinal = t.Ord,
+            HasDefault = !string.IsNullOrEmpty(t.Default),
+            IsNullable = string.Equals(t.IsNullable, "YES"),
+            DataType = t.DataType,
+            Type = t.TypeUdtName,
+            IsArray = string.Equals(t.ConstraintType, "ARRAY"),
+            IsIdentity = string.Equals(t.IsIdentity, "YES"),
+            IsPk = string.Equals(t.ConstraintType, "PRIMARY KEY"),
+        })
+        .GroupBy(i => (i.Schema, i.Table));
+    }
 
-            foreach (var group in connection.GetTableDefintions(settings))
+    public static int GetTableDefintionsCount(this NpgsqlConnection connection, Settings settings)
+    {
+        int count = 0;
+
+        foreach (var group in connection.GetTableDefintions(settings))
+        {
+            var (schema, name) = group.Key;
+            if (CodeCrudBuilder.OptionContains(settings.CrudCreate, schema, name))
             {
-                var (schema, name) = group.Key;
-                if (CodeCrudBuilder.OptionContains(settings.CrudCreate, schema, name))
-                {
-                    count++;
-                }
-                if (CodeCrudBuilder.OptionContains(settings.CrudCreateOnConflictDoNothing, schema, name))
-                {
-                    count++;
-                }
-                if (CodeCrudBuilder.OptionContains(settings.CrudCreateOnConflictDoNothingReturning, schema, name))
-                {
-                    count++;
-                }
-                if (CodeCrudBuilder.OptionContains(settings.CrudCreateOnConflictDoUpdate, schema, name))
-                {
-                    count++;
-                }
-                if (CodeCrudBuilder.OptionContains(settings.CrudCreateOnConflictDoUpdateReturning, schema, name))
-                {
-                    count++;
-                }
-                if (CodeCrudBuilder.OptionContains(settings.CrudCreateReturning, schema, name))
-                {
-                    count++;
-                }
-                if (CodeCrudBuilder.OptionContains(settings.CrudUpdate, schema, name))
-                {
-                    count++;
-                }
-                if (CodeCrudBuilder.OptionContains(settings.CrudUpdateReturning, schema, name))
-                {
-                    count++;
-                }
-                if (CodeCrudBuilder.OptionContains(settings.CrudReadBy, schema, name))
-                {
-                    count++;
-                }
-                if (CodeCrudBuilder.OptionContains(settings.CrudReadAll, schema, name))
-                {
-                    count++;
-                }
-                if (CodeCrudBuilder.OptionContains(settings.CrudDeleteBy, schema, name))
-                {
-                    count++;
-                }
-                if (CodeCrudBuilder.OptionContains(settings.CrudDeleteByReturning, schema, name))
-                {
-                    count++;
-                }
+                count++;
             }
-            return count;
+            if (CodeCrudBuilder.OptionContains(settings.CrudCreateOnConflictDoNothing, schema, name))
+            {
+                count++;
+            }
+            if (CodeCrudBuilder.OptionContains(settings.CrudCreateOnConflictDoNothingReturning, schema, name))
+            {
+                count++;
+            }
+            if (CodeCrudBuilder.OptionContains(settings.CrudCreateOnConflictDoUpdate, schema, name))
+            {
+                count++;
+            }
+            if (CodeCrudBuilder.OptionContains(settings.CrudCreateOnConflictDoUpdateReturning, schema, name))
+            {
+                count++;
+            }
+            if (CodeCrudBuilder.OptionContains(settings.CrudCreateReturning, schema, name))
+            {
+                count++;
+            }
+            if (CodeCrudBuilder.OptionContains(settings.CrudUpdate, schema, name))
+            {
+                count++;
+            }
+            if (CodeCrudBuilder.OptionContains(settings.CrudUpdateReturning, schema, name))
+            {
+                count++;
+            }
+            if (CodeCrudBuilder.OptionContains(settings.CrudReadBy, schema, name))
+            {
+                count++;
+            }
+            if (CodeCrudBuilder.OptionContains(settings.CrudReadAll, schema, name))
+            {
+                count++;
+            }
+            if (CodeCrudBuilder.OptionContains(settings.CrudDeleteBy, schema, name))
+            {
+                count++;
+            }
+            if (CodeCrudBuilder.OptionContains(settings.CrudDeleteByReturning, schema, name))
+            {
+                count++;
+            }
         }
+        return count;
     }
 }

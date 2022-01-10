@@ -1,162 +1,159 @@
-﻿using System;
+﻿namespace PgRoutiner.Connection;
 
-namespace PgRoutiner
+public partial class ConnectionManager
 {
-    public partial class ConnectionManager
+    private string GetConnectionString()
     {
-        private string GetConnectionString()
+        Console.WriteLine();
+        var server = GetServer();
+        var port = GetPort();
+        var database = GetDatabase();
+        var user = GetUser();
+        var pass = GetPassword();
+        return $"{server}{database}{port}{user}{pass}";
+    }
+
+    private string GetUser(bool skipPrompt = false)
+    {
+        var env = Environment.GetEnvironmentVariable("PGUSER");
+        if (!string.IsNullOrEmpty(env) && skipPrompt)
         {
-            Console.WriteLine();
-            var server = GetServer();
-            var port = GetPort();
-            var database = GetDatabase();
-            var user = GetUser();
-            var pass = GetPassword();
-            return $"{server}{database}{port}{user}{pass}";
+            return $"User Id={env};";
         }
 
-        private string GetUser(bool skipPrompt = false)
+        if (env == null)
         {
-            var env = Environment.GetEnvironmentVariable("PGUSER");
-            if (!string.IsNullOrEmpty(env) && skipPrompt)
-            {
-                return $"User Id={env};";
-            }
+            env = "postgres";
+        }
+        Console.Write($"{name2} user [{env}]: ");
 
-            if (env == null)
-            {
-                env = "postgres";
-            }
-            Console.Write($"{name2} user [{env}]: ");
+        var result = Console.ReadLine();
+        if (string.IsNullOrEmpty(result))
+        {
+            result = env;
+        }
+        return $"User Id={result};";
+    }
 
-            var result = Console.ReadLine();
-            if (string.IsNullOrEmpty(result))
-            {
-                result = env;
-            }
-            return $"User Id={result};";
+    private string GetServer(bool skipPrompt = false)
+    {
+        var env = Environment.GetEnvironmentVariable("PGHOST");
+        if (env == null)
+        {
+            env = Environment.GetEnvironmentVariable("PGSERVER");
+        }
+        if (!string.IsNullOrEmpty(env) && skipPrompt)
+        {
+            return $"Server={env};";
         }
 
-        private string GetServer(bool skipPrompt = false)
+        if (env == null)
         {
-            var env = Environment.GetEnvironmentVariable("PGHOST");
-            if (env == null)
-            {
-                env = Environment.GetEnvironmentVariable("PGSERVER");
-            }
-            if (!string.IsNullOrEmpty(env) && skipPrompt)
-            {
-                return $"Server={env};";
-            }
+            env = "localhost";
+        }
+        Console.Write($"{name2} server [{env}]: ");
 
-            if (env == null)
-            {
-                env = "localhost";
-            }
-            Console.Write($"{name2} server [{env}]: ");
+        var result = Console.ReadLine();
+        if (string.IsNullOrEmpty(result))
+        {
+            result = env;
+        }
+        return $"Server={result};";
+    }
 
-            var result = Console.ReadLine();
-            if (string.IsNullOrEmpty(result))
-            {
-                result = env;
-            }
-            return $"Server={result};";
+    private string GetPort(bool skipPrompt = false)
+    {
+        var env = Environment.GetEnvironmentVariable("PGPORT");
+        if (!string.IsNullOrEmpty(env) && skipPrompt)
+        {
+            return $"Port={env};";
         }
 
-        private string GetPort(bool skipPrompt = false)
+        if (env == null)
         {
-            var env = Environment.GetEnvironmentVariable("PGPORT");
-            if (!string.IsNullOrEmpty(env) && skipPrompt)
-            {
-                return $"Port={env};";
-            }
+            env = "5432";
+        }
+        Console.Write($"{name2} port [{env}]: ");
 
-            if (env == null)
-            {
-                env = "5432";
-            }
-            Console.Write($"{name2} port [{env}]: ");
+        var result = Console.ReadLine();
+        if (string.IsNullOrEmpty(result))
+        {
+            result = env;
+        }
+        return $"Port={result};";
+    }
 
-            var result = Console.ReadLine();
-            if (string.IsNullOrEmpty(result))
-            {
-                result = env;
-            }
-            return $"Port={result};";
+    private string GetDatabase(bool skipPrompt = false)
+    {
+        var env = Environment.GetEnvironmentVariable("PGDATABASE");
+        if (env == null)
+        {
+            env = Environment.GetEnvironmentVariable("PGDB");
+        }
+        if (!string.IsNullOrEmpty(env) && skipPrompt)
+        {
+            return $"Db={env};";
         }
 
-        private string GetDatabase(bool skipPrompt = false)
+        if (env == null)
         {
-            var env = Environment.GetEnvironmentVariable("PGDATABASE");
-            if (env == null)
-            {
-                env = Environment.GetEnvironmentVariable("PGDB");
-            }
-            if (!string.IsNullOrEmpty(env) && skipPrompt)
-            {
-                return $"Db={env};";
-            }
+            env = "postgres";
+        }
+        Console.Write($"{name2} database [{env}]: ");
 
-            if (env == null)
-            {
-                env = "postgres";
-            }
-            Console.Write($"{name2} database [{env}]: ");
+        var result = Console.ReadLine();
+        if (string.IsNullOrEmpty(result))
+        {
+            result = env;
+        }
+        return $"Db={result};";
+    }
 
-            var result = Console.ReadLine();
-            if (string.IsNullOrEmpty(result))
-            {
-                result = env;
-            }
-            return $"Db={result};";
+    private string GetPassword(bool skipPrompt = false)
+    {
+        var env = Environment.GetEnvironmentVariable("PGPASSWORD");
+        if (env == null)
+        {
+            env = Environment.GetEnvironmentVariable("PGPASS");
+        }
+        if (!string.IsNullOrEmpty(env) && skipPrompt)
+        {
+            return $"Password={env};";
         }
 
-        private string GetPassword(bool skipPrompt = false)
+        if (env != null)
         {
-            var env = Environment.GetEnvironmentVariable("PGPASSWORD");
-            if (env == null)
-            {
-                env = Environment.GetEnvironmentVariable("PGPASS");
-            }
-            if (!string.IsNullOrEmpty(env) && skipPrompt)
-            {
-                return $"Password={env};";
-            }
-
-            if (env != null)
-            {
-                Console.Write($"{name2} password [environment var.]: ");
-            } 
-            else
-            {
-                Console.Write($"{name2} password: ");
-            }
-            var pass = string.Empty;
-
-            ConsoleKey key;
-            do
-            {
-                var keyInfo = Console.ReadKey(intercept: true);
-                key = keyInfo.Key;
-
-                if (key == ConsoleKey.Backspace && pass.Length > 0)
-                {
-                    pass = pass[0..^1];
-                    Console.Write("\b \b");
-            }
-                else if (!char.IsControl(keyInfo.KeyChar))
-                {
-                    pass += keyInfo.KeyChar;
-                    Console.Write("*");
-                }
-            } while (key != ConsoleKey.Enter);
-
-            Console.WriteLine();
-            if (string.IsNullOrEmpty(pass) && !string.IsNullOrEmpty(env))
-            {
-                return $"Password={env};";
-            }
-            return $"Password={pass};";
+            Console.Write($"{name2} password [environment var.]: ");
         }
+        else
+        {
+            Console.Write($"{name2} password: ");
+        }
+        var pass = string.Empty;
+
+        ConsoleKey key;
+        do
+        {
+            var keyInfo = Console.ReadKey(intercept: true);
+            key = keyInfo.Key;
+
+            if (key == ConsoleKey.Backspace && pass.Length > 0)
+            {
+                pass = pass[0..^1];
+                Console.Write("\b \b");
+            }
+            else if (!char.IsControl(keyInfo.KeyChar))
+            {
+                pass += keyInfo.KeyChar;
+                Console.Write("*");
+            }
+        } while (key != ConsoleKey.Enter);
+
+        Console.WriteLine();
+        if (string.IsNullOrEmpty(pass) && !string.IsNullOrEmpty(env))
+        {
+            return $"Password={env};";
+        }
+        return $"Password={pass};";
     }
 }

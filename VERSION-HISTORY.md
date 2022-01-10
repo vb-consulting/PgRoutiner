@@ -1,5 +1,7 @@
 ﻿# VERSION HISTORY
 
+## 4.0.0
+
 ## 3.6.2
 
 Upgrade to .NET6

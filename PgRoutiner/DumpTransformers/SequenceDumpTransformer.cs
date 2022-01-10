@@ -1,92 +1,89 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using PgRoutiner.DataAccess.Models;
 
-namespace PgRoutiner
+namespace PgRoutiner.DumpTransformers;
+
+public class SequenceDumpTransformer : DumpTransformer
 {
-    public partial class SequenceDumpTransformer : DumpTransformer
+    public PgItem Item { get; }
+
+    public SequenceDumpTransformer(PgItem item, List<string> lines) : base(lines)
     {
-        public PgItem Item { get; }
-        
-        public SequenceDumpTransformer(PgItem item, List<string> lines) : base(lines)
+        this.Item = item;
+    }
+
+    public SequenceDumpTransformer BuildLines(
+        bool ignorePrepend = false,
+        Action<string> lineCallback = null)
+    {
+        Prepend.Clear();
+        Create.Clear();
+        Append.Clear();
+
+        if (lineCallback == null)
         {
-            this.Item = item;
+            lineCallback = s => { };
         }
 
-        public SequenceDumpTransformer BuildLines(
-            bool ignorePrepend = false,
-            Action<string> lineCallback = null)
-        {
-            Prepend.Clear();
-            Create.Clear();
-            Append.Clear();
+        bool isPrepend = true;
+        bool isCreate = false;
+        bool isAppend = true;
 
-            if (lineCallback == null)
+        var startSequence = $"CREATE SEQUENCE ";
+
+        string statement = "";
+        const string endSequence = ";";
+
+        foreach (var l in lines)
+        {
+            var line = l;
+            if (!isCreate && (line.StartsWith("--") || line.StartsWith("SET ") || line.StartsWith("SELECT ")))
             {
-                lineCallback = s => { };
+                continue;
             }
 
-            bool isPrepend = true;
-            bool isCreate = false;
-            bool isAppend = true;
-
-            var startSequence = $"CREATE SEQUENCE ";
-
-            string statement = "";
-            const string endSequence = ";";
-
-            foreach (var l in lines)
+            var createStart = line.StartsWith(startSequence);
+            var createEnd = line.EndsWith(endSequence);
+            if (createStart)
             {
-                var line = l;
-                if (!isCreate && (line.StartsWith("--") || line.StartsWith("SET ") || line.StartsWith("SELECT ")))
+                isPrepend = false;
+                isCreate = true;
+                isAppend = false;
+                if (Create.Count > 0)
                 {
-                    continue;
+                    Create.Add("");
                 }
-
-                var createStart = line.StartsWith(startSequence);
-                var createEnd = line.EndsWith(endSequence);
-                if (createStart)
+            }
+            if (isCreate)
+            {
+                Create.Add(line);
+                if (createEnd)
                 {
                     isPrepend = false;
-                    isCreate = true;
-                    isAppend = false;
-                    if (Create.Count > 0)
-                    {
-                        Create.Add("");
-                    }
+                    isCreate = false;
+                    isAppend = true;
                 }
-                if (isCreate)
+                if (!createStart && !createEnd && !isAppend)
                 {
-                    Create.Add(line);
-                    if (createEnd)
-                    {
-                        isPrepend = false;
-                        isCreate = false;
-                        isAppend = true;
-                    }
-                    if (!createStart && !createEnd && !isAppend)
-                    {
-                        lineCallback(line);
-                    }
-                }
-                else
-                {
-                    statement = string.Concat(statement, statement == "" ? "" : Environment.NewLine, line);
-                    if (statement.EndsWith(";"))
-                    {
-                        if (isPrepend && !ignorePrepend)
-                        {
-                            Prepend.Add(statement);
-                        }
-                        else if (isAppend)
-                        {
-                            Append.Add(statement);
-                        }
-                        statement = "";
-                    }
+                    lineCallback(line);
                 }
             }
-            return this;
+            else
+            {
+                statement = string.Concat(statement, statement == "" ? "" : Environment.NewLine, line);
+                if (statement.EndsWith(";"))
+                {
+                    if (isPrepend && !ignorePrepend)
+                    {
+                        Prepend.Add(statement);
+                    }
+                    else if (isAppend)
+                    {
+                        Append.Add(statement);
+                    }
+                    statement = "";
+                }
+            }
         }
+        return this;
     }
 }

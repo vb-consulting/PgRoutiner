@@ -1,17 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using Norm;
-using Npgsql;
+using PgRoutiner.DataAccess.Models;
 
-namespace PgRoutiner
+namespace PgRoutiner.DataAccess;
+
+public static partial class DataAccessConnectionExtensions
 {
-    public static partial class DataAccess
+    public static IEnumerable<PgItem> GetSequences(this NpgsqlConnection connection, Settings settings, string skipSimilar = null)
     {
-        public static IEnumerable<PgItem> GetSequences(this NpgsqlConnection connection, Settings settings, string skipSimilar = null)
-        {
-            return connection.Read<(string Schema, string Name)>(@$"
+        return connection.Read<(string Schema, string Name)>(@$"
 
                 select
                     s.sequence_schema,
@@ -24,11 +21,10 @@ namespace PgRoutiner
                     and (   @skipSimilar is null or (sequence_name not similar to @skipSimilar)   )
 
             ", ("schema", settings.Schema, DbType.AnsiString), ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgItem
-            {
-                Schema = t.Schema,
-                Name = t.Name,
-                Type = PgType.Sequence
-            });
-        }
+        {
+            Schema = t.Schema,
+            Name = t.Name,
+            Type = PgType.Sequence
+        });
     }
 }

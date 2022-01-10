@@ -1,158 +1,155 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using PgRoutiner.DataAccess.Models;
+using PgRoutiner.DumpTransformers;
 
-namespace PgRoutiner
+namespace PgRoutiner.Builder.DiffBuilder;
+
+public partial class PgDiffBuilder
 {
-    public partial class PgDiffBuilder
-    { 
-        private readonly Dictionary<Routine, DumpTransformer> routinesToUpdate = new();
+    private readonly Dictionary<Routine, DumpTransformer> routinesToUpdate = new();
 
-        private void BuildDropRoutinesNotInSource(StringBuilder sb)
+    private void BuildDropRoutinesNotInSource(StringBuilder sb)
+    {
+        var header = false;
+        void AddDropView(Routine key, PgRoutineGroup value)
         {
-            var header = false;
-            void AddDropView(Routine key, PgRoutineGroup value)
+            if (!header)
             {
-                if (!header)
-                {
-                    AddComment(sb, "#region DROP NON EXISTING ROUTINES");
-                    header = true;
-                }
-                sb.AppendLine($"DROP {value.RoutineType.ToUpper()} {key.Schema}.\"{key.Name}\"{key.Params};");
+                AddComment(sb, "#region DROP NON EXISTING ROUTINES");
+                header = true;
             }
-            routinesToUpdate.Clear();
-            foreach (var (routineKey, targetValue) in targetRoutines)
-            {
-                if (!sourceRoutines.TryGetValue(routineKey, out var sourceValue))
-                {
-                    AddDropView(routineKey, targetValue);
-                }
-                else
-                {
-                    var item = new PgItem
-                    {
-                        Schema = routineKey.Schema,
-                        Name = routineKey.Name,
-                        TypeName = sourceValue.RoutineType.ToUpper()
-                    };
-                    var sourceTransformer = new RoutineDumpTransformer(item, SourceLines)
-                        .BuildLines(
-                            paramsString: routineKey.Params,
-                            dbObjectsCreateOrReplace: true,
-                            ignorePrepend: true,
-                            lineCallback: null);
-                    item.TypeName = targetValue.RoutineType.ToUpper();
-                    var targetTransformer = new RoutineDumpTransformer(item, TargetLines)
-                        .BuildLines(
-                            paramsString: routineKey.Params,
-                            dbObjectsCreateOrReplace: true,
-                            ignorePrepend: true,
-                            lineCallback: null);
-                    if (sourceTransformer.Equals(targetTransformer))
-                    {
-                        continue;
-                    }
-                    AddDropView(routineKey, sourceValue);
-                    routinesToUpdate.Add(routineKey, sourceTransformer);
-                }
-            }
-            if (header)
-            {
-                AddComment(sb, "#endregion DROP NON EXISTING ROUTINES");
-            }
+            sb.AppendLine($"DROP {value.RoutineType.ToUpper()} {key.Schema}.\"{key.Name}\"{key.Params};");
         }
-
-        private void BuildCreateRoutinesNotInTarget(StringBuilder sb)
+        routinesToUpdate.Clear();
+        foreach (var (routineKey, targetValue) in targetRoutines)
         {
-            var routinesToInclude = sourceRoutines.Keys.Where(k => routinesToUpdate.Keys.Contains(k) || !targetRoutines.Keys.Contains(k)).ToList();
-            Dictionary<Routine, (string content, HashSet<Routine> references)> result = new();
-
-            foreach (var routineKey in routinesToInclude)
+            if (!sourceRoutines.TryGetValue(routineKey, out var sourceValue))
             {
-                var routineValue = sourceRoutines[routineKey];
-                HashSet<Routine> references = new();
-                var isSql = string.Equals(routineValue.Language, "sql", StringComparison.InvariantCultureIgnoreCase);
-                if (routinesToUpdate.TryGetValue(routineKey, out var dumpTransformer))
-                {
-                    if (isSql)
-                    {
-                        foreach (var line in dumpTransformer.Create.Union(dumpTransformer.Append))
-                        {
-                            RoutineLineCallback(line, routineKey, routinesToInclude, references);
-                        }
-                    }
-                    result.Add(routineKey, (dumpTransformer.ToString(), references));
-                }
-                else
-                {
-                    var item = new PgItem
-                    {
-                        Schema = routineKey.Schema,
-                        Name = routineKey.Name,
-                        TypeName = routineValue.RoutineType.ToUpper()
-                    };
-                    var content = new RoutineDumpTransformer(item, SourceLines)
-                        .BuildLines(
-                            paramsString: routineKey.Params,
-                            dbObjectsCreateOrReplace: true,
-                            ignorePrepend: true,
-                            lineCallback: isSql ? line => RoutineLineCallback(line, routineKey, routinesToInclude, references) : null)
-                        .ToString();
-                    result.Add(routineKey, (content, references));
-                }
+                AddDropView(routineKey, targetValue);
             }
-
-            HashSet<Routine> added = new();
-            void AddRoutineRecursively(Routine key, (string content, HashSet<Routine> references) value)
+            else
             {
-                if (added.Contains(key))
+                var item = new PgItem
                 {
-                    return;
-                }
-                foreach(var reference in value.references)
-                {
-                    AddRoutineRecursively(reference, result[reference]);
-                }
-                sb.AppendLine(value.content);
-                added.Add(key);
-            }
-
-            var header = false;
-            foreach (var routine in result)
-            {
-                if (!header)
-                {
-                    AddComment(sb, "#region CREATE NON EXISTING ROUTINES");
-                    header = true;
-                }
-                AddRoutineRecursively(routine.Key, routine.Value);
-            }
-            if (header)
-            {
-                AddComment(sb, "#endregion CREATE NON EXISTING ROUTINES");
-            }
-        }
-
-        private void RoutineLineCallback(string line, Routine routineKey, List<Routine> routinesToInclude, HashSet<Routine> references)
-        {
-            foreach (var reference in routinesToInclude)
-            {
-                if (reference == routineKey || references.Contains(reference))
+                    Schema = routineKey.Schema,
+                    Name = routineKey.Name,
+                    TypeName = sourceValue.RoutineType.ToUpper()
+                };
+                var sourceTransformer = new RoutineDumpTransformer(item, SourceLines)
+                    .BuildLines(
+                        paramsString: routineKey.Params,
+                        dbObjectsCreateOrReplace: true,
+                        ignorePrepend: true,
+                        lineCallback: null);
+                item.TypeName = targetValue.RoutineType.ToUpper();
+                var targetTransformer = new RoutineDumpTransformer(item, TargetLines)
+                    .BuildLines(
+                        paramsString: routineKey.Params,
+                        dbObjectsCreateOrReplace: true,
+                        ignorePrepend: true,
+                        lineCallback: null);
+                if (sourceTransformer.Equals(targetTransformer))
                 {
                     continue;
                 }
+                AddDropView(routineKey, sourceValue);
+                routinesToUpdate.Add(routineKey, sourceTransformer);
+            }
+        }
+        if (header)
+        {
+            AddComment(sb, "#endregion DROP NON EXISTING ROUTINES");
+        }
+    }
 
-                var search = $"{reference.Name}(";
-                var searhIndex = line.IndexOf(search);
-                if (searhIndex > -1)
+    private void BuildCreateRoutinesNotInTarget(StringBuilder sb)
+    {
+        var routinesToInclude = sourceRoutines.Keys.Where(k => routinesToUpdate.Keys.Contains(k) || !targetRoutines.Keys.Contains(k)).ToList();
+        Dictionary<Routine, (string content, HashSet<Routine> references)> result = new();
+
+        foreach (var routineKey in routinesToInclude)
+        {
+            var routineValue = sourceRoutines[routineKey];
+            HashSet<Routine> references = new();
+            var isSql = string.Equals(routineValue.Language, "sql", StringComparison.InvariantCultureIgnoreCase);
+            if (routinesToUpdate.TryGetValue(routineKey, out var dumpTransformer))
+            {
+                if (isSql)
                 {
-                    searhIndex += search.Length;
-                    var paramsSubstring = line[searhIndex..line.IndexOf(')', searhIndex)];
-                    if (paramsSubstring.Split(',').Length == sourceRoutines[reference].Parameters.Count)
+                    foreach (var line in dumpTransformer.Create.Union(dumpTransformer.Append))
                     {
-                        references.Add(reference);
+                        RoutineLineCallback(line, routineKey, routinesToInclude, references);
                     }
+                }
+                result.Add(routineKey, (dumpTransformer.ToString(), references));
+            }
+            else
+            {
+                var item = new PgItem
+                {
+                    Schema = routineKey.Schema,
+                    Name = routineKey.Name,
+                    TypeName = routineValue.RoutineType.ToUpper()
+                };
+                var content = new RoutineDumpTransformer(item, SourceLines)
+                    .BuildLines(
+                        paramsString: routineKey.Params,
+                        dbObjectsCreateOrReplace: true,
+                        ignorePrepend: true,
+                        lineCallback: isSql ? line => RoutineLineCallback(line, routineKey, routinesToInclude, references) : null)
+                    .ToString();
+                result.Add(routineKey, (content, references));
+            }
+        }
+
+        HashSet<Routine> added = new();
+        void AddRoutineRecursively(Routine key, (string content, HashSet<Routine> references) value)
+        {
+            if (added.Contains(key))
+            {
+                return;
+            }
+            foreach (var reference in value.references)
+            {
+                AddRoutineRecursively(reference, result[reference]);
+            }
+            sb.AppendLine(value.content);
+            added.Add(key);
+        }
+
+        var header = false;
+        foreach (var routine in result)
+        {
+            if (!header)
+            {
+                AddComment(sb, "#region CREATE NON EXISTING ROUTINES");
+                header = true;
+            }
+            AddRoutineRecursively(routine.Key, routine.Value);
+        }
+        if (header)
+        {
+            AddComment(sb, "#endregion CREATE NON EXISTING ROUTINES");
+        }
+    }
+
+    private void RoutineLineCallback(string line, Routine routineKey, List<Routine> routinesToInclude, HashSet<Routine> references)
+    {
+        foreach (var reference in routinesToInclude)
+        {
+            if (reference == routineKey || references.Contains(reference))
+            {
+                continue;
+            }
+
+            var search = $"{reference.Name}(";
+            var searhIndex = line.IndexOf(search);
+            if (searhIndex > -1)
+            {
+                searhIndex += search.Length;
+                var paramsSubstring = line[searhIndex..line.IndexOf(')', searhIndex)];
+                if (paramsSubstring.Split(',').Length == sourceRoutines[reference].Parameters.Count)
+                {
+                    references.Add(reference);
                 }
             }
         }

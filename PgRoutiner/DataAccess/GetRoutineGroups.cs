@@ -1,29 +1,26 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using Norm;
-using Npgsql;
 using Newtonsoft.Json;
+using PgRoutiner.DataAccess.Models;
 
-namespace PgRoutiner
+namespace PgRoutiner.DataAccess;
+
+public static partial class DataAccessConnectionExtensions
 {
-    public static partial class DataAccess
+    public static IEnumerable<IGrouping<(string Schema, string Name), PgRoutineGroup>> GetRoutineGroups(
+        this NpgsqlConnection connection, Settings settings, bool all = true, string skipSimilar = null)
     {
-        public static IEnumerable<IGrouping<(string Schema, string Name), PgRoutineGroup>> GetRoutineGroups(
-            this NpgsqlConnection connection, Settings settings, bool all = true, string skipSimilar = null)
-        {
-            return connection.Read<(
-                uint Oid,
-                string SpecificSchema,
-                string SpecificName,
-                string RoutineName,
-                string Description,
-                string Language,
-                string RoutineType,
-                string TypeUdtName,
-                string DataType,
-                string Parameters)>(@$"
+        return connection.Read<(
+            uint Oid,
+            string SpecificSchema,
+            string SpecificName,
+            string RoutineName,
+            string Description,
+            string Language,
+            string RoutineType,
+            string TypeUdtName,
+            string DataType,
+            string Parameters)>(@$"
 
                 select 
                     proc.oid,
@@ -86,24 +83,23 @@ namespace PgRoutiner
                 order by 
                     r.routine_name
 
-            ", 
-            ("schema", settings.Schema, DbType.AnsiString),
-            ("notSimilarTo", settings.NotSimilarTo, DbType.AnsiString),
-            ("similarTo", settings.SimilarTo, DbType.AnsiString),
-            ("all", all, DbType.Boolean), 
-            ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgRoutineGroup
-            {
-                Oid = t.Oid,
-                SpecificSchema = t.SpecificSchema,
-                SpecificName = t.SpecificName,
-                RoutineName = t.RoutineName,
-                Description = t.Description,
-                Language = t.Language,
-                RoutineType = t.RoutineType,
-                TypeUdtName = t.TypeUdtName,
-                DataType = t.DataType,
-                Parameters = JsonConvert.DeserializeObject<IList<PgParameter>>(t.Parameters)
-            }).GroupBy(i => (i.SpecificSchema, i.RoutineName));
-        }
+            ",
+        ("schema", settings.Schema, DbType.AnsiString),
+        ("notSimilarTo", settings.NotSimilarTo, DbType.AnsiString),
+        ("similarTo", settings.SimilarTo, DbType.AnsiString),
+        ("all", all, DbType.Boolean),
+        ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgRoutineGroup
+        {
+            Oid = t.Oid,
+            SpecificSchema = t.SpecificSchema,
+            SpecificName = t.SpecificName,
+            RoutineName = t.RoutineName,
+            Description = t.Description,
+            Language = t.Language,
+            RoutineType = t.RoutineType,
+            TypeUdtName = t.TypeUdtName,
+            DataType = t.DataType,
+            Parameters = JsonConvert.DeserializeObject<IList<PgParameter>>(t.Parameters)
+        }).GroupBy(i => (i.SpecificSchema, i.RoutineName));
     }
 }

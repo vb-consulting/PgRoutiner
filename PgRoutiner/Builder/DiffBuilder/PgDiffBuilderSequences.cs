@@ -1,50 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using PgRoutiner.DumpTransformers;
 
-namespace PgRoutiner
+namespace PgRoutiner.Builder.DiffBuilder;
+
+public partial class PgDiffBuilder
 {
-    public partial class PgDiffBuilder
+    private void BuildDropSeqsNotInSource(StringBuilder sb)
     {
-        private void BuildDropSeqsNotInSource(StringBuilder sb)
+        var header = false;
+        foreach (var domainKey in targetSeqs.Keys.Where(k => !sourceSeqs.Keys.Contains(k)))
         {
-            var header = false;
-            foreach (var domainKey in targetSeqs.Keys.Where(k => !sourceSeqs.Keys.Contains(k)))
+            if (!header)
             {
-                if (!header)
-                {
-                    AddComment(sb, "#region DROP NON EXISTING SEQUENCES");
-                    header = true;
-                }
-                sb.AppendLine($"DROP SEQUENCE {domainKey.Schema}.\"{domainKey.Name}\";");
+                AddComment(sb, "#region DROP NON EXISTING SEQUENCES");
+                header = true;
             }
-            if (header)
-            {
-                AddComment(sb, "#endregion DROP NON EXISTING SEQUENCES");
-            }
+            sb.AppendLine($"DROP SEQUENCE {domainKey.Schema}.\"{domainKey.Name}\";");
         }
-
-        private void BuildCreateSeqsNotInTarget(StringBuilder sb)
+        if (header)
         {
-            var header = false;
-            foreach (var domainKey in sourceSeqs.Keys.Where(k => !targetSeqs.Keys.Contains(k)))
+            AddComment(sb, "#endregion DROP NON EXISTING SEQUENCES");
+        }
+    }
+
+    private void BuildCreateSeqsNotInTarget(StringBuilder sb)
+    {
+        var header = false;
+        foreach (var domainKey in sourceSeqs.Keys.Where(k => !targetSeqs.Keys.Contains(k)))
+        {
+            if (!header)
             {
-                if (!header)
-                {
-                    AddComment(sb, "#region CREATE NON EXISTING SEQUENCES");
-                    header = true;
-                }
-                var item = sourceSeqs[domainKey];
-                var content = new SequenceDumpTransformer(item, sourceBuilder.GetRawTableDumpLines(item, settings.DiffPrivileges))
-                        .BuildLines(ignorePrepend: true)
-                        .ToString();
-                sb.AppendLine(content.ToString());
+                AddComment(sb, "#region CREATE NON EXISTING SEQUENCES");
+                header = true;
             }
-            if (header)
-            {
-                AddComment(sb, "#endregion CREATE NON EXISTING SEQUENCES");
-            }
+            var item = sourceSeqs[domainKey];
+            var content = new SequenceDumpTransformer(item, sourceBuilder.GetRawTableDumpLines(item, settings.DiffPrivileges))
+                    .BuildLines(ignorePrepend: true)
+                    .ToString();
+            sb.AppendLine(content.ToString());
+        }
+        if (header)
+        {
+            AddComment(sb, "#endregion CREATE NON EXISTING SEQUENCES");
         }
     }
 }

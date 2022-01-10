@@ -1,18 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Data;
-using Norm;
-using Npgsql;
+﻿using Norm;
 using NpgsqlTypes;
 
-namespace PgRoutiner
+namespace PgRoutiner.DataAccess;
+
+public static partial class DataAccessConnectionExtensions
 {
-    public static partial class DataAccess
+    public static IEnumerable<string> GetTablesThatDontExist(this NpgsqlConnection connection, IEnumerable<string> tableNames)
     {
-        public static IEnumerable<string> GetTablesThatDontExist(this NpgsqlConnection connection, IEnumerable<string> tableNames)
-        {
-            return connection.Read<string>(@$"
+        return connection.Read<string>(@$"
 
             select 
                 n
@@ -28,6 +23,5 @@ namespace PgRoutiner
                  t.table_name is null
 
             ", ("tables", tableNames, NpgsqlDbType.Varchar | NpgsqlDbType.Array));
-        }
     }
 }

@@ -1,104 +1,101 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using PgRoutiner.DataAccess.Models;
 
-namespace PgRoutiner
+namespace PgRoutiner.DumpTransformers;
+
+public partial class TypeDumpTransformer : DumpTransformer
 {
-    public partial class TypeDumpTransformer : DumpTransformer
+    public PgItem Item { get; }
+
+    public TypeDumpTransformer(PgItem item, List<string> lines) : base(lines)
     {
-        public PgItem Item { get; }
-        
-        public TypeDumpTransformer(PgItem item, List<string> lines) : base(lines)
+        this.Item = item;
+    }
+
+    public TypeDumpTransformer BuildLines(
+        bool ignorePrepend = false,
+        Action<string> lineCallback = null)
+    {
+        Prepend.Clear();
+        Create.Clear();
+        Append.Clear();
+
+        if (lineCallback == null)
         {
-            this.Item = item;
+            lineCallback = s => { };
         }
 
-        public TypeDumpTransformer BuildLines(
-            bool ignorePrepend = false,
-            Action<string> lineCallback = null)
+        bool isPrepend = true;
+        bool isCreate = false;
+        bool isAppend = true;
+
+        var name1 = $"{Item.Schema}.{Item.Name}";
+        var startSequence1 = $"CREATE TYPE {name1} AS ";
+
+        string statement = "";
+        const string endSequence = ";";
+
+        bool shouldContinue(string line)
         {
-            Prepend.Clear();
-            Create.Clear();
-            Append.Clear();
+            return !isCreate && string.IsNullOrEmpty(statement) &&
+                !line.Contains(string.Concat(name1, ";")) &&
+                !line.Contains(string.Concat(name1, " "));
+        }
 
-            if (lineCallback == null)
+        foreach (var l in lines)
+        {
+            var line = l;
+            if (!isCreate && (line.StartsWith("--") || line.StartsWith("SET ") || line.StartsWith("SELECT ")))
             {
-                lineCallback = s => { };
+                continue;
+            }
+            if (shouldContinue(line))
+            {
+                continue;
             }
 
-            bool isPrepend = true;
-            bool isCreate = false;
-            bool isAppend = true;
-
-            var name1 = $"{Item.Schema}.{Item.Name}";
-            var startSequence1 = $"CREATE TYPE {name1} AS ";
-
-            string statement = "";
-            const string endSequence = ";";
-
-            bool shouldContinue(string line)
+            var createStart = line.StartsWith(startSequence1);
+            var createEnd = line.EndsWith(endSequence);
+            if (createStart)
             {
-                return !isCreate && string.IsNullOrEmpty(statement) &&
-                    !line.Contains(string.Concat(name1, ";")) &&
-                    !line.Contains(string.Concat(name1, " "));
+                isPrepend = false;
+                isCreate = true;
+                isAppend = false;
+                if (Create.Count > 0)
+                {
+                    Create.Add("");
+                }
             }
-
-            foreach (var l in lines)
+            if (isCreate)
             {
-                var line = l;
-                if (!isCreate && (line.StartsWith("--") || line.StartsWith("SET ") || line.StartsWith("SELECT ")))
-                {
-                    continue;
-                }
-                if (shouldContinue(line))
-                {
-                    continue;
-                }
-
-                var createStart = line.StartsWith(startSequence1);
-                var createEnd = line.EndsWith(endSequence);
-                if (createStart)
+                Create.Add(line);
+                if (createEnd)
                 {
                     isPrepend = false;
-                    isCreate = true;
-                    isAppend = false;
-                    if (Create.Count > 0)
-                    {
-                        Create.Add("");
-                    }
+                    isCreate = false;
+                    isAppend = true;
                 }
-                if (isCreate)
+                if (!createStart && !createEnd && !isAppend)
                 {
-                    Create.Add(line);
-                    if (createEnd)
-                    {
-                        isPrepend = false;
-                        isCreate = false;
-                        isAppend = true;
-                    }
-                    if (!createStart && !createEnd && !isAppend)
-                    {
-                        lineCallback(line);
-                    }
-                }
-                else
-                {
-                    statement = string.Concat(statement, statement == "" ? "" : Environment.NewLine, line);
-                    if (statement.EndsWith(";"))
-                    {
-                        if (isPrepend && !ignorePrepend)
-                        {
-                            Prepend.Add(statement);
-                        }
-                        else if (isAppend)
-                        {
-                            Append.Add(statement);
-                        }
-                        statement = "";
-                    }
+                    lineCallback(line);
                 }
             }
-            return this;
+            else
+            {
+                statement = string.Concat(statement, statement == "" ? "" : Environment.NewLine, line);
+                if (statement.EndsWith(";"))
+                {
+                    if (isPrepend && !ignorePrepend)
+                    {
+                        Prepend.Add(statement);
+                    }
+                    else if (isAppend)
+                    {
+                        Append.Add(statement);
+                    }
+                    statement = "";
+                }
+            }
         }
+        return this;
     }
 }

@@ -1,15 +1,13 @@
-﻿using System.Linq;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using Norm;
-using Npgsql;
+using PgRoutiner.DataAccess.Models;
 
-namespace PgRoutiner
+namespace PgRoutiner.DataAccess;
+
+public static partial class DataAccessConnectionExtensions
 {
-    public static partial class DataAccess
-    {
-        public static IEnumerable<RoutineComment> GetRoutineComments(this NpgsqlConnection connection, Settings settings, string schema) =>
-            connection.Read<(string Type, string Name, string Signature, string Returns, string Language, string Comment)>(@"
+    public static IEnumerable<RoutineComment> GetRoutineComments(this NpgsqlConnection connection, Settings settings, string schema) =>
+        connection.Read<(string Type, string Name, string Signature, string Returns, string Language, string Comment)>(@"
 
                 select
                     lower(r.routine_type) as type,
@@ -59,18 +57,17 @@ namespace PgRoutiner
                     r.data_type, r.type_udt_catalog, r.type_udt_schema, r.type_udt_name,
                     pgdesc.description
             ",
-                ("schema", schema, DbType.AnsiString),
-                ("notSimilarTo", settings.MdNotSimilarTo, DbType.AnsiString),
-                ("similarTo", settings.MdSimilarTo, DbType.AnsiString))
+            ("schema", schema, DbType.AnsiString),
+            ("notSimilarTo", settings.MdNotSimilarTo, DbType.AnsiString),
+            ("similarTo", settings.MdSimilarTo, DbType.AnsiString))
 
-            .Select(t => new RoutineComment
-            {
-                Comment = t.Comment,
-                Language = t.Language,
-                Name = t.Name,
-                Returns = t.Returns,
-                Signature = t.Signature,
-                Type = t.Type
-            });
-    }
+        .Select(t => new RoutineComment
+        {
+            Comment = t.Comment,
+            Language = t.Language,
+            Name = t.Name,
+            Returns = t.Returns,
+            Signature = t.Signature,
+            Type = t.Type
+        });
 }

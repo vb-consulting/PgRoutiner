@@ -343,3 +343,5 @@ healthchecksdb
 /PgRoutiner/Test
 /PgRoutinerTests
 /PgRoutiner/_exe
+
+/PgRoutinerUserInterface

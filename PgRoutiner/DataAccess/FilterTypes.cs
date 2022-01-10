@@ -1,21 +1,18 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using Norm;
-using Npgsql;
+using PgRoutiner.DataAccess.Models;
 
-namespace PgRoutiner
+namespace PgRoutiner.DataAccess;
+
+public static partial class DataAccessConnectionExtensions
 {
-    public static partial class DataAccess
+    public static IEnumerable<PgItem> FilterTypes(this NpgsqlConnection connection, List<PgItem> types, Settings settings, string skipSimilar = null)
     {
-        public static IEnumerable<PgItem> FilterTypes(this NpgsqlConnection connection, List<PgItem> types, Settings settings, string skipSimilar = null)
+        if (!types.Any())
         {
-            if (!types.Any())
-            {
-                return Enumerable.Empty<PgItem>();
-            }
-            return connection.Read<(string Schema, string Name)>(@$"
+            return Enumerable.Empty<PgItem>();
+        }
+        return connection.Read<(string Schema, string Name)>(@$"
 
                 select 
                     schema, name
@@ -33,11 +30,10 @@ namespace PgRoutiner
                     and (   @skipSimilar is null or (sub.name not similar to @skipSimilar)   )
                 
                 ", ("schema", settings.Schema, DbType.AnsiString), ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgItem
-                {
-                    Schema = t.Schema,
-                    Name = t.Name,
-                    Type = PgType.Type
-                });
-        }
+        {
+            Schema = t.Schema,
+            Name = t.Name,
+            Type = PgType.Type
+        });
     }
 }

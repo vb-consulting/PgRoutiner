@@ -1,14 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using Norm;
-using Npgsql;
+using PgRoutiner.DataAccess.Models;
 
-namespace PgRoutiner
+namespace PgRoutiner.DataAccess;
+
+public static partial class DataAccessConnectionExtensions
 {
-    public static partial class DataAccess
-    {
-        public static IEnumerable<PgReturns> GetRoutineReturnsRecord(this NpgsqlConnection connection, PgRoutineGroup routine) =>
-            connection.Read<PgReturns>(@"
+    public static IEnumerable<PgReturns> GetRoutineReturnsRecord(this NpgsqlConnection connection, PgRoutineGroup routine) =>
+        connection.Read<PgReturns>(@"
 
             select 
                 p.ordinal_position as ordinal,
@@ -27,7 +26,6 @@ namespace PgRoutiner
                 p.ordinal_position 
 
             ",
-                ("specificName", routine.SpecificName, DbType.AnsiString),
-                ("specificSchema", routine.SpecificSchema, DbType.AnsiString));
-    }
+            ("specificName", routine.SpecificName, DbType.AnsiString),
+            ("specificSchema", routine.SpecificSchema, DbType.AnsiString));
 }

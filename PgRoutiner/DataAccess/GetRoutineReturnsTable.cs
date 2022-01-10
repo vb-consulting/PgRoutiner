@@ -1,25 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Linq;
+﻿using System.Data;
 using Norm;
-using Npgsql;
+using PgRoutiner.DataAccess.Models;
 
-namespace PgRoutiner
+namespace PgRoutiner.DataAccess;
+
+public static partial class DataAccessConnectionExtensions
 {
-    public static partial class DataAccess
+    public static IEnumerable<PgReturns> GetRoutineReturnsTable(this NpgsqlConnection connection, PgRoutineGroup routine)
     {
-        public static IEnumerable<PgReturns> GetRoutineReturnsTable(this NpgsqlConnection connection, PgRoutineGroup routine)
+        var result = connection.GetTableColumnsForRoutine(routine);
+        if (result.Any())
         {
-            var result = connection.GetTableColumnsForRoutine(routine);
-            if (result.Any())
-            {
-                return result;
-            }
-            return connection.GetTypeColumnsForRoutine(routine);
+            return result;
         }
+        return connection.GetTypeColumnsForRoutine(routine);
+    }
 
-        private static IEnumerable<PgReturns> GetTableColumnsForRoutine(this NpgsqlConnection connection, PgRoutineGroup routine) =>
-            connection.Read<PgReturns>(@"
+    private static IEnumerable<PgReturns> GetTableColumnsForRoutine(this NpgsqlConnection connection, PgRoutineGroup routine) =>
+        connection.Read<PgReturns>(@"
 
             select 
                 c.ordinal_position as ordinal,
@@ -37,10 +35,10 @@ namespace PgRoutiner
                 c.ordinal_position
 
             ",
-                ("typeUdtName", routine.TypeUdtName, DbType.AnsiString));
+            ("typeUdtName", routine.TypeUdtName, DbType.AnsiString));
 
-        private static IEnumerable<PgReturns> GetTypeColumnsForRoutine(this NpgsqlConnection connection, PgRoutineGroup routine) =>
-            connection.Read<PgReturns>(@"
+    private static IEnumerable<PgReturns> GetTypeColumnsForRoutine(this NpgsqlConnection connection, PgRoutineGroup routine) =>
+        connection.Read<PgReturns>(@"
 
             select 
                 (row_number() over ())::int as ordinal,
@@ -57,6 +55,5 @@ namespace PgRoutiner
                 c.relname = @typeUdtName
 
             ",
-        ("typeUdtName", routine.TypeUdtName, DbType.AnsiString));
-    }
+    ("typeUdtName", routine.TypeUdtName, DbType.AnsiString));
 }
