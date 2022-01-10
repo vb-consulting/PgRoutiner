@@ -18,10 +18,15 @@ public static partial class DataAccessConnectionExtensions
                     information_schema.domains d
                 where
                     (   @schema is null or (d.domain_schema similar to @schema)   )
+                    and (   @not_schema is null or d.domain_schema not similar to @not_schema   )
                     and (   {GetSchemaExpression("d.domain_schema")}  )
+
                     and (   @skipSimilar is null or (d.domain_name not similar to @skipSimilar)   )
 
-            ", ("schema", settings.Schema, DbType.AnsiString), ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgItem
+            ", 
+            ("schema", settings.SchemaSimilarTo, DbType.AnsiString),
+            ("not_schema", settings.SchemaNotSimilarTo, DbType.AnsiString),
+            ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgItem
         {
             Schema = t.Schema,
             Name = t.Name,

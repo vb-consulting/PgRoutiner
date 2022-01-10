@@ -47,6 +47,7 @@ namespace PgRoutiner.SettingsManagement
             ParseSwitches(Value, true);
 
             var pgroutinerFile = Path.Join(Program.CurrentDir, pgroutinerSettingsFile);
+            var pgroutinerFile2 = Path.Join(Program.CurrentDir, "pgroutiner.json");
             var settingsFile = Path.Join(Program.CurrentDir, "appsettings.json");
             var devSettingsFile = Path.Join(Program.CurrentDir, "appsettings.Development.json");
 
@@ -54,6 +55,10 @@ namespace PgRoutiner.SettingsManagement
             if (File.Exists(pgroutinerFile))
             {
                 files.Add(" " + Path.GetFileName(pgroutinerFile));
+            }
+            if (File.Exists(pgroutinerFile2))
+            {
+                files.Add(" " + Path.GetFileName(pgroutinerFile2));
             }
             if (File.Exists(devSettingsFile))
             {
@@ -68,6 +73,7 @@ namespace PgRoutiner.SettingsManagement
             {
                 var configBuilder = new ConfigurationBuilder()
                     .AddJsonFile(pgroutinerFile, optional: true, reloadOnChange: false)
+                    .AddJsonFile(pgroutinerFile2, optional: true, reloadOnChange: false)
                     .AddJsonFile(settingsFile, optional: true, reloadOnChange: false)
                     .AddJsonFile(devSettingsFile, optional: true, reloadOnChange: false);
                 config = configBuilder.Build();

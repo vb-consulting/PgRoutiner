@@ -14,13 +14,53 @@ public class PsqlRunner
         this.settings = settings;
         this.connection = connection;
         //baseArg = $"-d {connection.ToPsqlFormatString()}";
-        baseArg = $"-h {connection.Host} -p {connection.Port} -U {connection.UserName} {connection.Database}";
+        baseArg = $"-h {connection.Host} -p {connection.Port} -U {connection.UserName} -d {connection.Database}";
         command = ParsePsqlCommand();
     }
 
     public void Run(string args)
     {
-        Process.Run(command, $"{baseArg} {args ?? ""}", writeCommand: false);
+        var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
+        Environment.SetEnvironmentVariable("PGPASSWORD", password);
+        try
+        {
+            using var process = new System.Diagnostics.Process();
+            process.StartInfo.FileName = command;
+            process.StartInfo.Arguments = $"{baseArg} {args ?? ""}";
+            if (settings.DumpPgCommands)
+            {
+                Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
+            }
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.WorkingDirectory = Program.CurrentDir;
+            process.OutputDataReceived += (sender, data) => Program.WriteLine(data.Data);
+            process.StartInfo.RedirectStandardError = true;
+            process.ErrorDataReceived += (sender, data) =>
+            {
+                if (!string.IsNullOrEmpty(data.Data))
+                {
+                    Program.WriteLine(ConsoleColor.Red, data.Data);
+                    Console.ResetColor();
+                }
+            };
+            try
+            {
+                process.Start();
+                process.BeginErrorReadLine();
+                process.BeginOutputReadLine();
+                process.WaitForExit();
+            }
+            finally
+            {
+                process.Close();
+            }
+        }
+        catch
+        {
+            Process.Run(command, $"{baseArg} {args ?? ""}", writeCommand: settings.DumpPgCommands);
+        }
     }
 
     public void TryRunFromTerminal()

@@ -108,7 +108,8 @@ public class FormatedSettings
         AddEntry(nameof(Settings.Connection), Settings.Value.Connection);
         AddEntry(nameof(Settings.SkipConnectionPrompt), Settings.Value.SkipConnectionPrompt);
         AddEntry(nameof(Settings.DumpPgCommands), Settings.Value.DumpPgCommands);
-        AddEntry(nameof(Settings.Schema), Settings.Value.Schema);
+        AddEntry(nameof(Settings.SchemaSimilarTo), Settings.Value.SchemaSimilarTo);
+        AddEntry(nameof(Settings.SchemaNotSimilarTo), Settings.Value.SchemaNotSimilarTo);
         AddEntry(nameof(Settings.Execute), Settings.Value.Execute);
         AddEntry(nameof(Settings.Dump), Settings.Value.Dump);
         AddEntry(nameof(Settings.SkipIfExists), Settings.Value.SkipIfExists);
@@ -150,6 +151,8 @@ public class FormatedSettings
             $"- Use \"{Settings.RoutinesOverwriteArgs.Alias}\" or \"--{Settings.RoutinesOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated code from the command line.",
             $"- Use \"{Settings.ModelDirArgs.Alias}\" or \"--{Settings.ModelDirArgs.Original.ToKebabCase()}\" option to set the custom models output dir for the generated code from the command line.");
         AddEntry(nameof(Settings.Routines), Settings.Value.Routines);
+        AddEntry(nameof(Settings.RoutinesSchemaSimilarTo), Settings.Value.RoutinesSchemaSimilarTo);
+        AddEntry(nameof(Settings.RoutinesSchemaNotSimilarTo), Settings.Value.RoutinesSchemaNotSimilarTo);
         AddEntry(nameof(Settings.OutputDir), Settings.Value.OutputDir);
         AddEntry(nameof(Settings.RoutinesEmptyOutputDir), Settings.Value.RoutinesEmptyOutputDir);
         AddEntry(nameof(Settings.RoutinesOverwrite), Settings.Value.RoutinesOverwrite);
@@ -234,6 +237,8 @@ public class FormatedSettings
             $"- Use \"{Settings.CommitMdArgs.Alias}\" or \"--{Settings.CommitMdArgs.Original.ToKebabCase()}\" switch to run commit changes in comments from the MD file back to the database from the command line.");
         AddEntry(nameof(Settings.Markdown), Settings.Value.Markdown);
         AddEntry(nameof(Settings.MdFile), Settings.Value.MdFile);
+        AddEntry(nameof(Settings.MdSchemaSimilarTo), Settings.Value.MdSchemaSimilarTo);
+        AddEntry(nameof(Settings.MdSchemaNotSimilarTo), Settings.Value.MdSchemaNotSimilarTo);
         AddEntry(nameof(Settings.MdOverwrite), Settings.Value.MdOverwrite);
         AddEntry(nameof(Settings.MdAskOverwrite), Settings.Value.MdAskOverwrite);
         AddEntry(nameof(Settings.MdSkipRoutines), Settings.Value.MdSkipRoutines);

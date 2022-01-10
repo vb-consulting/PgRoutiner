@@ -16,10 +16,14 @@ public static partial class DataAccessConnectionExtensions
                 information_schema.tables
             where
                 (   @schema is null or (table_schema similar to @schema)   )
+                and (   @not_schema is null or (table_schema not similar to @not_schema)   )
                 and (   {GetSchemaExpression("table_schema")}  )
                 and (   @skipSimilar is null or (table_name not similar to @skipSimilar)   )
 
-            ", ("schema", settings.Schema, DbType.AnsiString), ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgItem
+            ", 
+            ("schema", settings.SchemaSimilarTo, DbType.AnsiString),
+            ("not_schema", settings.SchemaNotSimilarTo, DbType.AnsiString),
+            ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgItem
         {
             Schema = t.Schema,
             Name = t.Name,

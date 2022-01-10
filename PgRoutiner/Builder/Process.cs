@@ -28,11 +28,18 @@
             {
                 Program.WriteLine($"{file} {args ?? ""}");
             }
-            process.Start();
-            process.BeginErrorReadLine();
-            process.BeginOutputReadLine();
-            process.WaitForExit();
-            process.Close();
+            
+            try
+            {
+                process.Start();
+                process.BeginErrorReadLine();
+                process.BeginOutputReadLine();
+                process.WaitForExit();
+            }
+            finally
+            {
+                process.Close();
+            }
         }
     }
 }

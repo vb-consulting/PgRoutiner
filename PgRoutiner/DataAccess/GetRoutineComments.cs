@@ -47,7 +47,7 @@ public static partial class DataAccessConnectionExtensions
                     left outer join pg_catalog.pg_description pgdesc on proc.oid = pgdesc.objoid
                 where
                     r.specific_schema = @schema
-                    and r.external_language <> 'INTERNAL'
+                    and lower(r.external_language) = any('{sql, plpgsql}')
 
                     and (@notSimilarTo is null or r.routine_name not similar to @notSimilarTo)
                     and (@similarTo is null or r.routine_name similar to @similarTo)

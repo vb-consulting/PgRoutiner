@@ -70,7 +70,7 @@ public abstract class Code
             }
             return result;
         }
-        throw new ArgumentException($"Could not find mapping \"{p.DataType}\" for parameter of routine  \"{this.Name}\"");
+        throw new ArgumentException($"Could not find mapping for type \"{p.Name}\" for parameter \"{p.DataType}\" of routine \"{this.Name}\"");
     }
 
     protected string GetParamType(PgColumnGroup p)

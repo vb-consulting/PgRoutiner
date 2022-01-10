@@ -1,6 +1,17 @@
 ﻿# VERSION HISTORY
 
-## 4.0.0
+## 3.6.3
+
+- New type mapping {"uuid", "string"}.
+- Schema option is renamed to Sche.maSimilarTo
+- Added option SchemaNotSimilarTo.
+- Added ability to use pgroutiner.json inseatd of appsettings.pgroutiner.json. pgroutiner.json will ovberride appsettings.pgroutiner.json.
+- Improved error messages (includes schema and parameter name).
+- Limit code generation and markdown only to the sql and plpgsql functions and procedures.
+- Added RoutinesSchemaSimilarTo and RoutinesSchemaNotSimilarTo that can override SchemaSimilarTo and SchemaNotSimilarTo.
+- Added MdSchemaSimilarTo and MdSchemaNotSimilarTo that can override SchemaSimilarTo and SchemaNotSimilarTo.
+- Fix psql process to receive password properly.
+- Try to execute files first with psql process, if fails, use standard Npgsql executor.
 
 ## 3.6.2
 

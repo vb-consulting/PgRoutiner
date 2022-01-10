@@ -183,7 +183,8 @@ public class PgDumpBuilder
             settings.SchemaDumpOwners ? "" : " --no-owner",
             settings.SchemaDumpPrivileges ? "" : " --no-acl",
             settings.SchemaDumpNoDropIfExists ? "" : " --clean --if-exists",
-            settings.Schema != null ? $" --schema=\\\"{settings.Schema}\\\"" : "",
+            settings.SchemaSimilarTo != null ? $" --schema=\\\"{settings.SchemaSimilarTo}\\\"" : "",
+            settings.SchemaNotSimilarTo != null ? $" --exclude-schema=\\\"{settings.SchemaNotSimilarTo}\\\"" : "",
             string.IsNullOrEmpty(settings.SchemaDumpOptions) ? "" :
                 settings.SchemaDumpOptions.StartsWith(" ") ?
                 settings.SchemaDumpOptions :
@@ -201,7 +202,8 @@ public class PgDumpBuilder
         var args = string.Concat(
             baseArg,
             " --data-only --inserts",
-            settings.Schema != null ? $" --schema=\\\"{settings.Schema}\\\"" : "",
+            settings.SchemaSimilarTo != null ? $" --schema=\\\"{settings.SchemaSimilarTo}\\\"" : "",
+            settings.SchemaNotSimilarTo != null ? $" --exclude-schema=\\\"{settings.SchemaNotSimilarTo}\\\"" : "",
             settings.DataDumpTables == null || settings.DataDumpTables.Count == 0 ? "" :
                 $" {string.Join(" ", settings.DataDumpTables.Select(t => $"--table={t}"))}",
             string.IsNullOrEmpty(settings.DataDumpOptions) ? "" :

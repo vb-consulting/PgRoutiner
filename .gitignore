@@ -340,6 +340,7 @@ ASALocalRun/
 healthchecksdb
 /PgRoutiner/appsettings.Development.json
 /PgRoutiner/appsettings.PgRoutiner.json
+/PgRoutiner/pgroutiner.json
 /PgRoutiner/Test
 /PgRoutinerTests
 /PgRoutiner/_exe

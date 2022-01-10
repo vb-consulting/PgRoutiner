@@ -8,7 +8,8 @@ namespace PgRoutiner.DataAccess;
 public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<IGrouping<(string Schema, string Name), PgRoutineGroup>> GetRoutineGroups(
-        this NpgsqlConnection connection, Settings settings, bool all = true, string skipSimilar = null)
+        this NpgsqlConnection connection, Settings settings, bool all = true, string skipSimilar = null, 
+        string schemaSimilarTo = null, string schemaNotSimilarTo = null)
     {
         return connection.Read<(
             uint Oid,
@@ -62,10 +63,12 @@ public static partial class DataAccessConnectionExtensions
                     on r.specific_name = p.specific_name and r.specific_schema = p.specific_schema
     
                 where
-                    r.external_language <> 'INTERNAL'
+                    lower(r.external_language) = any('{{sql,plpgsql}}')
                     and
                     (   @schema is null or (r.specific_schema similar to @schema)   )
+                    and (   @not_schema is null or r.specific_schema not similar to @not_schema   )
                     and (   {GetSchemaExpression("r.specific_schema")}  )
+
                     and (@notSimilarTo is null or r.routine_name not similar to @notSimilarTo)
                     and (@similarTo is null or r.routine_name similar to @similarTo)
                     and (@all is true or (r.type_udt_name <> 'trigger' and r.type_udt_name <> 'refcursor'))
@@ -84,7 +87,8 @@ public static partial class DataAccessConnectionExtensions
                     r.routine_name
 
             ",
-        ("schema", settings.Schema, DbType.AnsiString),
+        ("schema", schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),
+        ("not_schema", schemaNotSimilarTo ?? settings.SchemaNotSimilarTo, DbType.AnsiString),
         ("notSimilarTo", settings.NotSimilarTo, DbType.AnsiString),
         ("similarTo", settings.SimilarTo, DbType.AnsiString),
         ("all", all, DbType.Boolean),

@@ -26,7 +26,7 @@ public class MarkdownDocument
         StringBuilder content = new();
         StringBuilder header = new();
 
-        var schemas = connection.GetSchemas(settings).ToList();
+        var schemas = connection.GetSchemas(settings, schemaSimilarTo: settings.MdSchemaSimilarTo, schemaNotSimilarTo: settings.MdSchemaNotSimilarTo).ToList();
 
         BuildHeader(header, schemas);
 

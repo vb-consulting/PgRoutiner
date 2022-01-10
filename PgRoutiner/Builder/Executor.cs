@@ -75,11 +75,20 @@ public class Executor
         {
             Writer.Dump("");
             Writer.DumpRelativePath("Executing file {0} ...", fileName);
-            Execute(connection, File.ReadAllText(fileName));
-        }
-        catch (Exception e)
+            new PsqlRunner(Settings.Value, connection).Run($"-f \"{fileName}\"");
+        } 
+        catch
         {
-            Program.WriteLine(ConsoleColor.Red, $"Failed to execute file {fileName} content.", $"ERROR: {e.Message}");
+            try
+            {
+                Writer.Dump("");
+                Writer.DumpRelativePath("Executing file {0} ...", fileName);
+                Execute(connection, File.ReadAllText(fileName));
+            }
+            catch (Exception e)
+            {
+                Program.WriteLine(ConsoleColor.Red, $"Failed to execute file {fileName} content.", $"ERROR: {e.Message}");
+            }
         }
     }
 }

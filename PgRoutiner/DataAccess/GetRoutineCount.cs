@@ -5,7 +5,8 @@ namespace PgRoutiner.DataAccess;
 
 public static partial class DataAccessConnectionExtensions
 {
-    public static long GetRoutineCount(this NpgsqlConnection connection, Settings settings) =>
+    public static long GetRoutineCount(this NpgsqlConnection connection, Settings settings, 
+        string schemaSimilarTo = null, string schemaNotSimilarTo = null) =>
         connection.Read<long>(@$"
 
                 select 
@@ -13,15 +14,17 @@ public static partial class DataAccessConnectionExtensions
                 from
                     information_schema.routines r
                 where
-                    r.external_language <> 'INTERNAL'
+                    lower(r.external_language) = any('{{sql,plpgsql}}')
                     and
                     (   @schema is null or (r.specific_schema similar to @schema)   )
+                    and (   @not_schema is null or r.specific_schema not similar to @not_schema   )
                     and (   {GetSchemaExpression("r.specific_schema")}  )
 
                     and (@notSimilarTo is null or r.routine_name not similar to @notSimilarTo)
                     and (@similarTo is null or r.routine_name similar to @similarTo)
             ",
-            ("schema", settings.Schema, DbType.AnsiString),
+            ("schema", schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),
+            ("not_schema", schemaNotSimilarTo ?? settings.SchemaNotSimilarTo, DbType.AnsiString),
             ("notSimilarTo", settings.NotSimilarTo, DbType.AnsiString),
             ("similarTo", settings.SimilarTo, DbType.AnsiString))
         .Single();

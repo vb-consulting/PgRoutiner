@@ -28,39 +28,6 @@ namespace PgRoutiner.SettingsManagement
         }
     }
 
-    public class CodeSettings
-    {
-        public bool Enabled { get; set; }
-        public string OutputDir { get; set; }
-        public bool EmptyOutputDir { get; set; }
-        public bool Overwrite { get; set; }
-        public bool AskOverwrite { get; set; }
-
-        public static CodeSettings ToRoutineSettings(Settings settings)
-        {
-            return new CodeSettings
-            {
-                Enabled = settings.Routines,
-                OutputDir = settings.OutputDir,
-                EmptyOutputDir = settings.RoutinesEmptyOutputDir,
-                Overwrite = settings.RoutinesOverwrite,
-                AskOverwrite = settings.RoutinesAskOverwrite
-            };
-        }
-
-        public static CodeSettings ToCrudSettings(Settings settings)
-        {
-            return new CodeSettings
-            {
-                Enabled = settings.Crud,
-                OutputDir = settings.CrudOutputDir,
-                EmptyOutputDir = settings.CrudEmptyOutputDir,
-                Overwrite = settings.CrudOverwrite,
-                AskOverwrite = settings.CrudAskOverwrite
-            };
-        }
-    }
-
     public partial class Settings
     {
         public static readonly Arg DirArgs = new("-dir", "dir");
@@ -74,7 +41,8 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg DumpArgs = new("-d", nameof(Dump));
         public static readonly Arg DebugArgs = new("-dbg", "debug");
         public static readonly Arg ConnectionArgs = new("-c", nameof(Connection));
-        public static readonly Arg SchemaArgs = new("-sch", nameof(Schema));
+        public static readonly Arg SchemaArgs = new("-sch", nameof(SchemaSimilarTo));
+        public static readonly Arg NotSchemaArgs = new("-nsch", nameof(SchemaNotSimilarTo));
         public static readonly Arg PgDumpArgs = new("-pgdump", nameof(PgDump));
         public static readonly Arg OutputDirArgs = new("-o", nameof(OutputDir));
         public static readonly Arg RoutinesOverwriteArgs = new("-row", nameof(RoutinesOverwrite));
@@ -115,12 +83,12 @@ namespace PgRoutiner.SettingsManagement
 #endif
         [JsonIgnore] public bool Dump { get; set; } = false;
         [JsonIgnore] public string Execute { get; set; } = null;
-
         /*general*/
         public string Connection { get; set; } = null;
         public bool SkipConnectionPrompt { get; set; } = false;
         public bool DumpPgCommands { get; set; } = true;
-        public string Schema { get; set; } = null;
+        public string SchemaSimilarTo { get; set; } = null;
+        public string SchemaNotSimilarTo { get; set; } = null;
 
         public IList<string> SkipIfExists { get; set; } = new List<string>();
         public bool SkipUpdateReferences { get; set; } = false;
@@ -151,6 +119,8 @@ namespace PgRoutiner.SettingsManagement
 
         /*routines data-access extensions*/
         public bool Routines { get; set; } = false;
+        public string RoutinesSchemaSimilarTo { get; set; } = null;
+        public string RoutinesSchemaNotSimilarTo { get; set; } = null;
         public string OutputDir { get; set; } = "./Extensions/{0}/";
         public bool RoutinesEmptyOutputDir { get; set; } = false;
         public bool RoutinesOverwrite { get; set; } = false;
@@ -214,6 +184,8 @@ namespace PgRoutiner.SettingsManagement
 
         /*comments markdown file*/
         public bool Markdown { get; set; } = false;
+        public string MdSchemaSimilarTo { get; set; } = null;
+        public string MdSchemaNotSimilarTo { get; set; } = null;
         public string MdFile { get; set; } = "./Database/{0}/README.md";
         public bool MdOverwrite { get; set; } = false;
         public bool MdAskOverwrite { get; set; } = false;

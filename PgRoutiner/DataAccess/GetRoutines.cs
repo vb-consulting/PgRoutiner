@@ -18,12 +18,16 @@ public static partial class DataAccessConnectionExtensions
                 from
                     information_schema.routines r
                 where
-                    r.external_language <> 'INTERNAL'
+                    lower(r.external_language) = any('{{sql,plpgsql}}')
                     and
                     (   @schema is null or (r.specific_schema similar to @schema)   )
+                    and (   @not_schema is null or r.specific_schema not similar to @not_schema   )
                     and (   {GetSchemaExpression("r.specific_schema")}  )
 
-            ", ("schema", settings.Schema, DbType.AnsiString)).Select(t => new PgItem
+
+            ", 
+            ("schema", settings.SchemaSimilarTo, DbType.AnsiString),
+            ("not_schema", settings.SchemaNotSimilarTo, DbType.AnsiString)).Select(t => new PgItem
         {
             Schema = t.Schema,
             Name = t.Name,

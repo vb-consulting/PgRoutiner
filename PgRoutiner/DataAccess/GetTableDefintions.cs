@@ -47,13 +47,16 @@ public static partial class DataAccessConnectionExtensions
                 table_type = 'BASE TABLE'
                 and
                 (   @schema is null or (t.table_schema similar to @schema)   )
+                and (   @not_schema is null or (t.table_schema not similar to @not_schema)   )
                 and (   {GetSchemaExpression("t.table_schema")}  )
             order by 
                 t.table_schema, 
                 t.table_name, 
                 c.ordinal_position
 
-            ", ("schema", settings.Schema, DbType.AnsiString))
+            ", 
+            ("schema", settings.SchemaSimilarTo, DbType.AnsiString),
+            ("not_schema", settings.SchemaNotSimilarTo, DbType.AnsiString))
         .Select(t => new PgColumnGroup
         {
             Schema = t.Schema,
