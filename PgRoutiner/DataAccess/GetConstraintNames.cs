@@ -19,27 +19,30 @@ public static partial class DataAccessConnectionExtensions
                 and constraint_type = @type
 
             ",
-            ("tables", tables.Select(t => $"{t.Schema}.{t.Name}").ToArray(), NpgsqlDbType.Varchar | NpgsqlDbType.Array),
-            ("type", type switch
+            new
             {
-                PgConstraint.ForeignKey => "FOREIGN KEY",
-                PgConstraint.PrimaryKey => "PRIMARY KEY",
-                PgConstraint.Check => "CHECK",
-                PgConstraint.Unique => "UNIQUE",
-                _ => throw new System.NotImplementedException()
-            }, NpgsqlDbType.Varchar))
-        .Select(t => new ConstraintName
-        {
-            Name = t.Name,
-            Schema = t.Schema,
-            Table = t.Table,
-            Type = t.Type switch
+                tables = (tables.Select(t => $"{t.Schema}.{t.Name}").ToArray(), NpgsqlDbType.Varchar | NpgsqlDbType.Array),
+                type = (type switch
+                {
+                    PgConstraint.ForeignKey => "FOREIGN KEY",
+                    PgConstraint.PrimaryKey => "PRIMARY KEY",
+                    PgConstraint.Check => "CHECK",
+                    PgConstraint.Unique => "UNIQUE",
+                    _ => throw new NotImplementedException()
+                }, NpgsqlDbType.Varchar)
+            })
+            .Select(t => new ConstraintName
             {
-                "FOREIGN KEY" => PgConstraint.ForeignKey,
-                "PRIMARY KEY" => PgConstraint.PrimaryKey,
-                "CHECK" => PgConstraint.Check,
-                "UNIQUE" => PgConstraint.Unique,
-                _ => throw new System.NotImplementedException()
-            }
-        });
+                Name = t.Name,
+                Schema = t.Schema,
+                Table = t.Table,
+                Type = t.Type switch
+                {
+                    "FOREIGN KEY" => PgConstraint.ForeignKey,
+                    "PRIMARY KEY" => PgConstraint.PrimaryKey,
+                    "CHECK" => PgConstraint.Check,
+                    "UNIQUE" => PgConstraint.Unique,
+                    _ => throw new System.NotImplementedException()
+                }
+            });
 }

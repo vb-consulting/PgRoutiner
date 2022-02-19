@@ -57,17 +57,19 @@ public static partial class DataAccessConnectionExtensions
                     r.data_type, r.type_udt_catalog, r.type_udt_schema, r.type_udt_name,
                     pgdesc.description
             ",
-            ("schema", schema, DbType.AnsiString),
-            ("notSimilarTo", settings.MdNotSimilarTo, DbType.AnsiString),
-            ("similarTo", settings.MdSimilarTo, DbType.AnsiString))
-
-        .Select(t => new RoutineComment
-        {
-            Comment = t.Comment,
-            Language = t.Language,
-            Name = t.Name,
-            Returns = t.Returns,
-            Signature = t.Signature,
-            Type = t.Type
-        });
+            new
+            {
+                schema = (schema, DbType.AnsiString),
+                notSimilarTo = (settings.MdNotSimilarTo, DbType.AnsiString),
+                similarTo = (settings.MdSimilarTo, DbType.AnsiString)
+            })
+            .Select(t => new RoutineComment
+            {
+                Comment = t.Comment,
+                Language = t.Language,
+                Name = t.Name,
+                Returns = t.Returns,
+                Signature = t.Signature,
+                Type = t.Type
+            });
 }

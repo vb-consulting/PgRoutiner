@@ -157,8 +157,8 @@ public class FormatedSettings
         AddEntry(nameof(Settings.RoutinesEmptyOutputDir), Settings.Value.RoutinesEmptyOutputDir);
         AddEntry(nameof(Settings.RoutinesOverwrite), Settings.Value.RoutinesOverwrite);
         AddEntry(nameof(Settings.RoutinesAskOverwrite), Settings.Value.RoutinesAskOverwrite);
-        AddEntry(nameof(Settings.NotSimilarTo), Settings.Value.NotSimilarTo);
-        AddEntry(nameof(Settings.SimilarTo), Settings.Value.SimilarTo);
+        AddEntry(nameof(Settings.RoutinesNotSimilarTo), Settings.Value.RoutinesNotSimilarTo);
+        AddEntry(nameof(Settings.RoutinesSimilarTo), Settings.Value.RoutinesSimilarTo);
         AddEntry(nameof(Settings.RoutinesReturnMethods), Settings.Value.RoutinesReturnMethods);
         AddEntry(nameof(Settings.RoutinesModelPropertyTypes), Settings.Value.RoutinesModelPropertyTypes);
 

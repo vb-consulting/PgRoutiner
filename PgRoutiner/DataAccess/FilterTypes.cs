@@ -25,17 +25,20 @@ public static partial class DataAccessConnectionExtensions
                     (   @schema is null or (sub.schema similar to @schema)   )
                     and (   @not_schema is null or sub.schema not similar to @not_schema   )
                     and (   {GetSchemaExpression("sub.schema")}  )
-
                     and (   @skipSimilar is null or (sub.name not similar to @skipSimilar)   )
                 
                 ", 
-                ("schema", settings.SchemaSimilarTo, DbType.AnsiString),
-                ("not_schema", settings.SchemaNotSimilarTo, DbType.AnsiString),
-                ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgItem
-        {
-            Schema = t.Schema,
-            Name = t.Name,
-            Type = PgType.Type
-        });
+                new
+                {
+                    schema = (settings.SchemaSimilarTo, DbType.AnsiString),
+                    not_schema = (settings.SchemaNotSimilarTo, DbType.AnsiString),
+                    skipSimilar = (skipSimilar, DbType.AnsiString)
+                })
+                .Select(t => new PgItem
+                {
+                    Schema = t.Schema,
+                    Name = t.Name,
+                    Type = PgType.Type
+                });
     }
 }

@@ -106,6 +106,27 @@ public abstract class CrudCodeBase : Code
         return settings.ReturnMethod;
     }
 
+    protected void BuildParams(string ident)
+    {
+        Class.AppendLine(", new");
+        Class.AppendLine($"{ident}{{");
+        Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{ident}{I2}@{p.Name} = (model.{p.ClassName}, {p.DbType})")));
+        Class.AppendLine();
+        Class.Append($"{ident}}}");
+    }
+
+    protected void BuildPkParams(string ident)
+    {
+        if (PkParams.Count > 0)
+        {
+            Class.AppendLine(", new");
+            Class.AppendLine($"{ident}{{");
+            Class.Append(string.Join($",{NL}", this.PkParams.Select(p => $"{ident}{I2}@{p.Name} = ({p.Name}, {p.DbType})")));
+            Class.AppendLine();
+            Class.Append($"{ident}}}");
+        }
+    }
+
     protected abstract void AddSql();
 
     protected abstract void BuildStatementBodySyncMethod();

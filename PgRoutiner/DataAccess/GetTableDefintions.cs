@@ -54,24 +54,27 @@ public static partial class DataAccessConnectionExtensions
                 t.table_name, 
                 c.ordinal_position
 
-            ", 
-            ("schema", settings.SchemaSimilarTo, DbType.AnsiString),
-            ("not_schema", settings.SchemaNotSimilarTo, DbType.AnsiString))
-        .Select(t => new PgColumnGroup
-        {
-            Schema = t.Schema,
-            Table = t.Table,
-            Name = t.Name,
-            Ordinal = t.Ord,
-            HasDefault = !string.IsNullOrEmpty(t.Default),
-            IsNullable = string.Equals(t.IsNullable, "YES"),
-            DataType = t.DataType,
-            Type = t.TypeUdtName,
-            IsArray = string.Equals(t.ConstraintType, "ARRAY"),
-            IsIdentity = string.Equals(t.IsIdentity, "YES"),
-            IsPk = string.Equals(t.ConstraintType, "PRIMARY KEY"),
-        })
-        .GroupBy(i => (i.Schema, i.Table));
+            ",
+            new
+            {
+                schema = (settings.SchemaSimilarTo, DbType.AnsiString),
+                not_schema = (settings.SchemaNotSimilarTo, DbType.AnsiString),
+            })
+            .Select(t => new PgColumnGroup
+            {
+                Schema = t.Schema,
+                Table = t.Table,
+                Name = t.Name,
+                Ordinal = t.Ord,
+                HasDefault = !string.IsNullOrEmpty(t.Default),
+                IsNullable = string.Equals(t.IsNullable, "YES"),
+                DataType = t.DataType,
+                Type = t.TypeUdtName,
+                IsArray = string.Equals(t.ConstraintType, "ARRAY"),
+                IsIdentity = string.Equals(t.IsIdentity, "YES"),
+                IsPk = string.Equals(t.ConstraintType, "PRIMARY KEY"),
+            })
+            .GroupBy(i => (i.Schema, i.Table));
     }
 
     public static int GetTableDefintionsCount(this NpgsqlConnection connection, Settings settings)

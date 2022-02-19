@@ -26,6 +26,9 @@ public static partial class DataAccessConnectionExtensions
                 p.ordinal_position 
 
             ",
-            ("specificName", routine.SpecificName, DbType.AnsiString),
-            ("specificSchema", routine.SpecificSchema, DbType.AnsiString));
+            new
+            {
+                specificName = (routine.SpecificName, DbType.AnsiString),
+                specificSchema = (routine.SpecificSchema, DbType.AnsiString)
+            });
 }

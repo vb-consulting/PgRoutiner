@@ -47,8 +47,8 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg OutputDirArgs = new("-o", nameof(OutputDir));
         public static readonly Arg RoutinesOverwriteArgs = new("-row", nameof(RoutinesOverwrite));
         public static readonly Arg RoutinesAskOverwriteArgs = new("-rask", nameof(RoutinesAskOverwrite));
-        public static readonly Arg NotSimilarToArgs = new("-nst", nameof(NotSimilarTo));
-        public static readonly Arg SimilarToArgs = new("-st", nameof(SimilarTo));
+        public static readonly Arg NotSimilarToArgs = new("-nst", nameof(RoutinesNotSimilarTo));
+        public static readonly Arg SimilarToArgs = new("-st", nameof(RoutinesSimilarTo));
         public static readonly Arg SkipSyncMethodsArgs = new("-ss", nameof(SkipSyncMethods));
         public static readonly Arg SkipAsyncMethodsArgs = new("-sa", nameof(SkipAsyncMethods));
         public static readonly Arg ModelDirArgs = new("-md", nameof(ModelDir));
@@ -111,11 +111,25 @@ namespace PgRoutiner.SettingsManagement
         public bool EmptyModelDir { get; set; } = false;
         public bool SkipSyncMethods { get; set; } = false;
         public bool SkipAsyncMethods { get; set; } = false;
-        public string MinNormVersion { get; set; } = "3.2.0";
+        public string MinNormVersion { get; set; } = "4.0.0";
         public string SourceHeader { get; set; } = "// pgroutiner auto-generated code";
         public int Ident { get; set; } = 4;
         public string ReturnMethod { get; set; } = "SingleOrDefault";
-        public IDictionary<string, string> MethodParameterNames { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> MethodParameterNames { get; set; } = new Dictionary<string, string>()
+        {
+            { "string", "@string" },
+            { "int", "@int" },
+            { "bool", "@bool" },
+            { "void", "@void" },
+            { "public", "@public" },
+            { "private", "@private" },
+            { "protected", "@protected" },
+            { "class", "@class" },
+            { "record", "@record" },
+            { "enum", "@enum" },
+            { "namespace", "@namespace" },
+            { "using", "@using" },
+        };
 
         /*routines data-access extensions*/
         public bool Routines { get; set; } = false;
@@ -125,8 +139,8 @@ namespace PgRoutiner.SettingsManagement
         public bool RoutinesEmptyOutputDir { get; set; } = false;
         public bool RoutinesOverwrite { get; set; } = false;
         public bool RoutinesAskOverwrite { get; set; } = false;
-        public string NotSimilarTo { get; set; } = null;
-        public string SimilarTo { get; set; } = null;
+        public string RoutinesNotSimilarTo { get; set; } = null;
+        public string RoutinesSimilarTo { get; set; } = null;
         public IDictionary<string, string> RoutinesReturnMethods { get; set; } = new Dictionary<string, string>();
         public IDictionary<string, string> RoutinesModelPropertyTypes { get; set; } = new Dictionary<string, string>();
 

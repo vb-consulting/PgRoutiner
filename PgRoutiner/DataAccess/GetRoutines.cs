@@ -26,18 +26,22 @@ public static partial class DataAccessConnectionExtensions
 
 
             ", 
-            ("schema", settings.SchemaSimilarTo, DbType.AnsiString),
-            ("not_schema", settings.SchemaNotSimilarTo, DbType.AnsiString)).Select(t => new PgItem
-        {
-            Schema = t.Schema,
-            Name = t.Name,
-            TypeName = t.Type,
-            Type = t.Type switch
+            new
             {
-                "FUNCTION" => PgType.Function,
-                "PROCEDURE" => PgType.Procedure,
-                _ => PgType.Unknown
-            }
-        });
+                schema = (settings.SchemaSimilarTo, DbType.AnsiString),
+                not_schema = (settings.SchemaNotSimilarTo, DbType.AnsiString)
+            })
+            .Select(t => new PgItem
+            {
+                Schema = t.Schema,
+                Name = t.Name,
+                TypeName = t.Type,
+                Type = t.Type switch
+                {
+                    "FUNCTION" => PgType.Function,
+                    "PROCEDURE" => PgType.Procedure,
+                    _ => PgType.Unknown
+                }
+            });
     }
 }

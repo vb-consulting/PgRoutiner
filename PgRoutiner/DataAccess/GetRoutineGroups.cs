@@ -84,26 +84,31 @@ public static partial class DataAccessConnectionExtensions
                     r.type_udt_name,
                     r.data_type
                 order by 
+                    r.specific_schema,
                     r.routine_name
-
             ",
-        ("schema", schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),
-        ("not_schema", schemaNotSimilarTo ?? settings.SchemaNotSimilarTo, DbType.AnsiString),
-        ("notSimilarTo", settings.NotSimilarTo, DbType.AnsiString),
-        ("similarTo", settings.SimilarTo, DbType.AnsiString),
-        ("all", all, DbType.Boolean),
-        ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgRoutineGroup
-        {
-            Oid = t.Oid,
-            SpecificSchema = t.SpecificSchema,
-            SpecificName = t.SpecificName,
-            RoutineName = t.RoutineName,
-            Description = t.Description,
-            Language = t.Language,
-            RoutineType = t.RoutineType,
-            TypeUdtName = t.TypeUdtName,
-            DataType = t.DataType,
-            Parameters = JsonConvert.DeserializeObject<IList<PgParameter>>(t.Parameters)
-        }).GroupBy(i => (i.SpecificSchema, i.RoutineName));
+            new
+            {
+                schema = (schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),
+                not_schema = (schemaNotSimilarTo ?? settings.SchemaNotSimilarTo, DbType.AnsiString),
+                notSimilarTo = (settings.RoutinesNotSimilarTo, DbType.AnsiString),
+                similarTo = (settings.RoutinesSimilarTo, DbType.AnsiString),
+                all = (all, DbType.Boolean),
+                skipSimilar = (skipSimilar, DbType.AnsiString),
+            })
+            .Select(t => new PgRoutineGroup
+            {
+                Oid = t.Oid,
+                SpecificSchema = t.SpecificSchema,
+                SpecificName = t.SpecificName,
+                RoutineName = t.RoutineName,
+                Description = t.Description,
+                Language = t.Language,
+                RoutineType = t.RoutineType,
+                TypeUdtName = t.TypeUdtName,
+                DataType = t.DataType,
+                Parameters = JsonConvert.DeserializeObject<IList<PgParameter>>(t.Parameters)
+            })
+            .GroupBy(i => (i.SpecificSchema, i.RoutineName));
     }
 }

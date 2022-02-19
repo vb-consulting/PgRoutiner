@@ -1,5 +1,12 @@
 ﻿# VERSION HISTORY
 
+## 3.7.0
+
+- Added default values to MethodParameterNames
+- Fixed code gen to use Norm 4.0.0
+- Upgraded to Norm 4.0.0 and set minimal version to 4.0.0
+- Renamed setting 4.0.0 SimilarTo to RoutinesSimilarTo and NotSimilarTo to RoutinesNotSimilarTo
+
 ## 3.6.3
 
 - New type mapping {"uuid", "string"}.

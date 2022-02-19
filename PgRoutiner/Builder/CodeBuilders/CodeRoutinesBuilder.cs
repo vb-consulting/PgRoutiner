@@ -12,11 +12,11 @@ public class CodeRoutinesBuilder : CodeBuilder
     }
 
     protected override IEnumerable<CodeResult> GetCodes()
-{
-foreach (var group in connection.GetRoutineGroups(settings, all: false, schemaSimilarTo: settings.RoutinesSchemaSimilarTo, schemaNotSimilarTo: settings.RoutinesSchemaNotSimilarTo))
-{
-var name = group.Key.Name;
-var schema = group.Key.Schema;
+    {
+        foreach (var group in connection.GetRoutineGroups(settings, all: false, schemaSimilarTo: settings.RoutinesSchemaSimilarTo, schemaNotSimilarTo: settings.RoutinesSchemaNotSimilarTo))
+        {
+            var name = group.Key.Name;
+            var schema = group.Key.Schema;
             var module = new RoutineModule(settings, codeSettings, group.Key.Schema);
             Code code;
             try

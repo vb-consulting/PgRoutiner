@@ -23,9 +23,12 @@ public static partial class DataAccessConnectionExtensions
                     and (@notSimilarTo is null or r.routine_name not similar to @notSimilarTo)
                     and (@similarTo is null or r.routine_name similar to @similarTo)
             ",
-            ("schema", schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),
-            ("not_schema", schemaNotSimilarTo ?? settings.SchemaNotSimilarTo, DbType.AnsiString),
-            ("notSimilarTo", settings.NotSimilarTo, DbType.AnsiString),
-            ("similarTo", settings.SimilarTo, DbType.AnsiString))
-        .Single();
+            new
+            {
+                schema = (schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),
+                not_schema = (schemaNotSimilarTo ?? settings.SchemaNotSimilarTo, DbType.AnsiString),
+                notSimilarTo = (settings.RoutinesNotSimilarTo, DbType.AnsiString),
+                similarTo = (settings.RoutinesSimilarTo, DbType.AnsiString)
+            })
+            .Single();
 }

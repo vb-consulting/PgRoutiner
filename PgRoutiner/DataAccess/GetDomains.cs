@@ -24,13 +24,17 @@ public static partial class DataAccessConnectionExtensions
                     and (   @skipSimilar is null or (d.domain_name not similar to @skipSimilar)   )
 
             ", 
-            ("schema", settings.SchemaSimilarTo, DbType.AnsiString),
-            ("not_schema", settings.SchemaNotSimilarTo, DbType.AnsiString),
-            ("skipSimilar", skipSimilar, DbType.AnsiString)).Select(t => new PgItem
-        {
-            Schema = t.Schema,
-            Name = t.Name,
-            Type = PgType.Domain
-        });
+            new
+            {
+                schema = (settings.SchemaSimilarTo, DbType.AnsiString),
+                not_schema = (settings.SchemaNotSimilarTo, DbType.AnsiString),
+                skipSimilar = (skipSimilar, DbType.AnsiString)
+            })
+            .Select(t => new PgItem
+            {
+                Schema = t.Schema,
+                Name = t.Name,
+                Type = PgType.Domain
+            });
     }
 }

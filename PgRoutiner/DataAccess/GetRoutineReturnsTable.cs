@@ -35,7 +35,7 @@ public static partial class DataAccessConnectionExtensions
                 c.ordinal_position
 
             ",
-            ("typeUdtName", routine.TypeUdtName, DbType.AnsiString));
+            new { typeUdtName = (routine.TypeUdtName, DbType.AnsiString) });
 
     private static IEnumerable<PgReturns> GetTypeColumnsForRoutine(this NpgsqlConnection connection, PgRoutineGroup routine) =>
         connection.Read<PgReturns>(@"
@@ -55,5 +55,5 @@ public static partial class DataAccessConnectionExtensions
                 c.relname = @typeUdtName
 
             ",
-    ("typeUdtName", routine.TypeUdtName, DbType.AnsiString));
+            new { typeUdtName = (routine.TypeUdtName, DbType.AnsiString) });
 }

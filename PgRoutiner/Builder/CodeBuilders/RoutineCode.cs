@@ -1,4 +1,5 @@
-﻿using PgRoutiner.Builder.CodeBuilders.Models;
+﻿using System.Security.Claims;
+using PgRoutiner.Builder.CodeBuilders.Models;
 using PgRoutiner.DataAccess.Models;
 
 namespace PgRoutiner.Builder.CodeBuilders;
@@ -99,7 +100,7 @@ public class RoutineCode : Code
                 Class.Append($"{bodyTab}.Read<{@return.Name}>(Name");
                 if (@params.Count > 0)
                 {
-                    Class.AppendLine(",");
+                    Class.Append(",");
                 }
             }
             BuildParams(@params, paramsTab);
@@ -117,7 +118,7 @@ public class RoutineCode : Code
             Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
             BuildMethodParams(@params);
             Class.AppendLine(") => connection");
-            AddBodyCode(I3, I4);
+            AddBodyCode(I3, I3);
         }
         else
         {
@@ -133,7 +134,7 @@ public class RoutineCode : Code
             {
                 Class.AppendLine($"{I3}return connection");
             }
-            AddBodyCode(I4, I5);
+            AddBodyCode(I4, I4);
             Class.AppendLine($"{I2}}}");
         }
         AddMethod();
@@ -178,7 +179,7 @@ public class RoutineCode : Code
                 Class.Append($"{bodyTab}.ReadAsync<{@return.Name}>(Name");
                 if (@params.Count > 0)
                 {
-                    Class.AppendLine(",");
+                    Class.Append(",");
                 }
             }
             BuildParams(@params, paramsTab);
@@ -200,7 +201,7 @@ public class RoutineCode : Code
             BuildMethodParams(@params);
             Class.AppendLine(@return.IsEnumerable || returnMethod == null ? ") => connection" : ") => await connection");
 
-            AddBodyCode(I3, I4);
+            AddBodyCode(I3, I3);
         }
         else
         {
@@ -216,7 +217,7 @@ public class RoutineCode : Code
             {
                 Class.AppendLine(@return.IsEnumerable || returnMethod == null ? $"{I3}return connection" : $"{I3}return await connection");
             }
-            AddBodyCode(I4, I5);
+            AddBodyCode(I4, I4);
             Class.AppendLine($"{I2}}}");
         }
 
@@ -249,7 +250,10 @@ public class RoutineCode : Code
     {
         if (@params.Count > 0)
         {
-            Class.Append(string.Join($",{NL}", @params.Select(p => $"{paramsTab}(\"{p.PgName}\", {p.Name}, {p.DbType})")));
+            Class.Append($" new{NL}");
+            Class.Append($"{paramsTab}{{{NL}");
+            Class.Append(string.Join($",{NL}", @params.Select(p => $"{paramsTab}{I2}@{p.PgName} = ({p.Name}, {p.DbType})")));
+            Class.Append($"{NL}{paramsTab}}}");
         }
     }
 

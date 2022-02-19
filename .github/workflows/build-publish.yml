@@ -22,8 +22,4 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Publish
-      uses: vb-consulting/publish-nuget@v2.5.2
-      with:
-        PROJECT_FILE_PATH: PgRoutiner/PgRoutiner.csproj
-        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-        INCLUDE_SYMBOLS: false
+      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate

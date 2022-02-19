@@ -43,11 +43,7 @@ public class CrudDeleteByReturningCode : CrudCodeBase
         }
         Class.Append($"{I4}.Read<{this.Model}>(Sql");
 
-        if (PkParams.Count > 0)
-        {
-            Class.AppendLine(",");
-            Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I5}(\"{p.Name}\", {p.Name}, {p.DbType})")));
-        }
+        this.BuildPkParams(I4);
         if (returnMethod == null)
         {
             Class.AppendLine($");");
@@ -78,11 +74,7 @@ public class CrudDeleteByReturningCode : CrudCodeBase
         }
         Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql");
 
-        if (PkParams.Count > 0)
-        {
-            Class.AppendLine(",");
-            Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I5}(\"{p.Name}\", {p.Name}, {p.DbType})")));
-        }
+        this.BuildPkParams(I4);
         if (returnMethod == null)
         {
             Class.AppendLine($");");
@@ -110,11 +102,7 @@ public class CrudDeleteByReturningCode : CrudCodeBase
         }
         Class.Append($"{I3}.Read<{this.Model}>(Sql");
 
-        if (PkParams.Count > 0)
-        {
-            Class.AppendLine(",");
-            Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I4}(\"{p.Name}\", {p.Name}, {p.DbType})")));
-        }
+        this.BuildPkParams(I3);
         if (returnMethod == null)
         {
             Class.AppendLine($");");
@@ -141,11 +129,7 @@ public class CrudDeleteByReturningCode : CrudCodeBase
         }
         Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql");
 
-        if (PkParams.Count > 0)
-        {
-            Class.AppendLine(",");
-            Class.Append(string.Join($",{NL}", PkParams.Select(p => $"{I4}(\"{p.Name}\", {p.Name}, {p.DbType})")));
-        }
+        this.BuildPkParams(I3);
         if (returnMethod == null)
         {
             Class.AppendLine($");");
