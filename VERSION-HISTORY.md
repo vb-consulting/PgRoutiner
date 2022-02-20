@@ -1,5 +1,10 @@
 ﻿# VERSION HISTORY
 
+## 3.7.1
+
+- Fix types dump files- 
+- Improve DbObjects file dumps by skipping unnecessary pg_dump calls. 
+
 ## 3.7.0
 
 - Added default values to MethodParameterNames

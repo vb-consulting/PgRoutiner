@@ -4,6 +4,8 @@ namespace PgRoutiner.Builder.Dump;
 
 public class DumpBuilder
 {
+    public enum DumpType { Tables, Views, Functions, Procedures, Domains, Types, Schemas, Sequences }
+
     public static void BuildDump(string dumpFile, string file, bool overwrite, bool askOverwrite, Func<string> contentFunc)
     {
         if (string.IsNullOrEmpty(dumpFile))
@@ -60,9 +62,9 @@ public class DumpBuilder
             return;
         }
 
-        static string GetOrDefault(string name, string @default)
+        static string GetOrDefault(DumpType type, string @default)
         {
-            if (Settings.Value.DbObjectsDirNames.TryGetValue(name, out var value))
+            if (Settings.Value.DbObjectsDirNames.TryGetValue(type.ToString(), out var value))
             {
                 return string.IsNullOrEmpty(value) ? @default : value;
             }
@@ -72,9 +74,9 @@ public class DumpBuilder
         var baseDir = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.DbObjectsDir)), connectionName);
         CreateDir(baseDir, true);
 
-        string GetDir(string name)
+        string GetDir(DumpType type)
         {
-            var dir = GetOrDefault(name, null);
+            var dir = GetOrDefault(type, null);
             if (dir == null)
             {
                 return dir;
@@ -82,14 +84,14 @@ public class DumpBuilder
             return Path.GetFullPath(Path.Combine(string.Format(baseDir, connectionName), dir.TrimStart('/').TrimStart('\\')));
         }
 
-        var baseTablesDir = GetDir("Tables");
-        var baseViewsDir = GetDir("Views");
-        var baseFunctionsDir = GetDir("Functions");
-        var baseProceduresDir = GetDir("Procedures");
-        var baseDomainsDir = GetDir("Domains");
-        var baseTypesDir = GetDir("Types");
-        var baseSchemasDir = GetDir("Schemas");
-        var baseSequencesDir = GetDir("Sequences");
+        var baseTablesDir = GetDir(DumpType.Tables);
+        var baseViewsDir = GetDir(DumpType.Views);
+        var baseFunctionsDir = GetDir(DumpType.Functions);
+        var baseProceduresDir = GetDir(DumpType.Procedures);
+        var baseDomainsDir = GetDir(DumpType.Domains);
+        var baseTypesDir = GetDir(DumpType.Types);
+        var baseSchemasDir = GetDir(DumpType.Schemas);
+        var baseSequencesDir = GetDir(DumpType.Sequences);
 
 
         static string ParseSchema(string dir, string schema)

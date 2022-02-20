@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+using System.Xml.Linq;
 using PgRoutiner.DataAccess.Models;
 using PgRoutiner.DumpTransformers;
+using static PgRoutiner.Builder.Dump.DumpBuilder;
 
 namespace PgRoutiner.Builder.Dump;
 
@@ -43,134 +45,164 @@ public class PgDumpBuilder
             settings.DbObjectsPrivileges ? "" : " --no-acl",
             settings.DbObjectsDropIfExists ? " --clean --if-exists" : "");
 
-        foreach (var table in Connection.GetTables(settings))
+        bool HasKey(DumpType key)
         {
-            var name = table.GetFileName();
-            string content = null;
-            try
+            if (settings.DbObjectsDirNames.TryGetValue(key.ToString(), out var value))
             {
+                return !string.IsNullOrEmpty(value);
+            }
+            return false;
+        }
+
+        if (HasKey(DumpType.Tables))
+        {
+            foreach (var table in Connection.GetTables(settings))
+            {
+                var name = table.GetFileName();
+                string content = null;
+                try
+                {
 #pragma warning disable CS8509
-                content = table.Type switch
+                    content = table.Type switch
 #pragma warning restore CS8509
+                    {
+                        PgType.Table => GetTableContent(table, args),
+                        PgType.View => GetViewContent(table, args)
+                    };
+                }
+                catch (Exception e)
                 {
-                    PgType.Table => GetTableContent(table, args),
-                    PgType.View => GetViewContent(table, args)
-                };
-            }
-            catch (Exception e)
-            {
-                Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
-                continue;
-            }
+                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                    continue;
+                }
 
-            yield return (name, content, table.Type, table.Schema);
+                yield return (name, content, table.Type, table.Schema);
+            }
         }
 
-        foreach (var seq in Connection.GetSequences(settings))
+        if (HasKey(DumpType.Sequences))
         {
-            var name = seq.GetFileName();
-            string content;
+            foreach (var seq in Connection.GetSequences(settings))
+            {
+                var name = seq.GetFileName();
+                string content;
+                try
+                {
+                    content = GetSeqContent(seq, args);
+                }
+                catch (Exception e)
+                {
+                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                    continue;
+                }
+                yield return (name, content, seq.Type, seq.Schema);
+            }
+        }
+
+        if (HasKey(DumpType.Functions) || HasKey(DumpType.Procedures) || HasKey(DumpType.Domains) || HasKey(DumpType.Types) || HasKey(DumpType.Schemas))
+        {
+            List<string> lines = null;
+            List<PgItem> types = new();
             try
             {
-                content = GetSeqContent(seq, args);
+                lines = GetDumpLines(args, excludeTables, out types);
             }
             catch (Exception e)
             {
-                Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
-                continue;
-            }
-            yield return (name, content, seq.Type, seq.Schema);
-        }
-
-        List<string> lines = null;
-        List<PgItem> types = new();
-        try
-        {
-            lines = GetDumpLines(args, excludeTables, out types);
-        }
-        catch (Exception e)
-        {
-            Program.WriteLine(ConsoleColor.Red, $"Could not create pg_dump for functions and procedures", $"ERROR: {e.Message}");
-        }
-
-        if (lines != null)
-        {
-            foreach (var routine in Connection.GetRoutines(settings))
-            {
-                var name = routine.GetFileName();
-                string content;
-                try
-                {
-                    content = new RoutineDumpTransformer(routine, lines)
-                        .BuildLines(dbObjectsCreateOrReplace: settings.DbObjectsCreateOrReplace)
-                        .ToString();
-                }
-                catch (Exception e)
-                {
-                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
-                    continue;
-                }
-                yield return (name, content, routine.Type, routine.Schema);
+                Program.WriteLine(ConsoleColor.Red, $"Could not create pg_dump for functions and procedures", $"ERROR: {e.Message}");
             }
 
-            foreach (var domain in Connection.GetDomains(settings))
+            if (lines != null)
             {
-                var name = domain.GetFileName();
-                string content;
-                try
+                if (HasKey(DumpType.Functions) || HasKey(DumpType.Procedures))
                 {
-                    content = new DomainDumpTransformer(domain, lines)
-                        .BuildLines()
-                        .ToString();
+                    foreach (var routine in Connection.GetRoutines(settings))
+                    {
+                        var name = routine.GetFileName();
+                        string content;
+                        try
+                        {
+                            content = new RoutineDumpTransformer(routine, lines)
+                                .BuildLines(dbObjectsCreateOrReplace: settings.DbObjectsCreateOrReplace)
+                                .ToString();
+                        }
+                        catch (Exception e)
+                        {
+                            Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                            continue;
+                        }
+                        yield return (name, content, routine.Type, routine.Schema);
+                    }
                 }
-                catch (Exception e)
-                {
-                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
-                    continue;
-                }
-                yield return (name, content, domain.Type, domain.Schema);
-            }
 
-            foreach (var type in Connection.FilterTypes(types, settings))
-            {
-                var name = type.GetFileName();
-                string content;
-                try
+                if (HasKey(DumpType.Domains))
                 {
-                    content = new TypeDumpTransformer(type, lines)
-                        .BuildLines()
-                        .ToString();
+                    foreach (var domain in Connection.GetDomains(settings))
+                    {
+                        var name = domain.GetFileName();
+                        string content;
+                        try
+                        {
+                            content = new DomainDumpTransformer(domain, lines)
+                                .BuildLines()
+                                .ToString();
+                        }
+                        catch (Exception e)
+                        {
+                            Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                            continue;
+                        }
+                        yield return (name, content, domain.Type, domain.Schema);
+                    }
                 }
-                catch (Exception e)
-                {
-                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
-                    continue;
-                }
-                yield return (name, content, type.Type, type.Schema);
-            }
 
-            foreach (var schema in Connection.GetSchemas(settings))
-            {
-                if (string.Equals(schema, "public"))
+                if (HasKey(DumpType.Types))
                 {
-                    continue;
+                    foreach (var type in Connection.FilterTypes(types, settings))
+                    {
+                        var name = type.GetFileName();
+                        string content;
+                        try
+                        {
+                            content = new TypeDumpTransformer(type, lines)
+                                .BuildLines()
+                                .ToString();
+                        }
+                        catch (Exception e)
+                        {
+                            Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                            continue;
+                        }
+                        yield return (name, content, type.Type, type.Schema);
+                    }
                 }
-                var name = $"{schema}.sql";
-                string content;
-                try
-                {
 
-                    content = new SchemaDumpTransformer(schema, lines)
-                        .BuildLines()
-                        .ToString();
-
-                }
-                catch (Exception e)
+                if (HasKey(DumpType.Schemas))
                 {
-                    Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
-                    continue;
+                    foreach (var schema in Connection.GetSchemas(settings))
+                    {
+                        if (string.Equals(schema, "public"))
+                        {
+                            continue;
+                        }
+                        var name = $"{schema}.sql";
+                        string content;
+                        try
+                        {
+
+                            content = new SchemaDumpTransformer(schema, lines)
+                                .BuildLines()
+                                .ToString();
+
+                        }
+                        catch (Exception e)
+                        {
+                            Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                            continue;
+                        }
+                        yield return (name, content, PgType.Schema, null);
+                    }
                 }
-                yield return (name, content, PgType.Schema, null);
             }
         }
     }
