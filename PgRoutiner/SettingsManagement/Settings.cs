@@ -93,9 +93,7 @@ namespace PgRoutiner.SettingsManagement
         public IList<string> SkipIfExists { get; set; } = new List<string>();
         public bool SkipUpdateReferences { get; set; } = false;
         public string PgDump { get; set; } = "pg_dump";
-        public string PgDumpFallback { get; set; } = OperatingSystem.IsWindows() ?
-            "C:\\Program Files\\PostgreSQL\\{0}\\bin\\pg_dump.exe" :
-            "/usr/lib/postgresql/{0}/bin/pg_dump";
+        public string PgDumpFallback { get; set; } = null;
         public string ConfigPath { get; set; } = null;
 
         /*code generation general options*/
@@ -213,9 +211,8 @@ namespace PgRoutiner.SettingsManagement
         public bool Psql { get; set; } = false;
         public string PsqlTerminal { get; set; } = "wt";
         public string PsqlCommand { get; set; } = "psql";
-        public string PsqlFallback { get; set; } = OperatingSystem.IsWindows() ?
-            "C:\\Program Files\\PostgreSQL\\{0}\\bin\\psql.exe" :
-            "/usr/lib/postgresql/{0}/bin/psql";
+
+        public string PsqlFallback { get; set; } = null;
         public string PsqlOptions { get; set; } = null;
 
         /*diff settings*/

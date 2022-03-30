@@ -130,7 +130,7 @@ public class PsqlRunner
         var connVersion = connection.ServerVersion.Split(".").First();
         if (!string.Equals(connVersion, version))
         {
-            command = string.Format(settings.PsqlFallback, connVersion);
+            command = string.Format(settings.GetPsqlFallback(), connVersion);
             try
             {
                 GetPsqlVersion(command);

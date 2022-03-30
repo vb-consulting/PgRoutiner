@@ -21,7 +21,7 @@ public static class PgDumpVersion
 
         if (!string.Equals(connVersion, dumpVersion))
         {
-            builder.SetPgDumpName(string.Format(Settings.Value.PgDumpFallback, connVersion));
+            builder.SetPgDumpName(string.Format(Settings.Value.GetPgDumpFallback(), connVersion));
             try
             {
                 fullDumpVersion = builder.GetDumpVersion();

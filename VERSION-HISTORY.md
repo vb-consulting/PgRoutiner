@@ -1,5 +1,21 @@
 ﻿# VERSION HISTORY
 
+## 3.7.2
+
+Settings `PgDumpFallback` and `PsqlFallback` have null default values now.
+
+When those settings are set to null (default), system defaults are used:
+
+Windows
+
+- `C:\Program Files\PostgreSQL\{0}\bin\pg_dump.exe`
+- `C:\Program Files\PostgreSQL\{0}\bin\psql.exe`
+
+Non-Windows
+
+- `/usr/lib/postgresql/{0}/bin/pg_dump`
+- `/usr/lib/postgresql/{0}/bin/psql`
+
 ## 3.7.1
 
 - Fix types dump files- 
