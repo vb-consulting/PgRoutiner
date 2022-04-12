@@ -4,7 +4,7 @@
     {
         public static string GetPgDumpFallback(this Settings settings)
         {
-            if (settings.PgDumpFallback == null)
+            if (settings.PgDumpFallback != null)
             {
                 return settings.PgDumpFallback;
             }
@@ -15,7 +15,7 @@
 
         public static string GetPsqlFallback(this Settings settings)
         {
-            if (settings.PsqlFallback == null)
+            if (settings.PsqlFallback != null)
             {
                 return settings.PsqlFallback;
             }

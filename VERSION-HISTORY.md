@@ -1,5 +1,10 @@
 ﻿# VERSION HISTORY
 
+## 3.7.3
+
+- Fix bugs with `PgDumpFallback` and `PsqlFallback` when settings is null.
+- Improve ConfigPath settings to use actual path instead of file.
+
 ## 3.7.2
 
 Settings `PgDumpFallback` and `PsqlFallback` have null default values now.
