@@ -1,5 +1,6 @@
 ﻿# VERSION HISTORY
 
+## 3.7.4
 ## 3.7.3
 
 - Fix bugs with `PgDumpFallback` and `PsqlFallback` when settings is null.

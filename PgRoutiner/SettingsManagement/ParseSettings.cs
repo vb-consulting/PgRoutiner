@@ -96,13 +96,13 @@ namespace PgRoutiner.SettingsManagement
                         configBuilder.AddJsonFile(pgroutinerFile2, optional: true, reloadOnChange: false);
                     }
                     settingsFile = Path.Join(Value.ConfigPath, "appsettings.json");
-                    if (File.Exists(pgroutinerFile2))
+                    if (File.Exists(settingsFile))
                     {
                         files.Add(" " + Path.GetFileName(settingsFile));
                         configBuilder.AddJsonFile(devSettingsFile, optional: true, reloadOnChange: false);
                     }
                     devSettingsFile = Path.Join(Value.ConfigPath, "appsettings.Development.json");
-                    if (File.Exists(pgroutinerFile2))
+                    if (File.Exists(devSettingsFile))
                     {
                         files.Add(" " + Path.GetFileName(devSettingsFile));
                         configBuilder.AddJsonFile(devSettingsFile, optional: true, reloadOnChange: false);
