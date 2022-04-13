@@ -82,31 +82,40 @@ namespace PgRoutiner.SettingsManagement
 
                 if (!string.IsNullOrEmpty(Value.ConfigPath))
                 {
-                    configBuilder = new ConfigurationBuilder();
-                    pgroutinerFile = Path.Join(Value.ConfigPath, pgroutinerSettingsFile);
-                    if (File.Exists(pgroutinerFile))
+                    Value.ConfigPath = Path.Join(Program.CurrentDir, Value.ConfigPath);
+                    
+                    var pgroutinerFileConfig = Path.Join(Value.ConfigPath, pgroutinerSettingsFile);
+                    if (File.Exists(pgroutinerFileConfig))
                     {
-                        files.Add(" " + Path.GetFileName(pgroutinerFile));
-                        configBuilder.AddJsonFile(pgroutinerFile, optional: true, reloadOnChange: false);
+                        files.Add(" " + Path.GetFileName(pgroutinerFileConfig));
+                        configBuilder.AddJsonFile(pgroutinerFileConfig, optional: true, reloadOnChange: false);
                     }
-                    pgroutinerFile2 = Path.Join(Value.ConfigPath, "pgroutiner.json");
-                    if (File.Exists(pgroutinerFile2))
+                    var pgroutinerFile2Config = Path.Join(Value.ConfigPath, "pgroutiner.json");
+                    if (File.Exists(pgroutinerFile2Config))
                     {
-                        files.Add(" " + Path.GetFileName(pgroutinerFile2));
-                        configBuilder.AddJsonFile(pgroutinerFile2, optional: true, reloadOnChange: false);
+                        files.Add(" " + Path.GetFileName(pgroutinerFile2Config));
+                        configBuilder.AddJsonFile(pgroutinerFile2Config, optional: true, reloadOnChange: false);
                     }
-                    settingsFile = Path.Join(Value.ConfigPath, "appsettings.json");
-                    if (File.Exists(settingsFile))
+                    var settingsFileConfig = Path.Join(Value.ConfigPath, "appsettings.json");
+                    if (File.Exists(settingsFileConfig))
                     {
-                        files.Add(" " + Path.GetFileName(settingsFile));
-                        configBuilder.AddJsonFile(devSettingsFile, optional: true, reloadOnChange: false);
+                        files.Add(" " + Path.GetFileName(settingsFileConfig));
+                        configBuilder.AddJsonFile(settingsFileConfig, optional: true, reloadOnChange: false);
                     }
-                    devSettingsFile = Path.Join(Value.ConfigPath, "appsettings.Development.json");
-                    if (File.Exists(devSettingsFile))
+                    var devSettingsFileConfig = Path.Join(Value.ConfigPath, "appsettings.Development.json");
+                    if (File.Exists(devSettingsFileConfig))
                     {
-                        files.Add(" " + Path.GetFileName(devSettingsFile));
-                        configBuilder.AddJsonFile(devSettingsFile, optional: true, reloadOnChange: false);
+                        files.Add(" " + Path.GetFileName(devSettingsFileConfig));
+                        configBuilder.AddJsonFile(devSettingsFileConfig, optional: true, reloadOnChange: false);
                     }
+
+                    configBuilder = new ConfigurationBuilder()
+                        .AddJsonFile(pgroutinerFile, optional: true, reloadOnChange: false)
+                        .AddJsonFile(settingsFile, optional: true, reloadOnChange: false)
+                        .AddJsonFile(devSettingsFile, optional: true, reloadOnChange: false)
+                        .AddJsonFile(pgroutinerFileConfig, optional: true, reloadOnChange: false)
+                        .AddJsonFile(settingsFileConfig, optional: true, reloadOnChange: false)
+                        .AddJsonFile(devSettingsFileConfig, optional: true, reloadOnChange: false);
                     config = configBuilder.Build();
                     config.GetSection("PgRoutiner").Bind(Value);
                     config.Bind(Value);
