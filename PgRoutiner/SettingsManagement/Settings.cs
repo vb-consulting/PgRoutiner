@@ -186,6 +186,7 @@ namespace PgRoutiner.SettingsManagement
             { "Sequences", "Sequences/{0}" }
         };
         public bool DbObjectsSkipDeleteDir { get; set; } = false;
+        public bool DbObjectsRemoveExistingDirs { get; set; } = true;
         public bool DbObjectsOverwrite { get; set; } = false;
         public bool DbObjectsAskOverwrite { get; set; } = false;
         public bool DbObjectsOwners { get; set; } = false;

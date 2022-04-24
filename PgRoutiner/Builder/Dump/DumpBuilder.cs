@@ -160,15 +160,14 @@ public class DumpBuilder
             Writer.WriteFile(file, content);
         }
 
-        foreach (var dir in Directory.GetDirectories(baseDir, "*", SearchOption.TopDirectoryOnly))
+        if (Settings.Value.DbObjectsRemoveExistingDirs)
         {
-            if (Directory.GetDirectories(dir).Length > 0)
+            foreach (var dir in Directory.GetDirectories(baseDir, "*", SearchOption.TopDirectoryOnly))
             {
-                continue;
-            }
-            if (!dirs.Contains(dir.TrimEnd('/').TrimEnd('\\')))
-            {
-                RemoveDir(dir);
+                if (!dirs.Contains(dir.TrimEnd('/').TrimEnd('\\')))
+                {
+                    RemoveDir(dir);
+                }
             }
         }
     }
@@ -205,7 +204,7 @@ public class DumpBuilder
                     fi.Delete();
                 }
             }
-            Directory.Delete(dir);
+            Directory.Delete(dir, true);
         }
     }
 }

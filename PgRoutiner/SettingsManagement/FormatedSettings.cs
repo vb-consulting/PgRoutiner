@@ -222,6 +222,7 @@ public class FormatedSettings
         AddEntry(nameof(Settings.DbObjectsAskOverwrite), Settings.Value.DbObjectsAskOverwrite);
         AddEntry(nameof(Settings.DbObjectsDirNames), Settings.Value.DbObjectsDirNames);
         AddEntry(nameof(Settings.DbObjectsSkipDeleteDir), Settings.Value.DbObjectsSkipDeleteDir);
+        AddEntry(nameof(Settings.DbObjectsRemoveExistingDirs), Settings.Value.DbObjectsRemoveExistingDirs);
         AddEntry(nameof(Settings.DbObjectsOwners), Settings.Value.DbObjectsOwners);
         AddEntry(nameof(Settings.DbObjectsPrivileges), Settings.Value.DbObjectsPrivileges);
         AddEntry(nameof(Settings.DbObjectsDropIfExists), Settings.Value.DbObjectsDropIfExists);

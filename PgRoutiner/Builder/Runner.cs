@@ -46,6 +46,11 @@ public class Runner
             var builder = new Dump.PgDumpBuilder(Settings.Value, connection);
             if (Dump.PgDumpVersion.Check(builder))
             {
+                if (Settings.Value.DbObjects)
+                {
+                    Writer.DumpTitle("** DATA OBJECTS SCRIPTS TREE GENERATION **");
+                    Dump.DumpBuilder.BuildObjectDumps(builder, connectionName);
+                }
                 if (Settings.Value.SchemaDump)
                 {
                     Writer.DumpTitle("** SCHEMA DUMP SCRIPT GENERATION **");
@@ -65,11 +70,6 @@ public class Runner
                         overwrite: Settings.Value.DataDumpOverwrite,
                         askOverwrite: Settings.Value.DataDumpAskOverwrite,
                         contentFunc: () => builder.GetDataContent());
-                }
-                if (Settings.Value.DbObjects)
-                {
-                    Writer.DumpTitle("** DATA OBJECTS SCRIPTS TREE GENERATION **");
-                    Dump.DumpBuilder.BuildObjectDumps(builder, connectionName);
                 }
             }
         }

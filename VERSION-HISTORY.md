@@ -1,5 +1,10 @@
 ﻿# VERSION HISTORY
 
+## 3.7.6
+
+- Data objects scripts tree creation before schema or data dump scripts.
+- Add `DbObjectsRemoveExistingDirs` object that will remove old existing directories when data objects scripts tree creation ends.
+
 ## 3.7.5
 ## 3.7.4
 ## 3.7.3
