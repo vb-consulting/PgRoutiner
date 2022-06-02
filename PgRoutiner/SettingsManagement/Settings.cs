@@ -109,7 +109,7 @@ namespace PgRoutiner.SettingsManagement
         public bool EmptyModelDir { get; set; } = false;
         public bool SkipSyncMethods { get; set; } = false;
         public bool SkipAsyncMethods { get; set; } = false;
-        public string MinNormVersion { get; set; } = "4.0.0";
+        public string MinNormVersion { get; set; } = "5.0.0";
         public string SourceHeader { get; set; } = "// pgroutiner auto-generated code";
         public int Ident { get; set; } = 4;
         public string ReturnMethod { get; set; } = "SingleOrDefault";

@@ -39,9 +39,8 @@ public class CrudDeleteByCode : CrudCodeBase
         {
             Class.AppendLine($"{I4}.Prepared()");
         }
-        Class.Append($"{I4}.Execute(Sql");
-
         this.BuildPkParams(I4);
+        Class.Append($"{I4}.Execute(Sql");
         Class.AppendLine($");");
         Class.AppendLine($"{I2}}}");
         AddMethod(name, true);
@@ -59,9 +58,8 @@ public class CrudDeleteByCode : CrudCodeBase
         {
             Class.AppendLine($"{I4}.Prepared()");
         }
-        Class.Append($"{I4}.ExecuteAsync(Sql");
-
         this.BuildPkParams(I4);
+        Class.Append($"{I4}.ExecuteAsync(Sql");
         Class.AppendLine($");");
         Class.AppendLine($"{I2}}}");
         AddMethod(name, false);
@@ -77,9 +75,8 @@ public class CrudDeleteByCode : CrudCodeBase
         {
             Class.AppendLine($"{I3}.Prepared()");
         }
-        Class.Append($"{I3}.Execute(Sql");
-
         this.BuildPkParams(I3);
+        Class.Append($"{I3}.Execute(Sql");
         Class.AppendLine($");");
         AddMethod(name, true);
     }
@@ -94,9 +91,8 @@ public class CrudDeleteByCode : CrudCodeBase
         {
             Class.AppendLine($"{I3}.Prepared()");
         }
-        Class.Append($"{I3}.ExecuteAsync(Sql");
-
         this.BuildPkParams(I3);
+        Class.Append($"{I3}.ExecuteAsync(Sql");
         Class.AppendLine($");");
         AddMethod(name, false);
     }

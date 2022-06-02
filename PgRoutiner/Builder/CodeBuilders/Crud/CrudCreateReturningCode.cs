@@ -71,8 +71,9 @@ public class CrudCreateReturningCode : CrudCodeBase
         {
             Class.AppendLine($"{I4}.Prepared()");
         }
-        Class.Append($"{I4}.Read<{this.Model}>(Sql(model)");
+
         this.BuildParams(I4);
+        Class.Append($"{I4}.Read<{this.Model}>(Sql(model)");
 
         if (returnMethod == null)
         {
@@ -102,8 +103,9 @@ public class CrudCreateReturningCode : CrudCodeBase
         {
             Class.AppendLine($"{I4}.Prepared()");
         }
-        Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql(model)");
+
         this.BuildParams(I4);
+        Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql(model)");
 
         if (returnMethod == null)
         {
@@ -131,8 +133,9 @@ public class CrudCreateReturningCode : CrudCodeBase
         {
             Class.AppendLine($"{I3}.Prepared()");
         }
-        Class.Append($"{I3}.Read<{this.Model}>(Sql(model)");
+
         this.BuildParams(I3);
+        Class.Append($"{I3}.Read<{this.Model}>(Sql(model)");
 
         if (returnMethod == null)
         {
@@ -160,8 +163,9 @@ public class CrudCreateReturningCode : CrudCodeBase
         {
             Class.AppendLine($"{I3}.Prepared()");
         }
-        Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql(model)");
+
         this.BuildParams(I3);
+        Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql(model)");
 
         if (returnMethod == null)
         {

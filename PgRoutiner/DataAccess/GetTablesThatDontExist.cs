@@ -8,7 +8,9 @@ public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<string> GetTablesThatDontExist(this NpgsqlConnection connection, IEnumerable<string> tableNames)
     {
-        return connection.Read<string>(@$"
+        return connection
+            .WithParameters(new { tables = (tableNames, NpgsqlDbType.Varchar | NpgsqlDbType.Array) })
+            .Read<string>(@$"
 
         select 
             n
@@ -23,7 +25,6 @@ public static partial class DataAccessConnectionExtensions
         where
                 t.table_name is null
 
-        ", 
-        new { tables = (tableNames, NpgsqlDbType.Varchar | NpgsqlDbType.Array) });
+        ");
     }
 }

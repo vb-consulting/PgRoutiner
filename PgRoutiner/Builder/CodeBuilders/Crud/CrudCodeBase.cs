@@ -108,22 +108,22 @@ public abstract class CrudCodeBase : Code
 
     protected void BuildParams(string ident)
     {
-        Class.AppendLine(", new");
-        Class.AppendLine($"{ident}{{");
+        Class.AppendLine($"{ident}.WithParameters(new");
+        Class.Append($"{ident}{{{NL}");
         Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{ident}{I2}@{p.Name} = (model.{p.ClassName}, {p.DbType})")));
-        Class.AppendLine();
-        Class.Append($"{ident}}}");
+        Class.AppendLine($"{NL}{ident}}})");
+
     }
 
     protected void BuildPkParams(string ident)
     {
         if (PkParams.Count > 0)
         {
-            Class.AppendLine(", new");
+            Class.AppendLine($"{ident}.WithParameters(new");
             Class.AppendLine($"{ident}{{");
             Class.Append(string.Join($",{NL}", this.PkParams.Select(p => $"{ident}{I2}@{p.Name} = ({p.Name}, {p.DbType})")));
             Class.AppendLine();
-            Class.Append($"{ident}}}");
+            Class.AppendLine($"{ident}}})");
         }
     }
 

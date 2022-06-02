@@ -8,7 +8,13 @@ public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<PgItem> GetRoutines(this NpgsqlConnection connection, Settings settings)
     {
-        return connection.Read<(string Schema, string Name, string Type)>(@$"
+        return connection
+            .WithParameters(new
+            {
+                schema = (settings.SchemaSimilarTo, DbType.AnsiString),
+                not_schema = (settings.SchemaNotSimilarTo, DbType.AnsiString)
+            })
+            .Read<(string Schema, string Name, string Type)>(@$"
 
                 select 
                     distinct
@@ -25,12 +31,7 @@ public static partial class DataAccessConnectionExtensions
                     and (   {GetSchemaExpression("r.specific_schema")}  )
 
 
-            ", 
-            new
-            {
-                schema = (settings.SchemaSimilarTo, DbType.AnsiString),
-                not_schema = (settings.SchemaNotSimilarTo, DbType.AnsiString)
-            })
+            ")
             .Select(t => new PgItem
             {
                 Schema = t.Schema,

@@ -75,9 +75,10 @@ public class CrudCreateOnConflictDoUpdateReturningCode : CrudCodeBase
         {
             Class.AppendLine($"{I4}.Prepared()");
         }
-        Class.Append($"{I4}.Read<{this.Model}>(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
-        this.BuildParams(I4);
 
+        this.BuildParams(I4);
+        Class.Append($"{I4}.Read<{this.Model}>(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
+        
         if (returnMethod == null)
         {
             Class.AppendLine($");");
@@ -106,8 +107,9 @@ public class CrudCreateOnConflictDoUpdateReturningCode : CrudCodeBase
         {
             Class.AppendLine($"{I4}.Prepared()");
         }
-        Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
+
         this.BuildParams(I4);
+        Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
 
         if (returnMethod == null)
         {
@@ -135,9 +137,10 @@ public class CrudCreateOnConflictDoUpdateReturningCode : CrudCodeBase
         {
             Class.AppendLine($"{I3}.Prepared()");
         }
-        Class.Append($"{I3}.Read<{this.Model}>(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
-        this.BuildParams(I3);
 
+        this.BuildParams(I3);
+        Class.Append($"{I3}.Read<{this.Model}>(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
+        
         if (returnMethod == null)
         {
             Class.AppendLine($");");
@@ -164,9 +167,9 @@ public class CrudCreateOnConflictDoUpdateReturningCode : CrudCodeBase
         {
             Class.AppendLine($"{I3}.Prepared()");
         }
+        this.BuildParams(I3);
         Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql(model, conflictedFields.Length == 0 ? new string[] {{ {string.Join(", ", this.PkParams.Select(p => $"\"{p.Name}\""))} }} : conflictedFields)");
-        Class.AppendLine(",");
-        Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{I4}(\"{p.PgName}\", model.{p.ClassName}, {p.DbType})")));
+        
 
         if (returnMethod == null)
         {

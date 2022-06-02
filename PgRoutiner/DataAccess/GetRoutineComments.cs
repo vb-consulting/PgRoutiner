@@ -7,7 +7,14 @@ namespace PgRoutiner.DataAccess;
 public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<RoutineComment> GetRoutineComments(this NpgsqlConnection connection, Settings settings, string schema) =>
-        connection.Read<(string Type, string Name, string Signature, string Returns, string Language, string Comment)>(@"
+        connection
+        .WithParameters(new
+        {
+            schema = (schema, DbType.AnsiString),
+            notSimilarTo = (settings.MdNotSimilarTo, DbType.AnsiString),
+            similarTo = (settings.MdSimilarTo, DbType.AnsiString)
+        })
+        .Read<(string Type, string Name, string Signature, string Returns, string Language, string Comment)>(@"
 
                 select
                     lower(r.routine_type) as type,
@@ -56,13 +63,7 @@ public static partial class DataAccessConnectionExtensions
                     r.specific_name, r.routine_type, r.external_language, r.routine_name, 
                     r.data_type, r.type_udt_catalog, r.type_udt_schema, r.type_udt_name,
                     pgdesc.description
-            ",
-            new
-            {
-                schema = (schema, DbType.AnsiString),
-                notSimilarTo = (settings.MdNotSimilarTo, DbType.AnsiString),
-                similarTo = (settings.MdSimilarTo, DbType.AnsiString)
-            })
+            ")
             .Select(t => new RoutineComment
             {
                 Comment = t.Comment,

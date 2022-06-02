@@ -17,7 +17,9 @@ public static partial class DataAccessConnectionExtensions
     }
 
     private static IEnumerable<PgReturns> GetTableColumnsForRoutine(this NpgsqlConnection connection, PgRoutineGroup routine) =>
-        connection.Read<PgReturns>(@"
+        connection
+        .WithParameters(new { typeUdtName = (routine.TypeUdtName, DbType.AnsiString) })
+        .Read<PgReturns>(@"
 
             select 
                 c.ordinal_position as ordinal,
@@ -34,11 +36,12 @@ public static partial class DataAccessConnectionExtensions
             order by
                 c.ordinal_position
 
-            ",
-            new { typeUdtName = (routine.TypeUdtName, DbType.AnsiString) });
+            ");
 
     private static IEnumerable<PgReturns> GetTypeColumnsForRoutine(this NpgsqlConnection connection, PgRoutineGroup routine) =>
-        connection.Read<PgReturns>(@"
+        connection
+        .WithParameters(new { typeUdtName = (routine.TypeUdtName, DbType.AnsiString) })
+        .Read<PgReturns>(@"
 
             select 
                 (row_number() over ())::int as ordinal,
@@ -54,6 +57,5 @@ public static partial class DataAccessConnectionExtensions
             where 
                 c.relname = @typeUdtName
 
-            ",
-            new { typeUdtName = (routine.TypeUdtName, DbType.AnsiString) });
+            ");
 }

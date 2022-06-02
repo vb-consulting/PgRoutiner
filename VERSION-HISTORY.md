@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.8.0
+
+Migrate to Norm 5.0.
+
 ## 3.7.6
 
 - Data objects scripts tree creation before schema or data dump scripts.

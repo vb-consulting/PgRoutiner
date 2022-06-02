@@ -7,7 +7,13 @@ namespace PgRoutiner.DataAccess;
 public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<PgReturns> GetRoutineReturnsRecord(this NpgsqlConnection connection, PgRoutineGroup routine) =>
-        connection.Read<PgReturns>(@"
+        connection
+        .WithParameters(new
+        {
+            specificName = (routine.SpecificName, DbType.AnsiString),
+            specificSchema = (routine.SpecificSchema, DbType.AnsiString)
+        })
+        .Read<PgReturns>(@"
 
             select 
                 p.ordinal_position as ordinal,
@@ -25,10 +31,5 @@ public static partial class DataAccessConnectionExtensions
             order by 
                 p.ordinal_position 
 
-            ",
-            new
-            {
-                specificName = (routine.SpecificName, DbType.AnsiString),
-                specificSchema = (routine.SpecificSchema, DbType.AnsiString)
-            });
+            ");
 }

@@ -10,17 +10,23 @@ public static partial class DataAccessConnectionExtensions
     public static IEnumerable<IGrouping<(string Schema, string Name), PgColumnGroup>>
         GetTableDefintions(this NpgsqlConnection connection, Settings settings)
     {
-        return connection.Read<(
-            string Schema,
-            string Table,
-            string Name,
-            int Ord,
-            string Default,
-            string IsNullable,
-            string DataType,
-            string TypeUdtName,
-            string IsIdentity,
-            string ConstraintType)>(@$"
+        return connection
+            .WithParameters(new
+            {
+                schema = (settings.SchemaSimilarTo, DbType.AnsiString),
+                not_schema = (settings.SchemaNotSimilarTo, DbType.AnsiString),
+            })
+            .Read<(
+                string Schema,
+                string Table,
+                string Name,
+                int Ord,
+                string Default,
+                string IsNullable,
+                string DataType,
+                string TypeUdtName,
+                string IsIdentity,
+                string ConstraintType)>(@$"
 
             select 
                 t.table_schema, 
@@ -54,12 +60,7 @@ public static partial class DataAccessConnectionExtensions
                 t.table_name, 
                 c.ordinal_position
 
-            ",
-            new
-            {
-                schema = (settings.SchemaSimilarTo, DbType.AnsiString),
-                not_schema = (settings.SchemaNotSimilarTo, DbType.AnsiString),
-            })
+            ")
             .Select(t => new PgColumnGroup
             {
                 Schema = t.Schema,

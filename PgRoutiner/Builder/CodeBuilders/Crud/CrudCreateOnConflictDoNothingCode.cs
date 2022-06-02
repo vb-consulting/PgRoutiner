@@ -68,9 +68,8 @@ public class CrudCreateOnConflictDoNothingCode : CrudCodeBase
         {
             Class.AppendLine($"{I4}.Prepared()");
         }
-        Class.Append($"{I4}.Execute(Sql(model, conflictedFields)");
         this.BuildParams(I4);
-        Class.AppendLine($");");
+        Class.AppendLine($"{I4}.Execute(Sql(model, conflictedFields));");
         Class.AppendLine($"{I2}}}");
         AddMethod(name, true);
     }
@@ -87,9 +86,8 @@ public class CrudCreateOnConflictDoNothingCode : CrudCodeBase
         {
             Class.AppendLine($"{I4}.Prepared()");
         }
-        Class.Append($"{I4}.ExecuteAsync(Sql(model, conflictedFields)");
         this.BuildParams(I4);
-        Class.AppendLine($");");
+        Class.AppendLine($"{I4}.ExecuteAsync(Sql(model, conflictedFields));");
         Class.AppendLine($"{I2}}}");
         AddMethod(name, false);
     }
@@ -104,9 +102,8 @@ public class CrudCreateOnConflictDoNothingCode : CrudCodeBase
         {
             Class.AppendLine($"{I3}.Prepared()");
         }
-        Class.Append($"{I3}.Execute(Sql(model, conflictedFields)");
         this.BuildParams(I3);
-        Class.AppendLine($");");
+        Class.AppendLine($"{I3}.Execute(Sql(model, conflictedFields));");
         AddMethod(name, true);
     }
 
@@ -120,9 +117,8 @@ public class CrudCreateOnConflictDoNothingCode : CrudCodeBase
         {
             Class.AppendLine($"{I3}.Prepared()");
         }
-        Class.Append($"{I3}.ExecuteAsync(Sql(model, conflictedFields)");
         this.BuildParams(I3);
-        Class.AppendLine($");");
+        Class.AppendLine($"{I3}.ExecuteAsync(Sql(model, conflictedFields));");
         AddMethod(name, false);
     }
 

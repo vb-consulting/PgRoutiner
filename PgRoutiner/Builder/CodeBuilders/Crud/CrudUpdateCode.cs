@@ -59,8 +59,8 @@ public class CrudUpdateCode : CrudCodeBase
         {
             Class.AppendLine($"{I4}.Prepared()");
         }
-        Class.Append($"{I4}.Execute(Sql(model)");
         this.BuildParams(I4);
+        Class.Append($"{I4}.Execute(Sql(model)");
         Class.AppendLine($");");
         Class.AppendLine($"{I2}}}");
         AddMethod(name, true);
@@ -78,8 +78,8 @@ public class CrudUpdateCode : CrudCodeBase
         {
             Class.AppendLine($"{I4}.Prepared()");
         }
-        Class.Append($"{I4}.ExecuteAsync(Sql(model)");
         this.BuildParams(I4);
+        Class.Append($"{I4}.ExecuteAsync(Sql(model)");
         Class.AppendLine($");");
         Class.AppendLine($"{I2}}}");
         AddMethod(name, false);
@@ -95,8 +95,8 @@ public class CrudUpdateCode : CrudCodeBase
         {
             Class.AppendLine($"{I3}.Prepared()");
         }
-        Class.Append($"{I3}.Execute(Sql(model)");
         this.BuildParams(I3);
+        Class.Append($"{I3}.Execute(Sql(model)");
         Class.AppendLine($");");
         AddMethod(name, true);
     }
@@ -111,8 +111,8 @@ public class CrudUpdateCode : CrudCodeBase
         {
             Class.AppendLine($"{I3}.Prepared()");
         }
-        Class.Append($"{I3}.ExecuteAsync(Sql(model)");
         this.BuildParams(I3);
+        Class.Append($"{I3}.ExecuteAsync(Sql(model)");
         Class.AppendLine($");");
         AddMethod(name, false);
     }

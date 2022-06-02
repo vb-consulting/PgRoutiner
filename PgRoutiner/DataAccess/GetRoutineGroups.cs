@@ -11,17 +11,27 @@ public static partial class DataAccessConnectionExtensions
         this NpgsqlConnection connection, Settings settings, bool all = true, string skipSimilar = null, 
         string schemaSimilarTo = null, string schemaNotSimilarTo = null)
     {
-        return connection.Read<(
-            uint Oid,
-            string SpecificSchema,
-            string SpecificName,
-            string RoutineName,
-            string Description,
-            string Language,
-            string RoutineType,
-            string TypeUdtName,
-            string DataType,
-            string Parameters)>(@$"
+        return connection
+            .WithParameters(new
+            {
+                schema = (schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),
+                not_schema = (schemaNotSimilarTo ?? settings.SchemaNotSimilarTo, DbType.AnsiString),
+                notSimilarTo = (settings.RoutinesNotSimilarTo, DbType.AnsiString),
+                similarTo = (settings.RoutinesSimilarTo, DbType.AnsiString),
+                all = (all, DbType.Boolean),
+                skipSimilar = (skipSimilar, DbType.AnsiString),
+            })
+            .Read<(
+                uint Oid,
+                string SpecificSchema,
+                string SpecificName,
+                string RoutineName,
+                string Description,
+                string Language,
+                string RoutineType,
+                string TypeUdtName,
+                string DataType,
+                string Parameters)>(@$"
 
                 select 
                     proc.oid,
@@ -86,16 +96,7 @@ public static partial class DataAccessConnectionExtensions
                 order by 
                     r.specific_schema,
                     r.routine_name
-            ",
-            new
-            {
-                schema = (schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),
-                not_schema = (schemaNotSimilarTo ?? settings.SchemaNotSimilarTo, DbType.AnsiString),
-                notSimilarTo = (settings.RoutinesNotSimilarTo, DbType.AnsiString),
-                similarTo = (settings.RoutinesSimilarTo, DbType.AnsiString),
-                all = (all, DbType.Boolean),
-                skipSimilar = (skipSimilar, DbType.AnsiString),
-            })
+            ")
             .Select(t => new PgRoutineGroup
             {
                 Oid = t.Oid,

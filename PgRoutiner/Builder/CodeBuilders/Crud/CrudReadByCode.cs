@@ -44,9 +44,9 @@ public class CrudReadByCode : CrudCodeBase
         {
             Class.AppendLine($"{I4}.Prepared()");
         }
-        Class.Append($"{I4}.Read<{this.Model}>(Sql");
 
         this.BuildPkParams(I4);
+        Class.Append($"{I4}.Read<{this.Model}>(Sql");
 
         if (returnMethod == null)
         {
@@ -76,9 +76,8 @@ public class CrudReadByCode : CrudCodeBase
         {
             Class.AppendLine($"{I4}.Prepared()");
         }
-        Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql");
-
         this.BuildPkParams(I4);
+        Class.Append($"{I4}.ReadAsync<{this.Model}>(Sql");
 
         if (returnMethod == null)
         {
@@ -106,9 +105,8 @@ public class CrudReadByCode : CrudCodeBase
         {
             Class.AppendLine($"{I3}.Prepared()");
         }
-        Class.Append($"{I3}.Read<{this.Model}>(Sql");
-
         this.BuildPkParams(I3);
+        Class.Append($"{I3}.Read<{this.Model}>(Sql");
 
         if (returnMethod == null)
         {
@@ -135,9 +133,8 @@ public class CrudReadByCode : CrudCodeBase
         {
             Class.AppendLine($"{I3}.Prepared()");
         }
-        Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql");
-
         this.BuildPkParams(I3);
+        Class.Append($"{I3}.ReadAsync<{this.Model}>(Sql");
 
         if (returnMethod == null)
         {

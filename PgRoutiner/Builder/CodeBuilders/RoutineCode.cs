@@ -81,36 +81,32 @@ public class RoutineCode : Code
         void AddBodyCode(string bodyTab, string paramsTab)
         {
             Class.AppendLine($"{bodyTab}.AsProcedure()");
+
+            BuildParams(@params, paramsTab, bodyTab);
+
             if (@return.IsVoid)
             {
                 Class.Append($"{bodyTab}.Execute(Name");
-                if (@params.Count == 0)
-                {
-                    Class.AppendLine(");");
-                    AddMethod();
-                    return;
-                }
-                else
-                {
-                    Class.AppendLine(",");
-                }
+                Class.AppendLine(");");
+                AddMethod();
+                return;
             }
             else
             {
                 Class.Append($"{bodyTab}.Read<{@return.Name}>(Name");
-                if (@params.Count > 0)
-                {
-                    Class.Append(",");
-                }
+                AddMethod();
             }
-            BuildParams(@params, paramsTab);
+
             if (@return.IsVoid || @return.IsEnumerable || returnMethod == null)
             {
                 Class.AppendLine(");");
-                return;
             }
-            Class.AppendLine(")");
-            Class.AppendLine($"{bodyTab}.{returnMethod}();");
+            else
+            {
+                Class.AppendLine(")");
+                Class.AppendLine($"{bodyTab}.{returnMethod}();");
+            }
+            
         }
 
         if (settings.UseExpressionBody)
@@ -160,33 +156,24 @@ public class RoutineCode : Code
         void AddBodyCode(string bodyTab, string paramsTab)
         {
             Class.AppendLine($"{bodyTab}.AsProcedure()");
+
+            BuildParams(@params, paramsTab, bodyTab);
+
             if (@return.IsVoid)
             {
                 Class.Append($"{bodyTab}.ExecuteAsync(Name");
-                if (@params.Count == 0)
-                {
-                    Class.AppendLine(");");
-                    AddMethod();
-                    return;
-                }
-                else
-                {
-                    Class.AppendLine(",");
-                }
+                Class.AppendLine(");");
+                AddMethod();
+                return;
             }
             else
             {
                 Class.Append($"{bodyTab}.ReadAsync<{@return.Name}>(Name");
-                if (@params.Count > 0)
-                {
-                    Class.Append(",");
-                }
             }
-            BuildParams(@params, paramsTab);
+            
             if (@return.IsVoid || @return.IsEnumerable || returnMethod == null)
             {
                 Class.AppendLine(");");
-
             }
             else
             {
@@ -246,15 +233,16 @@ public class RoutineCode : Code
         }
     }
 
-    private void BuildParams(List<Param> @params, string paramsTab)
+    private void BuildParams(List<Param> @params, string paramsTab, string bodyTab)
     {
-        if (@params.Count > 0)
+        if (@params.Count == 0)
         {
-            Class.Append($" new{NL}");
-            Class.Append($"{paramsTab}{{{NL}");
-            Class.Append(string.Join($",{NL}", @params.Select(p => $"{paramsTab}{I2}@{p.PgName} = ({p.Name}, {p.DbType})")));
-            Class.Append($"{NL}{paramsTab}}}");
+            return;
         }
+        Class.AppendLine($"{bodyTab}.WithParameters(new");
+        Class.Append($"{paramsTab}{{{NL}");
+        Class.Append(string.Join($",{NL}", @params.Select(p => $"{paramsTab}{I2}@{p.PgName} = ({p.Name}, {p.DbType})")));
+        Class.AppendLine($"{NL}{paramsTab}}})");
     }
 
     private void BuildCommentHeader(PgRoutineGroup routine, Return @return, List<Param> @params, bool sync, string returnMethod)

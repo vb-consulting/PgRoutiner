@@ -7,7 +7,15 @@ namespace PgRoutiner.DataAccess;
 public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<TableComment> GetTableComments(this NpgsqlConnection connection, Settings settings, string schema, bool isTable = true) =>
-        connection.Read<(string Table, string Column, string ConstraintMarkup, string ColumnType, string Nullable, string DefaultMarkup, string Comment)>(@"
+        connection
+        .WithParameters(new
+        {
+            schema = (schema, DbType.AnsiString),
+            notSimilarTo = (settings.MdNotSimilarTo, DbType.AnsiString),
+            similarTo = (settings.MdSimilarTo, DbType.AnsiString),
+            type = (isTable ? "BASE TABLE" : "VIEW", DbType.AnsiString),
+        })
+        .Read<(string Table, string Column, string ConstraintMarkup, string ColumnType, string Nullable, string DefaultMarkup, string Comment)>(@"
 
             with table_constraints as (
                     
@@ -135,14 +143,7 @@ public static partial class DataAccessConnectionExtensions
                 t.table_name_id, 
                 t.table_name nulls first, 
                 c.ordinal_position
-        ",
-        new
-        {
-            schema = (schema, DbType.AnsiString),
-            notSimilarTo = (settings.MdNotSimilarTo, DbType.AnsiString),
-            similarTo = (settings.MdSimilarTo, DbType.AnsiString),
-            type = (isTable ? "BASE TABLE" : "VIEW", DbType.AnsiString),
-        })
+        ")
         .Select(t => new TableComment
         {
             Column = t.Column,
