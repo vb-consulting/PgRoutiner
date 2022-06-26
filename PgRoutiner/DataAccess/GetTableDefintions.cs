@@ -11,11 +11,9 @@ public static partial class DataAccessConnectionExtensions
         GetTableDefintions(this NpgsqlConnection connection, Settings settings)
     {
         return connection
-            .WithParameters(new
-            {
-                schema = (settings.SchemaSimilarTo, DbType.AnsiString),
-                not_schema = (settings.SchemaNotSimilarTo, DbType.AnsiString),
-            })
+            .WithParameters(
+                (settings.SchemaSimilarTo, DbType.AnsiString),
+                (settings.SchemaNotSimilarTo, DbType.AnsiString))
             .Read<(
                 string Schema,
                 string Table,
@@ -52,8 +50,8 @@ public static partial class DataAccessConnectionExtensions
             where 
                 table_type = 'BASE TABLE'
                 and
-                (   @schema is null or (t.table_schema similar to @schema)   )
-                and (   @not_schema is null or (t.table_schema not similar to @not_schema)   )
+                (   $1 is null or (t.table_schema similar to $1)   )
+                and (   $2 is null or (t.table_schema not similar to $2)   )
                 and (   {GetSchemaExpression("t.table_schema")}  )
             order by 
                 t.table_schema, 

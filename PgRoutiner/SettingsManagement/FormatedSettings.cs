@@ -137,7 +137,7 @@ public class FormatedSettings
         AddEntry(nameof(Settings.SkipSyncMethods), Settings.Value.SkipSyncMethods);
         AddEntry(nameof(Settings.SkipAsyncMethods), Settings.Value.SkipAsyncMethods);
         AddEntry(nameof(Settings.MinNormVersion), Settings.Value.MinNormVersion);
-        AddEntry(nameof(Settings.SourceHeader), Settings.Value.SourceHeader);
+        AddEntry(nameof(Settings.SourceHeaderLines), Settings.Value.SourceHeaderLines);
         AddEntry(nameof(Settings.Ident), Settings.Value.Ident);
         AddEntry(nameof(Settings.ReturnMethod), Settings.Value.ReturnMethod);
         AddEntry(nameof(Settings.MethodParameterNames), Settings.Value.MethodParameterNames);
@@ -161,6 +161,7 @@ public class FormatedSettings
         AddEntry(nameof(Settings.RoutinesSimilarTo), Settings.Value.RoutinesSimilarTo);
         AddEntry(nameof(Settings.RoutinesReturnMethods), Settings.Value.RoutinesReturnMethods);
         AddEntry(nameof(Settings.RoutinesModelPropertyTypes), Settings.Value.RoutinesModelPropertyTypes);
+        AddEntry(nameof(Settings.RoutinesUnknownReturnTypes), Settings.Value.RoutinesUnknownReturnTypes);
 
         sb.AppendLine();
         AddSectionComment(

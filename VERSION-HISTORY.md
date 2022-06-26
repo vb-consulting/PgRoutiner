@@ -1,5 +1,15 @@
 ﻿# VERSION HISTORY
 
+## 3.9.0
+
+- Migrate to Norm 5.2.1
+
+- Use PostgreSQL positional parameters for routines call to disable query rewriting
+
+- Use select for routines to avoid "select *"
+
+- Add pragma to header disable warnings
+
 ## 3.8.0
 
 Migrate to Norm 5.0.

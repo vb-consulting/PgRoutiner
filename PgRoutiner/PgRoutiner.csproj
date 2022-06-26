@@ -14,10 +14,10 @@
     <PackageProjectUrl Condition="'$(Configuration)'!='SelfContained'">https://github.com/vb-consulting/PgRoutiner</PackageProjectUrl>
     <PackageTags Condition="'$(Configuration)'!='SelfContained'">PostgreSQL</PackageTags>
     <GeneratePackageOnBuild Condition="'$(Configuration)'!='SelfContained'">true</GeneratePackageOnBuild>
-    <Version>3.8.0.0</Version>
+    <Version>3.9.0.0</Version>
     <PackageId Condition="'$(Configuration)'!='SelfContained'">dotnet-pgroutiner</PackageId>
-    <AssemblyVersion>3.8.0.0</AssemblyVersion>
-    <FileVersion>3.8.0.0</FileVersion>
+    <AssemblyVersion>3.9.0.0</AssemblyVersion>
+    <FileVersion>3.9.0.0</FileVersion>
     <Configurations>Debug;Release;SelfContained</Configurations>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
@@ -27,11 +27,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Test\**" />
     <Compile Remove="_exe\**" />
-    <EmbeddedResource Remove="Test\**" />
     <EmbeddedResource Remove="_exe\**" />
-    <None Remove="Test\**" />
     <None Remove="_exe\**" />
   </ItemGroup>
 
@@ -49,8 +46,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Norm.net" Version="5.0.0" />
-    <PackageReference Include="Npgsql" Version="6.0.4" />
+    <PackageReference Include="Norm.net" Version="5.2.1" />
+    <PackageReference Include="Npgsql" Version="6.0.5" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
 </Project>

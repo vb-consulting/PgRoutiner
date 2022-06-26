@@ -18,7 +18,7 @@ public static partial class DataAccessConnectionExtensions
 
     private static IEnumerable<PgReturns> GetTableColumnsForRoutine(this NpgsqlConnection connection, PgRoutineGroup routine) =>
         connection
-        .WithParameters(new { typeUdtName = (routine.TypeUdtName, DbType.AnsiString) })
+        .WithParameters((routine.TypeUdtName, DbType.AnsiString))
         .Read<PgReturns>(@"
 
             select 
@@ -32,7 +32,7 @@ public static partial class DataAccessConnectionExtensions
             from
                 information_schema.columns c
             where
-                c.table_name = @typeUdtName
+                c.table_name = $1
             order by
                 c.ordinal_position
 
@@ -40,7 +40,7 @@ public static partial class DataAccessConnectionExtensions
 
     private static IEnumerable<PgReturns> GetTypeColumnsForRoutine(this NpgsqlConnection connection, PgRoutineGroup routine) =>
         connection
-        .WithParameters(new { typeUdtName = (routine.TypeUdtName, DbType.AnsiString) })
+        .WithParameters((routine.TypeUdtName, DbType.AnsiString))
         .Read<PgReturns>(@"
 
             select 
@@ -55,7 +55,7 @@ public static partial class DataAccessConnectionExtensions
             inner join pg_attribute a on c.oid = a.attrelid 
             inner join pg_type t on a.atttypid = t.oid
             where 
-                c.relname = @typeUdtName
+                c.relname = $1
 
             ");
 }

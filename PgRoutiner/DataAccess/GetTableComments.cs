@@ -8,13 +8,11 @@ public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<TableComment> GetTableComments(this NpgsqlConnection connection, Settings settings, string schema, bool isTable = true) =>
         connection
-        .WithParameters(new
-        {
-            schema = (schema, DbType.AnsiString),
-            notSimilarTo = (settings.MdNotSimilarTo, DbType.AnsiString),
-            similarTo = (settings.MdSimilarTo, DbType.AnsiString),
-            type = (isTable ? "BASE TABLE" : "VIEW", DbType.AnsiString),
-        })
+        .WithParameters(
+            (schema, DbType.AnsiString),
+            (settings.MdNotSimilarTo, DbType.AnsiString),
+            (settings.MdSimilarTo, DbType.AnsiString),
+            (isTable ? "BASE TABLE" : "VIEW", DbType.AnsiString))
         .Read<(string Table, string Column, string ConstraintMarkup, string ColumnType, string Nullable, string DefaultMarkup, string Comment)>(@"
 
             with table_constraints as (
@@ -55,7 +53,7 @@ public static partial class DataAccessConnectionExtensions
                         left outer join information_schema.key_column_usage kcu 
                         on tc.constraint_type = 'FOREIGN KEY' and tc.constraint_schema = kcu.constraint_schema and ccu.constraint_name = kcu.constraint_name
                     where
-                        tc.constraint_schema = @schema
+                        tc.constraint_schema = $1
                     group by
                         tc.table_name, kcu.column_name, ccu.column_name, tc.constraint_name,
                         tc.constraint_type, ccu.table_schema, ccu.table_name, tc.constraint_schema
@@ -70,7 +68,7 @@ public static partial class DataAccessConnectionExtensions
                         pg_stat_all_indexes i
                         inner join pg_attribute a on i.indexrelid = a.attrelid
                         left outer join information_schema.table_constraints tc on i.indexrelname = tc.constraint_name
-                    where tc.table_name is null and i.schemaname = @schema
+                    where tc.table_name is null and i.schemaname = $1
 
                     order by
                         description_markup
@@ -115,19 +113,19 @@ public static partial class DataAccessConnectionExtensions
             from (
                     select t1.table_name as table_name_id, t1.table_name
                     from information_schema.tables t1
-                    where t1.table_schema = @schema and t1.table_type = @type
+                    where t1.table_schema = $1 and t1.table_type = $4
                     union all
                     select t2.table_name as table_name_id, null as table_name
                     from information_schema.tables t2
-                    where t2.table_schema = @schema and t2.table_type = @type
+                    where t2.table_schema = $1 and t2.table_type = $4
                     order by table_name_id, table_name nulls first
                 ) t
                     
                 left outer join information_schema.columns c 
-                on t.table_name = c.table_name and c.table_schema = @schema 
+                on t.table_name = c.table_name and c.table_schema = $1 
                     
                 left outer join pg_catalog.pg_statio_user_tables pgtbl
-                on t.table_name_id = pgtbl.relname and pgtbl.schemaname = @schema
+                on t.table_name_id = pgtbl.relname and pgtbl.schemaname = $1
                     
                 left outer join pg_catalog.pg_description pgdesc
                 on pgtbl.relid = pgdesc.objoid and coalesce(c.ordinal_position, 0) = pgdesc.objsubid
@@ -136,8 +134,8 @@ public static partial class DataAccessConnectionExtensions
                 on t.table_name = tc.table_name and c.column_name = tc.column_name
            
             where
-                (@notSimilarTo is null or table_name_id not similar to @notSimilarTo)
-                and (@similarTo is null or table_name_id similar to @similarTo)
+                ($2 is null or table_name_id not similar to $2)
+                and ($3 is null or table_name_id similar to $3)
 
             order by 
                 t.table_name_id, 

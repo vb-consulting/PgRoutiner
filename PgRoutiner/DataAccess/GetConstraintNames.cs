@@ -9,18 +9,16 @@ public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<ConstraintName> GetConstraintNames(this NpgsqlConnection connection, (string Schema, string Name)[] tables, PgConstraint type) =>
         connection
-        .WithParameters(new
-        {
-            tables = (tables.Select(t => $"{t.Schema}.{t.Name}").ToArray(), NpgsqlDbType.Varchar | NpgsqlDbType.Array),
-            type = (type switch
+        .WithParameters(
+            (tables.Select(t => $"{t.Schema}.{t.Name}").ToArray(), NpgsqlDbType.Varchar | NpgsqlDbType.Array),
+            (type switch
             {
                 PgConstraint.ForeignKey => "FOREIGN KEY",
                 PgConstraint.PrimaryKey => "PRIMARY KEY",
                 PgConstraint.Check => "CHECK",
                 PgConstraint.Unique => "UNIQUE",
                 _ => throw new NotImplementedException()
-            }, NpgsqlDbType.Varchar)
-        })
+            }, NpgsqlDbType.Varchar))
         .Read<(string Schema, string Table, string Name, string Type)>(@"
 
             select 
@@ -28,8 +26,8 @@ public static partial class DataAccessConnectionExtensions
             from 
                 information_schema.table_constraints
             where 
-                table_schema || '.' || table_name = any(@tables)
-                and constraint_type = @type
+                table_schema || '.' || table_name = any($1)
+                and constraint_type = $2
 
             ")
             .Select(t => new ConstraintName

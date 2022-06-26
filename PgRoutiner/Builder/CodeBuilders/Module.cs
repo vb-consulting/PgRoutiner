@@ -49,9 +49,12 @@ public class Module : Code
     public override string ToString()
     {
         var builder = new StringBuilder();
-        if (!string.IsNullOrEmpty(settings.SourceHeader))
+        if (settings.SourceHeaderLines != null && settings.SourceHeaderLines.Count > 0)
         {
-            builder.AppendLine(string.Format(settings.SourceHeader, DateTime.Now));
+            foreach(var line in settings.SourceHeaderLines)
+            {
+                builder.AppendLine(string.Format(line, DateTime.Now));
+            }
         }
         foreach (var ns in usings)
         {

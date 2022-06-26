@@ -8,12 +8,10 @@ public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<RoutineComment> GetRoutineComments(this NpgsqlConnection connection, Settings settings, string schema) =>
         connection
-        .WithParameters(new
-        {
-            schema = (schema, DbType.AnsiString),
-            notSimilarTo = (settings.MdNotSimilarTo, DbType.AnsiString),
-            similarTo = (settings.MdSimilarTo, DbType.AnsiString)
-        })
+        .WithParameters(
+            (schema, DbType.AnsiString),
+            (settings.MdNotSimilarTo, DbType.AnsiString),
+            (settings.MdSimilarTo, DbType.AnsiString))
         .Read<(string Type, string Name, string Signature, string Returns, string Language, string Comment)>(@"
 
                 select
@@ -53,11 +51,11 @@ public static partial class DataAccessConnectionExtensions
                     inner join pg_catalog.pg_proc proc on r.specific_name = proc.proname || '_' || proc.oid
                     left outer join pg_catalog.pg_description pgdesc on proc.oid = pgdesc.objoid
                 where
-                    r.specific_schema = @schema
+                    r.specific_schema = $1
                     and lower(r.external_language) = any('{sql, plpgsql}')
 
-                    and (@notSimilarTo is null or r.routine_name not similar to @notSimilarTo)
-                    and (@similarTo is null or r.routine_name similar to @similarTo)
+                    and ($2 is null or r.routine_name not similar to $2)
+                    and ($3 is null or r.routine_name similar to $3)
 
                 group by
                     r.specific_name, r.routine_type, r.external_language, r.routine_name, 

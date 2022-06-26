@@ -109,8 +109,12 @@ namespace PgRoutiner.SettingsManagement
         public bool EmptyModelDir { get; set; } = false;
         public bool SkipSyncMethods { get; set; } = false;
         public bool SkipAsyncMethods { get; set; } = false;
-        public string MinNormVersion { get; set; } = "5.0.0";
-        public string SourceHeader { get; set; } = "// pgroutiner auto-generated code";
+        public string MinNormVersion { get; set; } = "5.2.1";
+        public HashSet<string> SourceHeaderLines { get; set; } = new()
+        {
+            "#pragma warning disable CS8632",
+            $"// pgroutiner auto-generated code",
+        };
         public int Ident { get; set; } = 4;
         public string ReturnMethod { get; set; } = "SingleOrDefault";
         public IDictionary<string, string> MethodParameterNames { get; set; } = new Dictionary<string, string>()
@@ -141,6 +145,10 @@ namespace PgRoutiner.SettingsManagement
         public string RoutinesSimilarTo { get; set; } = null;
         public IDictionary<string, string> RoutinesReturnMethods { get; set; } = new Dictionary<string, string>();
         public IDictionary<string, string> RoutinesModelPropertyTypes { get; set; } = new Dictionary<string, string>();
+        public HashSet<string> RoutinesUnknownReturnTypes { get; set; } = new()
+        {
+            "json", "jsonb"
+        };
 
         /*unit tests*/
         public bool UnitTests { get; set; } = false;

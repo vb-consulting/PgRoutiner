@@ -10,9 +10,12 @@ public class TestFixtures : Code
     private StringBuilder Build()
     {
         StringBuilder sb = new();
-        if (!string.IsNullOrEmpty(Settings.Value.SourceHeader))
+        if (settings.SourceHeaderLines != null && settings.SourceHeaderLines.Count > 0)
         {
-            sb.AppendLine(string.Format(Settings.Value.SourceHeader, DateTime.Now));
+            foreach (var line in settings.SourceHeaderLines)
+            {
+                sb.AppendLine(string.Format(line, DateTime.Now));
+            }
         }
         sb.AppendLine(@"using System;");
         sb.AppendLine(@"using System.Collections.Generic;");

@@ -2,8 +2,8 @@
 
 public class Return
 {
-    public bool IsEnumerable { get; init; }
-    public bool IsVoid { get; init; }
-    public string Name { get; init; }
-    public string PgName { get; init; }
+    public bool IsEnumerable { get; set; }
+    public bool IsVoid { get; set; }
+    public string Name { get; set; }
+    public string PgName { get; set; }
 }

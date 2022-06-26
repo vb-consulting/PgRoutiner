@@ -13,12 +13,10 @@ public static partial class DataAccessConnectionExtensions
             return Enumerable.Empty<PgItem>();
         }
         return connection
-            .WithParameters(new
-            {
-                schema = (settings.SchemaSimilarTo, DbType.AnsiString),
-                not_schema = (settings.SchemaNotSimilarTo, DbType.AnsiString),
-                skipSimilar = (skipSimilar, DbType.AnsiString)
-            })
+            .WithParameters(
+                (settings.SchemaSimilarTo, DbType.AnsiString), 
+                (settings.SchemaNotSimilarTo, DbType.AnsiString), 
+                (skipSimilar, DbType.AnsiString))
             .Read<(string Schema, string Name)>(@$"
 
                 select 
@@ -29,10 +27,10 @@ public static partial class DataAccessConnectionExtensions
                 ) sub
 
                 where
-                    (   @schema is null or (sub.schema similar to @schema)   )
-                    and (   @not_schema is null or sub.schema not similar to @not_schema   )
+                    (   $1 is null or (sub.schema similar to $1)   )
+                    and (   $2 is null or sub.schema not similar to $2   )
                     and (   {GetSchemaExpression("sub.schema")}  )
-                    and (   @skipSimilar is null or (sub.name not similar to @skipSimilar)   )
+                    and (   $3 is null or (sub.name not similar to $3)   )
                 
                 ")
                 .Select(t => new PgItem

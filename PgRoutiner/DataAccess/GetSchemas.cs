@@ -9,12 +9,10 @@ public static partial class DataAccessConnectionExtensions
         Settings settings, string skipSimilar = null, string schemaSimilarTo = null, string schemaNotSimilarTo = null)
     {
         return connection
-            .WithParameters(new
-            {
-                schema = (schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),
-                not_schema = (schemaNotSimilarTo ?? settings.SchemaNotSimilarTo, DbType.AnsiString),
-                skipSimilar = (skipSimilar, DbType.AnsiString),
-            })
+            .WithParameters(
+                (schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),
+                (schemaNotSimilarTo ?? settings.SchemaNotSimilarTo, DbType.AnsiString),
+                (skipSimilar, DbType.AnsiString))
             .Read<string>(@$"
 
             select
@@ -22,10 +20,10 @@ public static partial class DataAccessConnectionExtensions
             from
                 information_schema.schemata
             where
-                (   @schema is null or (schema_name similar to @schema)   )
-                and (   @not_schema is null or schema_name not similar to @not_schema   )
+                (   $1 is null or (schema_name similar to $1)   )
+                and (   $2 is null or schema_name not similar to $2   )
                 and (   {GetSchemaExpression("schema_name")}  )
-                and (   @skipSimilar is null or (schema_name not similar to @skipSimilar)   )
+                and (   $3 is null or (schema_name not similar to $3)   )
         ");
     }
 }

@@ -9,13 +9,13 @@ public static partial class DataAccessConnectionExtensions
     public static IEnumerable<string> GetTablesThatDontExist(this NpgsqlConnection connection, IEnumerable<string> tableNames)
     {
         return connection
-            .WithParameters(new { tables = (tableNames, NpgsqlDbType.Varchar | NpgsqlDbType.Array) })
+            .WithParameters((tableNames, NpgsqlDbType.Varchar | NpgsqlDbType.Array))
             .Read<string>(@$"
 
         select 
             n
         from 
-            unnest(@tables) n
+            unnest($1) n
             left outer join information_schema.tables t 
             on 
                 t.table_name = n 

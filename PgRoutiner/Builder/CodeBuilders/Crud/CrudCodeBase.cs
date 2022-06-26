@@ -112,7 +112,6 @@ public abstract class CrudCodeBase : Code
         Class.Append($"{ident}{{{NL}");
         Class.Append(string.Join($",{NL}", this.ColumnParams.Select(p => $"{ident}{I2}@{p.Name} = (model.{p.ClassName}, {p.DbType})")));
         Class.AppendLine($"{NL}{ident}}})");
-
     }
 
     protected void BuildPkParams(string ident)

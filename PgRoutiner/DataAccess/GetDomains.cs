@@ -9,12 +9,10 @@ public static partial class DataAccessConnectionExtensions
     public static IEnumerable<PgItem> GetDomains(this NpgsqlConnection connection, Settings settings, string skipSimilar = null)
     {
         return connection
-            .WithParameters(new
-            {
-                schema = (settings.SchemaSimilarTo, DbType.AnsiString),
-                not_schema = (settings.SchemaNotSimilarTo, DbType.AnsiString),
-                skipSimilar = (skipSimilar, DbType.AnsiString)
-            })
+            .WithParameters(
+                (settings.SchemaSimilarTo, DbType.AnsiString),
+                (settings.SchemaNotSimilarTo, DbType.AnsiString),
+                (skipSimilar, DbType.AnsiString))
             .Read<(string Schema, string Name)>(@$"
 
                 select 
@@ -24,11 +22,11 @@ public static partial class DataAccessConnectionExtensions
                 from
                     information_schema.domains d
                 where
-                    (   @schema is null or (d.domain_schema similar to @schema)   )
-                    and (   @not_schema is null or d.domain_schema not similar to @not_schema   )
+                    (   $1 is null or (d.domain_schema similar to $1)   )
+                    and (   $2 is null or d.domain_schema not similar to $2   )
                     and (   {GetSchemaExpression("d.domain_schema")}  )
 
-                    and (   @skipSimilar is null or (d.domain_name not similar to @skipSimilar)   )
+                    and (   $3 is null or (d.domain_name not similar to $3)   )
 
             ")
             .Select(t => new PgItem

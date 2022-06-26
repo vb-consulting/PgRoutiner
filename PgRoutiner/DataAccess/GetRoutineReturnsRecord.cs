@@ -8,11 +8,9 @@ public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<PgReturns> GetRoutineReturnsRecord(this NpgsqlConnection connection, PgRoutineGroup routine) =>
         connection
-        .WithParameters(new
-        {
-            specificName = (routine.SpecificName, DbType.AnsiString),
-            specificSchema = (routine.SpecificSchema, DbType.AnsiString)
-        })
+        .WithParameters(
+            (routine.SpecificName, DbType.AnsiString),
+            (routine.SpecificSchema, DbType.AnsiString))
         .Read<PgReturns>(@"
 
             select 
@@ -27,7 +25,7 @@ public static partial class DataAccessConnectionExtensions
             where 
                 p.ordinal_position is not null 
                 and (p.parameter_mode = 'OUT' or p.parameter_mode = 'INOUT')
-                and p.specific_name = @specificName and p.specific_schema = @specificSchema
+                and p.specific_name = $1 and p.specific_schema = $2
             order by 
                 p.ordinal_position 
 

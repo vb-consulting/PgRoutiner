@@ -12,15 +12,13 @@ public static partial class DataAccessConnectionExtensions
         string schemaSimilarTo = null, string schemaNotSimilarTo = null)
     {
         return connection
-            .WithParameters(new
-            {
-                schema = (schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),
-                not_schema = (schemaNotSimilarTo ?? settings.SchemaNotSimilarTo, DbType.AnsiString),
-                notSimilarTo = (settings.RoutinesNotSimilarTo, DbType.AnsiString),
-                similarTo = (settings.RoutinesSimilarTo, DbType.AnsiString),
-                all = (all, DbType.Boolean),
-                skipSimilar = (skipSimilar, DbType.AnsiString),
-            })
+            .WithParameters(
+                (schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),
+                (schemaNotSimilarTo ?? settings.SchemaNotSimilarTo, DbType.AnsiString),
+                (settings.RoutinesNotSimilarTo, DbType.AnsiString),
+                (settings.RoutinesSimilarTo, DbType.AnsiString),
+                (all, DbType.Boolean),
+                (skipSimilar, DbType.AnsiString))
             .Read<(
                 uint Oid,
                 string SpecificSchema,
@@ -75,14 +73,14 @@ public static partial class DataAccessConnectionExtensions
                 where
                     lower(r.external_language) = any('{{sql,plpgsql}}')
                     and
-                    (   @schema is null or (r.specific_schema similar to @schema)   )
-                    and (   @not_schema is null or r.specific_schema not similar to @not_schema   )
+                    (   $1 is null or (r.specific_schema similar to $1)   )
+                    and (   $2 is null or r.specific_schema not similar to $2   )
                     and (   {GetSchemaExpression("r.specific_schema")}  )
 
-                    and (@notSimilarTo is null or r.routine_name not similar to @notSimilarTo)
-                    and (@similarTo is null or r.routine_name similar to @similarTo)
-                    and (@all is true or (r.type_udt_name <> 'trigger' and r.type_udt_name <> 'refcursor'))
-                    and (   @skipSimilar is null or (r.routine_name not similar to @skipSimilar)   )
+                    and ($3 is null or r.routine_name not similar to $3)
+                    and ($4 is null or r.routine_name similar to $4)
+                    and ($5 is true or (r.type_udt_name <> 'trigger' and r.type_udt_name <> 'refcursor'))
+                    and (   $6 is null or (r.routine_name not similar to $6)   )
                 group by
                     proc.oid,
                     r.specific_schema,

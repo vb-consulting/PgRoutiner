@@ -174,9 +174,12 @@ public class UnitTestBuilder
     private static string GetTestSettingsContent(NpgsqlConnection connection, string dir, string schemaFile, string dataFile)
     {
         StringBuilder sb = new();
-        if (!string.IsNullOrEmpty(Settings.Value.SourceHeader))
+        if (Settings.Value.SourceHeaderLines != null && Settings.Value.SourceHeaderLines.Count > 0)
         {
-            sb.AppendLine(string.Format(Settings.Value.SourceHeader, DateTime.Now));
+            foreach (var line in Settings.Value.SourceHeaderLines)
+            {
+                sb.AppendLine(string.Format(line, DateTime.Now));
+            }
         }
         sb.AppendLine(@"{");
         sb.AppendLine(@"  ""ConnectionStrings"": {");

@@ -9,12 +9,10 @@ public static partial class DataAccessConnectionExtensions
     public static IEnumerable<PgItem> GetSequences(this NpgsqlConnection connection, Settings settings, string skipSimilar = null)
     {
         return connection
-            .WithParameters(new
-            {
-                schema = (settings.SchemaSimilarTo, DbType.AnsiString),
-                not_schema = (settings.SchemaNotSimilarTo, DbType.AnsiString),
-                skipSimilar = (skipSimilar, DbType.AnsiString),
-            })
+            .WithParameters(
+                (settings.SchemaSimilarTo, DbType.AnsiString),
+                (settings.SchemaNotSimilarTo, DbType.AnsiString),
+                (skipSimilar, DbType.AnsiString))
             .Read<(string Schema, string Name)>(@$"
 
             select
@@ -23,10 +21,10 @@ public static partial class DataAccessConnectionExtensions
             from
                 information_schema.sequences s
             where
-                (   @schema is null or (s.sequence_schema similar to @schema)   )
-                and (   @not_schema is null or s.sequence_schema not similar to @not_schema   )
+                (   $1 is null or (s.sequence_schema similar to $1)   )
+                and (   $2 is null or s.sequence_schema not similar to $2   )
                 and (   {GetSchemaExpression("s.sequence_schema")}  )
-                and (   @skipSimilar is null or (sequence_name not similar to @skipSimilar)   )
+                and (   $3 is null or (sequence_name not similar to $3)   )
 
         ")
         .Select(t => new PgItem
