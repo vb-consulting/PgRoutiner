@@ -33,6 +33,8 @@ public class RoutineCode : Code
         Class.AppendLine($"{I1}public static class PgRoutine{Name.ToUpperCamelCase()}");
         Class.AppendLine($"{I1}{{");
         Class.AppendLine($"{I2}public const string Name = \"{schema}.{Name}\";");
+        //Class.AppendLine($"{I2}public const string Command = \"{BuildSelectExpression(@return, @params)}\";");
+        
         foreach (var routine in routines)
         {
             PrepareParams(routine);
@@ -82,6 +84,7 @@ public class RoutineCode : Code
         void AddBodyCode(string bodyTab, string paramsTab)
         {
             SetUnknownType(@return, bodyTab);
+            SetSingleResult(@return, bodyTab);
 
             BuildParams(@params, paramsTab, bodyTab);
 
@@ -145,6 +148,14 @@ public class RoutineCode : Code
         }
     }
 
+    private void SetSingleResult(Return @return, string bodyTab)
+    {
+        if (!@return.IsEnumerable && !@return.IsVoid)
+        {
+            Class.AppendLine($"{bodyTab}.WithCommandBehavior(System.Data.CommandBehavior.SingleResult)");
+        }
+    }
+
     private void BuildAsyncMethod(PgRoutineGroup routine, Return @return, List<Param> @params)
     {
         var name = $"{routine.RoutineName.ToUpperCamelCase()}Async";
@@ -165,6 +176,7 @@ public class RoutineCode : Code
         void AddBodyCode(string bodyTab, string paramsTab)
         {
             SetUnknownType(@return, bodyTab);
+            SetSingleResult(@return, bodyTab);
 
             BuildParams(@params, paramsTab, bodyTab);
 

@@ -1,5 +1,10 @@
 ﻿# VERSION HISTORY
 
+## 3.9.1
+
+- Add `.WithCommandBehavior(System.Data.CommandBehavior.SingleResult)` if pg function returns single results
+- Add `text` and `varchar` to `RoutinesUnknownReturnTypes` settings so that string types are returned as raw strings
+
 ## 3.9.0
 
 - Migrate to Norm 5.2.1

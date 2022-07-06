@@ -147,7 +147,7 @@ namespace PgRoutiner.SettingsManagement
         public IDictionary<string, string> RoutinesModelPropertyTypes { get; set; } = new Dictionary<string, string>();
         public HashSet<string> RoutinesUnknownReturnTypes { get; set; } = new()
         {
-            "json", "jsonb"
+            "json", "jsonb", "text", "varchar"
         };
 
         /*unit tests*/
