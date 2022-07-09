@@ -4,13 +4,18 @@ namespace PgRoutiner.DumpTransformers;
 
 public partial class TableDumpTransformer : DumpTransformer
 {
+    private readonly NpgsqlConnection connection;
+
     public PgItem Item { get; }
     public enum EntryType { Field, Contraint, Index, Sequence, Trigger }
     public Dictionary<string, (int position, string content, EntryType entryType)> Names { get; } = new();
 
-    public TableDumpTransformer(PgItem table, List<string> lines) : base(lines)
+    private string name;
+
+    public TableDumpTransformer(PgItem table, List<string> lines, NpgsqlConnection connection) : base(lines)
     {
         this.Item = table;
+        this.connection = connection;
     }
 
     public TableDumpTransformer BuildLines()
@@ -38,17 +43,19 @@ public partial class TableDumpTransformer : DumpTransformer
             }
 
             var createStart = line.StartsWith(startSequence);
-            var createEnd = line.StartsWith(endSequence);
+            var createEnd = line.StartsWith(endSequence) || line.EndsWith(endSequence);
+            var createClosed = string.Equals(line, ")");
             if (createStart)
             {
                 isPrepend = false;
                 isCreate = true;
                 isAppend = false;
+                name = line.Trim().Replace("CREATE TABLE", "").Replace("(", "").Trim();
             }
             if (isCreate)
             {
                 Create.Add(line);
-                if (!createStart && !createEnd)
+                if (!createStart && !createEnd && !createClosed)
                 {
                     var trimmed = line.Trim();
                     if (trimmed.StartsWith("CONSTRAINT"))
@@ -142,9 +149,29 @@ public partial class TableDumpTransformer : DumpTransformer
             else if (field == null && fieldStatement != null)
             {
                 var len = Create.Count;
-                Create.Insert(len - 1, string.Concat("    ", fieldStatement));
-                var prev = Create[len - 2];
-                Create[len - 2] = string.Concat(prev, ",");
+                int delta = 1;
+                var entry = Create[len - delta];
+                if (string.Equals(entry, ")") || entry.StartsWith("PARTITION BY"))
+                {
+                    while (true)
+                    {
+                        entry = Create[len - delta];
+                        if (!string.Equals(entry, ")") && !entry.StartsWith("PARTITION BY"))
+                        {
+                            delta--;
+                            break;
+                        }
+                        if (delta == len)
+                        {
+                            break;
+                        }
+                        delta++;
+                    }
+                }
+                
+                Create.Insert(len - delta, string.Concat("    ", fieldStatement));
+                var prev = Create[len - delta - 1];
+                Create[len - delta - 1] = string.Concat(prev, ",");
             }
             else
             {
@@ -167,6 +194,31 @@ public partial class TableDumpTransformer : DumpTransformer
             sb.Append(string.Join(Environment.NewLine, appendResult));
             sb.AppendLine();
         }
+
+        // add partitions if any
+        var hasPartitions = false;
+        foreach(var line in Create)
+        {
+            if (line.StartsWith("PARTITION BY"))
+            {
+                hasPartitions = true;
+                break;
+            }
+        }
+        if (hasPartitions)
+        {
+            var partitions = connection.GetPartitionTables(Item).ToList();
+            if (partitions.Any())
+            {
+                sb.AppendLine();
+                foreach(var partition in partitions)
+                {
+                    var partitionName = $"{(string.Equals(partition.Schema, "public") ? "public" : string.Concat("\"", partition.Schema, "\""))}.\"{partition.Table}\"";
+                    sb.AppendLine($"CREATE TABLE {partitionName} PARTITION OF {name} {partition.Expression};");
+                }
+            }
+        }
+
         return sb.ToString();
     }
 

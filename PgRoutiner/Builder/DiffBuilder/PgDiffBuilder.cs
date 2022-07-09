@@ -5,6 +5,7 @@ namespace PgRoutiner.Builder.DiffBuilder;
 public partial class PgDiffBuilder : CodeBuilders.Code
 {
     private readonly NpgsqlConnection target;
+    private readonly NpgsqlConnection source;
     private readonly Dump.PgDumpBuilder sourceBuilder;
     private readonly Dump.PgDumpBuilder targetBuilder;
     private readonly string title;
@@ -40,6 +41,7 @@ public partial class PgDiffBuilder : CodeBuilders.Code
         string title) : base(settings, null)
     {
         this.target = target;
+        this.source = source;
         this.sourceBuilder = sourceBuilder;
         this.title = title;
         this.targetBuilder = targetBuilder;

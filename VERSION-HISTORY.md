@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.9.2
+
+Add support for partitions in db object tree
+
 ## 3.9.1
 
 - Add `.WithCommandBehavior(System.Data.CommandBehavior.SingleResult)` if pg function returns single results

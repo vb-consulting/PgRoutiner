@@ -56,7 +56,8 @@ public class PgDumpBuilder
 
         if (HasKey(DumpType.Tables))
         {
-            foreach (var table in Connection.GetTables(settings))
+            var tables = Connection.GetTables(settings).ToList();
+            foreach (var table in tables)
             {
                 var name = table.GetFileName();
                 string content = null;
@@ -275,7 +276,7 @@ public class PgDumpBuilder
         {
             return GetPgDumpContent($"{args} {tableArg}");
         }
-        return new TableDumpTransformer(table, GetDumpLines(args, tableArg)).BuildLines().ToString();
+        return new TableDumpTransformer(table, GetDumpLines(args, tableArg), Connection).BuildLines().ToString();
     }
 
     private string GetSeqContent(PgItem seq, string args)
