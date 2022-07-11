@@ -3,6 +3,7 @@
 public class TableComment
 {
     public string Table { get; set; }
+    public bool HasPartitions { get; set; }
     public string Column { get; set; }
     public string ConstraintMarkup { get; set; }
     public string ColumnType { get; set; }

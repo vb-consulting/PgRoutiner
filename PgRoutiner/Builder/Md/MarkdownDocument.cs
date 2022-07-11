@@ -1,4 +1,6 @@
-﻿namespace PgRoutiner.Builder.Md;
+﻿using PgRoutiner.DataAccess.Models;
+
+namespace PgRoutiner.Builder.Md;
 
 public class MarkdownDocument
 {
@@ -49,7 +51,7 @@ public class MarkdownDocument
         foreach (var schema in schemas)
         {
             var dict = connection
-                .GetTableComments(settings, schema, isTable: true)
+                .GetTableComments(settings, schema)
                 .Where(t => t.Comment != null)
                 .ToDictionary(
                     t => $"\"{schema}\".\"{t.Table}\"{(t.Column == null ? "" : $".\"{t.Column}\"")}",
@@ -57,7 +59,7 @@ public class MarkdownDocument
             dict.ToList().ForEach(x => comments.Add(x.Key, x.Value));
 
             dict = connection
-                .GetTableComments(settings, schema, isTable: false)
+                .GetViewComments(settings, schema)
                 .Where(t => t.Comment != null)
                 .ToDictionary(
                     t => $"\"{schema}\".\"{t.Table}\"{(t.Column == null ? "" : $".\"{t.Column}\"")}",
@@ -198,7 +200,7 @@ public class MarkdownDocument
                 break;
             }
             var viewsHeader = false;
-            foreach (var result in connection.GetTableComments(settings, schema, isTable: false))
+            foreach (var result in connection.GetViewComments(settings, schema))
             {
                 if (!viewsHeader)
                 {
@@ -271,7 +273,7 @@ public class MarkdownDocument
         var tablesHeader = false;
         foreach (var schema in schemas)
         {
-            foreach (var result in connection.GetTableComments(settings, schema, isTable: true))
+            foreach (var result in connection.GetTableComments(settings, schema).ToList())
             {
                 if (!tablesHeader)
                 {
@@ -302,6 +304,7 @@ public class MarkdownDocument
                     header.AppendLine($"- Table [`{schema}.{result.Table}`](#table-{schema.ToLower()}{result.Table.ToLower()})");
                     content.AppendLine();
                     content.AppendLine(StartTag("table", $"\"{schema}\".\"{result.Table}\""));
+
                     if (comment != null)
                     {
                         content.AppendLine(comment);
@@ -312,6 +315,15 @@ public class MarkdownDocument
                         anyTables = true;
                     }
                     content.AppendLine(EndTag);
+
+                    if (result.HasPartitions)
+                    {
+                        content.AppendLine();
+                        content.AppendLine("*Partitions*:");
+                        var partitions = connection.GetPartitionTables(new PgItem { Name = result.Table, Schema = schema });
+                        content.AppendLine(string.Join(", ", partitions.Select(p => $"`{p.Schema}.{p.Table} {p.Expression}`")));
+                    }
+
                     content.AppendLine();
                     content.AppendLine("| Column |             | Type | Nullable | Default | Comment |");
                     content.AppendLine("| ------ | ----------- | -----| -------- | ------- | ------- |");

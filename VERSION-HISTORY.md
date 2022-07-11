@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.9.3
+
+Add support for partitions in markdown dictionary document
+
 ## 3.9.2
 
 Add support for partitions in db object tree
