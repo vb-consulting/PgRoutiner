@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.9.4
+
+When building schema file, comment out dropping primary key constraints on table partitions because that raises `ERROR:  cannot drop inherited constraint` error.
+
 ## 3.9.3
 
 Add support for partitions in markdown dictionary document

@@ -348,6 +348,9 @@ public class PgDumpBuilder
         var insideBlock = false;
         var insideView = false;
         string endSequence = null;
+
+        var partitions = Connection.GetAllPartitionTables().ToList();
+
         string lineFunc(string line)
         {
             if (line.Contains("CREATE FUNCTION ") || line.Contains("CREATE PROCEDURE "))
@@ -383,6 +386,23 @@ public class PgDumpBuilder
             if (selectIndex == 0)
             {
                 line = string.Concat("PERFORM ", line.Substring("SELECT ".Length));
+            }
+            //ONLY public.company_areas9 DROP CONSTRAINT
+            if (partitions.Select(p => $"ONLY {p.Schema}.{p.Table} DROP CONSTRAINT").Where(p => line.Contains(p)).Any())
+            {
+                line = $"-- {line} -- ERROR:  cannot drop inherited constraint ";
+            }
+            else if (partitions.Select(p => $"ONLY {p.Schema}.\"{p.Table}\" DROP CONSTRAINT").Where(p => line.Contains(p)).Any())
+            {
+                line = $"-- {line} -- ERROR:  cannot drop inherited constraint ";
+            }
+            else if (partitions.Select(p => $"ONLY \"{p.Schema}\".\"{p.Table}\" DROP CONSTRAINT").Where(p => line.Contains(p)).Any())
+            {
+                line = $"-- {line} -- ERROR:  cannot drop inherited constraint ";
+            }
+            else if (partitions.Select(p => $"ONLY \"{p.Schema}\".{p.Table} DROP CONSTRAINT").Where(p => line.Contains(p)).Any())
+            {
+                line = $"-- {line} -- ERROR:  cannot drop inherited constraint ";
             }
             return line;
         };
