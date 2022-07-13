@@ -143,7 +143,7 @@ public static partial class DataAccessConnectionExtensions
                 left outer join information_schema.columns c 
                 on t.table_name = c.table_name and c.table_schema = $1 
                     
-                left outer join pg_catalog.pg_statio_user_tables pgtbl
+                left outer join pg_catalog.pg_stat_all_tables pgtbl
                 on t.table_name_id = pgtbl.relname and pgtbl.schemaname = $1
                     
                 left outer join pg_catalog.pg_description pgdesc
@@ -155,9 +155,6 @@ public static partial class DataAccessConnectionExtensions
                 left outer join partitioned part
                 on table_name_id = part.child_table_name and pgtbl.schemaname = part.child_schema_name
 
-                left outer join partitioned parent_part
-                on table_name_id = parent_part.parent_table_name and pgtbl.schemaname = parent_part.parent_schema_name
-           
             where
                 part.child_table_name is null
                 and ($2 is null or table_name_id not similar to $2)
