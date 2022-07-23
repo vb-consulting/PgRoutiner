@@ -245,8 +245,10 @@ public class FormatedSettings
         AddEntry(nameof(Settings.MdAskOverwrite), Settings.Value.MdAskOverwrite);
         AddEntry(nameof(Settings.MdSkipRoutines), Settings.Value.MdSkipRoutines);
         AddEntry(nameof(Settings.MdSkipViews), Settings.Value.MdSkipViews);
+        AddEntry(nameof(Settings.MdSkipEnums), Settings.Value.MdSkipEnums);
         AddEntry(nameof(Settings.MdNotSimilarTo), Settings.Value.MdNotSimilarTo);
         AddEntry(nameof(Settings.MdSimilarTo), Settings.Value.MdSimilarTo);
+        AddEntry(nameof(Settings.MdIncludeSourceLinks), Settings.Value.MdIncludeSourceLinks);
         AddEntry(nameof(Settings.CommitMd), Settings.Value.CommitMd);
 
         sb.AppendLine();

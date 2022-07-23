@@ -1,4 +1,6 @@
-﻿using PgRoutiner.DataAccess.Models;
+﻿using PgRoutiner.DataAccess;
+using PgRoutiner.DataAccess.Models;
+using static PgRoutiner.Builder.Dump.DumpBuilder;
 
 namespace PgRoutiner.Builder.Md;
 
@@ -7,6 +9,9 @@ public class MarkdownDocument
     private string I1 => string.Join("", Enumerable.Repeat(" ", settings.Ident));
     private readonly Settings settings;
     private readonly NpgsqlConnection connection;
+    
+    private readonly string connectionName = null;
+    private readonly string baseUrl = null;
 
     private const string Open = "<!-- ";
     private const string Close = " -->";
@@ -21,6 +26,11 @@ public class MarkdownDocument
     {
         this.settings = settings;
         this.connection = connection;
+        if (settings.MdIncludeSourceLinks)
+        {
+            connectionName = (settings.Connection ?? $"{connection.Host}_{connection.Port}_{connection.Database}").SanitazePath();
+            baseUrl = PathoToUrl(string.Format(settings.DbObjectsDir, connectionName));
+        }
     }
 
     public string Build()
@@ -36,6 +46,7 @@ public class MarkdownDocument
 
         BuildTables(content, header, schemas, ref writeToc);
         BuildViews(content, header, schemas, ref writeToc);
+        BuildEnums(content, header, schemas, ref writeToc);
         BuildRoutines(content, header, schemas, writeToc);
 
         return string.Concat(header.ToString(), content.ToString());
@@ -169,6 +180,12 @@ public class MarkdownDocument
                 content.AppendLine();
                 content.AppendLine($"- Language is `{result.Language}`");
                 content.AppendLine();
+                if (settings.MdIncludeSourceLinks)
+                {
+                    var url = GetUrl(string.Equals(result.Type.ToLowerInvariant(), "function", StringComparison.InvariantCulture) ? DumpType.Functions : DumpType.Procedures, schema, result.Name);
+                    content.AppendLine($"<sub>[{url}]({url})</sub>");
+                    content.AppendLine();
+                }
                 content.AppendLine(StartTag(result.Type, $"\"{schema}\".{result.Signature.Replace(result.Name, $"\"{result.Name}\"")}"));
                 if (result.Comment != null)
                 {
@@ -242,6 +259,11 @@ public class MarkdownDocument
                     }
 
                     content.AppendLine(EndTag);
+                    if (settings.MdIncludeSourceLinks)
+                    {
+                        var url = GetUrl(DumpType.Views, schema, result.Table);
+                        content.AppendLine($"<sub>[{url}]({url})</sub>");
+                    }
                     content.AppendLine();
                     content.AppendLine("| Column | Type | Comment |");
                     content.AppendLine("| ------ | ---- | --------|");
@@ -252,9 +274,30 @@ public class MarkdownDocument
                     {
                         comment = string.Join(" ", result.Comment.Split("\n"));
                     }
+                    string enumValue = null;
+                    string typeMarkup = "";
+                    if (result.IsUdt == true)
+                    {
+                        enumValue = connection.GetEnumValueAggregate(schema, result.ColumnType);
+                        if (enumValue == null)
+                        {
+                            typeMarkup = $" <sub>user definded</sub>";
+                        }
+                        else
+                        {
+                            if (!settings.MdSkipEnums)
+                            {
+                                typeMarkup = $" <sub>user definded `AS ENUM ({enumValue})` [➝](#enum-{schema.ToLower()}-{result.ColumnType.ToLower()})</sub>";
+                            }
+                            else
+                            {
+                                typeMarkup = $" <sub>user definded `AS ENUM ({enumValue})`</sub>";
+                            }
+                        }
+                    }
                     content.AppendLine(
-                        $"| `{result.Column}` " +
-                        $"| `{result.ColumnType}` " +
+                        $"| {(result.IsPk == true ? "**" : "")}`{result.Column}`{(result.IsPk == true ? "**" : "")} " +
+                        $"| `{result.ColumnType}`{typeMarkup}" +
                         $"| {StartTag("column", $"\"{schema}\".\"{result.Table}\".\"{result.Column}\"")}{comment}{EndTag} |");
                 }
             }
@@ -323,10 +366,15 @@ public class MarkdownDocument
                         var partitions = connection.GetPartitionTables(new PgItem { Name = result.Table, Schema = schema });
                         content.AppendLine(string.Join(", ", partitions.Select(p => $"`{p.Schema}.{p.Table} {p.Expression}`")));
                     }
-
+                    if (settings.MdIncludeSourceLinks)
+                    {
+                        var url = GetUrl(DumpType.Tables, schema, result.Table);
+                        content.AppendLine($"<sub>[{url}]({url})</sub>");
+                    }
+                    
                     content.AppendLine();
                     content.AppendLine("| Column |             | Type | Nullable | Default | Comment |");
-                    content.AppendLine("| ------ | ----------- | -----| -------- | ------- | ------- |");
+                    content.AppendLine("| ------ | ----------- | -----| :------: | ------- | ------- |");
                 }
                 else
                 {
@@ -335,10 +383,32 @@ public class MarkdownDocument
                         comment = string.Join(" ", result.Comment.Split("\n"));
                     }
                     var name = $"{schema.ToLower()}-{result.Table.ToLower()}-{result.Column.ToLower()}";
+                    
+                    string enumValue = null;
+                    string typeMarkup = "";
+                    if (result.IsUdt == true)
+                    {
+                        enumValue = connection.GetEnumValueAggregate(schema, result.ColumnType);
+                        if (enumValue == null)
+                        {
+                            typeMarkup = $" <sub>user definded</sub>";
+                        }
+                        else
+                        {
+                            if (!settings.MdSkipEnums)
+                            {
+                                typeMarkup = $" <sub>user definded `AS ENUM ({enumValue})` [➝](#enum-{schema.ToLower()}-{result.ColumnType.ToLower()})</sub>";
+                            }
+                            else
+                            {
+                                typeMarkup = $" <sub>user definded `AS ENUM ({enumValue})`</sub>";
+                            }
+                        }
+                    }
                     content.AppendLine(
-                        $"| {Hashtag(name)}`{result.Column}` " +
+                        $"| {Hashtag(name)}{(result.IsPk == true ? "**" : "")}`{result.Column}`{(result.IsPk == true ? "**" : "")} " +
                         $"| {result.ConstraintMarkup} " +
-                        $"| `{result.ColumnType}` " +
+                        $"| `{result.ColumnType}`{typeMarkup}" +
                         $"| {result.Nullable} " +
                         $"| {result.DefaultMarkup} " +
                         $"| {StartTag("column", $"\"{schema}\".\"{result.Table}\".\"{result.Column}\"")}{comment}{EndTag} |");
@@ -351,6 +421,68 @@ public class MarkdownDocument
             content.AppendLine();
             content.AppendLine("<a href=\"#table-of-contents\" title=\"Table of Contents\">&#8673;</a>");
         }
+    }
+
+    private void BuildEnums(StringBuilder content, StringBuilder header, List<string> schemas, ref bool writeToc)
+    {
+        var anyEnums = false;
+
+        foreach (var schema in schemas)
+        {
+            if (settings.MdSkipEnums)
+            {
+                break;
+            }
+            var enumHeader = false;
+            foreach (var result in connection.GetEnumComments(settings, schema))
+            {
+                if (!enumHeader)
+                {
+                    content.AppendLine();
+                    content.AppendLine("## Enums");
+                    enumHeader = true;
+                }
+
+                if (settings.MdIncludeSourceLinks)
+                {
+                    content.AppendLine("| Type name | Values | Comment | Source |");
+                    content.AppendLine("| --------- | ------ | --------| ------ |");
+                }
+                else
+                {
+                    content.AppendLine("| Type name | Values | Comment |");
+                    content.AppendLine("| --------- | ------ | --------|");
+                }
+
+                var name = $"enum-{schema.ToLower()}-{result.Name.ToLower()}";
+                header.AppendLine($"- Enum [`{schema}.{result.Name}`](#{name})");
+
+                if (settings.MdIncludeSourceLinks)
+                {
+                    var url = GetUrl(DumpType.Types, schema, result.Name);
+                    content.AppendLine(
+                        $"| {Hashtag(name)}`{result.Name}` " +
+                        $"| `{result.Values}` " +
+                        $"| {result.Comment} " +
+                        $"| <sub>[{url}]({url})</sub> ");
+                }
+                else
+                {
+                    content.AppendLine(
+                        $"| {Hashtag(name)}`{result.Name}` " +
+                        $"| `{result.Values}` " +
+                        $"| {result.Comment} ");
+                }
+
+            }
+        }
+
+        if (anyEnums)
+        {
+            content.AppendLine();
+            content.AppendLine("<a href=\"#table-of-contents\" title=\"Table of Contents\">&#8673;</a>");
+        }
+
     }
 
     private void BuildHeader(StringBuilder header, List<string> schemas)
@@ -368,8 +500,50 @@ public class MarkdownDocument
         {
             header.AppendLine($"- Schema's: {string.Join(", ", schemas.Select(s => $"`{s}`"))}");
         }
+        
+        if (settings.MdIncludeSourceLinks)
+        {
+            if (settings.SchemaDumpFile != null)
+            {
+                var file = PathoToUrl(string.Format(settings.SchemaDumpFile, connectionName));
+                header.AppendLine($"- Schema file: [{file}]({file})");
+            }
+
+            if (Settings.Value.DataDumpFile != null)
+            {
+                var file = PathoToUrl(string.Format(settings.DataDumpFile, connectionName));
+                header.AppendLine($"- Data file: [{file}]({file})");
+            }
+        }
         header.AppendLine();
         header.AppendLine("## Table of Contents");
         header.AppendLine();
+    }
+
+    private string PathoToUrl(string path) => path
+        .Replace("\\", "/")
+        .Replace("./", "/");
+
+    private string GetUrl(DumpType type, string schema, string name)
+    {
+        string GetDir()
+        {
+            string dir = null;
+            settings.DbObjectsDirNames.TryGetValue(type.ToString(), out dir);
+            if (dir == null)
+            {
+                return null;
+            }
+            
+            return PathoToUrl(Path.Combine(baseUrl, string.Format(dir, schema == "public" ? "" : schema)));
+        }
+
+        var dir = GetDir();
+        if (dir == null)
+        {
+            return null;
+        }
+
+        return PathoToUrl(Path.Combine(dir, PgItemExt.GetFileName(new PgItem { Name = name, Schema = schema })));
     }
 }

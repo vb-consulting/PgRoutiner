@@ -14,7 +14,7 @@ public static partial class DataAccessConnectionExtensions
             (schema, DbType.AnsiString),
             (settings.MdNotSimilarTo, DbType.AnsiString),
             (settings.MdSimilarTo, DbType.AnsiString))
-        .Read<(string Table, bool HasPartitions, string Column, string ConstraintMarkup, string ColumnType, string Nullable, string DefaultMarkup, string Comment)>(@"
+        .Read<(string Table, bool HasPartitions, string Column, bool? IsPk, string ConstraintMarkup, string ColumnType, bool? IsUdt, string Nullable, string DefaultMarkup, string Comment)>(@"
 
             with partitioned as (
     
@@ -32,10 +32,11 @@ public static partial class DataAccessConnectionExtensions
     
             ),
             table_constraints as (
-                    
+
                 select 
                     sub.table_name,
                     sub.column_name,
+                    sub.is_pk,
                     string_agg(
                         sub.description_markup, 
                         ', ' 
@@ -49,6 +50,7 @@ public static partial class DataAccessConnectionExtensions
                     select 
                         tc.table_name, 
                         coalesce(kcu.column_name, ccu.column_name) as column_name,
+                        tc.constraint_type = 'PRIMARY KEY' as is_pk,
                         case    when tc.constraint_type = 'PRIMARY KEY' 
                                 then '**PK**'
                                 when tc.constraint_type = 'FOREIGN KEY' 
@@ -58,7 +60,7 @@ public static partial class DataAccessConnectionExtensions
                                             else ccu.table_schema || '.'
                                     end 
                                     || ccu.table_name || '.' || ccu.column_name || '`**'
-                                when tc.constraint_type = 'CHECK' then (select pg_get_constraintdef((select oid from pg_constraint where conname = tc.constraint_name), true))
+                                when tc.constraint_type = 'CHECK' then (select '`' || pg_get_constraintdef((select oid from pg_constraint where conname = tc.constraint_name), true) || '`')
                                 else tc.constraint_type
                         end as description_markup
 
@@ -79,6 +81,7 @@ public static partial class DataAccessConnectionExtensions
                     select 
                         i.relname as table_name, 
                         a.attname as column_name,
+                        false as is_pk,
                         '**IDX**' as description_markup
                     from 
                         pg_stat_all_indexes i
@@ -91,7 +94,7 @@ public static partial class DataAccessConnectionExtensions
 
                 ) sub
                 group by 
-                    sub.table_name, sub.column_name
+                    sub.table_name, sub.column_name, sub.is_pk
 
             )
             select 
@@ -100,8 +103,9 @@ public static partial class DataAccessConnectionExtensions
                     select exists (select 1 from partitioned where partitioned.parent_table_name = table_name_id)
                 ) as has_partitions,
                 c.column_name,
+                tc.is_pk,
                 tc.description_markup,
-                c.data_type || 
+                case when c.data_type = 'USER-DEFINED' then c.udt_name else c.data_type end || 
 
                     case    when c.data_type <> 'integer' and c.data_type <> 'bigint' and c.data_type <> 'smallint' 
                             then
@@ -119,6 +123,8 @@ public static partial class DataAccessConnectionExtensions
                                 end
                             else ''
                     end as data_type,
+
+                c.data_type = 'USER-DEFINED' as is_udt,
 
                 case when c.is_nullable = 'NO' then '**NO**' else c.is_nullable end as nullableMarkup,
                     
@@ -168,7 +174,9 @@ public static partial class DataAccessConnectionExtensions
         .Select(t => new TableComment
         {
             Column = t.Column,
+            IsPk = t.IsPk,
             ColumnType = t.ColumnType,
+            IsUdt = t.IsUdt,
             Comment = t.Comment,
             ConstraintMarkup = t.ConstraintMarkup,
             DefaultMarkup = t.DefaultMarkup,
@@ -185,13 +193,14 @@ public static partial class DataAccessConnectionExtensions
         (schema, DbType.AnsiString),
         (settings.MdNotSimilarTo, DbType.AnsiString),
         (settings.MdSimilarTo, DbType.AnsiString))
-    .Read<(string Table, bool HasPartitions, string Column, string ConstraintMarkup, string ColumnType, string Nullable, string DefaultMarkup, string Comment)>(@"
+    .Read<(string Table, bool HasPartitions, string Column, bool? IsPk, string ConstraintMarkup, string ColumnType, bool? IsUdt, string Nullable, string DefaultMarkup, string Comment)>(@"
 
             with table_constraints as (
                     
                 select 
                     sub.table_name,
                     sub.column_name,
+                    sub.is_pk,
                     string_agg(
                         sub.description_markup, 
                         ', ' 
@@ -205,6 +214,7 @@ public static partial class DataAccessConnectionExtensions
                     select 
                         tc.table_name, 
                         coalesce(kcu.column_name, ccu.column_name) as column_name,
+                        tc.constraint_type = 'PRIMARY KEY' as is_pk,
                         case    when tc.constraint_type = 'PRIMARY KEY' 
                                 then '**PK**'
                                 when tc.constraint_type = 'FOREIGN KEY' 
@@ -214,7 +224,7 @@ public static partial class DataAccessConnectionExtensions
                                             else ccu.table_schema || '.'
                                     end 
                                     || ccu.table_name || '.' || ccu.column_name || '`**'
-                                when tc.constraint_type = 'CHECK' then (select pg_get_constraintdef((select oid from pg_constraint where conname = tc.constraint_name), true))
+                                when tc.constraint_type = 'CHECK' then (select '`' || pg_get_constraintdef((select oid from pg_constraint where conname = tc.constraint_name), true) || '`')
                                 else tc.constraint_type
                         end as description_markup
 
@@ -235,6 +245,7 @@ public static partial class DataAccessConnectionExtensions
                     select 
                         i.relname as table_name, 
                         a.attname as column_name,
+                        false as is_pk,
                         '**IDX**' as description_markup
                     from 
                         pg_stat_all_indexes i
@@ -247,15 +258,16 @@ public static partial class DataAccessConnectionExtensions
 
                 ) sub
                 group by 
-                    sub.table_name, sub.column_name
+                    sub.table_name, sub.column_name, sub.is_pk
 
             )
             select 
                 table_name_id as table_name,
                 false as has_partitions,
                 c.column_name,
+                tc.is_pk,
                 tc.description_markup,
-                c.data_type || 
+                case when c.data_type = 'USER-DEFINED' then c.udt_name else c.data_type end || 
 
                     case    when c.data_type <> 'integer' and c.data_type <> 'bigint' and c.data_type <> 'smallint' 
                             then
@@ -273,7 +285,9 @@ public static partial class DataAccessConnectionExtensions
                                 end
                             else ''
                     end as data_type,
-
+                
+                c.data_type = 'USER-DEFINED' as is_udt,
+                
                 case when c.is_nullable = 'NO' then '**NO**' else c.is_nullable end as nullableMarkup,
                     
                 case    when c.column_default like 'next%' or c.identity_generation = 'ALWAYS' 
@@ -318,7 +332,9 @@ public static partial class DataAccessConnectionExtensions
     .Select(t => new TableComment
     {
         Column = t.Column,
+        IsPk = t.IsPk,
         ColumnType = t.ColumnType,
+        IsUdt = t.IsUdt,
         Comment = t.Comment,
         ConstraintMarkup = t.ConstraintMarkup,
         DefaultMarkup = t.DefaultMarkup,

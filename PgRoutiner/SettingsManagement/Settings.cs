@@ -212,8 +212,10 @@ namespace PgRoutiner.SettingsManagement
         public bool MdAskOverwrite { get; set; } = false;
         public bool MdSkipRoutines { get; set; } = false;
         public bool MdSkipViews { get; set; } = false;
+        public bool MdSkipEnums { get; set; } = false;
         public string MdNotSimilarTo { get; set; } = null;
         public string MdSimilarTo { get; set; } = null;
+        public bool MdIncludeSourceLinks { get; set; } = false;
         public bool CommitMd { get; set; } = false;
 
         /*psql interactive terminal*/
