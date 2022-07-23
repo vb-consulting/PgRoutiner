@@ -216,6 +216,7 @@ namespace PgRoutiner.SettingsManagement
         public string MdNotSimilarTo { get; set; } = null;
         public string MdSimilarTo { get; set; } = null;
         public bool MdIncludeSourceLinks { get; set; } = false;
+        public string MdSourceLinkRoot { get; set; } = null;
         public bool CommitMd { get; set; } = false;
 
         /*psql interactive terminal*/

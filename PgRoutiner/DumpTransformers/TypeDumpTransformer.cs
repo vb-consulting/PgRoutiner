@@ -88,12 +88,12 @@ public partial class TypeDumpTransformer : DumpTransformer
                     {
                         Prepend.Add(statement);
                     }
-                    /*
+                    //!?
                     else if (isAppend)
                     {
                         Append.Add(statement);
                     }
-                    */
+                    
                     statement = "";
                 }
             }

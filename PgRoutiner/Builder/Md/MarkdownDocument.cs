@@ -520,16 +520,25 @@ public class MarkdownDocument
         header.AppendLine();
     }
 
-    private string PathoToUrl(string path) => path
-        .Replace("\\", "/")
-        .Replace("./", "/");
+    private string PathoToUrl(string path)
+    {
+        if (settings.MdSourceLinkRoot == null)
+        {
+            return path
+                .Replace("\\", "/")
+                .Replace("./", "/");
+        }
+        return Path.Combine(settings.MdSourceLinkRoot, path)
+            .Replace("\\", "/")
+            .Replace("./", "/")
+            .Replace("//", "/");
+    }
 
     private string GetUrl(DumpType type, string schema, string name)
     {
         string GetDir()
         {
-            string dir = null;
-            settings.DbObjectsDirNames.TryGetValue(type.ToString(), out dir);
+            settings.DbObjectsDirNames.TryGetValue(type.ToString(), out var dir);
             if (dir == null)
             {
                 return null;

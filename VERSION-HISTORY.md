@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.9.7
+
+- Fixed type artifacts in db tree files.
+
+- Aded `MdSourceLinkRoot` settings to set root when `MdIncludeSourceLinks` is included.
+
 ## 3.9.6
 
 Massive improvement on markdown documnetation. Now includes proper user defined type names and enum values. It can also include source links.
