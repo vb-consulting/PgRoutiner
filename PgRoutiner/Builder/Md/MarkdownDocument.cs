@@ -512,7 +512,22 @@ public class MarkdownDocument
             if (Settings.Value.DataDumpFile != null)
             {
                 var file = PathoToUrl(string.Format(settings.DataDumpFile, connectionName));
-                header.AppendLine($"- Data file: [{file}]({file})");
+                var line = $"- Data file: [{file}]({file})";
+                if (settings.DataDumpTables != null && settings.DataDumpTables.Count > 0)
+                {
+                    line = string.Concat(line, 
+                        " for tables ", 
+                        string.Join(", ", settings.DataDumpTables.Select(t =>
+                        {
+                            var split = t.Split('.');
+                            if (split.Length == 1)
+                            {
+                                return $"[{t}](#table-public{t.ToLower()})";
+                            }
+                            return $"[{t}](#table-{split[0].ToLower()}{split[1].ToLower()})";
+                        })));
+                }
+                header.AppendLine(line);
             }
         }
         header.AppendLine();

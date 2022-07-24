@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.9.8
+
+- Added "for tables" in "data file" toc entry of markdown file.
+
 ## 3.9.7
 
 - Fixed type artifacts in db tree files.
