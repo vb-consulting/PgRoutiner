@@ -249,6 +249,7 @@ public class FormatedSettings
         AddEntry(nameof(Settings.MdNotSimilarTo), Settings.Value.MdNotSimilarTo);
         AddEntry(nameof(Settings.MdSimilarTo), Settings.Value.MdSimilarTo);
         AddEntry(nameof(Settings.MdIncludeSourceLinks), Settings.Value.MdIncludeSourceLinks);
+        AddEntry(nameof(Settings.MdIncludeExtensionLinks), Settings.Value.MdIncludeExtensionLinks);
         AddEntry(nameof(Settings.MdSourceLinkRoot), Settings.Value.MdSourceLinkRoot);
         AddEntry(nameof(Settings.CommitMd), Settings.Value.CommitMd);
 

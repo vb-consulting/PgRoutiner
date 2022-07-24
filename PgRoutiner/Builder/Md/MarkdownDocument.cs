@@ -9,7 +9,8 @@ public class MarkdownDocument
     private string I1 => string.Join("", Enumerable.Repeat(" ", settings.Ident));
     private readonly Settings settings;
     private readonly NpgsqlConnection connection;
-    
+    private readonly string NL = "\n";
+
     private readonly string connectionName = null;
     private readonly string baseUrl = null;
 
@@ -128,8 +129,8 @@ public class MarkdownDocument
             if (comments.TryGetValue(entry, out var old))
             {
                 var old1 = string.Join(" ", old.Split("\n")).Trim();
-                var old2 = string.Join($"{Environment.NewLine}", old.Split("\n")).Trim();
-                var old3 = string.Join($"{Environment.NewLine}{Environment.NewLine}", old.Split("\n")).Trim();
+                var old2 = string.Join($"{NL}", old.Split("\n")).Trim();
+                var old3 = string.Join($"{NL}{NL}", old.Split("\n")).Trim();
 
                 if (!string.Equals(comment, old1) && !string.Equals(comment, old2) && !string.Equals(comment, old3))
                 {
@@ -183,13 +184,23 @@ public class MarkdownDocument
                 if (settings.MdIncludeSourceLinks)
                 {
                     var url = GetUrl(string.Equals(result.Type.ToLowerInvariant(), "function", StringComparison.InvariantCulture) ? DumpType.Functions : DumpType.Procedures, schema, result.Name);
-                    content.AppendLine($"<sub>[{url}]({url})</sub>");
+                    content.AppendLine($"- Source: [{url}]({url})");
+                    content.AppendLine();
+                }
+                if (settings.MdIncludeExtensionLinks && settings.OutputDir != null)
+                {
+                    var dir = schema == null ? settings.OutputDir : string.Format(settings.OutputDir, schema == "public" ? "" : schema.ToUpperCamelCase());
+                    var url = Path.Combine(settings.MdSourceLinkRoot ?? "", dir, $"{result.Name.ToUpperCamelCase()}.cs")
+                        .Replace("\\", "/")
+                        .Replace("./", "/")
+                        .Replace("//", "/");
+                    content.AppendLine($"- C# Source: [{url}]({url})");
                     content.AppendLine();
                 }
                 content.AppendLine(StartTag(result.Type, $"\"{schema}\".{result.Signature.Replace(result.Name, $"\"{result.Name}\"")}"));
                 if (result.Comment != null)
                 {
-                    content.AppendLine(string.Join($"{Environment.NewLine}{Environment.NewLine}", result.Comment.Split("\n")));
+                    content.AppendLine(string.Join($"{NL}{NL}", result.Comment));
                 }
 
                 content.AppendLine(EndTag);
@@ -231,7 +242,7 @@ public class MarkdownDocument
                 {
                     if (result.Comment != null)
                     {
-                        comment = string.Join($"{Environment.NewLine}{Environment.NewLine}", result.Comment.Split("\n"));
+                        comment = string.Join($"{NL}{NL}", result.Comment);
                     }
                     content.AppendLine();
 
@@ -262,7 +273,7 @@ public class MarkdownDocument
                     if (settings.MdIncludeSourceLinks)
                     {
                         var url = GetUrl(DumpType.Views, schema, result.Table);
-                        content.AppendLine($"<sub>[{url}]({url})</sub>");
+                        content.AppendLine($"- Source: [{url}]({url})");
                     }
                     content.AppendLine();
                     content.AppendLine("| Column | Type | Comment |");
@@ -272,9 +283,9 @@ public class MarkdownDocument
                 {
                     if (result.Comment != null)
                     {
-                        comment = string.Join(" ", result.Comment.Split("\n"));
+                        comment = string.Join(" ", result.Comment);
                     }
-                    string enumValue = null;
+                    string enumValue;
                     string typeMarkup = "";
                     if (result.IsUdt == true)
                     {
@@ -329,7 +340,7 @@ public class MarkdownDocument
                 {
                     if (result.Comment != null)
                     {
-                        comment = string.Join($"{Environment.NewLine}{Environment.NewLine}", result.Comment.Split("\n"));
+                        comment = string.Join($"{NL}{NL}", result.Comment);
                     }
                     content.AppendLine();
 
@@ -369,7 +380,7 @@ public class MarkdownDocument
                     if (settings.MdIncludeSourceLinks)
                     {
                         var url = GetUrl(DumpType.Tables, schema, result.Table);
-                        content.AppendLine($"<sub>[{url}]({url})</sub>");
+                        content.AppendLine($"- Source: [{url}]({url})");
                     }
                     
                     content.AppendLine();
@@ -380,7 +391,7 @@ public class MarkdownDocument
                 {
                     if (result.Comment != null)
                     {
-                        comment = string.Join(" ", result.Comment.Split("\n"));
+                        comment = string.Join(" ", result.Comment);
                     }
                     var name = $"{schema.ToLower()}-{result.Table.ToLower()}-{result.Column.ToLower()}";
                     
@@ -464,7 +475,7 @@ public class MarkdownDocument
                         $"| {Hashtag(name)}`{result.Name}` " +
                         $"| `{result.Values}` " +
                         $"| {result.Comment} " +
-                        $"| <sub>[{url}]({url})</sub> ");
+                        $"| [{url}]({url}) ");
                 }
                 else
                 {
@@ -482,7 +493,6 @@ public class MarkdownDocument
             content.AppendLine();
             content.AppendLine("<a href=\"#table-of-contents\" title=\"Table of Contents\">&#8673;</a>");
         }
-
     }
 
     private void BuildHeader(StringBuilder header, List<string> schemas)

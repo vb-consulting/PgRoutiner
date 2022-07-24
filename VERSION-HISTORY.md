@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.9.9
+
+- Fixed extensions generation when returning single value.
+- Fixed double newlines in markdown.
+- Added setting `MdIncludeExtensionLinks` that includes generated C# source code links in markdown.
+
 ## 3.9.8
 
 - Added "for tables" in "data file" toc entry of markdown file.

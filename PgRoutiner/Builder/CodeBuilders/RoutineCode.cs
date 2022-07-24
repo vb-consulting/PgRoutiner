@@ -244,7 +244,7 @@ public class RoutineCode : Code
             }
             if (!@return.IsEnumerable)
             {
-                return "select value from ";
+                return "select ";
             }
             if (ColumnsDict.TryGetValue(@return.Name, out var columns))
             {
