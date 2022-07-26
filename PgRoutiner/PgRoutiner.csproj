@@ -16,8 +16,8 @@
     <GeneratePackageOnBuild Condition="'$(Configuration)'!='SelfContained'">true</GeneratePackageOnBuild>
     <Version>3.9.9.0</Version>
     <PackageId Condition="'$(Configuration)'!='SelfContained'">dotnet-pgroutiner</PackageId>
-    <AssemblyVersion>3.9.9.0</AssemblyVersion>
-    <FileVersion>3.9.9.0</FileVersion>
+    <AssemblyVersion>3.9.10.0</AssemblyVersion>
+    <FileVersion>3.9.10.0</FileVersion>
     <Configurations>Debug;Release;SelfContained</Configurations>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>

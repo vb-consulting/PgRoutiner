@@ -377,12 +377,42 @@ public class MarkdownDocument
                         var partitions = connection.GetPartitionTables(new PgItem { Name = result.Table, Schema = schema });
                         content.AppendLine(string.Join(", ", partitions.Select(p => $"`{p.Schema}.{p.Table} {p.Expression}`")));
                     }
+                    if (settings.MdIncludeTableCountEstimates)
+                    {
+                        content.AppendLine($"- Count estimate: **{connection.GetTableEstimatedCount(schema, result.Table).ToString("##,#")}**");
+                    }
                     if (settings.MdIncludeSourceLinks)
                     {
                         var url = GetUrl(DumpType.Tables, schema, result.Table);
                         content.AppendLine($"- Source: [{url}]({url})");
                     }
-                    
+
+                    /*
+| **Sequence Scan** | **Index Scan** | **Rows** | **Vaccum** | **Analyze** |
+| ----------------- | -------------- | -------- | ---------- | ----------- |
+| count=**`1`** | count=**`1`** | inserted=**`1`**, updated=**`1`**, deleted=**1** | last=**`2022-01-01`**, count=**`1`** | last=**`2022-01-01`**, count=**`1`** |
+| rows=**`1`** | rows=**`1`** | live=**1**, dead=**1** | last auto=**`2022-01-01`** | last auto=**`2022-01-01`** |
+                     */
+                    if (settings.MdIncludeTableStats)
+                    {
+                        content.AppendLine();
+                        content.AppendLine("| **Sequence Scan** | **Index Scan** | **Rows** | **Vaccum** | **Analyze** |");
+                        content.AppendLine("| ----------------- | -------------- | -------- | ---------- | ----------- |");
+                        var stats = connection.GetTableStats(schema, result.Table);
+                        content.AppendLine(string.Concat(
+                            $"| count={stats.SeqScanCount.FormatStatMdValue()} ",
+                            $"| count={stats.IdxScanCount.FormatStatMdValue()} ", 
+                            $"| inserted={stats.RowsInserted.FormatStatMdValue()}, updated={stats.RowsUpdated.FormatStatMdValue()}, deleted={stats.RowsDeleted.FormatStatMdValue()} ", 
+                            $"| last={stats.LastVacuum.FormatStatMdValue()}, count={stats.VacuumCount.FormatStatMdValue()} ",
+                            $"| last={stats.LastAnalyze.FormatStatMdValue()}, count={stats.AnalyzeCount.FormatStatMdValue()} |"));
+                        content.AppendLine(string.Concat(
+                            $"| rows={stats.SeqScanRows.FormatStatMdValue()} ",
+                            $"| rows={stats.IdxScanRows.FormatStatMdValue()} ",
+                            $"| live={stats.LiveRows.FormatStatMdValue()}, dead={stats.DeadRows.FormatStatMdValue()} ",
+                            $"| last auto={stats.LastAutovacuum.FormatStatMdValue()}, rows inserted since={stats.RowsInsertedSinceVacuum.FormatStatMdValue()} ",
+                            $"| last auto={stats.LastAutoanalyze.FormatStatMdValue()}, rows updated since={stats.RowsModifiedSinceAnalyze.FormatStatMdValue()} |"));
+                    }
+
                     content.AppendLine();
                     content.AppendLine("| Column |             | Type | Nullable | Default | Comment |");
                     content.AppendLine("| ------ | ----------- | -----| :------: | ------- | ------- |");

@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.9.10
+
+Two new options for Markdown document:
+- `MdIncludeTableCountEstimates: false` - set to true to include table count estimates for each table.
+- `MdIncludeTableStats": true` - set to true to include detailed statisticts for each table for database administration.
+
 ## 3.9.9
 
 - Fixed extensions generation when returning single value.

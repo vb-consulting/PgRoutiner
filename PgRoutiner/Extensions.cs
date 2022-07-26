@@ -239,4 +239,22 @@ public static class Extensions
             .Equals(Path.GetFullPath(path2).TrimEnd('/').TrimEnd('\\'), StringComparison.InvariantCultureIgnoreCase);
         ;
     }
+
+    public static string FormatStatMdValue(this long? value)
+    {
+        if (value == null)
+        {
+            return "";
+        }
+        return $"**`{value.Value:N0}`**";
+    }
+
+    public static string FormatStatMdValue(this DateTime? value)
+    {
+        if (value == null)
+        {
+            return "";
+        }
+        return $"**`{value.Value:u}`**";
+    }
 }
