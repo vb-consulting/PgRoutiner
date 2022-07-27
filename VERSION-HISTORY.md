@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.10.0
+
+- Moved table stats in markdown bellow table.
+- `MdRoutinesFirst` setting, set to true to put routines (functions and procedures) first in markdown.
+- `RoutinesCallerInfo` setting, set to true to include caller info (caller member info, source file and line) in routine calls, that may be configured to be logged with Norm.
+
 ## 3.9.10
 
 Two new options for Markdown document:

@@ -43,13 +43,21 @@ public class MarkdownDocument
 
         BuildHeader(header, schemas);
 
-        var writeToc = false;
-
-        BuildTables(content, header, schemas, ref writeToc);
-        BuildViews(content, header, schemas, ref writeToc);
-        BuildEnums(content, header, schemas, ref writeToc);
-        BuildRoutines(content, header, schemas, writeToc);
-
+        if (settings.MdRoutinesFirst)
+        {
+            BuildRoutines(content, header, schemas);
+            BuildTables(content, header, schemas);
+            BuildViews(content, header, schemas);
+            BuildEnums(content, header, schemas);
+        }
+        else
+        {
+            BuildTables(content, header, schemas);
+            BuildViews(content, header, schemas);
+            BuildEnums(content, header, schemas);
+            BuildRoutines(content, header, schemas);
+        }
+        
         return string.Concat(header.ToString(), content.ToString());
     }
 
@@ -153,7 +161,7 @@ public class MarkdownDocument
         return result.ToString();
     }
 
-    private void BuildRoutines(StringBuilder content, StringBuilder header, List<string> schemas, bool writeToc)
+    private void BuildRoutines(StringBuilder content, StringBuilder header, List<string> schemas)
     {
         foreach (var schema in schemas)
         {
@@ -204,22 +212,16 @@ public class MarkdownDocument
                 }
 
                 content.AppendLine(EndTag);
-                if (writeToc)
-                {
-                    content.AppendLine();
-                    content.AppendLine("<a href=\"#table-of-contents\" title=\"Table of Contents\">&#8673;</a>");
-                }
-                else
-                {
-                    writeToc = true;
-                }
+
+                content.AppendLine();
+                content.AppendLine("<a href=\"#table-of-contents\" title=\"Table of Contents\">&#8673;</a>");
             }
         }
     }
 
-    private void BuildViews(StringBuilder content, StringBuilder header, List<string> schemas, ref bool writeToc)
+    private void BuildViews(StringBuilder content, StringBuilder header, List<string> schemas)
     {
-        var anyViews = false;
+        var any = false;
 
         foreach (var schema in schemas)
         {
@@ -246,18 +248,14 @@ public class MarkdownDocument
                     }
                     content.AppendLine();
 
-                    if (writeToc)
+                    if (!any)
                     {
-                        content.AppendLine("<a href=\"#table-of-contents\" title=\"Table of Contents\">&#8673;</a>");
-                        content.AppendLine();
+                        any = true;
                     }
                     else
                     {
-                        writeToc = true;
-                    }
-                    if (!anyViews)
-                    {
-                        anyViews = true;
+                        content.AppendLine("<a href=\"#table-of-contents\" title=\"Table of Contents\">&#8673;</a>");
+                        content.AppendLine();
                     }
 
                     content.AppendLine($"### View `{schema}.{result.Table}`");
@@ -314,17 +312,46 @@ public class MarkdownDocument
             }
         }
 
-        if (anyViews)
+        if (any)
         {
             content.AppendLine();
             content.AppendLine("<a href=\"#table-of-contents\" title=\"Table of Contents\">&#8673;</a>");
         }
     }
 
-    private void BuildTables(StringBuilder content, StringBuilder header, List<string> schemas, ref bool writeToc)
+    private void BuildTables(StringBuilder content, StringBuilder header, List<string> schemas)
     {
-        var anyTables = false;
+        var any = false;
         var tablesHeader = false;
+        string prevTable = null;
+        string lastSchema = null;
+
+        void WriteStats(string schema, string table)
+        {
+            if (settings.MdIncludeTableStats)
+            {
+                content.AppendLine();
+                content.AppendLine($"- Stats for `{schema}.{table}`:");
+                content.AppendLine();
+                content.AppendLine("| **Sequence Scan** | **Index Scan** | **Rows** | **Vaccum** | **Analyze** |");
+                content.AppendLine("| ----------------- | -------------- | -------- | ---------- | ----------- |");
+                var stats = connection.GetTableStats(schema, table);
+                content.AppendLine(string.Concat(
+                    $"| count={stats.SeqScanCount.FormatStatMdValue()} ",
+                    $"| count={stats.IdxScanCount.FormatStatMdValue()} ",
+                    $"| inserted={stats.RowsInserted.FormatStatMdValue()}, updated={stats.RowsUpdated.FormatStatMdValue()}, deleted={stats.RowsDeleted.FormatStatMdValue()} ",
+                    $"| last={stats.LastVacuum.FormatStatMdValue()}, count={stats.VacuumCount.FormatStatMdValue()} ",
+                    $"| last={stats.LastAnalyze.FormatStatMdValue()}, count={stats.AnalyzeCount.FormatStatMdValue()} |"));
+                content.AppendLine(string.Concat(
+                    $"| rows={stats.SeqScanRows.FormatStatMdValue()} ",
+                    $"| rows={stats.IdxScanRows.FormatStatMdValue()} ",
+                    $"| live={stats.LiveRows.FormatStatMdValue()}, dead={stats.DeadRows.FormatStatMdValue()} ",
+                    $"| last auto={stats.LastAutovacuum.FormatStatMdValue()}, rows inserted since={stats.RowsInsertedSinceVacuum.FormatStatMdValue()} ",
+                    $"| last auto={stats.LastAutoanalyze.FormatStatMdValue()}, rows updated since={stats.RowsModifiedSinceAnalyze.FormatStatMdValue()} |"));
+                content.AppendLine();
+            }
+        }
+
         foreach (var schema in schemas)
         {
             foreach (var result in connection.GetTableComments(settings, schema).ToList())
@@ -338,20 +365,29 @@ public class MarkdownDocument
                 string comment = null;
                 if (result.Column == null)
                 {
+
                     if (result.Comment != null)
                     {
                         comment = string.Join($"{NL}{NL}", result.Comment);
                     }
+
+                    if (prevTable != null)
+                    {
+                        WriteStats(schema, prevTable);
+                    }
+                    prevTable = result.Table;
+                    lastSchema = schema;
+
                     content.AppendLine();
 
-                    if (writeToc)
+                    if (!any)
                     {
-                        content.AppendLine("<a href=\"#table-of-contents\" title=\"Table of Contents\">&#8673;</a>");
-                        content.AppendLine();
+                        any = true;
                     }
                     else
                     {
-                        writeToc = true;
+                        content.AppendLine("<a href=\"#table-of-contents\" title=\"Table of Contents\">&#8673;</a>");
+                        content.AppendLine();
                     }
 
                     content.AppendLine($"### Table `{schema}.{result.Table}`");
@@ -362,11 +398,6 @@ public class MarkdownDocument
                     if (comment != null)
                     {
                         content.AppendLine(comment);
-                    }
-
-                    if (!anyTables)
-                    {
-                        anyTables = true;
                     }
                     content.AppendLine(EndTag);
 
@@ -385,32 +416,6 @@ public class MarkdownDocument
                     {
                         var url = GetUrl(DumpType.Tables, schema, result.Table);
                         content.AppendLine($"- Source: [{url}]({url})");
-                    }
-
-                    /*
-| **Sequence Scan** | **Index Scan** | **Rows** | **Vaccum** | **Analyze** |
-| ----------------- | -------------- | -------- | ---------- | ----------- |
-| count=**`1`** | count=**`1`** | inserted=**`1`**, updated=**`1`**, deleted=**1** | last=**`2022-01-01`**, count=**`1`** | last=**`2022-01-01`**, count=**`1`** |
-| rows=**`1`** | rows=**`1`** | live=**1**, dead=**1** | last auto=**`2022-01-01`** | last auto=**`2022-01-01`** |
-                     */
-                    if (settings.MdIncludeTableStats)
-                    {
-                        content.AppendLine();
-                        content.AppendLine("| **Sequence Scan** | **Index Scan** | **Rows** | **Vaccum** | **Analyze** |");
-                        content.AppendLine("| ----------------- | -------------- | -------- | ---------- | ----------- |");
-                        var stats = connection.GetTableStats(schema, result.Table);
-                        content.AppendLine(string.Concat(
-                            $"| count={stats.SeqScanCount.FormatStatMdValue()} ",
-                            $"| count={stats.IdxScanCount.FormatStatMdValue()} ", 
-                            $"| inserted={stats.RowsInserted.FormatStatMdValue()}, updated={stats.RowsUpdated.FormatStatMdValue()}, deleted={stats.RowsDeleted.FormatStatMdValue()} ", 
-                            $"| last={stats.LastVacuum.FormatStatMdValue()}, count={stats.VacuumCount.FormatStatMdValue()} ",
-                            $"| last={stats.LastAnalyze.FormatStatMdValue()}, count={stats.AnalyzeCount.FormatStatMdValue()} |"));
-                        content.AppendLine(string.Concat(
-                            $"| rows={stats.SeqScanRows.FormatStatMdValue()} ",
-                            $"| rows={stats.IdxScanRows.FormatStatMdValue()} ",
-                            $"| live={stats.LiveRows.FormatStatMdValue()}, dead={stats.DeadRows.FormatStatMdValue()} ",
-                            $"| last auto={stats.LastAutovacuum.FormatStatMdValue()}, rows inserted since={stats.RowsInsertedSinceVacuum.FormatStatMdValue()} ",
-                            $"| last auto={stats.LastAutoanalyze.FormatStatMdValue()}, rows updated since={stats.RowsModifiedSinceAnalyze.FormatStatMdValue()} |"));
                     }
 
                     content.AppendLine();
@@ -454,17 +459,22 @@ public class MarkdownDocument
                         $"| {result.DefaultMarkup} " +
                         $"| {StartTag("column", $"\"{schema}\".\"{result.Table}\".\"{result.Column}\"")}{comment}{EndTag} |");
                 }
+
             }
         }
 
-        if (anyTables)
+        if (any)
         {
+            if (prevTable != null)
+            {
+                WriteStats(lastSchema, prevTable);
+            }
             content.AppendLine();
             content.AppendLine("<a href=\"#table-of-contents\" title=\"Table of Contents\">&#8673;</a>");
         }
     }
 
-    private void BuildEnums(StringBuilder content, StringBuilder header, List<string> schemas, ref bool writeToc)
+    private void BuildEnums(StringBuilder content, StringBuilder header, List<string> schemas)
     {
         var anyEnums = false;
 
@@ -477,6 +487,7 @@ public class MarkdownDocument
             var enumHeader = false;
             foreach (var result in connection.GetEnumComments(settings, schema))
             {
+                anyEnums = true;
                 if (!enumHeader)
                 {
                     content.AppendLine();

@@ -149,6 +149,7 @@ namespace PgRoutiner.SettingsManagement
         {
             "json", "jsonb", "text", "varchar"
         };
+        public bool RoutinesCallerInfo { get; set; } = false;
 
         /*unit tests*/
         public bool UnitTests { get; set; } = false;
@@ -220,6 +221,7 @@ namespace PgRoutiner.SettingsManagement
         public string MdSourceLinkRoot { get; set; } = null;
         public bool MdIncludeTableCountEstimates { get; set; } = false;
         public bool MdIncludeTableStats { get; set; } = false;
+        public bool MdRoutinesFirst { get; set; } = false;
         public bool CommitMd { get; set; } = false;
 
         /*psql interactive terminal*/

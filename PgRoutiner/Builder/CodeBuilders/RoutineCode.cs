@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Security.Claims;
+using Microsoft.Extensions.Primitives;
 using PgRoutiner.Builder.CodeBuilders.Models;
 using PgRoutiner.DataAccess.Models;
 
@@ -101,6 +102,11 @@ public class RoutineCode : Code
                 AddMethod();
             }
 
+            if (settings.RoutinesCallerInfo)
+            {
+                Class.Append(", memberName: memberName, sourceFilePath: sourceFilePath, sourceLineNumber: sourceLineNumber");
+            }
+
             if (@return.IsVoid || @return.IsEnumerable || returnMethod == null)
             {
                 Class.AppendLine(");");
@@ -117,6 +123,10 @@ public class RoutineCode : Code
         {
             Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
             BuildMethodParams(@params);
+            if (settings.RoutinesCallerInfo)
+            {
+                Class.Append(", [CallerMemberName] string memberName = \"\", [CallerFilePath] string sourceFilePath = \"\", [CallerLineNumber] int sourceLineNumber = 0");
+            }
             Class.AppendLine(") => connection");
             AddBodyCode(I3, I3);
         }
@@ -124,6 +134,10 @@ public class RoutineCode : Code
         {
             Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
             BuildMethodParams(@params);
+            if (settings.RoutinesCallerInfo)
+            {
+                Class.Append(", [CallerMemberName] string memberName = \"\", [CallerFilePath] string sourceFilePath = \"\", [CallerLineNumber] int sourceLineNumber = 0");
+            }
             Class.AppendLine(")");
             Class.AppendLine($"{I2}{{");
             if (@return.IsVoid)
@@ -191,7 +205,12 @@ public class RoutineCode : Code
             {
                 Class.Append($"{bodyTab}.ReadAsync<{@return.Name}>({BuildSelectExpression(@return, @params)}");
             }
-            
+
+            if (settings.RoutinesCallerInfo)
+            {
+                Class.Append(", memberName: memberName, sourceFilePath: sourceFilePath, sourceLineNumber: sourceLineNumber");
+            }
+
             if (@return.IsVoid || @return.IsEnumerable || returnMethod == null)
             {
                 Class.AppendLine(");");
@@ -207,6 +226,10 @@ public class RoutineCode : Code
         {
             Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
             BuildMethodParams(@params);
+            if (settings.RoutinesCallerInfo)
+            {
+                Class.Append(", [CallerMemberName] string memberName = \"\", [CallerFilePath] string sourceFilePath = \"\", [CallerLineNumber] int sourceLineNumber = 0");
+            }
             Class.AppendLine(@return.IsEnumerable || returnMethod == null ? ") => connection" : ") => await connection");
 
             AddBodyCode(I3, I3);
@@ -215,6 +238,10 @@ public class RoutineCode : Code
         {
             Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
             BuildMethodParams(@params);
+            if (settings.RoutinesCallerInfo)
+            {
+                Class.Append(", [CallerMemberName] string memberName = \"\", [CallerFilePath] string sourceFilePath = \"\", [CallerLineNumber] int sourceLineNumber = 0");
+            }
             Class.AppendLine(")");
             Class.AppendLine($"{I2}{{");
             if (@return.IsVoid)

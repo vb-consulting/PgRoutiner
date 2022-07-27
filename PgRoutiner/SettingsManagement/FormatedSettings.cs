@@ -162,6 +162,7 @@ public class FormatedSettings
         AddEntry(nameof(Settings.RoutinesReturnMethods), Settings.Value.RoutinesReturnMethods);
         AddEntry(nameof(Settings.RoutinesModelPropertyTypes), Settings.Value.RoutinesModelPropertyTypes);
         AddEntry(nameof(Settings.RoutinesUnknownReturnTypes), Settings.Value.RoutinesUnknownReturnTypes);
+        AddEntry(nameof(Settings.RoutinesCallerInfo), Settings.Value.RoutinesCallerInfo);
 
         sb.AppendLine();
         AddSectionComment(
@@ -253,6 +254,7 @@ public class FormatedSettings
         AddEntry(nameof(Settings.MdSourceLinkRoot), Settings.Value.MdSourceLinkRoot);
         AddEntry(nameof(Settings.MdIncludeTableCountEstimates), Settings.Value.MdIncludeTableCountEstimates);
         AddEntry(nameof(Settings.MdIncludeTableStats), Settings.Value.MdIncludeTableStats);
+        AddEntry(nameof(Settings.MdRoutinesFirst), Settings.Value.MdRoutinesFirst);
         AddEntry(nameof(Settings.CommitMd), Settings.Value.CommitMd);
 
         sb.AppendLine();
