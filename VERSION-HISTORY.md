@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.10.1
+
+Add missing using `System.Runtime.CompilerServices` when `RoutinesCallerInfo` is on.
+
 ## 3.10.0
 
 - Moved table stats in markdown bellow table.
