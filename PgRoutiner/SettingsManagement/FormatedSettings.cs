@@ -255,6 +255,7 @@ public class FormatedSettings
         AddEntry(nameof(Settings.MdIncludeTableCountEstimates), Settings.Value.MdIncludeTableCountEstimates);
         AddEntry(nameof(Settings.MdIncludeTableStats), Settings.Value.MdIncludeTableStats);
         AddEntry(nameof(Settings.MdRoutinesFirst), Settings.Value.MdRoutinesFirst);
+        AddEntry(nameof(Settings.MdExportToHtml), Settings.Value.MdExportToHtml);
         AddEntry(nameof(Settings.CommitMd), Settings.Value.CommitMd);
 
         sb.AppendLine();

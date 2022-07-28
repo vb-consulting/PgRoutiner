@@ -1,4 +1,5 @@
-﻿using PgRoutiner.DataAccess;
+﻿using System.Xml.Linq;
+using PgRoutiner.DataAccess;
 using PgRoutiner.DataAccess.Models;
 using static PgRoutiner.Builder.Dump.DumpBuilder;
 
@@ -515,15 +516,15 @@ public class MarkdownDocument
                     content.AppendLine(
                         $"| {Hashtag(name)}`{result.Name}` " +
                         $"| `{result.Values}` " +
-                        $"| {result.Comment} " +
-                        $"| [{url}]({url}) ");
+                        $"| {StartTag("column", $"\"{schema}\".\"{result.Name}\"")}{result.Comment}{EndTag} " +
+                        $"| [{url}]({url}) |");
                 }
                 else
                 {
                     content.AppendLine(
                         $"| {Hashtag(name)}`{result.Name}` " +
                         $"| `{result.Values}` " +
-                        $"| {result.Comment} ");
+                        $"| {StartTag("column", $"\"{schema}\".\"{result.Name}\"")}{result.Comment}{EndTag} |");
                 }
 
             }

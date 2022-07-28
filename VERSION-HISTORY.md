@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.11.0
+
+- Added `MdExportToHtml` settings which if set to true rendreds markdown dictionary to html file by using github style. This will produce a single html file without dependencies.
+
+- Fix comments in enum section.
+
 ## 3.10.1
 
 Add missing using `System.Runtime.CompilerServices` when `RoutinesCallerInfo` is on.

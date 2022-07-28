@@ -222,6 +222,7 @@ namespace PgRoutiner.SettingsManagement
         public bool MdIncludeTableCountEstimates { get; set; } = false;
         public bool MdIncludeTableStats { get; set; } = false;
         public bool MdRoutinesFirst { get; set; } = false;
+        public bool MdExportToHtml { get; set; } = false;
         public bool CommitMd { get; set; } = false;
 
         /*psql interactive terminal*/
