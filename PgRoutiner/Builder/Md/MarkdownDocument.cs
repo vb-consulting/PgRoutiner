@@ -516,7 +516,7 @@ public class MarkdownDocument
                     content.AppendLine(
                         $"| {Hashtag(name)}`{result.Name}` " +
                         $"| `{result.Values}` " +
-                        $"| {StartTag("column", $"\"{schema}\".\"{result.Name}\"")}{result.Comment}{EndTag} " +
+                        $"| {StartTag("type", $"\"{schema}\".\"{result.Name}\"")}{result.Comment}{EndTag} " +
                         $"| [{url}]({url}) |");
                 }
                 else
@@ -524,7 +524,7 @@ public class MarkdownDocument
                     content.AppendLine(
                         $"| {Hashtag(name)}`{result.Name}` " +
                         $"| `{result.Values}` " +
-                        $"| {StartTag("column", $"\"{schema}\".\"{result.Name}\"")}{result.Comment}{EndTag} |");
+                        $"| {StartTag("type", $"\"{schema}\".\"{result.Name}\"")}{result.Comment}{EndTag} |");
                 }
 
             }
