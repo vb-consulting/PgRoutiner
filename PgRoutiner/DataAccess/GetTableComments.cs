@@ -127,12 +127,14 @@ public static partial class DataAccessConnectionExtensions
                 c.data_type = 'USER-DEFINED' as is_udt,
 
                 case when c.is_nullable = 'NO' then '**NO**' else c.is_nullable end as nullableMarkup,
-                    
-                case    when c.column_default like 'next%' or c.identity_generation = 'ALWAYS' 
-                        then '*auto increment*' 
-                        else '`' || c.column_default || '`' 
-                end as defaultMarkup,
-                    
+
+                '`' || case
+                    when c.identity_generation is not null then 'GENERATED ' || c.identity_generation || ' AS IDENTITY'
+                    when c.is_generated <> 'NEVER' then 'GENERATED ' || c.is_generated || ' AS ' || c.generation_expression
+                    else c.column_default
+                    end
+                || '`' as defaultMarkup,
+
                 pgdesc.description
                     
             from (
@@ -289,12 +291,14 @@ public static partial class DataAccessConnectionExtensions
                 c.data_type = 'USER-DEFINED' as is_udt,
                 
                 case when c.is_nullable = 'NO' then '**NO**' else c.is_nullable end as nullableMarkup,
-                    
-                case    when c.column_default like 'next%' or c.identity_generation = 'ALWAYS' 
-                        then '*auto increment*' 
-                        else '`' || c.column_default || '`' 
-                end as defaultMarkup,
-                    
+
+                '`' || case
+                    when c.identity_generation is not null then 'GENERATED ' || c.identity_generation || ' AS IDENTITY'
+                    when c.is_generated <> 'NEVER' then 'GENERATED ' || c.is_generated || ' AS ' || c.generation_expression
+                    else c.column_default
+                    end
+                || '`' as defaultMarkup,
+
                 pgdesc.description
                     
             from (

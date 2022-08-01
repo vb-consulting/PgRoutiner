@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.11.2
+
+- Fix default expression in markdown dictionary to include generated table expressions
+
 ## 3.11.0
 
 - Added `MdExportToHtml` settings which if set to true rendreds markdown dictionary to html file by using github style. This will produce a single html file without dependencies.
