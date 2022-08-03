@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.11.3
+
+- Remove source line header from `testsettings.json`.
+- Fix typos and grammar in `testsettings.json` comments.
+- Added `MdIncludeUnitTestsLinks` that will include unit tests links to markdown document.
+
 ## 3.11.2
 
 - Fix default expression in markdown dictionary to include generated table expressions

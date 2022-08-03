@@ -200,12 +200,27 @@ public class MarkdownDocument
                 {
                     var dir = schema == null ? settings.OutputDir : string.Format(settings.OutputDir, schema == "public" ? "" : schema.ToUpperCamelCase());
                     var url = Path.Combine(settings.MdSourceLinkRoot ?? "", dir, $"{result.Name.ToUpperCamelCase()}.cs")
+                        .Replace(".", "")
                         .Replace("\\", "/")
                         .Replace("./", "/")
                         .Replace("//", "/");
-                    content.AppendLine($"- C# Source: [{url}]({url})");
+                    content.AppendLine($"- Data Access Extension: [{url}]({url})");
                     content.AppendLine();
                 }
+
+                if (settings.MdIncludeUnitTestsLinks && settings.UnitTestsDir != null)
+                {
+                    string sufix = settings.GetAssumedNamespace();
+                    var dir = string.Format(settings.UnitTestsDir, sufix);
+                    var url = Path.Combine(dir, $"{result.Name.ToUpperCamelCase()}UnitTests.cs")
+                        .Replace(".", "")
+                        .Replace("\\", "/")
+                        .Replace("./", "/")
+                        .Replace("//", "/");
+                    content.AppendLine($"- Unit Test: [{url}]({url})");
+                    content.AppendLine();
+                }
+
                 content.AppendLine(StartTag(result.Type, $"\"{schema}\".{result.Signature.Replace(result.Name, $"\"{result.Name}\"")}"));
                 if (result.Comment != null)
                 {

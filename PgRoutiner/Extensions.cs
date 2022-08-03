@@ -257,4 +257,26 @@ public static class Extensions
         }
         return $"**`{value.Value:u}`**";
     }
+
+    public static string GetAssumedNamespace(this Settings settings)
+    {
+        string ns;
+        if (settings.Namespace != null)
+        {
+            ns = settings.Namespace;
+        }
+        else
+        {
+            var projFile = Directory.EnumerateFiles(Program.CurrentDir, "*.csproj", SearchOption.TopDirectoryOnly).FirstOrDefault();
+            if (projFile != null)
+            {
+                ns = Path.GetFileNameWithoutExtension(projFile);
+            }
+            else
+            {
+                ns = Path.GetFileName(Path.GetFullPath(Program.CurrentDir));
+            }
+        }
+        return ns;
+    }
 }

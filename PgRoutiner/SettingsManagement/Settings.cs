@@ -218,6 +218,7 @@ namespace PgRoutiner.SettingsManagement
         public string MdSimilarTo { get; set; } = null;
         public bool MdIncludeSourceLinks { get; set; } = false;
         public bool MdIncludeExtensionLinks { get; set; } = false;
+        public bool MdIncludeUnitTestsLinks { get; set; } = false;
         public string MdSourceLinkRoot { get; set; } = null;
         public bool MdIncludeTableCountEstimates { get; set; } = false;
         public bool MdIncludeTableStats { get; set; } = false;

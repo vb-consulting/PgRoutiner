@@ -10,23 +10,7 @@ public class UnitTestBuilder
         {
             return;
         }
-        string sufix;
-        if (Settings.Value.Namespace != null)
-        {
-            sufix = Settings.Value.Namespace;
-        }
-        else
-        {
-            var projFile = Directory.EnumerateFiles(Program.CurrentDir, "*.csproj", SearchOption.TopDirectoryOnly).FirstOrDefault();
-            if (projFile != null)
-            {
-                sufix = Path.GetFileNameWithoutExtension(projFile);
-            }
-            else
-            {
-                sufix = Path.GetFileName(Path.GetFullPath(Program.CurrentDir));
-            }
-        }
+        string sufix = Settings.Value.GetAssumedNamespace();
         var shortDir = string.Format(Settings.Value.UnitTestsDir, sufix);
         var dir = Path.GetFullPath(Path.Join(Program.CurrentDir, shortDir));
         var name = Path.GetFileName(dir);
@@ -174,13 +158,7 @@ public class UnitTestBuilder
     private static string GetTestSettingsContent(NpgsqlConnection connection, string dir, string schemaFile, string dataFile)
     {
         StringBuilder sb = new();
-        if (Settings.Value.SourceHeaderLines != null && Settings.Value.SourceHeaderLines.Count > 0)
-        {
-            foreach (var line in Settings.Value.SourceHeaderLines)
-            {
-                sb.AppendLine(string.Format(line, DateTime.Now));
-            }
-        }
+
         sb.AppendLine(@"{");
         sb.AppendLine(@"  ""ConnectionStrings"": {");
         sb.AppendLine(@$"    ""DefaultConnection"": ""{connection.ConnectionString}""");
@@ -199,9 +177,9 @@ public class UnitTestBuilder
 
         sb.AppendLine();
         sb.AppendLine(@"    //");
-        sb.AppendLine(@"    // Path to the external json configuration file.");
+        sb.AppendLine(@"    // Path to the external JSON configuration file.");
         sb.AppendLine(@"    // External configuration is only used to parse the ConnectionStrings section.");
-        sb.AppendLine(@"    // Use this setting to set TestConnection in a different configuration file, so that connection string doesn't have to be duplicated.");
+        sb.AppendLine(@"    // Use this setting to set TestConnection in a different configuration file, so that the connection string doesn't have to be duplicated.");
         sb.AppendLine(@"    //");
 
         sb.AppendLine(@"    ""ConfigPath"": null,");
@@ -209,8 +187,8 @@ public class UnitTestBuilder
         sb.AppendLine();
         sb.AppendLine(@"    //");
         sb.AppendLine(@"    // Name of the database recreated on each testing session.");
-        sb.AppendLine(@"    // Database on server defined by the TestConnection with this name will be created before first test starts and dropped after last test ends.");
-        sb.AppendLine(@"    // Make sure that database with name doesn't already exists on server.");
+        sb.AppendLine(@"    // Database on the server defined by the TestConnection with this name will be created before the first test starts and dropped after the last test ends.");
+        sb.AppendLine(@"    // Make sure that the database with the name doesn't already exist on server.");
         sb.AppendLine(@"    //");
         sb.AppendLine(@$"    ""TestDatabaseName"": ""{connection.Database}_test_{Guid.NewGuid().ToString().Substring(0, 8)}"",");
 
@@ -236,7 +214,7 @@ public class UnitTestBuilder
         sb.AppendLine();
         sb.AppendLine(@"    //");
         sb.AppendLine(@"    // List of the SQL scripts to be executed in order after the test database has been created and just before the first test starts.");
-        sb.AppendLine(@"    // This can be any SQL script file like migrations, schema or data dumps.");
+        sb.AppendLine(@"    // This can be any SQL script file like migrations, schema, or data dumps.");
         sb.AppendLine(@"    //");
         sb.AppendLine(@$"    ""UpScripts"": [ {string.Join(", ", scripts)} ],");
 
@@ -248,7 +226,7 @@ public class UnitTestBuilder
 
         sb.AppendLine();
         sb.AppendLine(@"    //");
-        sb.AppendLine(@"    // Set this to true to run each test in isolated transaction.");
+        sb.AppendLine(@"    // Set this to true to run each test in an isolated transaction.");
         sb.AppendLine(@"    // Transaction is created before each test starts and rolled back after each test finishes.");
         sb.AppendLine(@"    //");
 
@@ -256,9 +234,9 @@ public class UnitTestBuilder
 
         sb.AppendLine();
         sb.AppendLine(@"    //");
-        sb.AppendLine(@"    // Set his to true to run each unit test connection in new and uniqly created database that is created by using template from the test database. ");
-        sb.AppendLine(@"    // New database is created as a template database from a test database before each test starts and droped after test finishes.");
-        sb.AppendLine(@"    // That new database will be named same as test database plus new guid.");
+        sb.AppendLine(@"    // Set this to true to run each unit test connection in a new and uniquely created database that is created by using a template from the test database. ");
+        sb.AppendLine(@"    // New database is created as a template database from a test database before each test starts and dropped after the test finishes.");
+        sb.AppendLine(@"    // That new database will be named the same as the test database plus a new guid.");
         sb.AppendLine(@"    // This settings cannot be combined with TestDatabaseFromTemplate, UnitTestsUnderTransaction, UpScripts and DownScripts");
         sb.AppendLine(@"    //");
         sb.AppendLine(@"    ""UnitTestsNewDatabaseFromTemplate"": false");

@@ -251,6 +251,7 @@ public class FormatedSettings
         AddEntry(nameof(Settings.MdSimilarTo), Settings.Value.MdSimilarTo);
         AddEntry(nameof(Settings.MdIncludeSourceLinks), Settings.Value.MdIncludeSourceLinks);
         AddEntry(nameof(Settings.MdIncludeExtensionLinks), Settings.Value.MdIncludeExtensionLinks);
+        AddEntry(nameof(Settings.MdIncludeUnitTestsLinks), Settings.Value.MdIncludeUnitTestsLinks);
         AddEntry(nameof(Settings.MdSourceLinkRoot), Settings.Value.MdSourceLinkRoot);
         AddEntry(nameof(Settings.MdIncludeTableCountEstimates), Settings.Value.MdIncludeTableCountEstimates);
         AddEntry(nameof(Settings.MdIncludeTableStats), Settings.Value.MdIncludeTableStats);
