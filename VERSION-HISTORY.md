@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.11.4
+
+- Fix `MdIncludeUnitTestsLinks` bug.
+- Add global namespaces support to unit testing modules.
+- Add direcotires by schemas to unit testing modules.
+
 ## 3.11.3
 
 - Remove source line header from `testsettings.json`.

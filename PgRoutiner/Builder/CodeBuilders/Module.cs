@@ -2,26 +2,29 @@
 
 public class Module : Code
 {
-    protected HashSet<string> usings = new()
+    public HashSet<string> Usings = new()
     {
         "System",
         "System.Linq",
         "System.Collections.Generic"
     };
+
     protected List<object> items = new();
+    private readonly bool skipUsing;
 
     public string Namespace { get; set; }
 
-    public Module(Settings settings) : base(settings, null)
+    public Module(Settings settings, bool skipUsing = false) : base(settings, null)
     {
         Namespace = settings.Namespace?.Trim('.');
+        this.skipUsing = skipUsing;
     }
 
     public void AddUsing(params string[] usings)
     {
         foreach (var u in usings)
         {
-            this.usings.Add(u);
+            this.Usings.Add(u);
         }
     }
 
@@ -56,10 +59,14 @@ public class Module : Code
                 builder.AppendLine(string.Format(line, DateTime.Now));
             }
         }
-        foreach (var ns in usings)
+        if (!skipUsing)
         {
-            builder.AppendLine($"using {ns};");
+            foreach (var ns in Usings)
+            {
+                builder.AppendLine($"using {ns};");
+            }
         }
+        
         builder.AppendLine();
         if (!settings.UseFileScopedNamespaces)
         {

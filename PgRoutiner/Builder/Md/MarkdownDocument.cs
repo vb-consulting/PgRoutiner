@@ -200,7 +200,7 @@ public class MarkdownDocument
                 {
                     var dir = schema == null ? settings.OutputDir : string.Format(settings.OutputDir, schema == "public" ? "" : schema.ToUpperCamelCase());
                     var url = Path.Combine(settings.MdSourceLinkRoot ?? "", dir, $"{result.Name.ToUpperCamelCase()}.cs")
-                        .Replace(".", "")
+                        .Replace("..", "")
                         .Replace("\\", "/")
                         .Replace("./", "/")
                         .Replace("//", "/");
@@ -212,8 +212,8 @@ public class MarkdownDocument
                 {
                     string sufix = settings.GetAssumedNamespace();
                     var dir = string.Format(settings.UnitTestsDir, sufix);
-                    var url = Path.Combine(dir, $"{result.Name.ToUpperCamelCase()}UnitTests.cs")
-                        .Replace(".", "")
+                    var url = Path.Combine(dir, schema == "public" ? "" : schema.ToUpperCamelCase(), $"{result.Name.ToUpperCamelCase()}UnitTests.cs")
+                        .Replace("..", "")
                         .Replace("\\", "/")
                         .Replace("./", "/")
                         .Replace("//", "/");

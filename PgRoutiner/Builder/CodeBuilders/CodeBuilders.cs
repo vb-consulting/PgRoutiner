@@ -179,7 +179,8 @@ public abstract class CodeBuilder
                     Methods = codeResult.Code.Methods,
                     Namespace = codeResult.Module.Namespace,
                     Name = codeResult.Code.Methods.First().Name,
-                    ModelNamespace = modelNamespace
+                    ModelNamespace = modelNamespace,
+                    Schema = codeResult.Schema
                 });
             }
         }

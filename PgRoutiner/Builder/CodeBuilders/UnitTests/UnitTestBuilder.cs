@@ -89,34 +89,28 @@ public class UnitTestBuilder
         }
 
         var settings = new Settings { Namespace = name, UseFileScopedNamespaces = Settings.Value.UseFileScopedNamespaces };
+        var useGlobalUsing = Settings.Value.UnitTestProjectTargetFramework == "net6.0" || Settings.Value.UnitTestProjectLangVersion == "10";
 
-        var fixtureFile = Path.GetFullPath(Path.Join(dir, "TestFixtures.cs"));
-        if (!File.Exists(fixtureFile))
-        {
-            Writer.DumpRelativePath("Creating file: {0} ...", fixtureFile);
-            var fixtureCode = new TestFixtures(settings);
-            if (!Writer.WriteFile(fixtureFile, fixtureCode.Class.ToString()))
-            {
-                return;
-            }
-        }
-        else
-        {
-            Writer.DumpRelativePath("Skipping {0}, already exists ...", fixtureFile);
-        }
-
+        HashSet<string> usings = new();
         if (extensions.Any())
         {
             foreach (var ext in extensions)
             {
                 var className = $"{ext.Name}UnitTests";
-                var moduleFile = Path.GetFullPath(Path.Join(dir, $"{className}.cs"));
+                var moduleFile = ext.Schema == "public" ? 
+                    Path.GetFullPath(Path.Join(dir, $"{className}.cs")) :
+                    Path.GetFullPath(Path.Join(dir, ext.Schema.ToUpperCamelCase(), $"{className}.cs"));
+
                 if (File.Exists(moduleFile))
                 {
                     Writer.DumpRelativePath("Skipping {0}, already exists ...", moduleFile);
                     continue;
                 }
-                var module = new Module(settings);
+                var module = new Module(settings, useGlobalUsing);
+                if (ext.Schema != "public")
+                {
+                    module.Namespace = $"{module.Namespace}.{ext.Schema.ToUpperCamelCase()}";
+                }
                 if (ext.Methods.Any(m => m.Sync == false))
                 {
                     module.AddUsing("System.Threading.Tasks");
@@ -133,6 +127,13 @@ public class UnitTestBuilder
                 module.AddItems(code.Class);
                 Writer.DumpRelativePath("Creating file: {0} ...", moduleFile);
                 Writer.WriteFile(moduleFile, module.ToString());
+                if (useGlobalUsing)
+                {
+                    foreach(var u in module.Usings)
+                    {
+                        usings.Add(u);
+                    }
+                }
             }
         }
         else
@@ -144,7 +145,7 @@ public class UnitTestBuilder
                 Writer.DumpRelativePath("Skipping {0}, already exists ...", moduleFile);
                 return;
             }
-            var module = new Module(settings);
+            var module = new Module(settings, useGlobalUsing);
             module.AddUsing("Xunit");
             module.AddUsing("Norm");
 
@@ -152,6 +153,28 @@ public class UnitTestBuilder
             module.AddItems(code.Class);
             Writer.DumpRelativePath("Creating file: {0} ...", moduleFile);
             Writer.WriteFile(moduleFile, module.ToString());
+            if (useGlobalUsing)
+            {
+                foreach (var u in module.Usings)
+                {
+                    usings.Add(u);
+                }
+            }
+        }
+
+        var fixtureFile = Path.GetFullPath(Path.Join(dir, "TestFixtures.cs"));
+        if (!File.Exists(fixtureFile))
+        {
+            Writer.DumpRelativePath("Creating file: {0} ...", fixtureFile);
+            var fixtureCode = new TestFixtures(settings, usings);
+            if (!Writer.WriteFile(fixtureFile, fixtureCode.Class.ToString()))
+            {
+                return;
+            }
+        }
+        else
+        {
+            Writer.DumpRelativePath("Skipping {0}, already exists ...", fixtureFile);
         }
     }
 

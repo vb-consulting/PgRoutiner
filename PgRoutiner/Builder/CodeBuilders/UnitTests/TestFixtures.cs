@@ -2,8 +2,12 @@
 
 public class TestFixtures : Code
 {
-    public TestFixtures(Settings settings) : base(settings, null)
+    private readonly HashSet<string> globalUsings;
+
+    public TestFixtures(Settings settings, HashSet<string> globalUsings = null) : base(settings, null)
     {
+        this.globalUsings = globalUsings;
+
         Class = Build();
     }
 
@@ -17,15 +21,41 @@ public class TestFixtures : Code
                 sb.AppendLine(string.Format(line, DateTime.Now));
             }
         }
-        sb.AppendLine(@"using System;");
-        sb.AppendLine(@"using System.Collections.Generic;");
-        sb.AppendLine(@"using System.IO;");
-        sb.AppendLine(@"using System.Linq;");
-        sb.AppendLine(@"using Microsoft.Extensions.Configuration;");
-        sb.AppendLine(@"using Norm;");
-        sb.AppendLine(@"using Npgsql;");
-        sb.AppendLine(@"using Xunit;");
-        sb.AppendLine(@"");
+        if (globalUsings == null)
+        {
+            sb.AppendLine(@"using System;");
+            sb.AppendLine(@"using System.Collections.Generic;");
+            sb.AppendLine(@"using System.IO;");
+            sb.AppendLine(@"using System.Linq;");
+            sb.AppendLine(@"using Microsoft.Extensions.Configuration;");
+            sb.AppendLine(@"using Norm;");
+            sb.AppendLine(@"using Npgsql;");
+            sb.AppendLine(@"using Xunit;");
+            sb.AppendLine(@"");
+        }
+        else
+        {
+            foreach(var u in globalUsings)
+            {
+                sb.AppendLine($"global using {u};");
+            }
+            void AddUsing(string u)
+            {
+                if (!globalUsings.Contains(u))
+                {
+                    sb.AppendLine($"using {u};");
+                }
+            }
+            AddUsing(@"System");
+            AddUsing(@"System.Collections.Generic");
+            AddUsing(@"System.IO");
+            AddUsing(@"System.Linq");
+            AddUsing(@"Microsoft.Extensions.Configuration");
+            AddUsing(@"Norm");
+            AddUsing(@"Npgsql");
+            AddUsing(@"Xunit");
+            sb.AppendLine(@"");
+        }
 
         if (!settings.UseFileScopedNamespaces)
         {
