@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using Microsoft.Extensions.Primitives;
 using PgRoutiner.Builder.CodeBuilders.Models;
+using PgRoutiner.Builder.DiffBuilder;
 using PgRoutiner.DataAccess.Models;
 
 namespace PgRoutiner.Builder.CodeBuilders;
@@ -72,15 +73,20 @@ public class RoutineCode : Code
         Class.AppendLine();
         BuildCommentHeader(routine, @return, @params, true, returnMethod);
         var actualReturns = @return.IsEnumerable ? $"IEnumerable<{@return.Name}>" : (returnMethod == null ? $"IEnumerable<{@return.Name}>" : @return.Name);
-        void AddMethod() => Methods.Add(new Method
+        void AddMethod()
         {
-            Name = name,
-            Namespace = @namespace,
-            Params = @params,
-            Returns = @return,
-            ActualReturns = actualReturns,
-            Sync = true
-        });
+            Methods.Add(new Method
+            {
+                Name = name,
+                Namespace = @namespace,
+                Description = routine.Description,
+                Routine = $"{routine.Language} {routine.RoutineType} {routine.SpecificSchema}.{routine.RoutineName}({string.Join(", ", @params.Select(p => p.PgType))})",
+                Params = @params,
+                Returns = @return,
+                ActualReturns = actualReturns,
+                Sync = true
+            });
+        }
 
         void AddBodyCode(string bodyTab, string paramsTab)
         {
@@ -151,7 +157,7 @@ public class RoutineCode : Code
             AddBodyCode(I4, I4);
             Class.AppendLine($"{I2}}}");
         }
-        AddMethod();
+        //AddMethod();
     }
 
     private void SetUnknownType(Return @return, string bodyTab)
@@ -177,15 +183,20 @@ public class RoutineCode : Code
         Class.AppendLine();
         BuildCommentHeader(routine, @return, @params, false, returnMethod);
         var actualReturns = @return.IsEnumerable ? $"IAsyncEnumerable<{@return.Name}>" : (@return.IsVoid ? "async ValueTask" : (returnMethod == null ? $"IAsyncEnumerable<{@return.Name}>" : $"async ValueTask<{@return.Name}>"));
-        void AddMethod() => Methods.Add(new Method
+        void AddMethod()
         {
-            Name = name,
-            Namespace = @namespace,
-            Params = @params,
-            Returns = @return,
-            ActualReturns = actualReturns,
-            Sync = false
-        });
+            Methods.Add(new Method
+            {
+                Name = name,
+                Namespace = @namespace,
+                Routine = $"{routine.Language} {routine.RoutineType} {routine.SpecificSchema}.{routine.RoutineName}({string.Join(", ", @params.Select(p => p.PgType))})",
+                Description = routine.Description,
+                Params = @params,
+                Returns = @return,
+                ActualReturns = actualReturns,
+                Sync = false
+            });
+        }
 
         void AddBodyCode(string bodyTab, string paramsTab)
         {
@@ -321,7 +332,7 @@ public class RoutineCode : Code
     private void BuildCommentHeader(PgRoutineGroup routine, Return @return, List<Param> @params, bool sync, string returnMethod)
     {
         Class.AppendLine($"{I2}/// <summary>");
-        Class.AppendLine($"{I2}/// {(sync ? "Executes" : "Asynchronously executes")} {routine.Language} {routine.RoutineType} \"{Name}\"");
+        Class.AppendLine($"{I2}/// {(sync ? "Executes" : "Asynchronously executes")} {routine.Language} {routine.RoutineType} {routine.SpecificSchema}.{routine.RoutineName}({string.Join(", ", @params.Select(p => p.PgType))})");
         if (!string.IsNullOrEmpty(routine.Description))
         {
             var description = routine.Description.Replace("\r\n", "\n").Trim('\n');

@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.11.5
+
+- Fix unit test generation bug with multiple methods.
+- Add summary comment header from routine description plus routine name.
+- Add parameters to summary on routine extensions code.
+
 ## 3.11.4
 
 - Fix `MdIncludeUnitTestsLinks` bug.

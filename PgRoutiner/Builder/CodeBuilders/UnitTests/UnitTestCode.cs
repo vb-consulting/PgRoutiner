@@ -65,6 +65,20 @@ public class UnitTestCode : Code
             names.Add(methodName);
             var count = names.Where(n => string.Equals(n, methodName)).Count();
             Class.AppendLine();
+
+            if (m.Routine != null || m.Description != null)
+            {
+                Class.AppendLine($"{I2}///<summary>");
+                Class.AppendLine($"{I2}/// Test method{(m.Routine != null ? $" for {m.Routine}" : "")}.");
+                if (m.Description != null)
+                {
+                    Class.AppendLine($"{I2}///");
+                    Class.Append($"{I2}");
+                    Class.AppendLine(string.Join($"{I2}", m.Description.Split("\n").Select(d => $"/// {d}")));
+                }
+                Class.AppendLine($"{I2}///</summary>");
+            }
+
             Class.AppendLine($"{I2}[Fact]");
             if (m.Sync)
             {
