@@ -2,6 +2,7 @@
 using System.Xml.Linq;
 using PgRoutiner.DataAccess.Models;
 using PgRoutiner.DumpTransformers;
+using PgRoutiner.SettingsManagement;
 using static PgRoutiner.Builder.Dump.DumpBuilder;
 
 namespace PgRoutiner.Builder.Dump;
@@ -42,8 +43,7 @@ public class PgDumpBuilder
             baseArg,
             " --schema-only",
             settings.DbObjectsOwners ? "" : " --no-owner",
-            settings.DbObjectsPrivileges ? "" : " --no-acl",
-            settings.DbObjectsDropIfExists ? " --clean --if-exists" : "");
+            settings.DbObjectsPrivileges ? "" : " --no-acl");
 
         bool HasKey(DumpType key)
         {
@@ -106,7 +106,7 @@ public class PgDumpBuilder
             List<PgItem> types = new();
             try
             {
-                lines = GetDumpLines(args, excludeTables, out types);
+                lines = GetDumpItemLines(args, null, out types);
             }
             catch (Exception e)
             {
@@ -258,53 +258,49 @@ public class PgDumpBuilder
 
     public List<string> GetRawTableDumpLines(PgItem table, bool withPrivileges)
     {
-        var tableArg = table.GetTableArg();
         var args = string.Concat(baseArg, " --schema-only  --no-owner", withPrivileges ? "" : " --no-acl");
-        return GetDumpLines(args, tableArg);
+        return GetDumpItemLines(args, table);
     }
 
     public List<string> GetRawRoutinesDumpLines(bool withPrivileges, out List<PgItem> types)
     {
         var args = string.Concat(baseArg, " --schema-only  --no-owner", withPrivileges ? "" : " --no-acl");
-        return GetDumpLines(args, excludeTables, out types);
+        return GetDumpItemLines(args, null, out types);
     }
 
     private string GetTableContent(PgItem table, string args)
     {
-        var tableArg = table.GetTableArg();
         if (settings.DbObjectsRaw)
         {
-            return GetPgDumpContent($"{args} {tableArg}");
+            return GetPgDumpContent($"{args} {table.GetTableArg()}");
         }
-        return new TableDumpTransformer(table, GetDumpLines(args, tableArg), Connection).BuildLines().ToString();
+        return new TableDumpTransformer(table, GetDumpItemLines(args, table), Connection).BuildLines().ToString();
     }
 
     private string GetSeqContent(PgItem seq, string args)
     {
-        var tableArg = seq.GetTableArg();
         if (settings.DbObjectsRaw)
         {
-            return GetPgDumpContent($"{args} {tableArg}");
+            return GetPgDumpContent($"{args} {seq.GetTableArg()}");
         }
-        return new SequenceDumpTransformer(seq, GetDumpLines(args, tableArg)).BuildLines().ToString();
+        return new SequenceDumpTransformer(seq, GetDumpItemLines(args, seq)).BuildLines().ToString();
     }
 
     private string GetViewContent(PgItem table, string args)
     {
-        var tableArg = table.GetTableArg();
         if (settings.DbObjectsRaw)
         {
-            return GetPgDumpContent($"{args} {tableArg}");
+            return GetPgDumpContent($"{args} {table.GetTableArg()}");
         }
-        return new ViewDumpTransformer(GetDumpLines(args, tableArg))
+        return new ViewDumpTransformer(GetDumpItemLines(args, table))
             .BuildLines(dbObjectsCreateOrReplace: settings.DbObjectsCreateOrReplace)
             .ToString();
     }
 
-    private List<string> GetDumpLines(string args, string tableArg, out List<PgItem> types)
+    private List<string> GetDumpItemLines(string args, PgItem item, out List<PgItem> types)
     {
         List<PgItem> found = new();
-        var result = GetDumpLines(args, tableArg, lineAction: line =>
+        var result = GetDumpItemLines(args, item, lineAction: line =>
         {
             var entry = line.FirstWordAfter("CREATE TYPE");
             if (entry != null)
@@ -328,10 +324,51 @@ public class PgDumpBuilder
         return result;
     }
 
-    private List<string> GetDumpLines(string args, string tableArg, Action<string> lineAction = null)
+    private List<string> GetDumpItemLines(string args, PgItem item, Action<string> lineAction = null)
     {
+        if (item == null)
+        {
+            List<string> lines = new();
+            GetPgDumpContent($"{args} {excludeTables}", lineFunc: line =>
+            {
+                lines.Add(line);
+                if (lineAction != null)
+                {
+                    lineAction(line);
+                }
+                return null;
+            });
+            return lines;
+        }
+        else
+        {
+            List<string> lines = new();
+            foreach (var line in EnumeratePgDumpItem(args, item))
+            {
+                foreach(var split in line.Split(Environment.NewLine))
+                {
+                    lines.Add(split);
+                    if (lineAction != null)
+                    {
+                        lineAction(split);
+                    }
+                }
+            }
+            return lines;
+        }
+
+        /*
+        string itemArg;
+        if (item == null)
+        {
+            itemArg = excludeTables;
+        }
+        else
+        {
+            itemArg = item.GetTableArg();
+        }
         List<string> lines = new();
-        GetPgDumpContent($"{args} {tableArg}", lineFunc: line =>
+        GetPgDumpContent($"{args} {itemArg}", lineFunc: line =>
         {
             lines.Add(line);
             if (lineAction != null)
@@ -341,6 +378,7 @@ public class PgDumpBuilder
             return null;
         });
         return lines;
+       */
     }
 
     private string GetPgDumpTransactionContent(string args, string name)
@@ -412,62 +450,171 @@ public class PgDumpBuilder
             lineFunc: lineFunc);
     }
 
+    private IEnumerable<string> EnumeratePgDumpItem(string args, PgItem item)
+    {
+        string nameUsed = null;
+
+        foreach (var (line, isView) in EnumeratePgDumpCommands(args))
+        {
+            if (item.Type != PgType.View && isView)
+            {
+                continue;
+            }
+            bool match = false;
+            if (nameUsed == null)
+            {
+                if (line.Contains($"{item.Schema}.{item.Name}"))
+                {
+                    nameUsed = $"{item.Schema}.{item.Name}";
+                    match = true;
+                }
+                else if (line.Contains($"{item.Schema}.\"{item.Name}\""))
+                {
+                    nameUsed = $"{item.Schema}.\"{item.Name}\"";
+                    match = true;
+                }
+                else if (line.Contains($"\"{item.Schema}\".{item.Name}"))
+                {
+                    nameUsed = $"\"{item.Schema}\".{item.Name}";
+                    match = true;
+                }
+                else if (line.Contains($"\"{item.Schema}\".\"{item.Name}\""))
+                {
+                    nameUsed = $"\"{item.Schema}\".\"{item.Name}\"";
+                    match = true;
+                }
+            }
+            else
+            {
+                if (line.Contains(nameUsed))
+                {
+                    match = true;
+                }
+            }
+            if (match)
+            {
+                if (item.Type == PgType.Table)
+                {
+                    if (line.Contains($"REFERENCES {nameUsed}"))
+                    {
+                        continue;
+                    }
+                }
+                var pos = line.IndexOf(nameUsed);
+                if (pos + nameUsed.Length > line.Length - 1)
+                {
+                    var posChar = line[pos + nameUsed.Length];
+                    if (posChar != ' ' && posChar != ';' && posChar != '.')
+                    {
+                        match = false;
+                    }
+                }
+            }
+            if (match)
+            {
+                yield return line;
+            }
+        }
+    }
+
+    private IEnumerable<(string line, bool isView)> EnumeratePgDumpCommands(string args)
+    {
+        var error = PgDumpCache.GetError(Connection, args, pgDumpCmd);
+        if (!string.IsNullOrEmpty(error))
+        {
+            throw new Exception(error);
+        }
+        string command = "";
+        var insideBlock = false;
+        string blockStart = null;
+        var insideView = false;
+
+        foreach (var line in PgDumpCache.GetLines(Connection, args, pgDumpCmd))
+        {
+            if (line.StartsWith("--"))
+            {
+                continue;
+            }
+
+            if (insideBlock == false && insideView == false && line.Contains("CREATE VIEW "))
+            {
+                command = "";
+                insideView = true;
+            }
+            if (insideView)
+            {
+                command = string.Concat(command, Environment.NewLine, line);
+                if (line.Contains(";"))
+                {
+                    yield return (command, true);
+                    insideView = false;
+                    command = "";
+                }
+
+                continue;
+            }
+
+
+            if (insideBlock == false && line.Contains("CREATE FUNCTION ") || line.Contains("CREATE PROCEDURE "))
+            {
+                insideBlock = true;
+            }
+            if (insideBlock)
+            {
+                if (blockStart == null)
+                {
+                    var s = "AS $";
+                    var pos = line.IndexOf(s);
+                    if (pos > -1)
+                    {
+                        blockStart = line.Substring(pos + s.Length - 1, line.LastIndexOf("$") - (pos + s.Length - 1) + 1);
+                    }
+                }
+                else
+                {
+                    if (line.EndsWith($"{blockStart};"))
+                    {
+                        insideBlock = false;
+                        blockStart = null;
+                    }
+                }
+                continue;
+            }
+
+            if (line.EndsWith(";"))
+            {
+                command = string.Concat(command, Environment.NewLine, line);
+                yield return (command, false);
+                command = "";
+            }
+            else
+            {
+                command = string.Concat(command, Environment.NewLine, line);
+            }
+        }
+    }
+
     private string GetPgDumpContent(string args, string start = null, string end = null, Func<string, string> lineFunc = null)
     {
-        var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Connection) as string;
-        Environment.SetEnvironmentVariable("PGPASSWORD", password);
-
         var content = "";
         if (start != null)
         {
             content = start;
         }
-        var error = "";
-        using var process = new System.Diagnostics.Process();
-        process.StartInfo.FileName = pgDumpCmd;
-        if (string.Equals(args, "--version"))
-        {
-            process.StartInfo.Arguments = args;
-        }
-        else
-        {
-            process.StartInfo.Arguments = string.Concat(args, " ", Connection.Database);
-        }
-        if (settings.DumpPgCommands)
-        {
-            Program.WriteLine(ConsoleColor.White, $"{pgDumpCmd} {process.StartInfo.Arguments}");
-        }
 
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.CreateNoWindow = true;
-        process.StartInfo.RedirectStandardOutput = true;
-        process.OutputDataReceived += (_, data) =>
-        {
-            if (!string.IsNullOrEmpty(data.Data))
-            {
-                var line = lineFunc == null ? data.Data : lineFunc(data.Data);
-                if (line != null)
-                {
-                    content = string.Concat(content, line, Environment.NewLine);
-                }
-            }
-        };
-        process.StartInfo.RedirectStandardError = true;
-        process.ErrorDataReceived += (_, data) =>
-        {
-            if (!string.IsNullOrEmpty(data.Data))
-            {
-                error = string.Concat(error, data.Data, Environment.NewLine);
-            }
-        };
-        process.Start();
-        process.BeginErrorReadLine();
-        process.BeginOutputReadLine();
-        process.WaitForExit();
-        process.Close();
+        var error = PgDumpCache.GetError(Connection, args, pgDumpCmd);
         if (!string.IsNullOrEmpty(error))
         {
             throw new Exception(error);
+        }
+
+        foreach(var line in PgDumpCache.GetLines(Connection, args, pgDumpCmd))
+        {
+            var newLine = lineFunc == null ? line : lineFunc(line);
+            if (line != null)
+            {
+                content = string.Concat(content, newLine, Environment.NewLine);
+            }
         }
         if (end != null)
         {

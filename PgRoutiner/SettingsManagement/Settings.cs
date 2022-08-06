@@ -200,7 +200,6 @@ namespace PgRoutiner.SettingsManagement
         public bool DbObjectsAskOverwrite { get; set; } = false;
         public bool DbObjectsOwners { get; set; } = false;
         public bool DbObjectsPrivileges { get; set; } = false;
-        public bool DbObjectsDropIfExists { get; set; } = false;
         public bool DbObjectsCreateOrReplace { get; set; } = false;
         public bool DbObjectsRaw { get; set; } = false;
 

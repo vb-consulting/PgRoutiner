@@ -227,7 +227,6 @@ public class FormatedSettings
         AddEntry(nameof(Settings.DbObjectsRemoveExistingDirs), Settings.Value.DbObjectsRemoveExistingDirs);
         AddEntry(nameof(Settings.DbObjectsOwners), Settings.Value.DbObjectsOwners);
         AddEntry(nameof(Settings.DbObjectsPrivileges), Settings.Value.DbObjectsPrivileges);
-        AddEntry(nameof(Settings.DbObjectsDropIfExists), Settings.Value.DbObjectsDropIfExists);
         AddEntry(nameof(Settings.DbObjectsCreateOrReplace), Settings.Value.DbObjectsCreateOrReplace);
         AddEntry(nameof(Settings.DbObjectsRaw), Settings.Value.DbObjectsRaw);
 

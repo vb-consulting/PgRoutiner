@@ -174,7 +174,6 @@ public class Info
         WriteSetting(nameof(Settings.DbObjectsSkipDeleteDir), "Don't delete any existing file in tree subdirectories (Tables, Views, Functions, Procedures).");
         WriteSetting(nameof(Settings.DbObjectsOwners), "Include object owners in each object file.");
         WriteSetting(nameof(Settings.DbObjectsPrivileges), "Include object privileges in each object file. Default is false.");
-        WriteSetting(nameof(Settings.DbObjectsDropIfExists), "Include drop \"drop object if exists\" for each object in a file.");
         WriteSetting(nameof(Settings.DbObjectsCreateOrReplace), "Use \"create or replace\" for views and routines in object files.", newLine: true);
         WriteSetting(nameof(Settings.DbObjectsRaw), "Use raw dump without any parsing for each object file.");
 
