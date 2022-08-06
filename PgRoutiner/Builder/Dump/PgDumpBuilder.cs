@@ -466,7 +466,7 @@ public class PgDumpBuilder
                 if (line.Contains($"{item.Schema}.{item.Name}"))
                 {
                     nameUsed = $"{item.Schema}.{item.Name}";
-                    match = true;
+                    match = true;  
                 }
                 else if (line.Contains($"{item.Schema}.\"{item.Name}\""))
                 {
@@ -501,10 +501,10 @@ public class PgDumpBuilder
                     }
                 }
                 var pos = line.IndexOf(nameUsed);
-                if (pos + nameUsed.Length > line.Length - 1)
+                if (pos + nameUsed.Length < line.Length)
                 {
                     var posChar = line[pos + nameUsed.Length];
-                    if (posChar != ' ' && posChar != ';' && posChar != '.')
+                    if (posChar != ' ' && posChar != ';' && posChar != '.' && posChar != '\r' && posChar != '\n')
                     {
                         match = false;
                     }

@@ -1,5 +1,10 @@
 ﻿# VERSION HISTORY
 
+## 3.12.1
+
+- Fix parsing bug on object tree files with new lines.
+- Parse default values nicer on object tree files.
+
 ## 3.12.0
 
 - `DbObjects` functionality (creating an object tree files) optimized and now it's faster many times. Number of `pg_dump` processes significanlty lowered by caching and smart processing of same dump.

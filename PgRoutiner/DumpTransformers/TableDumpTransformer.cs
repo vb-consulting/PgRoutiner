@@ -124,6 +124,10 @@ public partial class TableDumpTransformer : DumpTransformer
             {
                 (field, fieldStatement) = ParseUnique(line);
             }
+            else if (line.Contains("SET DEFAULT"))
+            {
+                (field, fieldStatement) = ParseDefault(line);
+            }
 
             if (field != null && fieldStatement != null)
             {
@@ -369,5 +373,12 @@ public partial class TableDumpTransformer : DumpTransformer
             return (par, statement);
         }
         return (null, null);
+    }
+
+    private (string name, string statement) ParseDefault(string line)
+    {
+        var statement = line.FirstWordAfter("SET DEFAULT");
+        var field = line.FirstWordAfter("ALTER COLUMN");
+        return (field, $"DEFAULT {statement.TrimEnd(';')}");
     }
 }
