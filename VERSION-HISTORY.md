@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.12.2
+
+- Support for PostgreSQL 14 function syntax
+
 ## 3.12.1
 
 - Fix parsing bug on object tree files with new lines.

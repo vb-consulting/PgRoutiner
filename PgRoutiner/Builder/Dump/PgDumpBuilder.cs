@@ -569,6 +569,20 @@ public class PgDumpBuilder
                     {
                         blockStart = line.Substring(pos + s.Length - 1, line.LastIndexOf("$") - (pos + s.Length - 1) + 1);
                     }
+
+                    if (line.Contains("RETURN "))
+                    {
+                        blockStart = "";
+                        if (line.Contains(";"))
+                        {
+                            insideBlock = false;
+                            blockStart = null;
+                        }
+                    }
+                    if (line.Contains("BEGIN "))
+                    {
+                        blockStart = "END";
+                    }
                 }
                 else
                 {

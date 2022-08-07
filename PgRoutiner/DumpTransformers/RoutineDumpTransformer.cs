@@ -77,6 +77,15 @@ public class RoutineDumpTransformer : DumpTransformer
                 {
                     endSequence = line.GetSequence();
                 }
+                if (endSequence == null && line.Contains("RETURN "))
+                {
+                    endSequence = "";
+                    createEnd = line.Contains($";");
+                }
+                if (endSequence == null && line.Contains("BEGIN"))
+                {
+                    endSequence = "END";
+                }
                 Create.Add(line);
                 if (createEnd)
                 {
