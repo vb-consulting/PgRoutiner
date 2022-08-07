@@ -74,7 +74,7 @@ public class UnitTestCode : Code
                 {
                     Class.AppendLine($"{I2}///");
                     Class.Append($"{I2}");
-                    Class.AppendLine(string.Join($"{I2}", m.Description.Split("\n").Select(d => $"/// {d}")));
+                    Class.Append(string.Join($"{I2}", m.Description.Split("\n").Select(d => $"/// {d}{NL}")));
                 }
                 Class.AppendLine($"{I2}///</summary>");
             }

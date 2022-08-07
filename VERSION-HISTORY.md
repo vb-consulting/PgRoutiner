@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.12.3
+
+- Add support for extensions in object tree files.
+- Fix comments new lines in unit test files.
+- Add support for default parameters. Parameters with default values with have one more overload without that parameter.
+
 ## 3.12.2
 
 - Support for PostgreSQL 14 function syntax

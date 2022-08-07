@@ -10,5 +10,6 @@ public enum PgType
     Type,
     Schema,
     Sequence,
+    Extension,
     Unknown
 }

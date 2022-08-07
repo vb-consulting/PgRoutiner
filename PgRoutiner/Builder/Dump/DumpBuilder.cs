@@ -4,7 +4,7 @@ namespace PgRoutiner.Builder.Dump;
 
 public class DumpBuilder
 {
-    public enum DumpType { Tables, Views, Functions, Procedures, Domains, Types, Schemas, Sequences }
+    public enum DumpType { Tables, Views, Functions, Procedures, Domains, Types, Schemas, Sequences, Extensions }
 
     public static void BuildDump(string dumpFile, string file, bool overwrite, bool askOverwrite, Func<string> contentFunc)
     {
@@ -92,7 +92,7 @@ public class DumpBuilder
         var baseTypesDir = GetDir(DumpType.Types);
         var baseSchemasDir = GetDir(DumpType.Schemas);
         var baseSequencesDir = GetDir(DumpType.Sequences);
-
+        var baseExtensionsDir = GetDir(DumpType.Extensions);
 
         static string ParseSchema(string dir, string schema)
         {
@@ -100,7 +100,7 @@ public class DumpBuilder
             {
                 return null;
             }
-            return string.Format(dir, schema == "public" ? "" : schema).Replace("//", "/").Replace("\\\\", "\\");
+            return string.Format(dir, schema == null || schema == "public" ? "" : schema).Replace("//", "/").Replace("\\\\", "\\");
         }
 
 
@@ -118,6 +118,7 @@ public class DumpBuilder
                 PgType.Type => ParseSchema(baseTypesDir, schema),
                 PgType.Schema => ParseSchema(baseSchemasDir, schema),
                 PgType.Sequence => ParseSchema(baseSequencesDir, schema),
+                PgType.Extension => ParseSchema(baseExtensionsDir, schema),
                 _ => null
             };
 

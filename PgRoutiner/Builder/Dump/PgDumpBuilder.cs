@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Xml.Linq;
+using PgRoutiner.DataAccess;
 using PgRoutiner.DataAccess.Models;
 using PgRoutiner.DumpTransformers;
 using PgRoutiner.SettingsManagement;
@@ -202,6 +203,34 @@ public class PgDumpBuilder
                             continue;
                         }
                         yield return (name, content, PgType.Schema, null);
+                    }
+                }
+
+                if (HasKey(DumpType.Extensions))
+                {
+                    foreach (var ext in Connection.GetExtensions())
+                    {
+                        var name = ext.GetFileName();
+                        string content;
+                        if (ext.Name == "plpgsql")
+                        {
+                            content = "";
+                        }
+                        else
+                        {
+                            try
+                            {
+                                content = new ExtensionDumpTransformer(ext.Name, lines)
+                                    .BuildLines()
+                                    .ToString();
+                            }
+                            catch (Exception e)
+                            {
+                                Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                                continue;
+                            }
+                        }
+                        yield return (name, content, ext.Type, ext.Schema);
                     }
                 }
             }

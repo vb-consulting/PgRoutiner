@@ -2,7 +2,7 @@
 
 namespace PgRoutiner.DataAccess.Models;
 
-public class PgRoutineGroup
+public record PgRoutineGroup
 {
     public uint Oid { get; set; }
     public string SpecificSchema { get; set; }
@@ -13,5 +13,5 @@ public class PgRoutineGroup
     public string RoutineType { get; set; }
     public string TypeUdtName { get; set; }
     public string DataType { get; set; }
-    public IList<PgParameter> Parameters { get; set; }
+    public List<PgParameter> Parameters { get; set; }
 }

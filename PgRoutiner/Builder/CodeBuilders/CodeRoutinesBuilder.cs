@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using PgRoutiner.DataAccess.Models;
 
 namespace PgRoutiner.Builder.CodeBuilders;
 
@@ -21,7 +22,19 @@ public class CodeRoutinesBuilder : CodeBuilder
             Code code;
             try
             {
-                code = new RoutineCode(settings, name, schema, module.Namespace, group, connection);
+                List<PgRoutineGroup> routines = group.ToList();
+                foreach (var routine in group)
+                {
+                    foreach(var parameter in routine.Parameters)
+                    {
+                        if (parameter.Default != null)
+                        {
+                            var newRoutine = routine with { Parameters = routine.Parameters.Where(p => p.Name != parameter.Name).ToList() };
+                            routines.Add(newRoutine);
+                        }
+                    }
+                }
+                code = new RoutineCode(settings, name, schema, module.Namespace, routines, connection);
             }
             catch (ArgumentException e)
             {

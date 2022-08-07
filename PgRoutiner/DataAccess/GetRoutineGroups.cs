@@ -49,7 +49,8 @@ public static partial class DataAccessConnectionExtensions
                                 'name', p.parameter_name,
                                 'type', regexp_replace(p.udt_name, '^[_]', ''),
                                 'dataType', p.data_type,
-                                'isArray', p.data_type = 'ARRAY'
+                                'isArray', p.data_type = 'ARRAY',
+                                'default', p.parameter_default
                             ) 
                             order by 
                                 p.ordinal_position
@@ -106,7 +107,7 @@ public static partial class DataAccessConnectionExtensions
                 RoutineType = t.RoutineType,
                 TypeUdtName = t.TypeUdtName,
                 DataType = t.DataType,
-                Parameters = JsonConvert.DeserializeObject<IList<PgParameter>>(t.Parameters)
+                Parameters = JsonConvert.DeserializeObject<List<PgParameter>>(t.Parameters)
             })
             .GroupBy(i => (i.SpecificSchema, i.RoutineName));
     }
