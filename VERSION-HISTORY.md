@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.12.5
+
+- When routines returns a record with single value, skip creating a model. 
+
 ## 3.12.4
 
 - Fix routines generation bug when routines returns record with only single field.

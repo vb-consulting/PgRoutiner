@@ -390,6 +390,10 @@ public class RoutineCode : Code
             }
             if (TryGetRoutineMapping(routine, out var result))
             {
+                if (routine.DataType == "record")
+                {
+                    return new Return { PgName = routine.DataType, Name = $"{result}?", IsVoid = false, IsEnumerable = true };
+                }
                 if (routine.DataType == "ARRAY")
                 {
                     return new Return { PgName = $"{routine.TypeUdtName}[]", Name = $"{result}[]", IsVoid = false, IsEnumerable = false };

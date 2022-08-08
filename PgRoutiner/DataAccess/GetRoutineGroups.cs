@@ -40,11 +40,7 @@ public static partial class DataAccessConnectionExtensions
                     lower(r.external_language) as language,
                     lower(r.routine_type) as routine_type,
 
-                    case 
-                        when array_length((array_agg(p.ordinal_position) filter (where p.ordinal_position is not null and p.parameter_mode = 'OUT')), 1) > 0
-                        then 'record'
-                        else regexp_replace(r.type_udt_name, '^[_]', '')
-                    end as type_udt_name,
+                    regexp_replace(r.type_udt_name, '^[_]', '') as type_udt_name,
     
                     case 
                         when array_length((array_agg(p.ordinal_position) filter (where p.ordinal_position is not null and p.parameter_mode = 'OUT')), 1) > 0
