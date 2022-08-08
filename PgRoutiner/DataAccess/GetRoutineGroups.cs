@@ -39,8 +39,18 @@ public static partial class DataAccessConnectionExtensions
                     pgdesc.description,
                     lower(r.external_language) as language,
                     lower(r.routine_type) as routine_type,
-                    regexp_replace(r.type_udt_name, '^[_]', '') as type_udt_name,
-                    r.data_type,
+
+                    case 
+                        when array_length((array_agg(p.ordinal_position) filter (where p.ordinal_position is not null and p.parameter_mode = 'OUT')), 1) > 0
+                        then 'record'
+                        else regexp_replace(r.type_udt_name, '^[_]', '')
+                    end as type_udt_name,
+    
+                    case 
+                        when array_length((array_agg(p.ordinal_position) filter (where p.ordinal_position is not null and p.parameter_mode = 'OUT')), 1) > 0
+                        then 'record'
+                        else r.data_type
+                    end as data_type,
 
                     coalesce (
                         json_agg(

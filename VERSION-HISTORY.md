@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.12.4
+
+- Fix routines generation bug when routines returns record with only single field.
+
 ## 3.12.3
 
 - Add support for extensions in object tree files.
