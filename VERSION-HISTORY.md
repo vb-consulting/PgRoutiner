@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.12.6
+
+- Fix extensions parsing in boject tree.
+
 ## 3.12.5
 
 - When routines returns a record with single value, skip creating a model. 

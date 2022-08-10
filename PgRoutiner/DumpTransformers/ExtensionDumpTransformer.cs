@@ -18,85 +18,28 @@ public class ExtensionDumpTransformer : DumpTransformer
         Create.Clear();
         Append.Clear();
 
-        if (lineCallback == null)
-        {
-            lineCallback = s => { };
-        }
-
-        bool isPrepend = true;
-        bool isCreate = false;
-        bool isAppend = true;
-
-        var startSequence1 = $"CREATE EXTENSION {this.Name}";
-        var startSequence2 = $"CREATE EXTENSION IF NOT EXISTS {this.Name}";
-        var startSequence3 = $"CREATE EXTENSION \"{this.Name}\"";
-        var startSequence4 = $"CREATE EXTENSION IF NOT EXISTS \"{this.Name}\"";
-
-        string statement = "";
-        const string endSequence = ";";
-
-        bool shouldContinue(string line)
-        {
-            return !isCreate && string.IsNullOrEmpty(statement) &&
-                !line.Contains(this.Name);
-        }
-
         foreach (var l in lines)
         {
-            var line = l;
-            if (!isCreate && (line.StartsWith("--") || line.StartsWith("SET ") || line.StartsWith("SELECT ")))
+            if (l.StartsWith("--") || l.StartsWith("SET ") || l.StartsWith("SELECT "))
             {
                 continue;
             }
-            if (shouldContinue(line))
+            if (!l.Contains("EXTENSION"))
             {
                 continue;
             }
-
-            var createStart = line.StartsWith(startSequence1) || line.StartsWith(startSequence2) || line.StartsWith(startSequence3) || line.StartsWith(startSequence4);
-            var createEnd = line.EndsWith(endSequence);
-            if (createStart)
+            if (l.Contains(this.Name) || l.Contains($"\"{this.Name}\""))
             {
-                isPrepend = false;
-                isCreate = true;
-                isAppend = false;
-                if (Create.Count > 0)
+                if (l.StartsWith("CREATE"))
                 {
-                    Create.Add("");
+                    Create.Add(l);
                 }
-            }
-            if (isCreate)
-            {
-                Create.Add(line);
-                if (createEnd)
+                else
                 {
-                    isPrepend = false;
-                    isCreate = false;
-                    isAppend = true;
-                }
-                if (!createStart && !createEnd && !isAppend)
-                {
-                    lineCallback(line);
-                }
-            }
-            else
-            {
-                statement = string.Concat(statement, statement == "" ? "" : Environment.NewLine, line);
-                if (statement.EndsWith(";"))
-                {
-                    if (isPrepend && !ignorePrepend)
-                    {
-                        Prepend.Add(statement);
-                    }
-                    else if (isAppend)
-                    {
-                        Append.Add(statement);
-                    }
-                    statement = "";
+                    Append.Add(l);
                 }
             }
         }
-
         return this;
     }
 }

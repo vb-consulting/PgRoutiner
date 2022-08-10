@@ -212,23 +212,16 @@ public class PgDumpBuilder
                     {
                         var name = ext.GetFileName();
                         string content;
-                        if (ext.Name == "plpgsql")
+                        try
                         {
-                            content = "";
+                            content = new ExtensionDumpTransformer(ext.Name, lines)
+                                .BuildLines()
+                                .ToString();
                         }
-                        else
+                        catch (Exception e)
                         {
-                            try
-                            {
-                                content = new ExtensionDumpTransformer(ext.Name, lines)
-                                    .BuildLines()
-                                    .ToString();
-                            }
-                            catch (Exception e)
-                            {
-                                Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
-                                continue;
-                            }
+                            Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                            continue;
                         }
                         yield return (name, content, ext.Type, ext.Schema);
                     }
