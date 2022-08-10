@@ -150,6 +150,10 @@ namespace PgRoutiner.SettingsManagement
             "json", "jsonb", "text", "varchar"
         };
         public bool RoutinesCallerInfo { get; set; } = false;
+        public HashSet<string> RoutinesLanguages { get; set; } = new()
+        {
+            "sql", "plpgsql"
+        };
 
         /*unit tests*/
         public bool UnitTests { get; set; } = false;

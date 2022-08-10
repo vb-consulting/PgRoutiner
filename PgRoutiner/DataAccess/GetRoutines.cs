@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Norm;
+using NpgsqlTypes;
 using PgRoutiner.DataAccess.Models;
 
 namespace PgRoutiner.DataAccess;
@@ -11,7 +12,8 @@ public static partial class DataAccessConnectionExtensions
         return connection
             .WithParameters(
                 (settings.SchemaSimilarTo, DbType.AnsiString),
-                (settings.SchemaNotSimilarTo, DbType.AnsiString))
+                (settings.SchemaNotSimilarTo, DbType.AnsiString),
+                (settings.RoutinesLanguages, NpgsqlDbType.Array | NpgsqlDbType.Text))
             .Read<(string Schema, string Name, string Type)>(@$"
 
                 select 
@@ -22,7 +24,7 @@ public static partial class DataAccessConnectionExtensions
                 from
                     information_schema.routines r
                 where
-                    lower(r.external_language) = any('{{sql,plpgsql}}')
+                    lower(r.external_language) = any($3)
                     and
                     (   $1 is null or (r.specific_schema similar to $1)   )
                     and (   $2 is null or r.specific_schema not similar to $2   )

@@ -163,7 +163,8 @@ public class FormatedSettings
         AddEntry(nameof(Settings.RoutinesModelPropertyTypes), Settings.Value.RoutinesModelPropertyTypes);
         AddEntry(nameof(Settings.RoutinesUnknownReturnTypes), Settings.Value.RoutinesUnknownReturnTypes);
         AddEntry(nameof(Settings.RoutinesCallerInfo), Settings.Value.RoutinesCallerInfo);
-
+        AddEntry(nameof(Settings.RoutinesLanguages), Settings.Value.RoutinesLanguages);
+        
         sb.AppendLine();
         AddSectionComment(
             "Unit tests code-generation settings",

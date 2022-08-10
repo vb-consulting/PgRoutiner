@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Norm;
+using NpgsqlTypes;
 
 namespace PgRoutiner.DataAccess;
 
@@ -11,7 +12,8 @@ public static partial class DataAccessConnectionExtensions
             (schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),
             (schemaNotSimilarTo ?? settings.SchemaNotSimilarTo, DbType.AnsiString),
             (settings.RoutinesNotSimilarTo, DbType.AnsiString),
-            (settings.RoutinesSimilarTo, DbType.AnsiString))
+            (settings.RoutinesSimilarTo, DbType.AnsiString),
+            (settings.RoutinesLanguages, NpgsqlDbType.Array | NpgsqlDbType.Text))
         .Read<long>(@$"
 
                 select 
@@ -19,7 +21,7 @@ public static partial class DataAccessConnectionExtensions
                 from
                     information_schema.routines r
                 where
-                    lower(r.external_language) = any('{{sql,plpgsql}}')
+                    lower(r.external_language) = any($5)
                     and
                     (   $1 is null or (r.specific_schema similar to $1)   )
                     and (   $2 is null or r.specific_schema not similar to $2   )

@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.12.7
+
+- Added `RoutinesLanguages` settings with default value as hashet array `["sql", "plpgsql"]` which determines which languagues will be included when parsion routines in any section. This enables adding custom languagues like `plpython3u`.
+
 ## 3.12.6
 
 - Fix extensions parsing in boject tree.

@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Norm;
+using NpgsqlTypes;
 using PgRoutiner.DataAccess.Models;
 
 namespace PgRoutiner.DataAccess;
@@ -11,7 +12,8 @@ public static partial class DataAccessConnectionExtensions
         .WithParameters(
             (schema, DbType.AnsiString),
             (settings.MdNotSimilarTo, DbType.AnsiString),
-            (settings.MdSimilarTo, DbType.AnsiString))
+            (settings.MdSimilarTo, DbType.AnsiString),
+            (settings.RoutinesLanguages, NpgsqlDbType.Array | NpgsqlDbType.Text))
         .Read<(string Type, string Name, string Signature, string Returns, string Language, string Comment)>(@"
 
                 select
@@ -52,7 +54,7 @@ public static partial class DataAccessConnectionExtensions
                     left outer join pg_catalog.pg_description pgdesc on proc.oid = pgdesc.objoid
                 where
                     r.specific_schema = $1
-                    and lower(r.external_language) = any('{sql, plpgsql}')
+                    and lower(r.external_language) = any($4)
 
                     and ($2 is null or r.routine_name not similar to $2)
                     and ($3 is null or r.routine_name similar to $3)

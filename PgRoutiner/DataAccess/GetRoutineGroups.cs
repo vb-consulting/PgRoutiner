@@ -2,6 +2,7 @@
 using Norm;
 using Newtonsoft.Json;
 using PgRoutiner.DataAccess.Models;
+using NpgsqlTypes;
 
 namespace PgRoutiner.DataAccess;
 
@@ -18,7 +19,8 @@ public static partial class DataAccessConnectionExtensions
                 (settings.RoutinesNotSimilarTo, DbType.AnsiString),
                 (settings.RoutinesSimilarTo, DbType.AnsiString),
                 (all, DbType.Boolean),
-                (skipSimilar, DbType.AnsiString))
+                (skipSimilar, DbType.AnsiString),
+                (settings.RoutinesLanguages, NpgsqlDbType.Array | NpgsqlDbType.Text))
             .Read<(
                 uint Oid,
                 string SpecificSchema,
@@ -78,7 +80,7 @@ public static partial class DataAccessConnectionExtensions
                     on r.specific_name = p.specific_name and r.specific_schema = p.specific_schema
     
                 where
-                    lower(r.external_language) = any('{{sql,plpgsql}}')
+                    lower(r.external_language) = any($7)
                     and
                     (   $1 is null or (r.specific_schema similar to $1)   )
                     and (   $2 is null or r.specific_schema not similar to $2   )
