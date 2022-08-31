@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Xml.Linq;
+using Norm;
 using PgRoutiner.DataAccess;
 using PgRoutiner.DataAccess.Models;
 using PgRoutiner.DumpTransformers;
@@ -254,23 +255,109 @@ public class PgDumpBuilder
 
     public string GetDataContent()
     {
-        var args = string.Concat(
-            baseArg,
-            " --data-only --inserts",
-            settings.SchemaSimilarTo != null ? $" --schema=\\\"{settings.SchemaSimilarTo}\\\"" : "",
-            settings.SchemaNotSimilarTo != null ? $" --exclude-schema=\\\"{settings.SchemaNotSimilarTo}\\\"" : "",
-            settings.DataDumpTables == null || settings.DataDumpTables.Count == 0 ? "" :
-                $" {string.Join(" ", settings.DataDumpTables.Select(t => $"--table={t}"))}",
-            string.IsNullOrEmpty(settings.DataDumpOptions) ? "" :
-                settings.DataDumpOptions.StartsWith(" ") ?
-                settings.DataDumpOptions :
-                string.Concat(" ", settings.DataDumpOptions));
-
-        if (!settings.DataDumpNoTransaction)
+        var items = settings.DataDumpTables == null ? new List<string>() : settings.DataDumpTables;
+        if (!string.IsNullOrEmpty(settings.DataDumpList))
         {
-            return GetPgDumpTransactionContent(args, $"{Connection.Database}_data");
+            foreach(var li in settings.DataDumpList.Split(';'))
+            {
+                items.Add(li);
+            }
         }
-        return GetPgDumpContent(args);
+
+
+        List<string> tables = new();
+        Dictionary<string, string> temporary = new();
+        bool hasTemp = false;
+        try
+        {
+            foreach (var item in items)
+            {
+                if (item.Contains(' '))
+                {
+                    var from = item.GetFrom();
+                    var temp = $"{from}_tmp_{Guid.NewGuid().ToString().Substring(0, 8)}";
+
+                    try
+                    {
+                        Connection.Execute(@$"create table {temp} as {item}");
+                        temporary.Add(temp, from);
+                        tables.Add(temp);
+                        hasTemp = true;
+                    }
+                    catch (Exception e)
+                    {
+                        Program.DumpError($"Could not export from expression: {item}. Error is {e.Message}");
+                    }
+                    
+                }
+                else
+                {
+                    tables.Add(item);
+                }
+            }
+
+            var args = string.Concat(
+                baseArg,
+                " --data-only --inserts",
+                settings.SchemaSimilarTo != null ? $" --schema=\\\"{settings.SchemaSimilarTo}\\\"" : "",
+                settings.SchemaNotSimilarTo != null ? $" --exclude-schema=\\\"{settings.SchemaNotSimilarTo}\\\"" : "",
+                tables.Count == 0 ? "" : $" {string.Join(" ", tables.Select(t => $"--table={t}"))}",
+                string.IsNullOrEmpty(settings.DataDumpOptions) ? "" :
+                    settings.DataDumpOptions.StartsWith(" ") ?
+                    settings.DataDumpOptions :
+                    string.Concat(" ", settings.DataDumpOptions));
+
+            string lineFunc(string line)
+            {
+                if (settings.DataDumpRaw)
+                {
+                    return line;
+                }
+                if (line.StartsWith("--"))
+                {
+                    if (!line.Contains("Data for Name"))
+                    {
+                        return null;
+                    }
+                }
+                if (line.StartsWith("SET "))
+                {
+                    return null;
+                }
+                if (line.StartsWith("SELECT "))
+                {
+                    return null;
+                }
+                if (line.StartsWith("PERFORM "))
+                {
+                    return null;
+                }
+                if (hasTemp)
+                {
+                    foreach (var (temp, table) in temporary)
+                    {
+                        line = line.Replace(temp, table);
+                    }
+                }
+                return line;
+            }
+            if (!settings.DataDumpNoTransaction)
+            {
+                return GetPgDumpTransactionContent(args, $"{Connection.Database}_data", outerLineFunc: lineFunc);
+            }
+            return GetPgDumpContent(args, lineFunc: lineFunc);
+        }
+        finally
+        {
+            //drop temporary
+            if (hasTemp)
+            {
+                foreach(var table in temporary.Keys)
+                {
+                    Connection.Execute(@$"drop table if exists {table}");
+                }
+            }
+        }
     }
 
     public string GetDumpVersion()
@@ -403,7 +490,7 @@ public class PgDumpBuilder
        */
     }
 
-    private string GetPgDumpTransactionContent(string args, string name)
+    private string GetPgDumpTransactionContent(string args, string name, Func<string, string> outerLineFunc = null)
     {
         var insideBlock = false;
         var insideView = false;
@@ -463,6 +550,10 @@ public class PgDumpBuilder
             else if (partitions.Select(p => $"ONLY \"{p.Schema}\".{p.Table} DROP CONSTRAINT").Where(p => line.Contains(p)).Any())
             {
                 line = $"-- {line} -- ERROR:  cannot drop inherited constraint ";
+            }
+            if (outerLineFunc != null)
+            {
+                return outerLineFunc(line);
             }
             return line;
         };
@@ -647,7 +738,7 @@ public class PgDumpBuilder
         foreach(var line in PgDumpCache.GetLines(Connection, args, pgDumpCmd))
         {
             var newLine = lineFunc == null ? line : lineFunc(line);
-            if (line != null)
+            if (newLine != null)
             {
                 content = string.Concat(content, newLine, Environment.NewLine);
             }

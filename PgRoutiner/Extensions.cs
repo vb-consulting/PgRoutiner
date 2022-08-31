@@ -1,5 +1,7 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using Markdig.Helpers;
 
 namespace PgRoutiner;
 
@@ -93,6 +95,48 @@ public static class Extensions
             return value.Substring(index, len).Trim();
         }
         return value.Substring(index).Trim();
+    }
+
+    public static bool IsSqlChar(this char value)
+    {
+        return value.IsAlphaNumeric() || value == '.' || value == '"' || value == '_';
+    }
+
+    public static string GetFrom(this string value)
+    {
+        var seq = "from";
+        var index1 = value.ToLowerInvariant().IndexOf(seq);
+        if (index1 == -1)
+        {
+            return null;
+        }
+        index1 = index1 + seq.Length;
+        var index2 = 0;
+        for(var i = index1; i < value.Length; i++)
+        {
+            var ch = value[i];
+            if (ch.IsSqlChar())
+            {
+                if (index2 == 0)
+                {
+                    index1 = i;
+                }
+                index2 = i;
+            }
+            else
+            {
+                if (index2 > 0)
+                {
+                    index2++;
+                    break;
+                }
+            }
+        }
+        if (index2 == 0 || index2 == value.Length - 1)
+        {
+            return value.Substring(index1);
+        }
+        return value.Substring(index1, index2 - index1);
     }
 
     public static string Between(this string value, char start, char end)

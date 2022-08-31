@@ -10,6 +10,8 @@ public class DumpBuilder
     {
         if (string.IsNullOrEmpty(dumpFile))
         {
+            Settings.Value.Dump = true;
+            Writer.WriteFile(null, contentFunc());
             return;
         }
         var shortFilename = Path.GetFileName(file);
@@ -161,6 +163,7 @@ public class DumpBuilder
             Writer.WriteFile(file, content);
         }
 
+        /*
         if (Settings.Value.DbObjectsRemoveExistingDirs)
         {
             foreach (var dir in Directory.GetDirectories(baseDir, "*", SearchOption.TopDirectoryOnly))
@@ -171,6 +174,7 @@ public class DumpBuilder
                 }
             }
         }
+        */
     }
 
     private static void CreateDir(string dir, bool skipDelete = false)

@@ -203,14 +203,17 @@ public class FormatedSettings
             "https://github.com/vb-consulting/PgRoutiner/wiki/5.-WORKING-WITH-DATA-DUMP-SCRIPT#data-dump-script-settings",
             $"- Use \"{Settings.DataDumpArgs.Alias}\" or \"--{Settings.DataDumpArgs.Original.ToKebabCase()}\" switch to run data script dump from the command line.",
             $"- Use \"{Settings.DataDumpFileArgs.Alias}\" or \"--{Settings.DataDumpFileArgs.Original.ToKebabCase()}\" option to set generated data script file name from the command line.",
-            $"- Use \"{Settings.DataDumpOverwriteArgs.Alias}\" or \"--{Settings.DataDumpOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated data script file from the command line.");
+            $"- Use \"{Settings.DataDumpOverwriteArgs.Alias}\" or \"--{Settings.DataDumpOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated data script file from the command line.",
+            $"- Use \"{Settings.DataDumpListArgs.Alias}\" or \"--{Settings.DataDumpListArgs.Original.ToKebabCase()}\" set semicolon separated list of tables or queries merged with \"DataDumpTables\" option and to be dumped.");
         AddEntry(nameof(Settings.DataDump), Settings.Value.DataDump);
         AddEntry(nameof(Settings.DataDumpFile), Settings.Value.DataDumpFile);
         AddEntry(nameof(Settings.DataDumpOverwrite), Settings.Value.DataDumpOverwrite);
         AddEntry(nameof(Settings.DataDumpAskOverwrite), Settings.Value.DataDumpAskOverwrite);
+        AddEntry(nameof(Settings.DataDumpList), Settings.Value.DataDumpList);
         AddEntry(nameof(Settings.DataDumpTables), Settings.Value.DataDumpTables);
         AddEntry(nameof(Settings.DataDumpOptions), Settings.Value.DataDumpOptions);
         AddEntry(nameof(Settings.DataDumpNoTransaction), Settings.Value.DataDumpNoTransaction);
+        AddEntry(nameof(Settings.DataDumpRaw), Settings.Value.DataDumpRaw);
 
         sb.AppendLine();
         AddSectionComment(
@@ -225,7 +228,7 @@ public class FormatedSettings
         AddEntry(nameof(Settings.DbObjectsAskOverwrite), Settings.Value.DbObjectsAskOverwrite);
         AddEntry(nameof(Settings.DbObjectsDirNames), Settings.Value.DbObjectsDirNames);
         AddEntry(nameof(Settings.DbObjectsSkipDeleteDir), Settings.Value.DbObjectsSkipDeleteDir);
-        AddEntry(nameof(Settings.DbObjectsRemoveExistingDirs), Settings.Value.DbObjectsRemoveExistingDirs);
+        //AddEntry(nameof(Settings.DbObjectsRemoveExistingDirs), Settings.Value.DbObjectsRemoveExistingDirs);
         AddEntry(nameof(Settings.DbObjectsOwners), Settings.Value.DbObjectsOwners);
         AddEntry(nameof(Settings.DbObjectsPrivileges), Settings.Value.DbObjectsPrivileges);
         AddEntry(nameof(Settings.DbObjectsCreateOrReplace), Settings.Value.DbObjectsCreateOrReplace);

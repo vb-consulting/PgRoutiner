@@ -1,5 +1,39 @@
 ﻿# VERSION HISTORY
 
+## 3.13.0
+
+- Improve unit tests:
+
+Database Fixtures now have four classes: 
+    - `PostgreSqlConfigurationFixture` default, uses configuration file, same as before
+    - `PostgreSqlTestDatabaseFixture` only test database (created at the start, dropped at the end)
+    - `PostgreSqlTestDatabaseTransactionFixture` same as previous but only every test under rolled back transaction
+    - `PostgreSqlTestTemplateDatabaseFixture` uses a template database
+
+Now every test can be configured differently. 
+Also, moved test hedader comment to class header.
+
+- Improve dumps:
+
+If file (for schema or data dump) is null or empty, dump to console.
+
+Change default `SchemaDumpFile` and `DataDumpFile` to null (dump to console).
+
+- Remove `DbObjectsRemoveExistingDirs` options. It's needed and it caused some funky behavior.
+
+- Added `DataDumpRaw` with default value false. 
+
+When this settings is false, data dump will contain only insert statements, everythiong else is ommited, otherwise it will be raw, untouched.
+
+- Added `DataDumpList`
+
+    - Allows for the semicolon separated list of tables or queries to be dumped.
+    - This option has command line alias `-ddl`, for exmple ` -ddl "countries;business_areas"`
+    - This semicolon separated values are merged with option `DataDumpTables`
+    - Both `DataDumpList` and `DataDumpTables` are now supporting queries. 
+    - When dumping query, temp table which later dropped is used for export, but the actaul table name in export dump is replaced with last "FROM" expression.
+
+
 ## 3.12.7
 
 - Added `RoutinesLanguages` settings with default value as hashet array `["sql", "plpgsql"]` which determines which languagues will be included when parsion routines in any section. This enables adding custom languagues like `plpython3u`.

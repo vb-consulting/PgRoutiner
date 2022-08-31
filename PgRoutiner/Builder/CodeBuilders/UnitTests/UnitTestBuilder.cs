@@ -106,7 +106,7 @@ public class UnitTestBuilder
                     Writer.DumpRelativePath("Skipping {0}, already exists ...", moduleFile);
                     continue;
                 }
-                var module = new Module(settings, useGlobalUsing);
+                var module = new Module(settings, useGlobalUsing, skipPragma: true);
                 if (ext.Schema != "public")
                 {
                     module.Namespace = $"{module.Namespace}.{ext.Schema.ToUpperCamelCase()}";
@@ -145,7 +145,7 @@ public class UnitTestBuilder
                 Writer.DumpRelativePath("Skipping {0}, already exists ...", moduleFile);
                 return;
             }
-            var module = new Module(settings, useGlobalUsing);
+            var module = new Module(settings, useGlobalUsing, skipPragma: true);
             module.AddUsing("Xunit");
             module.AddUsing("Norm");
 

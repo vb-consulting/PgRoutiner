@@ -11,13 +11,15 @@ public class Module : Code
 
     protected List<object> items = new();
     private readonly bool skipUsing;
+    private readonly bool skipPragma;
 
     public string Namespace { get; set; }
 
-    public Module(Settings settings, bool skipUsing = false) : base(settings, null)
+    public Module(Settings settings, bool skipUsing = false, bool skipPragma = false) : base(settings, null)
     {
         Namespace = settings.Namespace?.Trim('.');
         this.skipUsing = skipUsing;
+        this.skipPragma = skipPragma;
     }
 
     public void AddUsing(params string[] usings)
@@ -56,7 +58,19 @@ public class Module : Code
         {
             foreach(var line in settings.SourceHeaderLines)
             {
-                builder.AppendLine(string.Format(line, DateTime.Now));
+                if (!skipPragma)
+                {
+                    builder.AppendLine(string.Format(line, DateTime.Now));
+                }
+                else
+                {
+                    var value = string.Format(line, DateTime.Now);
+                    if (!value.StartsWith("#pragma"))
+                    {
+                        builder.AppendLine(value);
+                    }
+                }
+                
             }
         }
         if (!skipUsing)

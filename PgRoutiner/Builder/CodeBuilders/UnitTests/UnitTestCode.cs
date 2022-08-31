@@ -14,7 +14,22 @@ public class UnitTestCode : Code
 
     private void Build()
     {
-        Class.AppendLine($"{I1}public class {Name} : PostgreSqlUnitTestFixture");
+        var method = ext.Methods.FirstOrDefault();
+        if (method != null && (method.Routine != null || method.Description != null))
+        {
+            string routine = method.Routine == null ? null : method.Routine.Substring(0, method.Routine.IndexOf("("));
+            Class.AppendLine($"{I1}///<summary>");
+            Class.AppendLine($"{I1}/// Test method{(routine != null ? $" for {routine}" : "")}");
+            if (method.Description != null)
+            {
+                Class.AppendLine($"{I1}///");
+                Class.Append($"{I1}");
+                Class.Append(string.Join($"{I1}", method.Description.Split("\n").Select(d => $"/// {d}{NL}")));
+            }
+            Class.AppendLine($"{I1}///</summary>");
+        }
+
+        Class.AppendLine($"{I1}public class {Name} : PostgreSqlConfigurationFixture");
         Class.AppendLine($"{I1}{{");
         Class.AppendLine($"{I2}public {Name}(PostgreSqlFixture fixture) : base(fixture) {{ }}");
         if (ext == null || ext.Methods == null || !ext.Methods.Any())
@@ -66,18 +81,18 @@ public class UnitTestCode : Code
             var count = names.Where(n => string.Equals(n, methodName)).Count();
             Class.AppendLine();
 
-            if (m.Routine != null || m.Description != null)
-            {
-                Class.AppendLine($"{I2}///<summary>");
-                Class.AppendLine($"{I2}/// Test method{(m.Routine != null ? $" for {m.Routine}" : "")}.");
-                if (m.Description != null)
-                {
-                    Class.AppendLine($"{I2}///");
-                    Class.Append($"{I2}");
-                    Class.Append(string.Join($"{I2}", m.Description.Split("\n").Select(d => $"/// {d}{NL}")));
-                }
-                Class.AppendLine($"{I2}///</summary>");
-            }
+            //if (m.Routine != null || m.Description != null)
+            //{
+            //    Class.AppendLine($"{I2}///<summary>");
+            //    Class.AppendLine($"{I2}/// Test method{(m.Routine != null ? $" for {m.Routine}" : "")}.");
+            //    if (m.Description != null)
+            //    {
+            //        Class.AppendLine($"{I2}///");
+            //        Class.Append($"{I2}");
+            //        Class.Append(string.Join($"{I2}", m.Description.Split("\n").Select(d => $"/// {d}{NL}")));
+            //    }
+            //    Class.AppendLine($"{I2}///</summary>");
+            //}
 
             Class.AppendLine($"{I2}[Fact]");
             if (m.Sync)

@@ -60,6 +60,7 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg SchemaDumpAskOverwriteArgs = new("-scask", nameof(SchemaDumpAskOverwriteArgs));
         public static readonly Arg DataDumpArgs = new("-dd", nameof(DataDump));
         public static readonly Arg DataDumpFileArgs = new("-ddf", nameof(DataDumpFile));
+        public static readonly Arg DataDumpListArgs = new("-ddl", nameof(DataDumpList));
         public static readonly Arg DataDumpOverwriteArgs = new("-ddow", nameof(DataDumpOverwrite));
         public static readonly Arg DataDumpAskOverwriteArgs = new("-ddask", nameof(DataDumpAskOverwrite));
         public static readonly Arg DbObjectsArgs = new("-db", nameof(DbObjects));
@@ -109,7 +110,7 @@ namespace PgRoutiner.SettingsManagement
         public bool EmptyModelDir { get; set; } = false;
         public bool SkipSyncMethods { get; set; } = false;
         public bool SkipAsyncMethods { get; set; } = false;
-        public string MinNormVersion { get; set; } = "5.2.1";
+        public string MinNormVersion { get; set; } = "5.2.3";
         public HashSet<string> SourceHeaderLines { get; set; } = new()
         {
             "#pragma warning disable CS8632",
@@ -166,7 +167,7 @@ namespace PgRoutiner.SettingsManagement
 
         /*schema dump*/
         public bool SchemaDump { get; set; } = false;
-        public string SchemaDumpFile { get; set; } = "./Database/{0}/Schema.sql";
+        public string SchemaDumpFile { get; set; } = null;//"./Database/{0}/Schema.sql";
         public bool SchemaDumpOverwrite { get; set; } = false;
         public bool SchemaDumpAskOverwrite { get; set; } = false;
         public bool SchemaDumpOwners { get; set; } = false;
@@ -177,12 +178,14 @@ namespace PgRoutiner.SettingsManagement
 
         /*data dump*/
         public bool DataDump { get; set; } = false;
-        public string DataDumpFile { get; set; } = "./Database/{0}/Data.sql";
+        public string DataDumpFile { get; set; } = null;//"./Database/{0}/Data.sql";
         public bool DataDumpOverwrite { get; set; } = false;
         public bool DataDumpAskOverwrite { get; set; } = false;
+        public string DataDumpList { get; set; } = null;
         public IList<string> DataDumpTables { get; set; } = new List<string>();
         public string DataDumpOptions { get; set; } = null;
         public bool DataDumpNoTransaction { get; set; } = false;
+        public bool DataDumpRaw { get; set; } = false;
 
         /*object tree*/
         public bool DbObjects { get; set; } = false;
@@ -199,7 +202,7 @@ namespace PgRoutiner.SettingsManagement
             { "Sequences", "Sequences/{0}" }
         };
         public bool DbObjectsSkipDeleteDir { get; set; } = false;
-        public bool DbObjectsRemoveExistingDirs { get; set; } = true;
+        //public bool DbObjectsRemoveExistingDirs { get; set; } = true;
         public bool DbObjectsOverwrite { get; set; } = false;
         public bool DbObjectsAskOverwrite { get; set; } = false;
         public bool DbObjectsOwners { get; set; } = false;

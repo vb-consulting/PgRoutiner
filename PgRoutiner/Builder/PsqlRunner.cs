@@ -27,7 +27,7 @@ public class PsqlRunner
             using var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = command;
             process.StartInfo.Arguments = $"{baseArg} {args ?? ""}";
-            if (settings.DumpPgCommands)
+            if (settings.DumpPgCommands && !settings.Dump)
             {
                 Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
             }
@@ -59,7 +59,7 @@ public class PsqlRunner
         }
         catch
         {
-            Process.Run(command, $"{baseArg} {args ?? ""}", writeCommand: settings.DumpPgCommands);
+            Process.Run(command, $"{baseArg} {args ?? ""}", writeCommand: settings.DumpPgCommands && !settings.Dump);
         }
     }
 
@@ -78,7 +78,7 @@ public class PsqlRunner
             using var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = settings.PsqlTerminal;
             process.StartInfo.Arguments = $"{command} {baseArg} {settings.PsqlOptions ?? ""}";
-            if (settings.DumpPgCommands)
+            if (settings.DumpPgCommands && !settings.Dump)
             {
                 Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
             }
@@ -102,7 +102,7 @@ public class PsqlRunner
             using var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = command;
             process.StartInfo.Arguments = $"{baseArg} {settings.PsqlOptions ?? ""}";
-            if (settings.DumpPgCommands)
+            if (settings.DumpPgCommands && !settings.Dump)
             {
                 Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
             }
@@ -134,9 +134,13 @@ public class PsqlRunner
             try
             {
                 GetPsqlVersion(command);
-                Program.WriteLine(ConsoleColor.Yellow, "",
+                if (!settings.Dump)
+                {
+                    Program.WriteLine(ConsoleColor.Yellow, "",
                     $"WARNING: Using fall-back path for psql: {command}. To remove this warning set the Psql setting to point to this path.",
                     "");
+                }
+                
             }
             catch
             {
@@ -153,7 +157,7 @@ public class PsqlRunner
         using var process = new System.Diagnostics.Process();
         process.StartInfo.FileName = command;
         process.StartInfo.Arguments = "--version";
-        if (settings.DumpPgCommands)
+        if (settings.DumpPgCommands && !settings.Dump)
         {
             Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
         }
