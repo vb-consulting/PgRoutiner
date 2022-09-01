@@ -1,5 +1,30 @@
 ﻿# VERSION HISTORY
 
+## 3.14.0
+
+- Fix data dump export when running on zero tables.
+
+- Added `Definition` value switch (alias `-def`) that dumps SQL object defintion to console.
+
+- Normalize a bit console color outputs to be more consistent.
+
+- Switch `-i˙` that only shows info and prevent any action is changed to `-info`.
+
+- Added `Silent` switch with alias `-silent`:
+
+Use `-silent` or `--silent` to silent console output except for that was instructed (like intentional console dumps).
+
+It replaces `-d` or `--dump` for silencing console output.
+
+`-d` or `--dump` is still used to redirect output from files to console.
+
+- Added `Inserts` switch option with alias `-i`:
+
+It overrides `DataDumpList` and sets `DataDump` to true. 
+This is only to replace `-dd -ddl` combination with one simple `-i`.
+
+- Added `List` switch with alias `-l`: lists all objects from database for schema.
+
 ## 3.13.0
 
 - Improve unit tests:

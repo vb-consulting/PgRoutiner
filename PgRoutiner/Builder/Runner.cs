@@ -28,6 +28,17 @@ public class Runner
             return;
         }
 
+        if (Settings.Value.List)
+        {
+            Writer.DumpTitle("** LIST OBJECTS **");
+            var builder = new Dump.PgDumpBuilder(Settings.Value, connection);
+            if (Dump.PgDumpVersion.Check(builder))
+            {
+                builder.DumpObjects(connection);
+            }
+            return;
+        }
+
         string schemaFile = null;
         string dataFile = null;
 
@@ -41,7 +52,7 @@ public class Runner
             dataFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.DataDumpFile)), connectionName);
         }
 
-        if (Settings.Value.DbObjects || Settings.Value.SchemaDump || Settings.Value.DataDump)
+        if (Settings.Value.DbObjects || Settings.Value.SchemaDump || Settings.Value.DataDump || !string.IsNullOrEmpty(Settings.Value.Definition))
         {
             var builder = new Dump.PgDumpBuilder(Settings.Value, connection);
             if (Dump.PgDumpVersion.Check(builder))
@@ -70,6 +81,11 @@ public class Runner
                         overwrite: Settings.Value.DataDumpOverwrite,
                         askOverwrite: Settings.Value.DataDumpAskOverwrite,
                         contentFunc: () => builder.GetDataContent());
+                }
+
+                if (!string.IsNullOrEmpty(Settings.Value.Definition))
+                {
+                    builder.DumpObjectDefintion();
                 }
             }
         }

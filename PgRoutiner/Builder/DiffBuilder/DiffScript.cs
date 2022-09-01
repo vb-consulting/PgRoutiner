@@ -70,7 +70,7 @@ public class DiffScript
             Writer.Dump($"No diff found between {connectionName} and {targetName}...");
             return;
         }
-        if (Settings.Value.DiffFilePattern != null && !Settings.Value.Dump)
+        if (!Settings.Value.Dump && Settings.Value.DiffFilePattern != null && !Settings.Value.Dump)
         {
             var dir = Path.GetFullPath(Path.GetDirectoryName(GetFilePattern(1)));
             if (!Directory.Exists(dir))

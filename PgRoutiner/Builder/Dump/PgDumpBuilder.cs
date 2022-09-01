@@ -1,10 +1,14 @@
-﻿using System.Reflection;
+﻿using System.Drawing;
+using System.Reflection;
 using System.Xml.Linq;
 using Norm;
+using PgRoutiner.Builder.CodeBuilders.Models;
+using PgRoutiner.Builder.DiffBuilder;
 using PgRoutiner.DataAccess;
 using PgRoutiner.DataAccess.Models;
 using PgRoutiner.DumpTransformers;
 using PgRoutiner.SettingsManagement;
+using static System.Net.Mime.MediaTypeNames;
 using static PgRoutiner.Builder.Dump.DumpBuilder;
 
 namespace PgRoutiner.Builder.Dump;
@@ -231,6 +235,105 @@ public class PgDumpBuilder
         }
     }
 
+    public void DumpObjects(NpgsqlConnection connection)
+    {
+        List<PgItem> types;
+        GetDumpItemLines(string.Concat(baseArg, " --schema-only"), null, out types);
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        foreach (var item in connection.GetSchemas(Settings.Value))
+        {
+            Console.WriteLine($"SCHEMA {item}");
+        }
+        foreach (var item in connection.GetExtensions())
+        {
+            Console.WriteLine($"{item.TypeName} {item.Name}");
+        }
+        foreach (var item in Connection.FilterTypes(types, settings))
+        {
+            Console.WriteLine($"{item.TypeName} {item.Name}");
+        }
+        foreach (var item in connection.GetDomains(Settings.Value))
+        {
+            Console.WriteLine($"{item.TypeName} {item.Schema}.{item.Name}");
+        }
+        foreach (var item in connection.GetTables(Settings.Value))
+        {
+            Console.WriteLine($"{item.TypeName.Replace("BASE ", "")} {item.Schema}.{item.Name}");
+        }
+        foreach (var item in connection.GetSequences(Settings.Value))
+        {
+            Console.WriteLine($"{item.TypeName} {item.Schema}.{item.Name}");
+        }
+        foreach (var group in connection.GetRoutineGroups(Settings.Value))
+        {
+            var name = group.Key.Name;
+            var schema = group.Key.Schema;
+            foreach(var item in group)
+            {
+                
+                Console.WriteLine($"{item.RoutineType.ToUpper()} {schema}.{name}({string.Join(", ", item.Parameters.Select(p => p.DataType))})");
+            }
+            
+        }
+        Console.ResetColor();
+    }
+
+    public void DumpObjectDefintion()
+    {
+        var args = string.Concat(baseArg, " --schema-only");
+
+        List<string> lines = null;
+        List<PgItem> types = new();
+        try
+        {
+            lines = GetDumpItemLines(args, null, out types);
+        }
+        catch (Exception e)
+        {
+            Program.WriteLine(ConsoleColor.Red, $"Could not create pg_dump for functions and procedures", $"ERROR: {e.Message}");
+        }
+
+        foreach (var item in Connection.GetPgItems(settings.Definition, types))
+        {
+            string content = item.Type switch
+            {
+                PgType.Table => GetTableContent(item, args),
+                PgType.View => GetViewContent(item, args),
+                PgType.Function => new RoutineDumpTransformer(item, lines)
+                                .BuildLines(dbObjectsCreateOrReplace: settings.DbObjectsCreateOrReplace)
+                                .ToString(),
+                PgType.Procedure => new RoutineDumpTransformer(item, lines)
+                                .BuildLines(dbObjectsCreateOrReplace: settings.DbObjectsCreateOrReplace)
+                                .ToString(),
+                PgType.Domain => new DomainDumpTransformer(item, lines)
+                                .BuildLines()
+                                .ToString(),
+                PgType.Type => new TypeDumpTransformer(item, lines)
+                                .BuildLines()
+                                .ToString(),
+                PgType.Schema => new SchemaDumpTransformer(item.Schema, lines)
+                                .BuildLines()
+                                .ToString(),
+                //PgType.Sequence => throw new NotImplementedException(),
+                PgType.Extension => new ExtensionDumpTransformer(item.Name, lines)
+                                .BuildLines()
+                                .ToString(),
+                PgType.Unknown => null,
+                _ => throw null,
+            };
+
+            if (!string.IsNullOrEmpty(content))
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("--");
+                Console.WriteLine($"-- {item.Type}: {settings.Definition}");
+                Console.WriteLine("--");
+                Console.WriteLine(content);
+                Console.ResetColor();
+            }
+        }
+    }
+
     public string GetSchemaContent()
     {
         var args = string.Concat(
@@ -263,8 +366,6 @@ public class PgDumpBuilder
                 items.Add(li);
             }
         }
-
-
         List<string> tables = new();
         Dictionary<string, string> temporary = new();
         bool hasTemp = false;
@@ -295,13 +396,17 @@ public class PgDumpBuilder
                     tables.Add(item);
                 }
             }
+            if (tables.Count == 0)
+            {
+                return null;
+            }
 
             var args = string.Concat(
                 baseArg,
                 " --data-only --inserts",
                 settings.SchemaSimilarTo != null ? $" --schema=\\\"{settings.SchemaSimilarTo}\\\"" : "",
                 settings.SchemaNotSimilarTo != null ? $" --exclude-schema=\\\"{settings.SchemaNotSimilarTo}\\\"" : "",
-                tables.Count == 0 ? "" : $" {string.Join(" ", tables.Select(t => $"--table={t}"))}",
+                $" {string.Join(" ", tables.Select(t => $"--table={t}"))}",
                 string.IsNullOrEmpty(settings.DataDumpOptions) ? "" :
                     settings.DataDumpOptions.StartsWith(" ") ?
                     settings.DataDumpOptions :

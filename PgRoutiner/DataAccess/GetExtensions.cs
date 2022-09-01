@@ -14,6 +14,7 @@ public static partial class DataAccessConnectionExtensions
             {
                 Schema = null,
                 Name = s,
+                TypeName = "EXTENSION",
                 Type = PgType.Extension
             });
     }

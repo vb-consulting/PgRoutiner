@@ -174,7 +174,9 @@ namespace PgRoutiner.SettingsManagement
 #if DEBUG
             Program.ParseProjectSetting(Value);
 #endif
-            if (Value.Execute != null || Value.Psql || Value.CommitMd)
+            if (Value.Execute != null || Value.Psql || Value.CommitMd || Value.List || 
+                string.IsNullOrEmpty(Value.Inserts) == false || 
+                string.IsNullOrEmpty(Value.Definition) == false)
             {
                 Value.DbObjects = false;
                 Value.SchemaDump = false;
@@ -189,6 +191,13 @@ namespace PgRoutiner.SettingsManagement
             {
                 Program.DumpError($"ReturnMethod setting must be one of the allowed values: Single, SingleOrDefault, First or FirstOrDefault");
                 return null;
+            }
+
+            if (!string.IsNullOrEmpty(Value.Inserts))
+            {
+                Value.DataDump = true;
+                Value.DataDumpList = Value.Inserts;
+                Value.DataDumpFile = null;
             }
 
             return config;

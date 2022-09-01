@@ -33,6 +33,7 @@ public static partial class DataAccessConnectionExtensions
             {
                 Schema = t.Schema,
                 Name = t.Name,
+                TypeName = "DOMAIN",
                 Type = PgType.Domain
             });
     }

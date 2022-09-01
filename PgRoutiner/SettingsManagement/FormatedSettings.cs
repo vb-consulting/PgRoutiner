@@ -104,14 +104,22 @@ public class FormatedSettings
             $"- Use \"{Settings.ConnectionArgs.Alias}\" or \"--{Settings.ConnectionArgs.Original.ToKebabCase()}\" option to set working connection from the command line.",
             $"- Use \"{Settings.SchemaArgs.Alias}\" or \"--{Settings.SchemaArgs.Original.ToKebabCase()}\" option to set schema similar to expression from the command line.",
             $"- Use \"{Settings.ExecuteArgs.Alias}\" or \"--{Settings.ExecuteArgs.Original.ToKebabCase()}\" option to execute SQL file or PSQL command on your current connection  from the command line.",
-            $"- Use \"{Settings.DumpArgs.Alias}\" or \"--{Settings.DumpArgs.Original.ToKebabCase()}\" switch to redirect all outputs to the command line.");
+            $"- Use \"{Settings.DumpArgs.Alias}\" or \"--{Settings.DumpArgs.Original.ToKebabCase()}\" switch to redirect all outputs to the command line.",
+            $"- Use \"{Settings.SilentArgs.Alias}\" or \"--{Settings.SilentArgs.Original.ToKebabCase()}\" to silent unrequired console texts.",
+            $"- Use \"{Settings.ListArgs.Alias}\" or \"--{Settings.ListArgs.Original.ToKebabCase()}\" to dump object list for current connection and iwth current schema.",
+            $"- Use \"{Settings.DefinitionArgs.Alias}\" or \"--{Settings.DefinitionArgs.Original.ToKebabCase()}\" to dump object schema definition in console supplied as value parameter.",
+            $"- Use \"{Settings.InsertsArgs.Alias}\" or \"--{Settings.InsertsArgs.Original.ToKebabCase()}\" to dump objects or queries (semicolon separated) inserts.");
         AddEntry(nameof(Settings.Connection), Settings.Value.Connection);
         AddEntry(nameof(Settings.SkipConnectionPrompt), Settings.Value.SkipConnectionPrompt);
         AddEntry(nameof(Settings.DumpPgCommands), Settings.Value.DumpPgCommands);
         AddEntry(nameof(Settings.SchemaSimilarTo), Settings.Value.SchemaSimilarTo);
         AddEntry(nameof(Settings.SchemaNotSimilarTo), Settings.Value.SchemaNotSimilarTo);
         AddEntry(nameof(Settings.Execute), Settings.Value.Execute);
+        AddEntry(nameof(Settings.List), Settings.Value.List);
+        AddEntry(nameof(Settings.Definition), Settings.Value.Definition);
+        AddEntry(nameof(Settings.Inserts), Settings.Value.Inserts);
         AddEntry(nameof(Settings.Dump), Settings.Value.Dump);
+        AddEntry(nameof(Settings.Silent), Settings.Value.Silent);
         AddEntry(nameof(Settings.SkipIfExists), Settings.Value.SkipIfExists);
         AddEntry(nameof(Settings.SkipUpdateReferences), Settings.Value.SkipUpdateReferences);
         AddEntry(nameof(Settings.PgDump), Settings.Value.PgDump);

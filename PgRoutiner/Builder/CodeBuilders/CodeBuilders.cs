@@ -48,12 +48,12 @@ public abstract class CodeBuilder
 
             var exists = File.Exists(fileName.FullFileName);
 
-            if (!settings.Dump && exists && codeSettings.Overwrite == false)
+            if (exists && codeSettings.Overwrite == false)
             {
                 Writer.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", fileName.FullFileName);
                 continue;
             }
-            if (!settings.Dump && exists && settings.SkipIfExists != null && (
+            if (exists && settings.SkipIfExists != null && (
                 settings.SkipIfExists.Contains(codeResult.Name) ||
                 settings.SkipIfExists.Contains(fileName.ShortFilename) ||
                 settings.SkipIfExists.Contains(fileName.Relative))
@@ -62,7 +62,7 @@ public abstract class CodeBuilder
                 Writer.DumpFormat("Skipping {0}, already exists ... ", fileName.Relative);
                 continue;
             }
-            if (!settings.Dump && exists && codeSettings.AskOverwrite &&
+            if (exists && codeSettings.AskOverwrite &&
                 Program.Ask($"File {fileName.Relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
             {
                 Writer.DumpFormat("Skipping {0} ... ", fileName.Relative);
@@ -104,12 +104,12 @@ public abstract class CodeBuilder
                     var modelFileName = GetFileNames(modelName, baseModelDir ?? baseOutputDir, schema: codeResult.Schema, empty: settings.EmptyModelDir);
                     var modelExists = File.Exists(modelFileName.FullFileName);
 
-                    if (!settings.Dump && modelExists && codeSettings.Overwrite == false)
+                    if (modelExists && codeSettings.Overwrite == false)
                     {
                         Writer.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", modelFileName.Relative);
                         continue;
                     }
-                    if (!settings.Dump && modelExists && settings.SkipIfExists != null && (
+                    if (modelExists && settings.SkipIfExists != null && (
                         settings.SkipIfExists.Contains(modelName) ||
                         settings.SkipIfExists.Contains(modelFileName.ShortFilename) ||
                         settings.SkipIfExists.Contains(modelFileName.Relative))
@@ -118,7 +118,7 @@ public abstract class CodeBuilder
                         Writer.DumpFormat("Skipping {0}, already exists ...", modelFileName.Relative);
                         continue;
                     }
-                    if (!settings.Dump && modelExists && settings.RoutinesAskOverwrite &&
+                    if (modelExists && settings.RoutinesAskOverwrite &&
                         Program.Ask($"File {modelFileName.Relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
                     {
                         Writer.DumpFormat("Skipping {0} ...", modelFileName.Relative);

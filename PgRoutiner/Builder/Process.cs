@@ -14,13 +14,19 @@
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.WorkingDirectory = dir ?? Program.CurrentDir;
-            process.OutputDataReceived += (sender, data) => Program.WriteLine(data.Data);
+            process.OutputDataReceived += (sender, data) => 
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine(data.Data);
+                Console.ResetColor();
+            };
             process.StartInfo.RedirectStandardError = true;
             process.ErrorDataReceived += (sender, data) =>
             {
                 if (!string.IsNullOrEmpty(data.Data))
                 {
-                    Program.WriteLine(ConsoleColor.Red, data.Data);
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(data.Data);
                     Console.ResetColor();
                 }
             };

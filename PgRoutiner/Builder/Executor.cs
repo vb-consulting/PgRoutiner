@@ -63,10 +63,7 @@ public class Executor
 
     public static void ExecutePsql(NpgsqlConnection connection)
     {
-        var isMuted = Program.Mute;
-        Program.Mute = false;
         new PsqlRunner(Settings.Value, connection).Run($"-c \"{Settings.Value.Execute}\"");
-        Program.Mute = isMuted;
     }
 
     public static void ExecuteFile(NpgsqlConnection connection, string fileName)

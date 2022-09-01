@@ -17,7 +17,6 @@ namespace PgRoutiner;
 
 static partial class Program
 {
-    public static bool Mute = false;
     public static IConfigurationRoot Config;
     public static string CurrentDir { get; private set; } = Directory.GetCurrentDirectory();
 
@@ -41,7 +40,8 @@ static partial class Program
             Info.ShowVersion();
             return;
         }
-        Mute = ArgsInclude(args, Settings.DumpArgs);
+        Settings.Value.Silent = ArgsInclude(args, Settings.SilentArgs);
+        Settings.Value.Dump = ArgsInclude(args, Settings.DumpArgs);
         Info.ShowStartupInfo();
         if (!SetCurrentDir(args))
         {

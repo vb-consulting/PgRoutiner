@@ -27,7 +27,7 @@ public class PsqlRunner
             using var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = command;
             process.StartInfo.Arguments = $"{baseArg} {args ?? ""}";
-            if (settings.DumpPgCommands && !settings.Dump)
+            if (settings.DumpPgCommands)
             {
                 Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
             }
@@ -35,13 +35,19 @@ public class PsqlRunner
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.WorkingDirectory = Program.CurrentDir;
-            process.OutputDataReceived += (sender, data) => Program.WriteLine(data.Data);
+            process.OutputDataReceived += (sender, data) =>
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine(data.Data);
+                Console.ResetColor();
+            };
             process.StartInfo.RedirectStandardError = true;
             process.ErrorDataReceived += (sender, data) =>
             {
                 if (!string.IsNullOrEmpty(data.Data))
                 {
-                    Program.WriteLine(ConsoleColor.Red, data.Data);
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(data.Data);
                     Console.ResetColor();
                 }
             };
@@ -59,7 +65,7 @@ public class PsqlRunner
         }
         catch
         {
-            Process.Run(command, $"{baseArg} {args ?? ""}", writeCommand: settings.DumpPgCommands && !settings.Dump);
+            Process.Run(command, $"{baseArg} {args ?? ""}", writeCommand: settings.DumpPgCommands && !settings.Silent);
         }
     }
 
@@ -78,7 +84,7 @@ public class PsqlRunner
             using var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = settings.PsqlTerminal;
             process.StartInfo.Arguments = $"{command} {baseArg} {settings.PsqlOptions ?? ""}";
-            if (settings.DumpPgCommands && !settings.Dump)
+            if (settings.DumpPgCommands)
             {
                 Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
             }
@@ -102,7 +108,7 @@ public class PsqlRunner
             using var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = command;
             process.StartInfo.Arguments = $"{baseArg} {settings.PsqlOptions ?? ""}";
-            if (settings.DumpPgCommands && !settings.Dump)
+            if (settings.DumpPgCommands)
             {
                 Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
             }
@@ -134,13 +140,9 @@ public class PsqlRunner
             try
             {
                 GetPsqlVersion(command);
-                if (!settings.Dump)
-                {
-                    Program.WriteLine(ConsoleColor.Yellow, "",
-                    $"WARNING: Using fall-back path for psql: {command}. To remove this warning set the Psql setting to point to this path.",
-                    "");
-                }
-                
+                Program.WriteLine(ConsoleColor.Yellow, "",
+                $"WARNING: Using fall-back path for psql: {command}. To remove this warning set the Psql setting to point to this path.",
+                "");
             }
             catch
             {
@@ -157,7 +159,7 @@ public class PsqlRunner
         using var process = new System.Diagnostics.Process();
         process.StartInfo.FileName = command;
         process.StartInfo.Arguments = "--version";
-        if (settings.DumpPgCommands && !settings.Dump)
+        if (settings.DumpPgCommands)
         {
             Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
         }

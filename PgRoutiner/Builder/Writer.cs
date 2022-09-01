@@ -34,7 +34,7 @@ public class Writer
 
     public static void Dump(params string[] lines)
     {
-        if (Settings.Value.Dump)
+        if (Settings.Value.Silent)
         {
             return;
         }
@@ -43,7 +43,7 @@ public class Writer
 
     public static void DumpTitle(params string[] lines)
     {
-        if (Settings.Value.Dump)
+        if (Settings.Value.Silent)
         {
             return;
         }
@@ -52,7 +52,7 @@ public class Writer
 
     public static void DumpFormat(string msg, params object[] values)
     {
-        if (Settings.Value.Dump)
+        if (Settings.Value.Silent)
         {
             return;
         }

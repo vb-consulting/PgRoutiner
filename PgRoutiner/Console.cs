@@ -6,7 +6,7 @@ static partial class Program
 {
     public static void WriteLine(ConsoleColor? color, params string[] lines)
     {
-        if (Mute)
+        if (Settings.Value.Silent)
         {
             return;
         }
@@ -26,7 +26,7 @@ static partial class Program
 
     public static void Write(ConsoleColor? color, string line)
     {
-        if (Mute)
+        if (Settings.Value.Silent)
         {
             return;
         }
@@ -43,7 +43,7 @@ static partial class Program
 
     public static void Write(string line)
     {
-        if (Mute)
+        if (Settings.Value.Silent)
         {
             return;
         }
@@ -52,7 +52,7 @@ static partial class Program
 
     public static void WriteLine(params string[] lines)
     {
-        if (Mute)
+        if (Settings.Value.Silent)
         {
             return;
         }

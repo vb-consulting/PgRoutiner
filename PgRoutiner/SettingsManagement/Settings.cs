@@ -33,12 +33,16 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg DirArgs = new("-dir", "dir");
         public static readonly Arg HelpArgs = new("-h", "help");
         public static readonly Arg VersionArgs = new("-v", "version");
-        public static readonly Arg InfoArgs = new("-i", "info");
+        public static readonly Arg InfoArgs = new("-info", "info");
         public static readonly Arg SettingsArgs = new("-s", "settings");
         public static readonly Arg RoutinesArgs = new("-r", nameof(Routines));
         public static readonly Arg CommitMdArgs = new("-cc", nameof(CommitMd));
         public static readonly Arg ExecuteArgs = new("-x", nameof(Execute));
+        public static readonly Arg ListArgs = new("-l", nameof(List));
+        public static readonly Arg DefinitionArgs = new("-def", nameof(Definition));
+        public static readonly Arg InsertsArgs = new("-i", nameof(Inserts));
         public static readonly Arg DumpArgs = new("-d", nameof(Dump));
+        public static readonly Arg SilentArgs = new("-silent", nameof(Silent));
         public static readonly Arg DebugArgs = new("-dbg", "debug");
         public static readonly Arg ConnectionArgs = new("-c", nameof(Connection));
         public static readonly Arg SchemaArgs = new("-sch", nameof(SchemaSimilarTo));
@@ -82,8 +86,13 @@ namespace PgRoutiner.SettingsManagement
 #if DEBUG
         [JsonIgnore] public string Project { get; set; }
 #endif
-        [JsonIgnore] public bool Dump { get; set; } = false;
-        [JsonIgnore] public string Execute { get; set; } = null;
+        public bool Dump { get; set; } = false;
+        public bool Silent { get; set; } = false;
+        public string Execute { get; set; } = null;
+        public bool List { get; set; } = false;
+        public string Definition { get; set; } = null;
+        public string Inserts { get; set; } = null;
+        
         /*general*/
         public string Connection { get; set; } = null;
         public bool SkipConnectionPrompt { get; set; } = false;

@@ -24,19 +24,19 @@ public class MarkdownBuilder
             Directory.CreateDirectory(dir);
         }
 
-        if (!Settings.Value.Dump && exists && Settings.Value.MdOverwrite == false)
+        if (exists && Settings.Value.MdOverwrite == false)
         {
             Writer.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
             return;
         }
-        if (!Settings.Value.Dump && exists && Settings.Value.SkipIfExists != null && (
+        if (exists && Settings.Value.SkipIfExists != null && (
             Settings.Value.SkipIfExists.Contains(shortFilename) || Settings.Value.SkipIfExists.Contains(relative))
             )
         {
             Writer.DumpFormat("Skipping {0}, already exists ...", relative);
             return;
         }
-        if (!Settings.Value.Dump && exists && Settings.Value.MdAskOverwrite &&
+        if (exists && Settings.Value.MdAskOverwrite &&
             Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
         {
             Writer.DumpFormat("Skipping {0} ...", relative);
