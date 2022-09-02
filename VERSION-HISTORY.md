@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.14.3
+
+- Output current dir by default always, but silence if silence is on.
+
 ## 3.14.2
 
 - Make Silent switch available from configuration

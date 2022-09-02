@@ -50,6 +50,8 @@ static partial class Program
 
         var (settingsFile, customSettings) = Settings.GetSettingsFile(args);
         Config = Settings.ParseSettings(args, settingsFile);
+        WriteLine("", "Using dir: ");
+        WriteLine(ConsoleColor.Cyan, " " + CurrentDir);
         if (Config == null)
         {
             return;
@@ -123,8 +125,6 @@ static partial class Program
             DumpError($"Directory {dir} does not exists!");
             return false;
         }
-        //WriteLine("", "Using dir: ");
-        //WriteLine(ConsoleColor.Cyan, " " + dir);
         return true;
     }
 #if DEBUG
