@@ -141,6 +141,9 @@ namespace PgRoutiner.SettingsManagement
                 Program.DumpError($"Failed to bind configuration: {e.Message}");
                 return null;
             }
+
+            Info.ShowStartupInfo();
+
             if (files.Count > 0)
             {
                 Program.WriteLine("", "Using configuration files: ");

@@ -42,7 +42,7 @@ static partial class Program
         }
         Settings.Value.Silent = ArgsInclude(args, Settings.SilentArgs);
         Settings.Value.Dump = ArgsInclude(args, Settings.DumpArgs);
-        Info.ShowStartupInfo();
+
         if (!SetCurrentDir(args))
         {
             return;
@@ -123,8 +123,8 @@ static partial class Program
             DumpError($"Directory {dir} does not exists!");
             return false;
         }
-        WriteLine("", "Using dir: ");
-        WriteLine(ConsoleColor.Cyan, " " + dir);
+        //WriteLine("", "Using dir: ");
+        //WriteLine(ConsoleColor.Cyan, " " + dir);
         return true;
     }
 #if DEBUG

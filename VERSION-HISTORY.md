@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.14.2
+
+- Make Silent switch available from configuration
+
 ## 3.14.1
 
 - Fix connection prompt bug
