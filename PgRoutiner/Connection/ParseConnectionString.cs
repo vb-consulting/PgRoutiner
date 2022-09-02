@@ -209,7 +209,10 @@ public partial class ConnectionManager
         {
             pass = GetPassword(Settings.Value.SkipConnectionPrompt);
         }
-
+        if (string.Equals(addition, connectionStr))
+        {
+            return $"{server}{database}{port}{user}{pass}";
+        }
         return $"{server}{database}{port}{user}{pass}{addition}";
     }
 }

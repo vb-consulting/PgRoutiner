@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.14.1
+
+- Fix connection prompt bug
+
 ## 3.14.0
 
 - Fix data dump export when running on zero tables.
