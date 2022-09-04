@@ -38,9 +38,13 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg RoutinesArgs = new("-r", nameof(Routines));
         public static readonly Arg CommitMdArgs = new("-cc", nameof(CommitMd));
         public static readonly Arg ExecuteArgs = new("-x", nameof(Execute));
+        public static readonly Arg OptionsArgs = new("-opt", nameof(Options));
         public static readonly Arg ListArgs = new("-l", nameof(List));
         public static readonly Arg DefinitionArgs = new("-def", nameof(Definition));
         public static readonly Arg InsertsArgs = new("-i", nameof(Inserts));
+        public static readonly Arg BackupArgs = new("-backup", nameof(Backup));
+        public static readonly Arg RestoreArgs = new("-restore", nameof(Restore));
+
         public static readonly Arg DumpArgs = new("-d", nameof(Dump));
         public static readonly Arg SilentArgs = new("-silent", nameof(Silent));
         public static readonly Arg DebugArgs = new("-dbg", "debug");
@@ -48,6 +52,7 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg SchemaArgs = new("-sch", nameof(SchemaSimilarTo));
         public static readonly Arg NotSchemaArgs = new("-nsch", nameof(SchemaNotSimilarTo));
         public static readonly Arg PgDumpArgs = new("-pgdump", nameof(PgDump));
+        public static readonly Arg PgRestoreArgs = new("-pgrestore", nameof(PgRestore));
         public static readonly Arg OutputDirArgs = new("-o", nameof(OutputDir));
         public static readonly Arg RoutinesOverwriteArgs = new("-row", nameof(RoutinesOverwrite));
         public static readonly Arg RoutinesAskOverwriteArgs = new("-rask", nameof(RoutinesAskOverwrite));
@@ -89,10 +94,15 @@ namespace PgRoutiner.SettingsManagement
         public bool Dump { get; set; } = false;
         public bool Silent { get; set; } = false;
         public string Execute { get; set; } = null;
+        public string Options { get; set; } = null;
         public bool List { get; set; } = false;
         public string Definition { get; set; } = null;
         public string Inserts { get; set; } = null;
-        
+        public string Backup { get; set; } = null;
+        public bool BackupOwner { get; set; } = false;
+        public string Restore { get; set; } = null;
+        public bool RestoreOwner { get; set; } = false;
+
         /*general*/
         public string Connection { get; set; } = null;
         public bool SkipConnectionPrompt { get; set; } = false;
@@ -104,6 +114,10 @@ namespace PgRoutiner.SettingsManagement
         public bool SkipUpdateReferences { get; set; } = false;
         public string PgDump { get; set; } = "pg_dump";
         public string PgDumpFallback { get; set; } = null;
+
+        public string PgRestore { get; set; } = "pg_restore";
+        public string PgRestoreFallback { get; set; } = null;
+
         public string ConfigPath { get; set; } = null;
 
         /*code generation general options*/

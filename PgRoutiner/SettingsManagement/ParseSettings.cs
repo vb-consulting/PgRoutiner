@@ -177,9 +177,13 @@ namespace PgRoutiner.SettingsManagement
 #if DEBUG
             Program.ParseProjectSetting(Value);
 #endif
-            if (Value.Execute != null || Value.Psql || Value.CommitMd || Value.List || 
+            if (Value.Execute != null || 
+                Value.Psql || 
+                Value.CommitMd || Value.List || 
                 string.IsNullOrEmpty(Value.Inserts) == false || 
-                string.IsNullOrEmpty(Value.Definition) == false)
+                string.IsNullOrEmpty(Value.Definition) == false ||
+                string.IsNullOrEmpty(Value.Backup) == false ||
+                string.IsNullOrEmpty(Value.Restore) == false)
             {
                 Value.DbObjects = false;
                 Value.SchemaDump = false;

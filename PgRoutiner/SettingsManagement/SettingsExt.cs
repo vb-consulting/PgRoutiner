@@ -13,6 +13,17 @@
                 "/usr/lib/postgresql/{0}/bin/pg_dump";
         }
 
+        public static string GetPgRestoreFallback(this Settings settings)
+        {
+            if (settings.PgRestoreFallback != null)
+            {
+                return settings.PgRestoreFallback;
+            }
+            return OperatingSystem.IsWindows() ?
+                "C:\\Program Files\\PostgreSQL\\{0}\\bin\\pg_restore.exe" :
+                "/usr/lib/postgresql/{0}/bin/pg_restore";
+        }
+
         public static string GetPsqlFallback(this Settings settings)
         {
             if (settings.PsqlFallback != null)

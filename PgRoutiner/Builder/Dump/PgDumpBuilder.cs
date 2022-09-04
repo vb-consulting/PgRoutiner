@@ -23,7 +23,9 @@ public class PgDumpBuilder
     public NpgsqlConnection Connection { get; }
     public string PgDumpName { get; }
 
-    public PgDumpBuilder(Settings settings, NpgsqlConnection connection, string dumpName = nameof(Settings.PgDump))
+    public string Command { get => pgDumpCmd; }
+
+    public PgDumpBuilder(Settings settings, NpgsqlConnection connection, string dumpName = nameof(Settings.PgDump), bool utf8 = true)
     {
         this.settings = settings;
         Connection = connection;
@@ -31,7 +33,7 @@ public class PgDumpBuilder
         //var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
         //baseArg = $"--dbname=postgresql://{connection.UserName}:{password}@{connection.Host}:{connection.Port}/{connection.Database} --encoding=UTF8";
 
-        baseArg = $"-h {connection.Host} -p {connection.Port} -U {connection.UserName} --encoding=UTF8";
+        baseArg = $"-h {connection.Host} -p {connection.Port} -U {connection.UserName}{(utf8 ? "--encoding=UTF8" : "")}";
 
         PgDumpName = dumpName;
         pgDumpCmd = typeof(Settings).GetProperty(dumpName).GetValue(settings) as string;
@@ -41,6 +43,48 @@ public class PgDumpBuilder
     {
         typeof(Settings).GetProperty(PgDumpName).SetValue(Settings.Value, name);
         pgDumpCmd = name;
+    }
+
+    public void Run(string args)
+    {
+        var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Connection) as string;
+        Environment.SetEnvironmentVariable("PGPASSWORD", password);
+
+        using var process = new System.Diagnostics.Process();
+        process.StartInfo.FileName = pgDumpCmd;
+        process.StartInfo.Arguments = $"{baseArg} {args ?? ""}".Trim();
+        if (Settings.Value.DumpPgCommands)
+        {
+            Program.WriteLine(ConsoleColor.White, $"{pgDumpCmd} {process.StartInfo.Arguments}");
+        }
+
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.CreateNoWindow = true;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.OutputDataReceived += (_, data) =>
+        {
+            if (!string.IsNullOrEmpty(data.Data))
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine(data.Data);
+                Console.ResetColor();
+            }
+        };
+        process.StartInfo.RedirectStandardError = true;
+        process.ErrorDataReceived += (_, data) =>
+        {
+            if (!string.IsNullOrEmpty(data.Data))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(data.Data);
+                Console.ResetColor();
+            }
+        };
+        process.Start();
+        process.BeginErrorReadLine();
+        process.BeginOutputReadLine();
+        process.WaitForExit();
+        process.Close();
     }
 
     public IEnumerable<(string name, string content, PgType type, string schema)> GetDatabaseObjects()
@@ -465,9 +509,9 @@ public class PgDumpBuilder
         }
     }
 
-    public string GetDumpVersion()
+    public string GetDumpVersion(bool restore = false)
     {
-        return GetPgDumpContent("--version").Replace("pg_dump (PostgreSQL) ", "").Split(' ').First().Trim();
+        return GetPgDumpContent("--version").Replace($"{(restore ? "pg_restore" : "pg_dump")} (PostgreSQL) ", "").Split(' ').First().Trim();
     }
 
     public List<string> GetRawTableDumpLines(PgItem table, bool withPrivileges)

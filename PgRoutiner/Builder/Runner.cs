@@ -39,6 +39,36 @@ public class Runner
             return;
         }
 
+        if (!string.IsNullOrEmpty(Settings.Value.Backup))
+        {
+            Writer.DumpTitle("** BACKUP **");
+            var builder = new Dump.PgDumpBuilder(Settings.Value, connection, utf8: false);
+            if (Dump.PgDumpVersion.Check(builder))
+            {
+                var split = Settings.Value.Backup.Split(" ");
+                var file = string.Format(split[0], DateTime.Now, connectionName)
+                    .Replace(" ", "_")
+                    .Replace(":", "_");
+                var options = string.Join(' ', split[1..]);
+                builder.Run($"-j 10 -Fd -Z 9 -d {connection.Database}{(options ?? "")}{(Settings.Value.BackupOwner ? "" : " --no-owner")} -f {file}");
+            }
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(Settings.Value.Restore))
+        {
+            Writer.DumpTitle("** RESTORE **");
+            var builder = new Dump.PgDumpBuilder(Settings.Value, connection, dumpName: nameof(Settings.PgRestore), utf8: false);
+            if (Dump.PgDumpVersion.Check(builder, restore: true))
+            {
+                var split = Settings.Value.Restore.Split(" ");
+                var file = split[0];
+                var options = string.Join(' ', split[1..]);
+                builder.Run($"-j 10 -Fd -d {connection.Database}{(options ?? "")}{(Settings.Value.RestoreOwner ? "" : " --no-owner")} {file}");
+            }
+            return;
+        }
+
         string schemaFile = null;
         string dataFile = null;
 

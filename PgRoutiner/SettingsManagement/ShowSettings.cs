@@ -47,14 +47,10 @@ namespace PgRoutiner.SettingsManagement
                 }
             }
 
-            ShowSettingsLink();
+            Program.WriteLine("", "To get help please navigate to: ");
+            Program.WriteLine(ConsoleColor.Cyan, " https://github.com/vb-consulting/PgRoutiner/blob/master/CHEAT-SHEET.md", "");
         }
 
-        public static void ShowSettingsLink()
-        {
-            Program.WriteLine("", "To learn how to work with settings, visit: ");
-            Program.WriteLine(ConsoleColor.Cyan, " https://github.com/vb-consulting/PgRoutiner/wiki/1.-WORKING-WITH-SETTINGS", "");
-        }
 
         public static void ShowUpdatedSettings()
         { 

@@ -82,7 +82,7 @@ public class FormatedSettings
         {
             sb.AppendLine($"/* PgRoutiner ({Program.Version}) settings */");
             sb.AppendLine("{");
-            sb.AppendLine($"  /* see https://github.com/vb-consulting/PgRoutiner/wiki/10.-WORKING-WITH-CONNECTIONS for more info */");
+            //sb.AppendLine($"  /* see https://github.com/vb-consulting/PgRoutiner/wiki/10.-WORKING-WITH-CONNECTIONS for more info */");
             sb.AppendLine("  \"ConnectionStrings\": {");
             if (Settings.Value.Connection == null && connection != null)
             {
@@ -93,20 +93,21 @@ public class FormatedSettings
             sb.AppendLine("    //\"Connection2\": \"postgresql://{user}:{password}@{server}:{port}/{database}\"");
 
             sb.AppendLine("  },");
-            sb.AppendLine("  /* see https://github.com/vb-consulting/PgRoutiner/wiki/1.-WORKING-WITH-SETTINGS for more info */");
+            sb.AppendLine("  /* see https://github.com/vb-consulting/PgRoutiner/blob/master/CHEAT-SHEET.md for more info */");
             sb.AppendLine("  \"PgRoutiner\": {");
             sb.AppendLine();
         }
 
         AddSectionComment(
             "General settings:",
-            "https://github.com/vb-consulting/PgRoutiner/wiki/1.-WORKING-WITH-SETTINGS#general-settings",
+            null,
             $"- Use \"{Settings.ConnectionArgs.Alias}\" or \"--{Settings.ConnectionArgs.Original.ToKebabCase()}\" option to set working connection from the command line.",
             $"- Use \"{Settings.SchemaArgs.Alias}\" or \"--{Settings.SchemaArgs.Original.ToKebabCase()}\" option to set schema similar to expression from the command line.",
-            $"- Use \"{Settings.ExecuteArgs.Alias}\" or \"--{Settings.ExecuteArgs.Original.ToKebabCase()}\" option to execute SQL file or PSQL command on your current connection  from the command line.",
+            $"- Use \"{Settings.ExecuteArgs.Alias}\" or \"--{Settings.ExecuteArgs.Original.ToKebabCase()}\" option to execute SQL file or PSQL command on your current connection from the command line.",
+            $"- Use \"{Settings.OptionsArgs.Alias}\" or \"--{Settings.OptionsArgs.Original.ToKebabCase()}\" to set additional command options for the PSQL tool.",
             $"- Use \"{Settings.DumpArgs.Alias}\" or \"--{Settings.DumpArgs.Original.ToKebabCase()}\" switch to redirect all outputs to the command line.",
-            $"- Use \"{Settings.SilentArgs.Alias}\" or \"--{Settings.SilentArgs.Original.ToKebabCase()}\" to silent unrequired console texts.",
-            $"- Use \"{Settings.ListArgs.Alias}\" or \"--{Settings.ListArgs.Original.ToKebabCase()}\" to dump object list for current connection and iwth current schema.",
+            $"- Use \"{Settings.SilentArgs.Alias}\" or \"--{Settings.SilentArgs.Original.ToKebabCase()}\" to silent not required console texts.",
+            $"- Use \"{Settings.ListArgs.Alias}\" or \"--{Settings.ListArgs.Original.ToKebabCase()}\" to dump object list for current connection and with current schema.",
             $"- Use \"{Settings.DefinitionArgs.Alias}\" or \"--{Settings.DefinitionArgs.Original.ToKebabCase()}\" to dump object schema definition in console supplied as value parameter.",
             $"- Use \"{Settings.InsertsArgs.Alias}\" or \"--{Settings.InsertsArgs.Original.ToKebabCase()}\" to dump objects or queries (semicolon separated) inserts.");
         AddEntry(nameof(Settings.Connection), Settings.Value.Connection);
@@ -115,15 +116,22 @@ public class FormatedSettings
         AddEntry(nameof(Settings.SchemaSimilarTo), Settings.Value.SchemaSimilarTo);
         AddEntry(nameof(Settings.SchemaNotSimilarTo), Settings.Value.SchemaNotSimilarTo);
         AddEntry(nameof(Settings.Execute), Settings.Value.Execute);
+        AddEntry(nameof(Settings.Options), Settings.Value.Options);
         AddEntry(nameof(Settings.List), Settings.Value.List);
         AddEntry(nameof(Settings.Definition), Settings.Value.Definition);
         AddEntry(nameof(Settings.Inserts), Settings.Value.Inserts);
+        AddEntry(nameof(Settings.Backup), Settings.Value.Backup);
+        AddEntry(nameof(Settings.BackupOwner), Settings.Value.BackupOwner);
+        AddEntry(nameof(Settings.Restore), Settings.Value.Restore);
+        AddEntry(nameof(Settings.RestoreOwner), Settings.Value.RestoreOwner);
         AddEntry(nameof(Settings.Dump), Settings.Value.Dump);
         AddEntry(nameof(Settings.Silent), Settings.Value.Silent);
         AddEntry(nameof(Settings.SkipIfExists), Settings.Value.SkipIfExists);
         AddEntry(nameof(Settings.SkipUpdateReferences), Settings.Value.SkipUpdateReferences);
         AddEntry(nameof(Settings.PgDump), Settings.Value.PgDump);
         AddEntry(nameof(Settings.PgDumpFallback), Settings.Value.PgDumpFallback);
+        AddEntry(nameof(Settings.PgRestore), Settings.Value.PgRestore);
+        AddEntry(nameof(Settings.PgRestoreFallback), Settings.Value.PgRestoreFallback);
         AddEntry(nameof(Settings.ConfigPath), Settings.Value.ConfigPath);
 
         sb.AppendLine();
@@ -153,7 +161,7 @@ public class FormatedSettings
         sb.AppendLine();
         AddSectionComment(
             "Routines data-access extensions code-generation",
-            "https://github.com/vb-consulting/PgRoutiner/wiki/2.-WORKING-WITH-ROUTINES#routines-data-access-extensions-code-generation-settings",
+            null,
             $"- Use \"{Settings.RoutinesArgs.Alias}\" or \"--{Settings.RoutinesArgs.Original.ToKebabCase()}\" switch to run routines data-access extensions code-generation from the command line.",
             $"- Use \"{Settings.OutputDirArgs.Alias}\" or \"--{Settings.OutputDirArgs.Original.ToKebabCase()}\" option to set the output dir for the generated code from the command line.",
             $"- Use \"{Settings.RoutinesOverwriteArgs.Alias}\" or \"--{Settings.RoutinesOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated code from the command line.",
@@ -176,7 +184,7 @@ public class FormatedSettings
         sb.AppendLine();
         AddSectionComment(
             "Unit tests code-generation settings",
-            "https://github.com/vb-consulting/PgRoutiner/wiki/3.-WORKING-WITH-UNIT-TESTS#unit-tests-code-generation-settings",
+            null,
             $"- Use \"{Settings.UnitTestsArgs.Alias}\" or \"--{Settings.UnitTestsArgs.Original.ToKebabCase()}\" switch to run unit tests code-generation from the command line.",
             $"- Use \"{Settings.UnitTestsDirArgs.Alias}\" or \"--{Settings.UnitTestsDirArgs.Original.ToKebabCase()}\" option to set the output dir for the generated unit test project from the command line.");
         AddEntry(nameof(Settings.UnitTests), Settings.Value.UnitTests);
@@ -190,7 +198,7 @@ public class FormatedSettings
         sb.AppendLine();
         AddSectionComment(
             "Schema dump script settings",
-            "https://github.com/vb-consulting/PgRoutiner/wiki/4.-WORKING-WITH-SCHEMA-DUMP-SCRIPT#schema-dump-script-settings",
+            null,
             $"- Use \"{Settings.SchemaDumpArgs.Alias}\" or \"--{Settings.SchemaDumpArgs.Original.ToKebabCase()}\" switch to run schema script dump from the command line.",
             $"- Use \"{Settings.SchemaDumpFileArgs.Alias}\" or \"--{Settings.SchemaDumpFileArgs.Original.ToKebabCase()}\" option to set generated schema file name from the command line.",
             $"- Use \"{Settings.SchemaDumpOverwriteArgs.Alias}\" or \"--{Settings.SchemaDumpOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated schema file from the command line.",
@@ -208,7 +216,7 @@ public class FormatedSettings
         sb.AppendLine();
         AddSectionComment(
             "Data dump script settings",
-            "https://github.com/vb-consulting/PgRoutiner/wiki/5.-WORKING-WITH-DATA-DUMP-SCRIPT#data-dump-script-settings",
+            null,
             $"- Use \"{Settings.DataDumpArgs.Alias}\" or \"--{Settings.DataDumpArgs.Original.ToKebabCase()}\" switch to run data script dump from the command line.",
             $"- Use \"{Settings.DataDumpFileArgs.Alias}\" or \"--{Settings.DataDumpFileArgs.Original.ToKebabCase()}\" option to set generated data script file name from the command line.",
             $"- Use \"{Settings.DataDumpOverwriteArgs.Alias}\" or \"--{Settings.DataDumpOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated data script file from the command line.",
@@ -226,7 +234,7 @@ public class FormatedSettings
         sb.AppendLine();
         AddSectionComment(
             "Object file tree settings",
-            "https://github.com/vb-consulting/PgRoutiner/wiki/6.-WORKING-WITH-OBJECT-FILES-TREE#object-file-tree-settings",
+            null,
             $"- Use \"{Settings.DbObjectsArgs.Alias}\" or \"--{Settings.DbObjectsArgs.Original.ToKebabCase()}\" switch to run object files tree dump from the command line.",
             $"- Use \"{Settings.DbObjectsDirArgs.Alias}\" or \"--{Settings.DbObjectsDirArgs.Original.ToKebabCase()}\" option to set the root output dir from the command line.",
             $"- Use \"{Settings.DbObjectsOverwriteArgs.Alias}\" or \"--{Settings.DbObjectsOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated files from the command line.");
@@ -245,7 +253,7 @@ public class FormatedSettings
         sb.AppendLine();
         AddSectionComment(
             "Markdown (MD) database dictionaries settings",
-            "https://github.com/vb-consulting/PgRoutiner/wiki/7.-WORKING-WITH-MARKDOWN-DATABASE-DICTIONARIES#markdown-md-database-dictionaries-settings",
+            null,
             $"- Use \"{Settings.MarkdownArgs.Alias}\" or \"--{Settings.MarkdownArgs.Original.ToKebabCase()}\" switch to run markdown (MD) database dictionary file from the command line.",
             $"- Use \"{Settings.MdFileArgs.Alias}\" or \"--{Settings.MdFileArgs.Original.ToKebabCase()}\" option to set generated dictionary file name from the command line.",
             $"- Use \"{Settings.CommitMdArgs.Alias}\" or \"--{Settings.CommitMdArgs.Original.ToKebabCase()}\" switch to run commit changes in comments from the MD file back to the database from the command line.");
@@ -273,7 +281,7 @@ public class FormatedSettings
         sb.AppendLine();
         AddSectionComment(
             "PSQL command-line utility settings",
-            "https://github.com/vb-consulting/PgRoutiner/wiki/8.-WORKING-WITH-PSQL#psql-command-line-utility-settings",
+            null,
             $"- Use \"{Settings.PsqlArgs.Alias}\" or \"--{Settings.PsqlArgs.Original.ToKebabCase()}\" switch to open PSQL command-line utility from the command line.");
         AddEntry(nameof(Settings.Psql), Settings.Value.Psql);
         AddEntry(nameof(Settings.PsqlTerminal), Settings.Value.PsqlTerminal);
@@ -284,7 +292,7 @@ public class FormatedSettings
         sb.AppendLine();
         AddSectionComment(
             "Diff scripts settings",
-            "https://github.com/vb-consulting/PgRoutiner/wiki/9.-WORKING-WITH-DIFF-SCRIPTS#diff-scripts-settings",
+            null,
             $"- Use \"{Settings.DiffArgs.Alias}\" or \"--{Settings.DiffArgs.Original.ToKebabCase()}\" switch to run diff script generation from the command line.",
             $"- Use \"{Settings.DiffTargetArgs.Alias}\" or \"--{Settings.DiffTargetArgs.Original.ToKebabCase()}\" option to set target connection for the diff script generator from the command line.");
         AddEntry(nameof(Settings.Diff), Settings.Value.Diff);
@@ -297,7 +305,7 @@ public class FormatedSettings
         sb.AppendLine();
         AddSectionComment(
             "CRUD scripts settings",
-            "https://github.com/vb-consulting/PgRoutiner/wiki/10.-WORKING-WITH-CRUD#crud-settings",
+            null,
             $"- Use \"{Settings.CrudArgs.Alias}\" or \"--{Settings.CrudArgs.Original.ToKebabCase()}\" switch to run CRUD extension methods generation from the command line.",
             $"- Use \"{Settings.CrudOutputDirArgs.Alias}\" or \"--{Settings.CrudOutputDirArgs.Original.ToKebabCase()}\" option to set the custom models output dir for the generated CRUD extension methods code from the command line.");
         AddEntry(nameof(Settings.Crud), Settings.Value.Crud);

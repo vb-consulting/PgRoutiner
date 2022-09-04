@@ -1,5 +1,22 @@
 ﻿# VERSION HISTORY
 
+## 3.15.0
+
+- Added `Options` (alias '-opt') that adds a command option to all psql commands (executed by execute or psql terminal).
+- Replaced `help` options with the link to help page.
+- Added options for backups and restores:
+    
+    - `Backup` (alias `-backup`) - crates a backup given (compression 9, 10 jobs) in a dir supplied by this options:
+
+        - Backup dir name can have two format placeholders: {0} for current date time and {1} for current connection name.
+        - Additional options for pg_dump are also supplied from this string, after the file name, e.g. `-backup "./backup{0} -additional options"`
+
+    - `Restore` (alias `-restore`) - restores database from given backup (10 jobs):
+
+        - Additional options for pg_restore are also supplied from this string, after the file name, e.g. `-backup "./backup{0} -additional options"`
+
+    - By default backup and restore will ignore owner. Use `BackupOwner` and `RestoreOwner` switches to change that.
+
 ## 3.14.3
 
 - Output current dir by default always, but silence if silence is on.
@@ -16,7 +33,7 @@
 
 - Fix data dump export when running on zero tables.
 
-- Added `Definition` value switch (alias `-def`) that dumps SQL object defintion to console.
+- Added `Definition` value switch (alias `-def`) that dumps SQL object definition to console.
 
 - Normalize a bit console color outputs to be more consistent.
 

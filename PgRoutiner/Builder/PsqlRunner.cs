@@ -26,7 +26,7 @@ public class PsqlRunner
         {
             using var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = command;
-            process.StartInfo.Arguments = $"{baseArg} {args ?? ""}";
+            process.StartInfo.Arguments = $"{baseArg} {(string.IsNullOrEmpty(settings.Options) ? "" : $"-c {settings.Options}")} {args ?? ""}".Trim();
             if (settings.DumpPgCommands)
             {
                 Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
@@ -83,7 +83,7 @@ public class PsqlRunner
         {
             using var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = settings.PsqlTerminal;
-            process.StartInfo.Arguments = $"{command} {baseArg} {settings.PsqlOptions ?? ""}";
+            process.StartInfo.Arguments = $"{command} {baseArg} {(string.IsNullOrEmpty(settings.Options) ? "" : $"-c {settings.Options}")} {settings.PsqlOptions ?? ""}".Trim();
             if (settings.DumpPgCommands)
             {
                 Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
@@ -107,7 +107,7 @@ public class PsqlRunner
         {
             using var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = command;
-            process.StartInfo.Arguments = $"{baseArg} {settings.PsqlOptions ?? ""}";
+            process.StartInfo.Arguments = $"{baseArg} {(string.IsNullOrEmpty(settings.Options) ? "" : $"-c {settings.Options}")} {settings.PsqlOptions ?? ""}".Trim();
             if (settings.DumpPgCommands)
             {
                 Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
