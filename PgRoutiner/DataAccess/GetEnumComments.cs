@@ -6,7 +6,7 @@ namespace PgRoutiner.DataAccess;
 
 public static partial class DataAccessConnectionExtensions
 {
-    public static IEnumerable<EnumComment> GetEnumComments(this NpgsqlConnection connection, Settings settings, string schema)
+    public static IEnumerable<EnumComment> GetEnumComments(this NpgsqlConnection connection, Current settings, string schema)
     {
         return connection
             .WithParameters(

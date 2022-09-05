@@ -8,7 +8,7 @@ namespace PgRoutiner.DataAccess;
 public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<IGrouping<(string Schema, string Name), PgColumnGroup>>
-        GetTableDefintions(this NpgsqlConnection connection, Settings settings)
+        GetTableDefintions(this NpgsqlConnection connection, Current settings)
     {
         return connection
             .WithParameters(
@@ -76,7 +76,7 @@ public static partial class DataAccessConnectionExtensions
             .GroupBy(i => (i.Schema, i.Table));
     }
 
-    public static int GetTableDefintionsCount(this NpgsqlConnection connection, Settings settings)
+    public static int GetTableDefintionsCount(this NpgsqlConnection connection, Current settings)
     {
         int count = 0;
 

@@ -16,7 +16,7 @@ public abstract class CrudCodeBase : Code
     protected List<Param> Params;
 
     public CrudCodeBase(
-        Settings settings,
+        Current settings,
         (string schema, string name) item,
         string @namespace,
         IEnumerable<PgColumnGroup> columns,

@@ -5,146 +5,146 @@ public class Runner
 {
     public static void Run(NpgsqlConnection connection)
     {
-        var connectionName = (Settings.Value.Connection ?? $"{connection.Host}_{connection.Port}_{connection.Database}").SanitazePath();
+        var connectionName = (Current.Value.Connection ?? $"{connection.Host}_{connection.Port}_{connection.Database}").SanitazePath();
 
-        if (Settings.Value.Execute != null)
+        if (Current.Value.Execute != null)
         {
             Writer.DumpTitle("** EXECUTION **");
             Executor.ExecuteFromSetting(connection);
-            return;
+            //return;
         }
 
-        if (Settings.Value.Psql)
+        if (Current.Value.Psql)
         {
             Writer.DumpTitle("** PSQL TERMINAL **");
-            new PsqlRunner(Settings.Value, connection).TryRunFromTerminal();
-            return;
+            new PsqlRunner(Current.Value, connection).TryRunFromTerminal();
+            //return;
         }
 
-        if (Settings.Value.CommitMd)
+        if (Current.Value.CommitMd)
         {
             Writer.DumpTitle("** COMMIT MARKDOWN (MD) EDITS **");
             Md.MarkdownBuilder.BuildMdDiff(connection);
-            return;
+            //return;
         }
 
-        if (Settings.Value.List)
+        if (Current.Value.List)
         {
             Writer.DumpTitle("** LIST OBJECTS **");
-            var builder = new Dump.PgDumpBuilder(Settings.Value, connection);
+            var builder = new Dump.PgDumpBuilder(Current.Value, connection);
             if (Dump.PgDumpVersion.Check(builder))
             {
                 builder.DumpObjects(connection);
             }
-            return;
+            //return;
         }
 
-        if (!string.IsNullOrEmpty(Settings.Value.Backup))
+        if (!string.IsNullOrEmpty(Current.Value.Backup))
         {
             Writer.DumpTitle("** BACKUP **");
-            var builder = new Dump.PgDumpBuilder(Settings.Value, connection, utf8: false);
+            var builder = new Dump.PgDumpBuilder(Current.Value, connection, utf8: false);
             if (Dump.PgDumpVersion.Check(builder))
             {
-                var split = Settings.Value.Backup.Split(" ");
+                var split = Current.Value.Backup.Split(" ");
                 var file = string.Format(split[0], DateTime.Now, connectionName)
                     .Replace(" ", "_")
                     .Replace(":", "_");
                 var options = string.Join(' ', split[1..]);
-                builder.Run($"-j 10 -Fd -Z 9 -d {connection.Database}{(options ?? "")}{(Settings.Value.BackupOwner ? "" : " --no-owner")} -f {file}");
+                builder.Run($"-j 10 -Fd -Z 9 -d {connection.Database}{(options ?? "")}{(Current.Value.BackupOwner ? "" : " --no-owner")} -f {file}");
             }
-            return;
+            //return;
         }
 
-        if (!string.IsNullOrEmpty(Settings.Value.Restore))
+        if (!string.IsNullOrEmpty(Current.Value.Restore))
         {
             Writer.DumpTitle("** RESTORE **");
-            var builder = new Dump.PgDumpBuilder(Settings.Value, connection, dumpName: nameof(Settings.PgRestore), utf8: false);
+            var builder = new Dump.PgDumpBuilder(Current.Value, connection, dumpName: nameof(Current.PgRestore), utf8: false);
             if (Dump.PgDumpVersion.Check(builder, restore: true))
             {
-                var split = Settings.Value.Restore.Split(" ");
+                var split = Current.Value.Restore.Split(" ");
                 var file = split[0];
                 var options = string.Join(' ', split[1..]);
-                builder.Run($"-j 10 -Fd -d {connection.Database}{(options ?? "")}{(Settings.Value.RestoreOwner ? "" : " --no-owner")} {file}");
+                builder.Run($"-j 10 -Fd -d {connection.Database}{(options ?? "")}{(Current.Value.RestoreOwner ? "" : " --no-owner")} {file}");
             }
-            return;
+            //return;
         }
 
         string schemaFile = null;
         string dataFile = null;
 
-        if (Settings.Value.SchemaDumpFile != null)
+        if (Current.Value.SchemaDumpFile != null)
         {
-            schemaFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.SchemaDumpFile)), connectionName);
+            schemaFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Current.Value.SchemaDumpFile)), connectionName);
         }
 
-        if (Settings.Value.DataDumpFile != null)
+        if (Current.Value.DataDumpFile != null)
         {
-            dataFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.DataDumpFile)), connectionName);
+            dataFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Current.Value.DataDumpFile)), connectionName);
         }
 
-        if (Settings.Value.DbObjects || Settings.Value.SchemaDump || Settings.Value.DataDump || !string.IsNullOrEmpty(Settings.Value.Definition))
+        if (Current.Value.DbObjects || Current.Value.SchemaDump || Current.Value.DataDump || !string.IsNullOrEmpty(Current.Value.Definition))
         {
-            var builder = new Dump.PgDumpBuilder(Settings.Value, connection);
+            var builder = new Dump.PgDumpBuilder(Current.Value, connection);
             if (Dump.PgDumpVersion.Check(builder))
             {
-                if (Settings.Value.DbObjects)
+                if (Current.Value.DbObjects)
                 {
                     Writer.DumpTitle("** DATA OBJECTS SCRIPTS TREE GENERATION **");
                     Dump.DumpBuilder.BuildObjectDumps(builder, connectionName);
                 }
-                if (Settings.Value.SchemaDump)
+                if (Current.Value.SchemaDump)
                 {
                     Writer.DumpTitle("** SCHEMA DUMP SCRIPT GENERATION **");
                     Dump.DumpBuilder.BuildDump(
-                        dumpFile: Settings.Value.SchemaDumpFile,
+                        dumpFile: Current.Value.SchemaDumpFile,
                         file: schemaFile,
-                        overwrite: Settings.Value.SchemaDumpOverwrite,
-                        askOverwrite: Settings.Value.SchemaDumpAskOverwrite,
+                        overwrite: Current.Value.SchemaDumpOverwrite,
+                        askOverwrite: Current.Value.SchemaDumpAskOverwrite,
                         contentFunc: () => builder.GetSchemaContent());
                 }
-                if (Settings.Value.DataDump)
+                if (Current.Value.DataDump)
                 {
                     Writer.DumpTitle("** DATA DUMP SCRIPT GENERATION **");
                     Dump.DumpBuilder.BuildDump(
-                        dumpFile: Settings.Value.DataDumpFile,
+                        dumpFile: Current.Value.DataDumpFile,
                         file: dataFile,
-                        overwrite: Settings.Value.DataDumpOverwrite,
-                        askOverwrite: Settings.Value.DataDumpAskOverwrite,
+                        overwrite: Current.Value.DataDumpOverwrite,
+                        askOverwrite: Current.Value.DataDumpAskOverwrite,
                         contentFunc: () => builder.GetDataContent());
                 }
 
-                if (!string.IsNullOrEmpty(Settings.Value.Definition))
+                if (!string.IsNullOrEmpty(Current.Value.Definition))
                 {
                     builder.DumpObjectDefintion();
                 }
             }
         }
 
-        if (Settings.Value.Diff)
+        if (Current.Value.Diff)
         {
             Writer.DumpTitle("** DIFF  SCRIPT GENERATION **");
             DiffBuilder.DiffScript.BuildDiffScript(connection, connectionName);
         }
 
-        if (Settings.Value.Routines)
+        if (Current.Value.Routines)
         {
             Writer.DumpTitle("** ROUTINE SOURCE CODE GENERATION **");
-            new CodeBuilders.CodeRoutinesBuilder(connection, Settings.Value, CodeSettings.ToRoutineSettings(Settings.Value)).Build();
+            new CodeBuilders.CodeRoutinesBuilder(connection, Current.Value, CodeSettings.ToRoutineSettings(Current.Value)).Build();
         }
 
-        if (Settings.Value.Crud)
+        if (Current.Value.Crud)
         {
             Writer.DumpTitle("** CRUD SOURCE CODE GENERATION **");
-            new CodeBuilders.Crud.CodeCrudBuilder(connection, Settings.Value, CodeSettings.ToCrudSettings(Settings.Value)).Build();
+            new CodeBuilders.Crud.CodeCrudBuilder(connection, Current.Value, CodeSettings.ToCrudSettings(Current.Value)).Build();
         }
 
-        if (Settings.Value.UnitTests)
+        if (Current.Value.UnitTests)
         {
             Writer.DumpTitle("** UNIT TEST PROJECT TEMPLATE CODE GENERATION **");
             CodeBuilders.UnitTests.UnitTestBuilder.BuildUnitTests(connection, schemaFile, dataFile);
         }
 
-        if (Settings.Value.Markdown)
+        if (Current.Value.Markdown)
         {
             Writer.DumpTitle("** MARKDOWN (MD) GENERATION **");
             Md.MarkdownBuilder.BuilMd(connection, connectionName);

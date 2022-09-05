@@ -5,7 +5,7 @@ namespace PgRoutiner.Builder.CodeBuilders;
 
 public class CodeRoutinesBuilder : CodeBuilder
 {
-    public CodeRoutinesBuilder(NpgsqlConnection connection, Settings settings, CodeSettings codeSettings) :
+    public CodeRoutinesBuilder(NpgsqlConnection connection, Current settings, CodeSettings codeSettings) :
         base(connection, settings, codeSettings)
     {
         //AddEntry(nameof(Settings.RoutinesSchemaSimilarTo), Settings.Value.Routines);

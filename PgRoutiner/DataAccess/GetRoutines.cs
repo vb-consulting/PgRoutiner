@@ -7,7 +7,7 @@ namespace PgRoutiner.DataAccess;
 
 public static partial class DataAccessConnectionExtensions
 {
-    public static IEnumerable<PgItem> GetRoutines(this NpgsqlConnection connection, Settings settings)
+    public static IEnumerable<PgItem> GetRoutines(this NpgsqlConnection connection, Current settings)
     {
         return connection
             .WithParameters(

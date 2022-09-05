@@ -63,7 +63,7 @@ public static class PgDumpCache
         {
             process.StartInfo.Arguments = string.Concat(args, " ", connection.Database);
         }
-        if (Settings.Value.DumpPgCommands)
+        if (Current.Value.DumpPgCommands)
         {
             Program.WriteLine(ConsoleColor.White, $"{pgDumpCmd} {process.StartInfo.Arguments}");
         }

@@ -302,7 +302,7 @@ public static class Extensions
         return $"**`{value.Value:u}`**";
     }
 
-    public static string GetAssumedNamespace(this Settings settings)
+    public static string GetAssumedNamespace(this Current settings)
     {
         string ns;
         if (settings.Namespace != null)

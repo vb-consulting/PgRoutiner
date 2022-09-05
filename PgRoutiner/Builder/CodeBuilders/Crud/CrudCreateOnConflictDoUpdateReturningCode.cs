@@ -6,7 +6,7 @@ namespace PgRoutiner.Builder.CodeBuilders.Crud;
 public class CrudCreateOnConflictDoUpdateReturningCode : CrudCodeBase
 {
     public CrudCreateOnConflictDoUpdateReturningCode(
-        Settings settings,
+        Current settings,
         (string schema, string name) item,
         string @namespace,
         IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "CreateOnConflictDoUpdateReturning")

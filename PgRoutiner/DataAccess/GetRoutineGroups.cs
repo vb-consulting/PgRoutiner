@@ -9,7 +9,7 @@ namespace PgRoutiner.DataAccess;
 public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<IGrouping<(string Schema, string Name), PgRoutineGroup>> GetRoutineGroups(
-        this NpgsqlConnection connection, Settings settings, bool all = true, string skipSimilar = null, 
+        this NpgsqlConnection connection, Current settings, bool all = true, string skipSimilar = null, 
         string schemaSimilarTo = null, string schemaNotSimilarTo = null)
     {
         return connection

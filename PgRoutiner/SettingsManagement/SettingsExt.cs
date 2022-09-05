@@ -2,7 +2,7 @@
 {
     public static class SettingsExt
     {
-        public static string GetPgDumpFallback(this Settings settings)
+        public static string GetPgDumpFallback(this Current settings)
         {
             if (settings.PgDumpFallback != null)
             {
@@ -13,7 +13,7 @@
                 "/usr/lib/postgresql/{0}/bin/pg_dump";
         }
 
-        public static string GetPgRestoreFallback(this Settings settings)
+        public static string GetPgRestoreFallback(this Current settings)
         {
             if (settings.PgRestoreFallback != null)
             {
@@ -24,7 +24,7 @@
                 "/usr/lib/postgresql/{0}/bin/pg_restore";
         }
 
-        public static string GetPsqlFallback(this Settings settings)
+        public static string GetPsqlFallback(this Current settings)
         {
             if (settings.PsqlFallback != null)
             {

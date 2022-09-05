@@ -8,7 +8,7 @@ public class Writer
         {
             return false;
         }
-        if (Settings.Value.Dump)
+        if (Current.Value.DumpConsole)
         {
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write(content);
@@ -34,7 +34,7 @@ public class Writer
 
     public static void Dump(params string[] lines)
     {
-        if (Settings.Value.Silent)
+        if (Current.Value.Silent)
         {
             return;
         }
@@ -43,7 +43,7 @@ public class Writer
 
     public static void DumpTitle(params string[] lines)
     {
-        if (Settings.Value.Silent)
+        if (Current.Value.Silent)
         {
             return;
         }
@@ -52,7 +52,7 @@ public class Writer
 
     public static void DumpFormat(string msg, params object[] values)
     {
-        if (Settings.Value.Silent)
+        if (Current.Value.Silent)
         {
             return;
         }

@@ -15,13 +15,13 @@ public class CodeResult
 public abstract class CodeBuilder
 {
     protected readonly NpgsqlConnection connection;
-    protected readonly Settings settings;
+    protected readonly Current settings;
     protected readonly CodeSettings codeSettings;
 
     private static HashSet<string> UserDefinedModels { get; } = new();
     private static HashSet<string> DirsEmptied { get; } = new();
 
-    public CodeBuilder(NpgsqlConnection connection, Settings settings, CodeSettings codeSettings)
+    public CodeBuilder(NpgsqlConnection connection, Current settings, CodeSettings codeSettings)
     {
         this.connection = connection;
         this.settings = settings;

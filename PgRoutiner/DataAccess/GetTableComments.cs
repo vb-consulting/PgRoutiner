@@ -7,7 +7,7 @@ namespace PgRoutiner.DataAccess;
 public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<TableComment> GetTableComments(this NpgsqlConnection connection, 
-            Settings settings, 
+            Current settings, 
             string schema) =>
         connection
         .WithParameters(
@@ -188,7 +188,7 @@ public static partial class DataAccessConnectionExtensions
         });
 
     public static IEnumerable<TableComment> GetViewComments(this NpgsqlConnection connection,
-        Settings settings,
+        Current settings,
         string schema) =>
     connection
     .WithParameters(

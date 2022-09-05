@@ -16,7 +16,7 @@ public class RoutineCode : Code
     private readonly NpgsqlConnection connection;
 
     public RoutineCode(
-        Settings settings,
+        Current settings,
         string name,
         string schema,
         string @namespace,

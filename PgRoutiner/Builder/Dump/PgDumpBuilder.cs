@@ -15,7 +15,7 @@ namespace PgRoutiner.Builder.Dump;
 
 public class PgDumpBuilder
 {
-    private readonly Settings settings;
+    private readonly Current settings;
     private readonly string baseArg;
     private string pgDumpCmd;
     private const string excludeTables = "--exclude-table=*";
@@ -25,7 +25,7 @@ public class PgDumpBuilder
 
     public string Command { get => pgDumpCmd; }
 
-    public PgDumpBuilder(Settings settings, NpgsqlConnection connection, string dumpName = nameof(Settings.PgDump), bool utf8 = true)
+    public PgDumpBuilder(Current settings, NpgsqlConnection connection, string dumpName = nameof(Current.PgDump), bool utf8 = true)
     {
         this.settings = settings;
         Connection = connection;
@@ -33,15 +33,15 @@ public class PgDumpBuilder
         //var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
         //baseArg = $"--dbname=postgresql://{connection.UserName}:{password}@{connection.Host}:{connection.Port}/{connection.Database} --encoding=UTF8";
 
-        baseArg = $"-h {connection.Host} -p {connection.Port} -U {connection.UserName}{(utf8 ? "--encoding=UTF8" : "")}";
+        baseArg = $"-h {connection.Host} -p {connection.Port} -U {connection.UserName} {(utf8 ? "--encoding=UTF8" : "")}";
 
         PgDumpName = dumpName;
-        pgDumpCmd = typeof(Settings).GetProperty(dumpName).GetValue(settings) as string;
+        pgDumpCmd = typeof(Current).GetProperty(dumpName).GetValue(settings) as string;
     }
 
     public void SetPgDumpName(string name)
     {
-        typeof(Settings).GetProperty(PgDumpName).SetValue(Settings.Value, name);
+        typeof(Current).GetProperty(PgDumpName).SetValue(Current.Value, name);
         pgDumpCmd = name;
     }
 
@@ -53,7 +53,7 @@ public class PgDumpBuilder
         using var process = new System.Diagnostics.Process();
         process.StartInfo.FileName = pgDumpCmd;
         process.StartInfo.Arguments = $"{baseArg} {args ?? ""}".Trim();
-        if (Settings.Value.DumpPgCommands)
+        if (Current.Value.DumpPgCommands)
         {
             Program.WriteLine(ConsoleColor.White, $"{pgDumpCmd} {process.StartInfo.Arguments}");
         }
@@ -284,7 +284,7 @@ public class PgDumpBuilder
         List<PgItem> types;
         GetDumpItemLines(string.Concat(baseArg, " --schema-only"), null, out types);
         Console.ForegroundColor = ConsoleColor.Cyan;
-        foreach (var item in connection.GetSchemas(Settings.Value))
+        foreach (var item in connection.GetSchemas(Current.Value))
         {
             Console.WriteLine($"SCHEMA {item}");
         }
@@ -296,19 +296,19 @@ public class PgDumpBuilder
         {
             Console.WriteLine($"{item.TypeName} {item.Name}");
         }
-        foreach (var item in connection.GetDomains(Settings.Value))
+        foreach (var item in connection.GetDomains(Current.Value))
         {
             Console.WriteLine($"{item.TypeName} {item.Schema}.{item.Name}");
         }
-        foreach (var item in connection.GetTables(Settings.Value))
+        foreach (var item in connection.GetTables(Current.Value))
         {
             Console.WriteLine($"{item.TypeName.Replace("BASE ", "")} {item.Schema}.{item.Name}");
         }
-        foreach (var item in connection.GetSequences(Settings.Value))
+        foreach (var item in connection.GetSequences(Current.Value))
         {
             Console.WriteLine($"{item.TypeName} {item.Schema}.{item.Name}");
         }
-        foreach (var group in connection.GetRoutineGroups(Settings.Value))
+        foreach (var group in connection.GetRoutineGroups(Current.Value))
         {
             var name = group.Key.Name;
             var schema = group.Key.Schema;
@@ -326,54 +326,57 @@ public class PgDumpBuilder
     {
         var args = string.Concat(baseArg, " --schema-only");
 
-        List<string> lines = null;
-        List<PgItem> types = new();
-        try
+        foreach(var def in settings.Definition.Split(';'))
         {
-            lines = GetDumpItemLines(args, null, out types);
-        }
-        catch (Exception e)
-        {
-            Program.WriteLine(ConsoleColor.Red, $"Could not create pg_dump for functions and procedures", $"ERROR: {e.Message}");
-        }
-
-        foreach (var item in Connection.GetPgItems(settings.Definition, types))
-        {
-            string content = item.Type switch
+            List<string> lines = null;
+            List<PgItem> types = new();
+            try
             {
-                PgType.Table => GetTableContent(item, args),
-                PgType.View => GetViewContent(item, args),
-                PgType.Function => new RoutineDumpTransformer(item, lines)
-                                .BuildLines(dbObjectsCreateOrReplace: settings.DbObjectsCreateOrReplace)
-                                .ToString(),
-                PgType.Procedure => new RoutineDumpTransformer(item, lines)
-                                .BuildLines(dbObjectsCreateOrReplace: settings.DbObjectsCreateOrReplace)
-                                .ToString(),
-                PgType.Domain => new DomainDumpTransformer(item, lines)
-                                .BuildLines()
-                                .ToString(),
-                PgType.Type => new TypeDumpTransformer(item, lines)
-                                .BuildLines()
-                                .ToString(),
-                PgType.Schema => new SchemaDumpTransformer(item.Schema, lines)
-                                .BuildLines()
-                                .ToString(),
-                //PgType.Sequence => throw new NotImplementedException(),
-                PgType.Extension => new ExtensionDumpTransformer(item.Name, lines)
-                                .BuildLines()
-                                .ToString(),
-                PgType.Unknown => null,
-                _ => throw null,
-            };
-
-            if (!string.IsNullOrEmpty(content))
+                lines = GetDumpItemLines(args, null, out types);
+            }
+            catch (Exception e)
             {
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine("--");
-                Console.WriteLine($"-- {item.Type}: {settings.Definition}");
-                Console.WriteLine("--");
-                Console.WriteLine(content);
-                Console.ResetColor();
+                Program.WriteLine(ConsoleColor.Red, $"Could not create pg_dump for functions and procedures", $"ERROR: {e.Message}");
+            }
+
+            foreach (var item in Connection.GetPgItems(def, types))
+            {
+                string content = item.Type switch
+                {
+                    PgType.Table => GetTableContent(item, args),
+                    PgType.View => GetViewContent(item, args),
+                    PgType.Function => new RoutineDumpTransformer(item, lines)
+                                    .BuildLines(dbObjectsCreateOrReplace: settings.DbObjectsCreateOrReplace)
+                                    .ToString(),
+                    PgType.Procedure => new RoutineDumpTransformer(item, lines)
+                                    .BuildLines(dbObjectsCreateOrReplace: settings.DbObjectsCreateOrReplace)
+                                    .ToString(),
+                    PgType.Domain => new DomainDumpTransformer(item, lines)
+                                    .BuildLines()
+                                    .ToString(),
+                    PgType.Type => new TypeDumpTransformer(item, lines)
+                                    .BuildLines()
+                                    .ToString(),
+                    PgType.Schema => new SchemaDumpTransformer(item.Schema, lines)
+                                    .BuildLines()
+                                    .ToString(),
+                    //PgType.Sequence => throw new NotImplementedException(),
+                    PgType.Extension => new ExtensionDumpTransformer(item.Name, lines)
+                                    .BuildLines()
+                                    .ToString(),
+                    PgType.Unknown => null,
+                    _ => throw null,
+                };
+
+                if (!string.IsNullOrEmpty(content))
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("--");
+                    Console.WriteLine($"-- {item.Type}: {def}");
+                    Console.WriteLine("--");
+                    Console.WriteLine(content);
+                    Console.ResetColor();
+                }
             }
         }
     }
@@ -881,7 +884,8 @@ public class PgDumpBuilder
         var error = PgDumpCache.GetError(Connection, args, pgDumpCmd);
         if (!string.IsNullOrEmpty(error))
         {
-            throw new Exception(error);
+            //throw new Exception(error);
+            Program.WriteLine(ConsoleColor.Red, error);
         }
 
         foreach(var line in PgDumpCache.GetLines(Connection, args, pgDumpCmd))

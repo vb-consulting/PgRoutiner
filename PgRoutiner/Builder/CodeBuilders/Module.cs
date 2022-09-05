@@ -15,7 +15,7 @@ public class Module : Code
 
     public string Namespace { get; set; }
 
-    public Module(Settings settings, bool skipUsing = false, bool skipPragma = false) : base(settings, null)
+    public Module(Current settings, bool skipUsing = false, bool skipPragma = false) : base(settings, null)
     {
         Namespace = settings.Namespace?.Trim('.');
         this.skipUsing = skipUsing;

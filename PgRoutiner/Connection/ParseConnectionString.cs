@@ -37,7 +37,7 @@ public partial class ConnectionManager
             var configKey = GetConnStringConfigKey();
             if (configKey != null)
             {
-                typeof(Settings).GetProperty(connectionKey).SetValue(Settings.Value, configKey);
+                typeof(Current).GetProperty(connectionKey).SetValue(Current.Value, configKey);
                 var connectionStr = ParseConnStringInternal(config.GetConnectionString(configKey));
                 if (connectionStr == null)
                 {
@@ -191,23 +191,23 @@ public partial class ConnectionManager
 
         if (string.IsNullOrEmpty(server))
         {
-            server = GetServer(Settings.Value.SkipConnectionPrompt);
+            server = GetServer(Current.Value.SkipConnectionPrompt);
         }
         if (string.IsNullOrEmpty(port))
         {
-            port = GetPort(Settings.Value.SkipConnectionPrompt);
+            port = GetPort(Current.Value.SkipConnectionPrompt);
         }
         if (string.IsNullOrEmpty(database))
         {
-            database = GetDatabase(Settings.Value.SkipConnectionPrompt);
+            database = GetDatabase(Current.Value.SkipConnectionPrompt);
         }
         if (string.IsNullOrEmpty(user))
         {
-            user = GetUser(Settings.Value.SkipConnectionPrompt);
+            user = GetUser(Current.Value.SkipConnectionPrompt);
         }
         if (string.IsNullOrEmpty(pass))
         {
-            pass = GetPassword(Settings.Value.SkipConnectionPrompt);
+            pass = GetPassword(Current.Value.SkipConnectionPrompt);
         }
         if (string.Equals(addition, connectionStr))
         {

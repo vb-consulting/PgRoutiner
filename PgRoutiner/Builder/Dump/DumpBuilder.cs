@@ -23,7 +23,7 @@ public class DumpBuilder
         var exists = File.Exists(file);
         var relative = file.GetRelativePath();
 
-        if (!Settings.Value.Dump && !Directory.Exists(dir))
+        if (!Current.Value.DumpConsole && !Directory.Exists(dir))
         {
             Writer.DumpRelativePath("Creating dir: {0} ...", dir);
             Directory.CreateDirectory(dir);
@@ -34,10 +34,10 @@ public class DumpBuilder
             Writer.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
             return;
         }
-        if (exists && Settings.Value.SkipIfExists != null &&
+        if (exists && Current.Value.SkipIfExists != null &&
             (
-            Settings.Value.SkipIfExists.Contains(shortFilename) ||
-            Settings.Value.SkipIfExists.Contains(relative))
+            Current.Value.SkipIfExists.Contains(shortFilename) ||
+            Current.Value.SkipIfExists.Contains(relative))
             )
         {
             Writer.DumpFormat("Skipping {0}, already exists ...", relative);
@@ -63,21 +63,21 @@ public class DumpBuilder
 
     public static void BuildObjectDumps(PgDumpBuilder builder, string connectionName)
     {
-        if (string.IsNullOrEmpty(Settings.Value.DbObjectsDir))
+        if (string.IsNullOrEmpty(Current.Value.DbObjectsDir))
         {
             return;
         }
 
         static string GetOrDefault(DumpType type, string @default)
         {
-            if (Settings.Value.DbObjectsDirNames.TryGetValue(type.ToString(), out var value))
+            if (Current.Value.DbObjectsDirNames.TryGetValue(type.ToString(), out var value))
             {
                 return string.IsNullOrEmpty(value) ? @default : value;
             }
             return @default;
         }
 
-        var baseDir = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.DbObjectsDir)), connectionName);
+        var baseDir = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Current.Value.DbObjectsDir)), connectionName);
         CreateDir(baseDir, true);
 
         string GetDir(DumpType type)
@@ -144,19 +144,19 @@ public class DumpBuilder
 
             var exists = File.Exists(file);
 
-            if (exists && Settings.Value.DbObjectsOverwrite == false)
+            if (exists && Current.Value.DbObjectsOverwrite == false)
             {
                 Writer.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
                 continue;
             }
-            if (exists && Settings.Value.SkipIfExists != null &&
-                (Settings.Value.SkipIfExists.Contains(shortFilename) ||
-                Settings.Value.SkipIfExists.Contains(relative)))
+            if (exists && Current.Value.SkipIfExists != null &&
+                (Current.Value.SkipIfExists.Contains(shortFilename) ||
+                Current.Value.SkipIfExists.Contains(relative)))
             {
                 Writer.DumpFormat("Skipping {0}, already exists ...", relative);
                 continue;
             }
-            if (exists && Settings.Value.DbObjectsAskOverwrite &&
+            if (exists && Current.Value.DbObjectsAskOverwrite &&
                 Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
             {
                 Writer.DumpFormat("Skipping {0} ...", relative);
@@ -183,7 +183,7 @@ public class DumpBuilder
 
     private static void CreateDir(string dir, bool skipDelete = false)
     {
-        if (!Settings.Value.Dump)
+        if (!Current.Value.DumpConsole)
         {
             return;
         }
@@ -192,7 +192,7 @@ public class DumpBuilder
             Writer.DumpRelativePath("Creating dir: {0} ...", dir);
             Directory.CreateDirectory(dir);
         }
-        else if (!skipDelete && !Settings.Value.DbObjectsSkipDeleteDir)
+        else if (!skipDelete && !Current.Value.DbObjectsSkipDeleteDir)
         {
             if (Directory.GetFiles(dir).Length > 0)
             {
@@ -207,11 +207,11 @@ public class DumpBuilder
 
     private static void RemoveDir(string dir)
     {
-        if (!Settings.Value.Dump)
+        if (!Current.Value.DumpConsole)
         {
             return;
         }
-        if (!Settings.Value.DbObjectsSkipDeleteDir && Directory.Exists(dir))
+        if (!Current.Value.DbObjectsSkipDeleteDir && Directory.Exists(dir))
         {
             Writer.DumpRelativePath("Removing dir: {0} ...", dir);
             if (Directory.GetFiles(dir).Length > 0)

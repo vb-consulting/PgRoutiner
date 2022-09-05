@@ -7,7 +7,7 @@ namespace PgRoutiner.DataAccess;
 
 public static partial class DataAccessConnectionExtensions
 {
-    public static IEnumerable<RoutineComment> GetRoutineComments(this NpgsqlConnection connection, Settings settings, string schema) =>
+    public static IEnumerable<RoutineComment> GetRoutineComments(this NpgsqlConnection connection, Current settings, string schema) =>
         connection
         .WithParameters(
             (schema, DbType.AnsiString),

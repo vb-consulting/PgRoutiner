@@ -2,10 +2,10 @@
 
 public class UnitTestProjectCsprojFile
 {
-    private readonly Settings settings;
+    private readonly Current settings;
     private readonly string dir;
 
-    public UnitTestProjectCsprojFile(Settings settings, string dir)
+    public UnitTestProjectCsprojFile(Current settings, string dir)
     {
         this.settings = settings;
         this.dir = dir;
@@ -63,10 +63,10 @@ public class UnitTestProjectCsprojFile
         sb.AppendLine(@"    </None>");
         sb.AppendLine(@"  </ItemGroup>");
         sb.AppendLine();
-        if (Settings.ProjectInfo?.ProjectFile != null)
+        if (Current.ProjectInfo?.ProjectFile != null)
         {
             sb.AppendLine(@"  <ItemGroup>");
-            sb.AppendLine(@$"    <ProjectReference Include=""{Path.GetRelativePath(dir, Settings.ProjectInfo.ProjectFile)}"" />");
+            sb.AppendLine(@$"    <ProjectReference Include=""{Path.GetRelativePath(dir, Current.ProjectInfo.ProjectFile)}"" />");
             sb.AppendLine(@"  </ItemGroup>");
         }
         sb.AppendLine();

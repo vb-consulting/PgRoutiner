@@ -13,13 +13,13 @@ public partial class ConnectionManager
     private readonly string name2;
 
     public ConnectionManager(IConfigurationRoot config,
-        string connectionKey = nameof(Settings.Value.Connection),
+        string connectionKey = nameof(Current.Value.Connection),
         string skipKey = null)
     {
         this.config = config;
         this.connectionKey = connectionKey;
         this.skipKey = skipKey;
-        this.name = typeof(Settings).GetProperty(connectionKey).GetValue(Settings.Value) as string;
+        this.name = typeof(Current).GetProperty(connectionKey).GetValue(Current.Value) as string;
         var key = connectionKey.ToKebabCase().Replace("-", " ");
         if (key == "connection")
         {

@@ -4,7 +4,7 @@ public class TestFixtures : Code
 {
     private readonly HashSet<string> globalUsings;
 
-    public TestFixtures(Settings settings, HashSet<string> globalUsings = null) : base(settings, null)
+    public TestFixtures(Current settings, HashSet<string> globalUsings = null) : base(settings, null)
     {
         this.globalUsings = globalUsings;
 

@@ -33,7 +33,7 @@ public partial class PgDiffBuilder : CodeBuilders.Code
 
 
     public PgDiffBuilder(
-        Settings settings,
+        Current settings,
         NpgsqlConnection source,
         NpgsqlConnection target,
         Dump.PgDumpBuilder sourceBuilder,
@@ -46,7 +46,7 @@ public partial class PgDiffBuilder : CodeBuilders.Code
         this.title = title;
         this.targetBuilder = targetBuilder;
 
-        var diffSettings = new Settings { SchemaSimilarTo = settings.SchemaSimilarTo, SchemaNotSimilarTo = settings.SchemaNotSimilarTo };
+        var diffSettings = new Current { SchemaSimilarTo = settings.SchemaSimilarTo, SchemaNotSimilarTo = settings.SchemaNotSimilarTo };
         var ste = source.GetTables(diffSettings, skipSimilar: settings.DiffSkipSimilarTo);
         this.sourceTables = ste
             .Where(t => t.Type == PgType.Table)

@@ -4,12 +4,12 @@ namespace PgRoutiner.Builder;
 
 public class PsqlRunner
 {
-    private readonly Settings settings;
+    private readonly Current settings;
     private readonly NpgsqlConnection connection;
     private readonly string baseArg;
     private readonly string command;
 
-    public PsqlRunner(Settings settings, NpgsqlConnection connection)
+    public PsqlRunner(Current settings, NpgsqlConnection connection)
     {
         this.settings = settings;
         this.connection = connection;
@@ -26,7 +26,7 @@ public class PsqlRunner
         {
             using var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = command;
-            process.StartInfo.Arguments = $"{baseArg} {(string.IsNullOrEmpty(settings.Options) ? "" : $"-c {settings.Options}")} {args ?? ""}".Trim();
+            process.StartInfo.Arguments = $"{baseArg} {args ?? ""}".Trim();
             if (settings.DumpPgCommands)
             {
                 Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
@@ -83,7 +83,7 @@ public class PsqlRunner
         {
             using var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = settings.PsqlTerminal;
-            process.StartInfo.Arguments = $"{command} {baseArg} {(string.IsNullOrEmpty(settings.Options) ? "" : $"-c {settings.Options}")} {settings.PsqlOptions ?? ""}".Trim();
+            process.StartInfo.Arguments = $"{command} {baseArg} {settings.PsqlOptions ?? ""}".Trim();
             if (settings.DumpPgCommands)
             {
                 Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
@@ -107,7 +107,7 @@ public class PsqlRunner
         {
             using var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = command;
-            process.StartInfo.Arguments = $"{baseArg} {(string.IsNullOrEmpty(settings.Options) ? "" : $"-c {settings.Options}")} {settings.PsqlOptions ?? ""}".Trim();
+            process.StartInfo.Arguments = $"{baseArg} {settings.PsqlOptions ?? ""}".Trim();
             if (settings.DumpPgCommands)
             {
                 Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");

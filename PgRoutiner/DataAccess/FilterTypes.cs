@@ -6,7 +6,7 @@ namespace PgRoutiner.DataAccess;
 
 public static partial class DataAccessConnectionExtensions
 {
-    public static IEnumerable<PgItem> FilterTypes(this NpgsqlConnection connection, List<PgItem> types, Settings settings, string skipSimilar = null)
+    public static IEnumerable<PgItem> FilterTypes(this NpgsqlConnection connection, List<PgItem> types, Current settings, string skipSimilar = null)
     {
         if (!types.Any())
         {

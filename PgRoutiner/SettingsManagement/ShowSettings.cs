@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace PgRoutiner.SettingsManagement
 {
-    public partial class Settings
+    public partial class Current
     {
         public static void ShowSettings()
         {
@@ -91,7 +91,7 @@ namespace PgRoutiner.SettingsManagement
                 settingsWritten = true;
             }
 
-            var defaultValue = new Settings();
+            var defaultValue = new Current();
             foreach (var prop in Value.GetType().GetProperties())
             {
                 var name = prop.Name;

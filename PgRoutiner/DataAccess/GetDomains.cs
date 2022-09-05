@@ -6,7 +6,7 @@ namespace PgRoutiner.DataAccess;
 
 public static partial class DataAccessConnectionExtensions
 {
-    public static IEnumerable<PgItem> GetDomains(this NpgsqlConnection connection, Settings settings, string skipSimilar = null)
+    public static IEnumerable<PgItem> GetDomains(this NpgsqlConnection connection, Current settings, string skipSimilar = null)
     {
         return connection
             .WithParameters(

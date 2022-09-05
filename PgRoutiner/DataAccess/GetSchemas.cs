@@ -6,7 +6,7 @@ namespace PgRoutiner.DataAccess;
 public static partial class DataAccessConnectionExtensions
 {
     public static IEnumerable<string> GetSchemas(this NpgsqlConnection connection, 
-        Settings settings, string skipSimilar = null, string schemaSimilarTo = null, string schemaNotSimilarTo = null)
+        Current settings, string skipSimilar = null, string schemaSimilarTo = null, string schemaNotSimilarTo = null)
     {
         return connection
             .WithParameters(

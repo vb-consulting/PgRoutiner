@@ -4,16 +4,6 @@ using Newtonsoft.Json;
 
 namespace PgRoutiner.SettingsManagement
 {
-    public class Switches
-    {
-        public bool Help { get; set; } = false;
-        public bool Settings { get; set; } = false;
-        public bool Debug { get; set; } = false;
-        public bool Info { get; set; } = false;
-
-        public static readonly Switches Value = new();
-    }
-
     public class Arg
     {
         public string Alias { get; }
@@ -28,26 +18,26 @@ namespace PgRoutiner.SettingsManagement
         }
     }
 
-    public partial class Settings
+    public partial class Current
     {
-        public static readonly Arg DirArgs = new("-dir", "dir");
-        public static readonly Arg HelpArgs = new("-h", "help");
-        public static readonly Arg VersionArgs = new("-v", "version");
-        public static readonly Arg InfoArgs = new("-info", "info");
-        public static readonly Arg SettingsArgs = new("-s", "settings");
+        public static readonly Arg DirArgs = new("-dir", nameof(Dir)); // set current dir
+        public static readonly Arg HelpArgs = new("-h", nameof(Help));
+        public static readonly Arg VersionArgs = new("-v", nameof(Version));
+        public static readonly Arg InfoArgs = new("-info", nameof(Info));
+        public static readonly Arg SettingsArgs = new("-s", nameof(Settings));
         public static readonly Arg RoutinesArgs = new("-r", nameof(Routines));
         public static readonly Arg CommitMdArgs = new("-cc", nameof(CommitMd));
         public static readonly Arg ExecuteArgs = new("-x", nameof(Execute));
-        public static readonly Arg OptionsArgs = new("-opt", nameof(Options));
+        //public static readonly Arg OptionsArgs = new("-opt", nameof(Options));
         public static readonly Arg ListArgs = new("-l", nameof(List));
         public static readonly Arg DefinitionArgs = new("-def", nameof(Definition));
         public static readonly Arg InsertsArgs = new("-i", nameof(Inserts));
         public static readonly Arg BackupArgs = new("-backup", nameof(Backup));
         public static readonly Arg RestoreArgs = new("-restore", nameof(Restore));
 
-        public static readonly Arg DumpArgs = new("-d", nameof(Dump));
+        public static readonly Arg DumpConsoleArgs = new("-d", nameof(DumpConsole));
         public static readonly Arg SilentArgs = new("-silent", nameof(Silent));
-        public static readonly Arg DebugArgs = new("-dbg", "debug");
+        public static readonly Arg DebugArgs = new("-dbg", nameof(Debug));
         public static readonly Arg ConnectionArgs = new("-c", nameof(Connection));
         public static readonly Arg SchemaArgs = new("-sch", nameof(SchemaSimilarTo));
         public static readonly Arg NotSchemaArgs = new("-nsch", nameof(SchemaNotSimilarTo));
@@ -91,10 +81,17 @@ namespace PgRoutiner.SettingsManagement
 #if DEBUG
         [JsonIgnore] public string Project { get; set; }
 #endif
-        public bool Dump { get; set; } = false;
+        [JsonIgnore] public bool Help { get; set; } = false;
+        [JsonIgnore] public bool Version { get; set; } = false;
+        [JsonIgnore] public bool Info { get; set; } = false;
+        [JsonIgnore] public bool Dir { get; set; } = false;
+        [JsonIgnore] public bool Settings { get; set; } = false;
+        [JsonIgnore] public bool Debug { get; set; } = false;
+
+        public bool DumpConsole { get; set; } = false;
         public bool Silent { get; set; } = false;
         public string Execute { get; set; } = null;
-        public string Options { get; set; } = null;
+        //public string Options { get; set; } = null;
         public bool List { get; set; } = false;
         public string Definition { get; set; } = null;
         public string Inserts { get; set; } = null;
@@ -292,6 +289,6 @@ namespace PgRoutiner.SettingsManagement
         public HashSet<string> CrudDeleteBy { get; set; } = new HashSet<string>();
         public HashSet<string> CrudDeleteByReturning { get; set; } = new HashSet<string>();
 
-        public static readonly Settings Value = new();
+        public static readonly Current Value = new();
     }
 }

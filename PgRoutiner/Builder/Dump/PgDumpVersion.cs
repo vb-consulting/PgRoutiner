@@ -4,7 +4,7 @@ public static class PgDumpVersion
 {
     public static bool Check(PgDumpBuilder builder, bool restore = false)
     {
-        var option = (typeof(Settings).GetField(name: $"{(restore ? nameof(Settings.PgRestore) : nameof(Settings.PgDump))}Args").GetValue(null) as Arg).Original;
+        var option = (typeof(Current).GetField(name: $"{(restore ? nameof(Current.PgRestore) : nameof(Current.PgDump))}Args").GetValue(null) as Arg).Original;
         var connVersion = builder.Connection.ServerVersion.Split(".").First();
         string fullDumpVersion;
         string dumpVersion;
@@ -21,7 +21,7 @@ public static class PgDumpVersion
 
         if (!string.Equals(connVersion, dumpVersion))
         {
-            builder.SetPgDumpName(string.Format(restore ? Settings.Value.GetPgRestoreFallback() : Settings.Value.GetPgDumpFallback(), connVersion));
+            builder.SetPgDumpName(string.Format(restore ? Current.Value.GetPgRestoreFallback() : Current.Value.GetPgDumpFallback(), connVersion));
             try
             {
                 fullDumpVersion = builder.GetDumpVersion(restore);
@@ -33,7 +33,7 @@ public static class PgDumpVersion
                 return false;
             }
 
-            var value = typeof(Settings).GetProperty(builder.PgDumpName).GetValue(Settings.Value);
+            var value = typeof(Current).GetProperty(builder.PgDumpName).GetValue(Current.Value);
             if (!string.Equals(connVersion, dumpVersion))
             {
                 PgDumpMistmatch(builder.Connection, connVersion, fullDumpVersion, dumpVersion, value, option, restore: restore);
@@ -53,7 +53,7 @@ public static class PgDumpVersion
         Program.WriteLine(ConsoleColor.Red, $"ERROR: It looks like {(restore ? "pg_restore" : "pg_dump")} version mismatch: ");
 
         Program.Write(ConsoleColor.Red, "- Connection ");
-        Program.Write(ConsoleColor.Red, Settings.Value.Connection);
+        Program.Write(ConsoleColor.Red, Current.Value.Connection);
         Program.Write(ConsoleColor.Red, " (server ");
         Program.Write(ConsoleColor.Red, connection.Host);
         Program.Write(ConsoleColor.Red, ", port ");

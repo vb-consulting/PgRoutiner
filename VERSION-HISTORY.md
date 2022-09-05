@@ -1,5 +1,19 @@
 ﻿# VERSION HISTORY
 
+## 3.16.0
+
+- Switch `Dump` renamed to `DumpConsole` because it was confusing what it actually does. It just forces content out the file to console. Alias `-d` renamed the same.
+
+- Removed `Options` option that was adding additional command options to execute PSQL commands. Instead, additional command are `;` separated. 
+
+For example: `"\H;select * from countries limit 3"`
+
+This also applies when executing files, for example: `"\H;test.sql"`
+
+- Fix boolean handling in console parser.
+
+- Allow multiple commands.
+
 ## 3.15.0
 
 - Added `Options` (alias '-opt') that adds a command option to all psql commands (executed by execute or psql terminal).

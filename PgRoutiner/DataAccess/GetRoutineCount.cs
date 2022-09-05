@@ -6,7 +6,7 @@ namespace PgRoutiner.DataAccess;
 
 public static partial class DataAccessConnectionExtensions
 {
-    public static long GetRoutineCount(this NpgsqlConnection connection, Settings settings, 
+    public static long GetRoutineCount(this NpgsqlConnection connection, Current settings, 
         string schemaSimilarTo = null, string schemaNotSimilarTo = null) => connection
         .WithParameters(
             (schemaSimilarTo ?? settings.SchemaSimilarTo, DbType.AnsiString),

@@ -2,7 +2,7 @@
 
 public class CodeCrudBuilder : CodeBuilder
 {
-    public CodeCrudBuilder(NpgsqlConnection connection, Settings settings, CodeSettings codeSettings) :
+    public CodeCrudBuilder(NpgsqlConnection connection, Current settings, CodeSettings codeSettings) :
         base(connection, settings, codeSettings)
     {
     }

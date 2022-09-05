@@ -84,10 +84,10 @@ public class FormatedSettings
             sb.AppendLine("{");
             //sb.AppendLine($"  /* see https://github.com/vb-consulting/PgRoutiner/wiki/10.-WORKING-WITH-CONNECTIONS for more info */");
             sb.AppendLine("  \"ConnectionStrings\": {");
-            if (Settings.Value.Connection == null && connection != null)
+            if (Current.Value.Connection == null && connection != null)
             {
-                Settings.Value.Connection = $"{connection.Database.ToUpperCamelCase()}Connection";
-                sb.AppendLine($"    \"{Settings.Value.Connection}\": \"{connection.ToPsqlFormatString()}\"");
+                Current.Value.Connection = $"{connection.Database.ToUpperCamelCase()}Connection";
+                sb.AppendLine($"    \"{Current.Value.Connection}\": \"{connection.ToPsqlFormatString()}\"");
             }
             sb.AppendLine("    //\"Connection1\": \"Server={server};Db={database};Port={port};User Id={user};Password={password};\"");
             sb.AppendLine("    //\"Connection2\": \"postgresql://{user}:{password}@{server}:{port}/{database}\"");
@@ -101,38 +101,38 @@ public class FormatedSettings
         AddSectionComment(
             "General settings:",
             null,
-            $"- Use \"{Settings.ConnectionArgs.Alias}\" or \"--{Settings.ConnectionArgs.Original.ToKebabCase()}\" option to set working connection from the command line.",
-            $"- Use \"{Settings.SchemaArgs.Alias}\" or \"--{Settings.SchemaArgs.Original.ToKebabCase()}\" option to set schema similar to expression from the command line.",
-            $"- Use \"{Settings.ExecuteArgs.Alias}\" or \"--{Settings.ExecuteArgs.Original.ToKebabCase()}\" option to execute SQL file or PSQL command on your current connection from the command line.",
-            $"- Use \"{Settings.OptionsArgs.Alias}\" or \"--{Settings.OptionsArgs.Original.ToKebabCase()}\" to set additional command options for the PSQL tool.",
-            $"- Use \"{Settings.DumpArgs.Alias}\" or \"--{Settings.DumpArgs.Original.ToKebabCase()}\" switch to redirect all outputs to the command line.",
-            $"- Use \"{Settings.SilentArgs.Alias}\" or \"--{Settings.SilentArgs.Original.ToKebabCase()}\" to silent not required console texts.",
-            $"- Use \"{Settings.ListArgs.Alias}\" or \"--{Settings.ListArgs.Original.ToKebabCase()}\" to dump object list for current connection and with current schema.",
-            $"- Use \"{Settings.DefinitionArgs.Alias}\" or \"--{Settings.DefinitionArgs.Original.ToKebabCase()}\" to dump object schema definition in console supplied as value parameter.",
-            $"- Use \"{Settings.InsertsArgs.Alias}\" or \"--{Settings.InsertsArgs.Original.ToKebabCase()}\" to dump objects or queries (semicolon separated) inserts.");
-        AddEntry(nameof(Settings.Connection), Settings.Value.Connection);
-        AddEntry(nameof(Settings.SkipConnectionPrompt), Settings.Value.SkipConnectionPrompt);
-        AddEntry(nameof(Settings.DumpPgCommands), Settings.Value.DumpPgCommands);
-        AddEntry(nameof(Settings.SchemaSimilarTo), Settings.Value.SchemaSimilarTo);
-        AddEntry(nameof(Settings.SchemaNotSimilarTo), Settings.Value.SchemaNotSimilarTo);
-        AddEntry(nameof(Settings.Execute), Settings.Value.Execute);
-        AddEntry(nameof(Settings.Options), Settings.Value.Options);
-        AddEntry(nameof(Settings.List), Settings.Value.List);
-        AddEntry(nameof(Settings.Definition), Settings.Value.Definition);
-        AddEntry(nameof(Settings.Inserts), Settings.Value.Inserts);
-        AddEntry(nameof(Settings.Backup), Settings.Value.Backup);
-        AddEntry(nameof(Settings.BackupOwner), Settings.Value.BackupOwner);
-        AddEntry(nameof(Settings.Restore), Settings.Value.Restore);
-        AddEntry(nameof(Settings.RestoreOwner), Settings.Value.RestoreOwner);
-        AddEntry(nameof(Settings.Dump), Settings.Value.Dump);
-        AddEntry(nameof(Settings.Silent), Settings.Value.Silent);
-        AddEntry(nameof(Settings.SkipIfExists), Settings.Value.SkipIfExists);
-        AddEntry(nameof(Settings.SkipUpdateReferences), Settings.Value.SkipUpdateReferences);
-        AddEntry(nameof(Settings.PgDump), Settings.Value.PgDump);
-        AddEntry(nameof(Settings.PgDumpFallback), Settings.Value.PgDumpFallback);
-        AddEntry(nameof(Settings.PgRestore), Settings.Value.PgRestore);
-        AddEntry(nameof(Settings.PgRestoreFallback), Settings.Value.PgRestoreFallback);
-        AddEntry(nameof(Settings.ConfigPath), Settings.Value.ConfigPath);
+            $"- Use \"{Current.ConnectionArgs.Alias}\" or \"--{Current.ConnectionArgs.Original.ToKebabCase()}\" option to set working connection from the command line.",
+            $"- Use \"{Current.SchemaArgs.Alias}\" or \"--{Current.SchemaArgs.Original.ToKebabCase()}\" option to set schema similar to expression from the command line.",
+            $"- Use \"{Current.ExecuteArgs.Alias}\" or \"--{Current.ExecuteArgs.Original.ToKebabCase()}\" option to execute SQL file or PSQL command on your current connection from the command line.",
+            //$"- Use \"{Settings.OptionsArgs.Alias}\" or \"--{Settings.OptionsArgs.Original.ToKebabCase()}\" to set additional command options for the PSQL tool.",
+            $"- Use \"{Current.DumpConsoleArgs.Alias}\" or \"--{Current.DumpConsoleArgs.Original.ToKebabCase()}\" switch to redirect all outputs to the command line.",
+            $"- Use \"{Current.SilentArgs.Alias}\" or \"--{Current.SilentArgs.Original.ToKebabCase()}\" to silent not required console texts.",
+            $"- Use \"{Current.ListArgs.Alias}\" or \"--{Current.ListArgs.Original.ToKebabCase()}\" to dump object list for current connection and with current schema.",
+            $"- Use \"{Current.DefinitionArgs.Alias}\" or \"--{Current.DefinitionArgs.Original.ToKebabCase()}\" to dump object schema definition in console supplied as value parameter.",
+            $"- Use \"{Current.InsertsArgs.Alias}\" or \"--{Current.InsertsArgs.Original.ToKebabCase()}\" to dump objects or queries (semicolon separated) inserts.");
+        AddEntry(nameof(Current.Connection), Current.Value.Connection);
+        AddEntry(nameof(Current.SkipConnectionPrompt), Current.Value.SkipConnectionPrompt);
+        AddEntry(nameof(Current.DumpPgCommands), Current.Value.DumpPgCommands);
+        AddEntry(nameof(Current.SchemaSimilarTo), Current.Value.SchemaSimilarTo);
+        AddEntry(nameof(Current.SchemaNotSimilarTo), Current.Value.SchemaNotSimilarTo);
+        AddEntry(nameof(Current.Execute), Current.Value.Execute);
+        //AddEntry(nameof(Settings.Options), Settings.Value.Options);
+        AddEntry(nameof(Current.List), Current.Value.List);
+        AddEntry(nameof(Current.Definition), Current.Value.Definition);
+        AddEntry(nameof(Current.Inserts), Current.Value.Inserts);
+        AddEntry(nameof(Current.Backup), Current.Value.Backup);
+        AddEntry(nameof(Current.BackupOwner), Current.Value.BackupOwner);
+        AddEntry(nameof(Current.Restore), Current.Value.Restore);
+        AddEntry(nameof(Current.RestoreOwner), Current.Value.RestoreOwner);
+        AddEntry(nameof(Current.DumpConsole), Current.Value.DumpConsole);
+        AddEntry(nameof(Current.Silent), Current.Value.Silent);
+        AddEntry(nameof(Current.SkipIfExists), Current.Value.SkipIfExists);
+        AddEntry(nameof(Current.SkipUpdateReferences), Current.Value.SkipUpdateReferences);
+        AddEntry(nameof(Current.PgDump), Current.Value.PgDump);
+        AddEntry(nameof(Current.PgDumpFallback), Current.Value.PgDumpFallback);
+        AddEntry(nameof(Current.PgRestore), Current.Value.PgRestore);
+        AddEntry(nameof(Current.PgRestoreFallback), Current.Value.PgRestoreFallback);
+        AddEntry(nameof(Current.ConfigPath), Current.Value.ConfigPath);
 
         sb.AppendLine();
         AddSectionComment(
@@ -140,193 +140,193 @@ public class FormatedSettings
             null,
             $"- Routines code generation.",
             $"- CRUD code generation.");
-        AddEntry(nameof(Settings.Namespace), Settings.Value.Namespace);
-        AddEntry(nameof(Settings.UseRecords), Settings.Value.UseRecords);
-        AddEntry(nameof(Settings.UseExpressionBody), Settings.Value.UseExpressionBody);
-        AddEntry(nameof(Settings.UseFileScopedNamespaces), Settings.Value.UseFileScopedNamespaces);
-        AddEntry(nameof(Settings.UseNullableStrings), Settings.Value.UseNullableStrings);
-        AddEntry(nameof(Settings.Mapping), Settings.Value.Mapping);
-        AddEntry(nameof(Settings.CustomModels), Settings.Value.CustomModels);
-        AddEntry(nameof(Settings.ModelDir), Settings.Value.ModelDir);
-        AddEntry(nameof(Settings.ModelCustomNamespace), Settings.Value.ModelCustomNamespace);
-        AddEntry(nameof(Settings.EmptyModelDir), Settings.Value.EmptyModelDir);
-        AddEntry(nameof(Settings.SkipSyncMethods), Settings.Value.SkipSyncMethods);
-        AddEntry(nameof(Settings.SkipAsyncMethods), Settings.Value.SkipAsyncMethods);
-        AddEntry(nameof(Settings.MinNormVersion), Settings.Value.MinNormVersion);
-        AddEntry(nameof(Settings.SourceHeaderLines), Settings.Value.SourceHeaderLines);
-        AddEntry(nameof(Settings.Ident), Settings.Value.Ident);
-        AddEntry(nameof(Settings.ReturnMethod), Settings.Value.ReturnMethod);
-        AddEntry(nameof(Settings.MethodParameterNames), Settings.Value.MethodParameterNames);
+        AddEntry(nameof(Current.Namespace), Current.Value.Namespace);
+        AddEntry(nameof(Current.UseRecords), Current.Value.UseRecords);
+        AddEntry(nameof(Current.UseExpressionBody), Current.Value.UseExpressionBody);
+        AddEntry(nameof(Current.UseFileScopedNamespaces), Current.Value.UseFileScopedNamespaces);
+        AddEntry(nameof(Current.UseNullableStrings), Current.Value.UseNullableStrings);
+        AddEntry(nameof(Current.Mapping), Current.Value.Mapping);
+        AddEntry(nameof(Current.CustomModels), Current.Value.CustomModels);
+        AddEntry(nameof(Current.ModelDir), Current.Value.ModelDir);
+        AddEntry(nameof(Current.ModelCustomNamespace), Current.Value.ModelCustomNamespace);
+        AddEntry(nameof(Current.EmptyModelDir), Current.Value.EmptyModelDir);
+        AddEntry(nameof(Current.SkipSyncMethods), Current.Value.SkipSyncMethods);
+        AddEntry(nameof(Current.SkipAsyncMethods), Current.Value.SkipAsyncMethods);
+        AddEntry(nameof(Current.MinNormVersion), Current.Value.MinNormVersion);
+        AddEntry(nameof(Current.SourceHeaderLines), Current.Value.SourceHeaderLines);
+        AddEntry(nameof(Current.Ident), Current.Value.Ident);
+        AddEntry(nameof(Current.ReturnMethod), Current.Value.ReturnMethod);
+        AddEntry(nameof(Current.MethodParameterNames), Current.Value.MethodParameterNames);
 
         sb.AppendLine();
         AddSectionComment(
             "Routines data-access extensions code-generation",
             null,
-            $"- Use \"{Settings.RoutinesArgs.Alias}\" or \"--{Settings.RoutinesArgs.Original.ToKebabCase()}\" switch to run routines data-access extensions code-generation from the command line.",
-            $"- Use \"{Settings.OutputDirArgs.Alias}\" or \"--{Settings.OutputDirArgs.Original.ToKebabCase()}\" option to set the output dir for the generated code from the command line.",
-            $"- Use \"{Settings.RoutinesOverwriteArgs.Alias}\" or \"--{Settings.RoutinesOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated code from the command line.",
-            $"- Use \"{Settings.ModelDirArgs.Alias}\" or \"--{Settings.ModelDirArgs.Original.ToKebabCase()}\" option to set the custom models output dir for the generated code from the command line.");
-        AddEntry(nameof(Settings.Routines), Settings.Value.Routines);
-        AddEntry(nameof(Settings.RoutinesSchemaSimilarTo), Settings.Value.RoutinesSchemaSimilarTo);
-        AddEntry(nameof(Settings.RoutinesSchemaNotSimilarTo), Settings.Value.RoutinesSchemaNotSimilarTo);
-        AddEntry(nameof(Settings.OutputDir), Settings.Value.OutputDir);
-        AddEntry(nameof(Settings.RoutinesEmptyOutputDir), Settings.Value.RoutinesEmptyOutputDir);
-        AddEntry(nameof(Settings.RoutinesOverwrite), Settings.Value.RoutinesOverwrite);
-        AddEntry(nameof(Settings.RoutinesAskOverwrite), Settings.Value.RoutinesAskOverwrite);
-        AddEntry(nameof(Settings.RoutinesNotSimilarTo), Settings.Value.RoutinesNotSimilarTo);
-        AddEntry(nameof(Settings.RoutinesSimilarTo), Settings.Value.RoutinesSimilarTo);
-        AddEntry(nameof(Settings.RoutinesReturnMethods), Settings.Value.RoutinesReturnMethods);
-        AddEntry(nameof(Settings.RoutinesModelPropertyTypes), Settings.Value.RoutinesModelPropertyTypes);
-        AddEntry(nameof(Settings.RoutinesUnknownReturnTypes), Settings.Value.RoutinesUnknownReturnTypes);
-        AddEntry(nameof(Settings.RoutinesCallerInfo), Settings.Value.RoutinesCallerInfo);
-        AddEntry(nameof(Settings.RoutinesLanguages), Settings.Value.RoutinesLanguages);
+            $"- Use \"{Current.RoutinesArgs.Alias}\" or \"--{Current.RoutinesArgs.Original.ToKebabCase()}\" switch to run routines data-access extensions code-generation from the command line.",
+            $"- Use \"{Current.OutputDirArgs.Alias}\" or \"--{Current.OutputDirArgs.Original.ToKebabCase()}\" option to set the output dir for the generated code from the command line.",
+            $"- Use \"{Current.RoutinesOverwriteArgs.Alias}\" or \"--{Current.RoutinesOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated code from the command line.",
+            $"- Use \"{Current.ModelDirArgs.Alias}\" or \"--{Current.ModelDirArgs.Original.ToKebabCase()}\" option to set the custom models output dir for the generated code from the command line.");
+        AddEntry(nameof(Current.Routines), Current.Value.Routines);
+        AddEntry(nameof(Current.RoutinesSchemaSimilarTo), Current.Value.RoutinesSchemaSimilarTo);
+        AddEntry(nameof(Current.RoutinesSchemaNotSimilarTo), Current.Value.RoutinesSchemaNotSimilarTo);
+        AddEntry(nameof(Current.OutputDir), Current.Value.OutputDir);
+        AddEntry(nameof(Current.RoutinesEmptyOutputDir), Current.Value.RoutinesEmptyOutputDir);
+        AddEntry(nameof(Current.RoutinesOverwrite), Current.Value.RoutinesOverwrite);
+        AddEntry(nameof(Current.RoutinesAskOverwrite), Current.Value.RoutinesAskOverwrite);
+        AddEntry(nameof(Current.RoutinesNotSimilarTo), Current.Value.RoutinesNotSimilarTo);
+        AddEntry(nameof(Current.RoutinesSimilarTo), Current.Value.RoutinesSimilarTo);
+        AddEntry(nameof(Current.RoutinesReturnMethods), Current.Value.RoutinesReturnMethods);
+        AddEntry(nameof(Current.RoutinesModelPropertyTypes), Current.Value.RoutinesModelPropertyTypes);
+        AddEntry(nameof(Current.RoutinesUnknownReturnTypes), Current.Value.RoutinesUnknownReturnTypes);
+        AddEntry(nameof(Current.RoutinesCallerInfo), Current.Value.RoutinesCallerInfo);
+        AddEntry(nameof(Current.RoutinesLanguages), Current.Value.RoutinesLanguages);
         
         sb.AppendLine();
         AddSectionComment(
             "Unit tests code-generation settings",
             null,
-            $"- Use \"{Settings.UnitTestsArgs.Alias}\" or \"--{Settings.UnitTestsArgs.Original.ToKebabCase()}\" switch to run unit tests code-generation from the command line.",
-            $"- Use \"{Settings.UnitTestsDirArgs.Alias}\" or \"--{Settings.UnitTestsDirArgs.Original.ToKebabCase()}\" option to set the output dir for the generated unit test project from the command line.");
-        AddEntry(nameof(Settings.UnitTests), Settings.Value.UnitTests);
-        AddEntry(nameof(Settings.UnitTestProjectTargetFramework), Settings.Value.UnitTestProjectTargetFramework);
-        AddEntry(nameof(Settings.UnitTestProjectLangVersion), Settings.Value.UnitTestProjectLangVersion);
-        AddEntry(nameof(Settings.UnitTestsDir), Settings.Value.UnitTestsDir);
-        AddEntry(nameof(Settings.UnitTestsAskRecreate), Settings.Value.UnitTestsAskRecreate);
-        AddEntry(nameof(Settings.UnitTestsSkipSyncMethods), Settings.Value.UnitTestsSkipSyncMethods);
-        AddEntry(nameof(Settings.UnitTestsSkipAsyncMethods), Settings.Value.UnitTestsSkipAsyncMethods);
+            $"- Use \"{Current.UnitTestsArgs.Alias}\" or \"--{Current.UnitTestsArgs.Original.ToKebabCase()}\" switch to run unit tests code-generation from the command line.",
+            $"- Use \"{Current.UnitTestsDirArgs.Alias}\" or \"--{Current.UnitTestsDirArgs.Original.ToKebabCase()}\" option to set the output dir for the generated unit test project from the command line.");
+        AddEntry(nameof(Current.UnitTests), Current.Value.UnitTests);
+        AddEntry(nameof(Current.UnitTestProjectTargetFramework), Current.Value.UnitTestProjectTargetFramework);
+        AddEntry(nameof(Current.UnitTestProjectLangVersion), Current.Value.UnitTestProjectLangVersion);
+        AddEntry(nameof(Current.UnitTestsDir), Current.Value.UnitTestsDir);
+        AddEntry(nameof(Current.UnitTestsAskRecreate), Current.Value.UnitTestsAskRecreate);
+        AddEntry(nameof(Current.UnitTestsSkipSyncMethods), Current.Value.UnitTestsSkipSyncMethods);
+        AddEntry(nameof(Current.UnitTestsSkipAsyncMethods), Current.Value.UnitTestsSkipAsyncMethods);
 
         sb.AppendLine();
         AddSectionComment(
             "Schema dump script settings",
             null,
-            $"- Use \"{Settings.SchemaDumpArgs.Alias}\" or \"--{Settings.SchemaDumpArgs.Original.ToKebabCase()}\" switch to run schema script dump from the command line.",
-            $"- Use \"{Settings.SchemaDumpFileArgs.Alias}\" or \"--{Settings.SchemaDumpFileArgs.Original.ToKebabCase()}\" option to set generated schema file name from the command line.",
-            $"- Use \"{Settings.SchemaDumpOverwriteArgs.Alias}\" or \"--{Settings.SchemaDumpOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated schema file from the command line.",
-            $"- Use \"--{nameof(Settings.SchemaDumpPrivileges).ToKebabCase()}\" switch to include object privileges in schema file from the command line.");
-        AddEntry(nameof(Settings.SchemaDump), Settings.Value.SchemaDump);
-        AddEntry(nameof(Settings.SchemaDumpFile), Settings.Value.SchemaDumpFile);
-        AddEntry(nameof(Settings.SchemaDumpOverwrite), Settings.Value.SchemaDumpOverwrite);
-        AddEntry(nameof(Settings.SchemaDumpAskOverwrite), Settings.Value.SchemaDumpAskOverwrite);
-        AddEntry(nameof(Settings.SchemaDumpOwners), Settings.Value.SchemaDumpOwners);
-        AddEntry(nameof(Settings.SchemaDumpPrivileges), Settings.Value.SchemaDumpPrivileges);
-        AddEntry(nameof(Settings.SchemaDumpNoDropIfExists), Settings.Value.SchemaDumpNoDropIfExists);
-        AddEntry(nameof(Settings.SchemaDumpOptions), Settings.Value.SchemaDumpOptions);
-        AddEntry(nameof(Settings.SchemaDumpNoTransaction), Settings.Value.SchemaDumpNoTransaction);
+            $"- Use \"{Current.SchemaDumpArgs.Alias}\" or \"--{Current.SchemaDumpArgs.Original.ToKebabCase()}\" switch to run schema script dump from the command line.",
+            $"- Use \"{Current.SchemaDumpFileArgs.Alias}\" or \"--{Current.SchemaDumpFileArgs.Original.ToKebabCase()}\" option to set generated schema file name from the command line.",
+            $"- Use \"{Current.SchemaDumpOverwriteArgs.Alias}\" or \"--{Current.SchemaDumpOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated schema file from the command line.",
+            $"- Use \"--{nameof(Current.SchemaDumpPrivileges).ToKebabCase()}\" switch to include object privileges in schema file from the command line.");
+        AddEntry(nameof(Current.SchemaDump), Current.Value.SchemaDump);
+        AddEntry(nameof(Current.SchemaDumpFile), Current.Value.SchemaDumpFile);
+        AddEntry(nameof(Current.SchemaDumpOverwrite), Current.Value.SchemaDumpOverwrite);
+        AddEntry(nameof(Current.SchemaDumpAskOverwrite), Current.Value.SchemaDumpAskOverwrite);
+        AddEntry(nameof(Current.SchemaDumpOwners), Current.Value.SchemaDumpOwners);
+        AddEntry(nameof(Current.SchemaDumpPrivileges), Current.Value.SchemaDumpPrivileges);
+        AddEntry(nameof(Current.SchemaDumpNoDropIfExists), Current.Value.SchemaDumpNoDropIfExists);
+        AddEntry(nameof(Current.SchemaDumpOptions), Current.Value.SchemaDumpOptions);
+        AddEntry(nameof(Current.SchemaDumpNoTransaction), Current.Value.SchemaDumpNoTransaction);
 
         sb.AppendLine();
         AddSectionComment(
             "Data dump script settings",
             null,
-            $"- Use \"{Settings.DataDumpArgs.Alias}\" or \"--{Settings.DataDumpArgs.Original.ToKebabCase()}\" switch to run data script dump from the command line.",
-            $"- Use \"{Settings.DataDumpFileArgs.Alias}\" or \"--{Settings.DataDumpFileArgs.Original.ToKebabCase()}\" option to set generated data script file name from the command line.",
-            $"- Use \"{Settings.DataDumpOverwriteArgs.Alias}\" or \"--{Settings.DataDumpOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated data script file from the command line.",
-            $"- Use \"{Settings.DataDumpListArgs.Alias}\" or \"--{Settings.DataDumpListArgs.Original.ToKebabCase()}\" set semicolon separated list of tables or queries merged with \"DataDumpTables\" option and to be dumped.");
-        AddEntry(nameof(Settings.DataDump), Settings.Value.DataDump);
-        AddEntry(nameof(Settings.DataDumpFile), Settings.Value.DataDumpFile);
-        AddEntry(nameof(Settings.DataDumpOverwrite), Settings.Value.DataDumpOverwrite);
-        AddEntry(nameof(Settings.DataDumpAskOverwrite), Settings.Value.DataDumpAskOverwrite);
-        AddEntry(nameof(Settings.DataDumpList), Settings.Value.DataDumpList);
-        AddEntry(nameof(Settings.DataDumpTables), Settings.Value.DataDumpTables);
-        AddEntry(nameof(Settings.DataDumpOptions), Settings.Value.DataDumpOptions);
-        AddEntry(nameof(Settings.DataDumpNoTransaction), Settings.Value.DataDumpNoTransaction);
-        AddEntry(nameof(Settings.DataDumpRaw), Settings.Value.DataDumpRaw);
+            $"- Use \"{Current.DataDumpArgs.Alias}\" or \"--{Current.DataDumpArgs.Original.ToKebabCase()}\" switch to run data script dump from the command line.",
+            $"- Use \"{Current.DataDumpFileArgs.Alias}\" or \"--{Current.DataDumpFileArgs.Original.ToKebabCase()}\" option to set generated data script file name from the command line.",
+            $"- Use \"{Current.DataDumpOverwriteArgs.Alias}\" or \"--{Current.DataDumpOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated data script file from the command line.",
+            $"- Use \"{Current.DataDumpListArgs.Alias}\" or \"--{Current.DataDumpListArgs.Original.ToKebabCase()}\" set semicolon separated list of tables or queries merged with \"DataDumpTables\" option and to be dumped.");
+        AddEntry(nameof(Current.DataDump), Current.Value.DataDump);
+        AddEntry(nameof(Current.DataDumpFile), Current.Value.DataDumpFile);
+        AddEntry(nameof(Current.DataDumpOverwrite), Current.Value.DataDumpOverwrite);
+        AddEntry(nameof(Current.DataDumpAskOverwrite), Current.Value.DataDumpAskOverwrite);
+        AddEntry(nameof(Current.DataDumpList), Current.Value.DataDumpList);
+        AddEntry(nameof(Current.DataDumpTables), Current.Value.DataDumpTables);
+        AddEntry(nameof(Current.DataDumpOptions), Current.Value.DataDumpOptions);
+        AddEntry(nameof(Current.DataDumpNoTransaction), Current.Value.DataDumpNoTransaction);
+        AddEntry(nameof(Current.DataDumpRaw), Current.Value.DataDumpRaw);
 
         sb.AppendLine();
         AddSectionComment(
             "Object file tree settings",
             null,
-            $"- Use \"{Settings.DbObjectsArgs.Alias}\" or \"--{Settings.DbObjectsArgs.Original.ToKebabCase()}\" switch to run object files tree dump from the command line.",
-            $"- Use \"{Settings.DbObjectsDirArgs.Alias}\" or \"--{Settings.DbObjectsDirArgs.Original.ToKebabCase()}\" option to set the root output dir from the command line.",
-            $"- Use \"{Settings.DbObjectsOverwriteArgs.Alias}\" or \"--{Settings.DbObjectsOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated files from the command line.");
-        AddEntry(nameof(Settings.DbObjects), Settings.Value.DbObjects);
-        AddEntry(nameof(Settings.DbObjectsDir), Settings.Value.DbObjectsDir);
-        AddEntry(nameof(Settings.DbObjectsOverwrite), Settings.Value.DbObjectsOverwrite);
-        AddEntry(nameof(Settings.DbObjectsAskOverwrite), Settings.Value.DbObjectsAskOverwrite);
-        AddEntry(nameof(Settings.DbObjectsDirNames), Settings.Value.DbObjectsDirNames);
-        AddEntry(nameof(Settings.DbObjectsSkipDeleteDir), Settings.Value.DbObjectsSkipDeleteDir);
+            $"- Use \"{Current.DbObjectsArgs.Alias}\" or \"--{Current.DbObjectsArgs.Original.ToKebabCase()}\" switch to run object files tree dump from the command line.",
+            $"- Use \"{Current.DbObjectsDirArgs.Alias}\" or \"--{Current.DbObjectsDirArgs.Original.ToKebabCase()}\" option to set the root output dir from the command line.",
+            $"- Use \"{Current.DbObjectsOverwriteArgs.Alias}\" or \"--{Current.DbObjectsOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated files from the command line.");
+        AddEntry(nameof(Current.DbObjects), Current.Value.DbObjects);
+        AddEntry(nameof(Current.DbObjectsDir), Current.Value.DbObjectsDir);
+        AddEntry(nameof(Current.DbObjectsOverwrite), Current.Value.DbObjectsOverwrite);
+        AddEntry(nameof(Current.DbObjectsAskOverwrite), Current.Value.DbObjectsAskOverwrite);
+        AddEntry(nameof(Current.DbObjectsDirNames), Current.Value.DbObjectsDirNames);
+        AddEntry(nameof(Current.DbObjectsSkipDeleteDir), Current.Value.DbObjectsSkipDeleteDir);
         //AddEntry(nameof(Settings.DbObjectsRemoveExistingDirs), Settings.Value.DbObjectsRemoveExistingDirs);
-        AddEntry(nameof(Settings.DbObjectsOwners), Settings.Value.DbObjectsOwners);
-        AddEntry(nameof(Settings.DbObjectsPrivileges), Settings.Value.DbObjectsPrivileges);
-        AddEntry(nameof(Settings.DbObjectsCreateOrReplace), Settings.Value.DbObjectsCreateOrReplace);
-        AddEntry(nameof(Settings.DbObjectsRaw), Settings.Value.DbObjectsRaw);
+        AddEntry(nameof(Current.DbObjectsOwners), Current.Value.DbObjectsOwners);
+        AddEntry(nameof(Current.DbObjectsPrivileges), Current.Value.DbObjectsPrivileges);
+        AddEntry(nameof(Current.DbObjectsCreateOrReplace), Current.Value.DbObjectsCreateOrReplace);
+        AddEntry(nameof(Current.DbObjectsRaw), Current.Value.DbObjectsRaw);
 
         sb.AppendLine();
         AddSectionComment(
             "Markdown (MD) database dictionaries settings",
             null,
-            $"- Use \"{Settings.MarkdownArgs.Alias}\" or \"--{Settings.MarkdownArgs.Original.ToKebabCase()}\" switch to run markdown (MD) database dictionary file from the command line.",
-            $"- Use \"{Settings.MdFileArgs.Alias}\" or \"--{Settings.MdFileArgs.Original.ToKebabCase()}\" option to set generated dictionary file name from the command line.",
-            $"- Use \"{Settings.CommitMdArgs.Alias}\" or \"--{Settings.CommitMdArgs.Original.ToKebabCase()}\" switch to run commit changes in comments from the MD file back to the database from the command line.");
-        AddEntry(nameof(Settings.Markdown), Settings.Value.Markdown);
-        AddEntry(nameof(Settings.MdFile), Settings.Value.MdFile);
-        AddEntry(nameof(Settings.MdSchemaSimilarTo), Settings.Value.MdSchemaSimilarTo);
-        AddEntry(nameof(Settings.MdSchemaNotSimilarTo), Settings.Value.MdSchemaNotSimilarTo);
-        AddEntry(nameof(Settings.MdOverwrite), Settings.Value.MdOverwrite);
-        AddEntry(nameof(Settings.MdAskOverwrite), Settings.Value.MdAskOverwrite);
-        AddEntry(nameof(Settings.MdSkipRoutines), Settings.Value.MdSkipRoutines);
-        AddEntry(nameof(Settings.MdSkipViews), Settings.Value.MdSkipViews);
-        AddEntry(nameof(Settings.MdSkipEnums), Settings.Value.MdSkipEnums);
-        AddEntry(nameof(Settings.MdNotSimilarTo), Settings.Value.MdNotSimilarTo);
-        AddEntry(nameof(Settings.MdSimilarTo), Settings.Value.MdSimilarTo);
-        AddEntry(nameof(Settings.MdIncludeSourceLinks), Settings.Value.MdIncludeSourceLinks);
-        AddEntry(nameof(Settings.MdIncludeExtensionLinks), Settings.Value.MdIncludeExtensionLinks);
-        AddEntry(nameof(Settings.MdIncludeUnitTestsLinks), Settings.Value.MdIncludeUnitTestsLinks);
-        AddEntry(nameof(Settings.MdSourceLinkRoot), Settings.Value.MdSourceLinkRoot);
-        AddEntry(nameof(Settings.MdIncludeTableCountEstimates), Settings.Value.MdIncludeTableCountEstimates);
-        AddEntry(nameof(Settings.MdIncludeTableStats), Settings.Value.MdIncludeTableStats);
-        AddEntry(nameof(Settings.MdRoutinesFirst), Settings.Value.MdRoutinesFirst);
-        AddEntry(nameof(Settings.MdExportToHtml), Settings.Value.MdExportToHtml);
-        AddEntry(nameof(Settings.CommitMd), Settings.Value.CommitMd);
+            $"- Use \"{Current.MarkdownArgs.Alias}\" or \"--{Current.MarkdownArgs.Original.ToKebabCase()}\" switch to run markdown (MD) database dictionary file from the command line.",
+            $"- Use \"{Current.MdFileArgs.Alias}\" or \"--{Current.MdFileArgs.Original.ToKebabCase()}\" option to set generated dictionary file name from the command line.",
+            $"- Use \"{Current.CommitMdArgs.Alias}\" or \"--{Current.CommitMdArgs.Original.ToKebabCase()}\" switch to run commit changes in comments from the MD file back to the database from the command line.");
+        AddEntry(nameof(Current.Markdown), Current.Value.Markdown);
+        AddEntry(nameof(Current.MdFile), Current.Value.MdFile);
+        AddEntry(nameof(Current.MdSchemaSimilarTo), Current.Value.MdSchemaSimilarTo);
+        AddEntry(nameof(Current.MdSchemaNotSimilarTo), Current.Value.MdSchemaNotSimilarTo);
+        AddEntry(nameof(Current.MdOverwrite), Current.Value.MdOverwrite);
+        AddEntry(nameof(Current.MdAskOverwrite), Current.Value.MdAskOverwrite);
+        AddEntry(nameof(Current.MdSkipRoutines), Current.Value.MdSkipRoutines);
+        AddEntry(nameof(Current.MdSkipViews), Current.Value.MdSkipViews);
+        AddEntry(nameof(Current.MdSkipEnums), Current.Value.MdSkipEnums);
+        AddEntry(nameof(Current.MdNotSimilarTo), Current.Value.MdNotSimilarTo);
+        AddEntry(nameof(Current.MdSimilarTo), Current.Value.MdSimilarTo);
+        AddEntry(nameof(Current.MdIncludeSourceLinks), Current.Value.MdIncludeSourceLinks);
+        AddEntry(nameof(Current.MdIncludeExtensionLinks), Current.Value.MdIncludeExtensionLinks);
+        AddEntry(nameof(Current.MdIncludeUnitTestsLinks), Current.Value.MdIncludeUnitTestsLinks);
+        AddEntry(nameof(Current.MdSourceLinkRoot), Current.Value.MdSourceLinkRoot);
+        AddEntry(nameof(Current.MdIncludeTableCountEstimates), Current.Value.MdIncludeTableCountEstimates);
+        AddEntry(nameof(Current.MdIncludeTableStats), Current.Value.MdIncludeTableStats);
+        AddEntry(nameof(Current.MdRoutinesFirst), Current.Value.MdRoutinesFirst);
+        AddEntry(nameof(Current.MdExportToHtml), Current.Value.MdExportToHtml);
+        AddEntry(nameof(Current.CommitMd), Current.Value.CommitMd);
 
         sb.AppendLine();
         AddSectionComment(
             "PSQL command-line utility settings",
             null,
-            $"- Use \"{Settings.PsqlArgs.Alias}\" or \"--{Settings.PsqlArgs.Original.ToKebabCase()}\" switch to open PSQL command-line utility from the command line.");
-        AddEntry(nameof(Settings.Psql), Settings.Value.Psql);
-        AddEntry(nameof(Settings.PsqlTerminal), Settings.Value.PsqlTerminal);
-        AddEntry(nameof(Settings.PsqlCommand), Settings.Value.PsqlCommand);
-        AddEntry(nameof(Settings.PsqlFallback), Settings.Value.PsqlFallback);
-        AddEntry(nameof(Settings.PsqlOptions), Settings.Value.PsqlOptions);
+            $"- Use \"{Current.PsqlArgs.Alias}\" or \"--{Current.PsqlArgs.Original.ToKebabCase()}\" switch to open PSQL command-line utility from the command line.");
+        AddEntry(nameof(Current.Psql), Current.Value.Psql);
+        AddEntry(nameof(Current.PsqlTerminal), Current.Value.PsqlTerminal);
+        AddEntry(nameof(Current.PsqlCommand), Current.Value.PsqlCommand);
+        AddEntry(nameof(Current.PsqlFallback), Current.Value.PsqlFallback);
+        AddEntry(nameof(Current.PsqlOptions), Current.Value.PsqlOptions);
 
         sb.AppendLine();
         AddSectionComment(
             "Diff scripts settings",
             null,
-            $"- Use \"{Settings.DiffArgs.Alias}\" or \"--{Settings.DiffArgs.Original.ToKebabCase()}\" switch to run diff script generation from the command line.",
-            $"- Use \"{Settings.DiffTargetArgs.Alias}\" or \"--{Settings.DiffTargetArgs.Original.ToKebabCase()}\" option to set target connection for the diff script generator from the command line.");
-        AddEntry(nameof(Settings.Diff), Settings.Value.Diff);
-        AddEntry(nameof(Settings.DiffTarget), Settings.Value.DiffTarget);
-        AddEntry(nameof(Settings.DiffFilePattern), Settings.Value.DiffFilePattern);
-        AddEntry(nameof(Settings.DiffPgDump), Settings.Value.DiffPgDump);
-        AddEntry(nameof(Settings.DiffPrivileges), Settings.Value.DiffPrivileges);
-        AddEntry(nameof(Settings.DiffSkipSimilarTo), Settings.Value.DiffSkipSimilarTo);
+            $"- Use \"{Current.DiffArgs.Alias}\" or \"--{Current.DiffArgs.Original.ToKebabCase()}\" switch to run diff script generation from the command line.",
+            $"- Use \"{Current.DiffTargetArgs.Alias}\" or \"--{Current.DiffTargetArgs.Original.ToKebabCase()}\" option to set target connection for the diff script generator from the command line.");
+        AddEntry(nameof(Current.Diff), Current.Value.Diff);
+        AddEntry(nameof(Current.DiffTarget), Current.Value.DiffTarget);
+        AddEntry(nameof(Current.DiffFilePattern), Current.Value.DiffFilePattern);
+        AddEntry(nameof(Current.DiffPgDump), Current.Value.DiffPgDump);
+        AddEntry(nameof(Current.DiffPrivileges), Current.Value.DiffPrivileges);
+        AddEntry(nameof(Current.DiffSkipSimilarTo), Current.Value.DiffSkipSimilarTo);
 
         sb.AppendLine();
         AddSectionComment(
             "CRUD scripts settings",
             null,
-            $"- Use \"{Settings.CrudArgs.Alias}\" or \"--{Settings.CrudArgs.Original.ToKebabCase()}\" switch to run CRUD extension methods generation from the command line.",
-            $"- Use \"{Settings.CrudOutputDirArgs.Alias}\" or \"--{Settings.CrudOutputDirArgs.Original.ToKebabCase()}\" option to set the custom models output dir for the generated CRUD extension methods code from the command line.");
-        AddEntry(nameof(Settings.Crud), Settings.Value.Crud);
-        AddEntry(nameof(Settings.CrudOutputDir), Settings.Value.CrudOutputDir);
-        AddEntry(nameof(Settings.CrudEmptyOutputDir), Settings.Value.CrudEmptyOutputDir);
-        AddEntry(nameof(Settings.CrudOverwrite), Settings.Value.CrudOverwrite);
-        AddEntry(nameof(Settings.CrudAskOverwrite), Settings.Value.CrudAskOverwrite);
-        AddEntry(nameof(Settings.CrudNoPrepare), Settings.Value.CrudNoPrepare);
-        AddEntry(nameof(Settings.CrudReturnMethods), Settings.Value.CrudReturnMethods);
-        AddEntry(nameof(Settings.CrudCreate), Settings.Value.CrudCreate);
-        AddEntry(nameof(Settings.CrudCreateReturning), Settings.Value.CrudCreateReturning);
-        AddEntry(nameof(Settings.CrudCreateOnConflictDoNothing), Settings.Value.CrudCreateOnConflictDoNothing);
-        AddEntry(nameof(Settings.CrudCreateOnConflictDoNothingReturning), Settings.Value.CrudCreateOnConflictDoNothingReturning);
-        AddEntry(nameof(Settings.CrudCreateOnConflictDoUpdate), Settings.Value.CrudCreateOnConflictDoUpdate);
-        AddEntry(nameof(Settings.CrudCreateOnConflictDoUpdateReturning), Settings.Value.CrudCreateOnConflictDoUpdateReturning);
-        AddEntry(nameof(Settings.CrudReadBy), Settings.Value.CrudReadBy);
-        AddEntry(nameof(Settings.CrudReadAll), Settings.Value.CrudReadAll);
-        AddEntry(nameof(Settings.CrudUpdate), Settings.Value.CrudUpdate);
-        AddEntry(nameof(Settings.CrudUpdateReturning), Settings.Value.CrudUpdateReturning);
-        AddEntry(nameof(Settings.CrudDeleteBy), Settings.Value.CrudDeleteBy);
-        AddEntry(nameof(Settings.CrudDeleteByReturning), Settings.Value.CrudDeleteByReturning, "");
+            $"- Use \"{Current.CrudArgs.Alias}\" or \"--{Current.CrudArgs.Original.ToKebabCase()}\" switch to run CRUD extension methods generation from the command line.",
+            $"- Use \"{Current.CrudOutputDirArgs.Alias}\" or \"--{Current.CrudOutputDirArgs.Original.ToKebabCase()}\" option to set the custom models output dir for the generated CRUD extension methods code from the command line.");
+        AddEntry(nameof(Current.Crud), Current.Value.Crud);
+        AddEntry(nameof(Current.CrudOutputDir), Current.Value.CrudOutputDir);
+        AddEntry(nameof(Current.CrudEmptyOutputDir), Current.Value.CrudEmptyOutputDir);
+        AddEntry(nameof(Current.CrudOverwrite), Current.Value.CrudOverwrite);
+        AddEntry(nameof(Current.CrudAskOverwrite), Current.Value.CrudAskOverwrite);
+        AddEntry(nameof(Current.CrudNoPrepare), Current.Value.CrudNoPrepare);
+        AddEntry(nameof(Current.CrudReturnMethods), Current.Value.CrudReturnMethods);
+        AddEntry(nameof(Current.CrudCreate), Current.Value.CrudCreate);
+        AddEntry(nameof(Current.CrudCreateReturning), Current.Value.CrudCreateReturning);
+        AddEntry(nameof(Current.CrudCreateOnConflictDoNothing), Current.Value.CrudCreateOnConflictDoNothing);
+        AddEntry(nameof(Current.CrudCreateOnConflictDoNothingReturning), Current.Value.CrudCreateOnConflictDoNothingReturning);
+        AddEntry(nameof(Current.CrudCreateOnConflictDoUpdate), Current.Value.CrudCreateOnConflictDoUpdate);
+        AddEntry(nameof(Current.CrudCreateOnConflictDoUpdateReturning), Current.Value.CrudCreateOnConflictDoUpdateReturning);
+        AddEntry(nameof(Current.CrudReadBy), Current.Value.CrudReadBy);
+        AddEntry(nameof(Current.CrudReadAll), Current.Value.CrudReadAll);
+        AddEntry(nameof(Current.CrudUpdate), Current.Value.CrudUpdate);
+        AddEntry(nameof(Current.CrudUpdateReturning), Current.Value.CrudUpdateReturning);
+        AddEntry(nameof(Current.CrudDeleteBy), Current.Value.CrudDeleteBy);
+        AddEntry(nameof(Current.CrudDeleteByReturning), Current.Value.CrudDeleteByReturning, "");
 
         if (wrap)
         {

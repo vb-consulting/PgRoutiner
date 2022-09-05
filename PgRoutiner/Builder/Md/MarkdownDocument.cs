@@ -8,7 +8,7 @@ namespace PgRoutiner.Builder.Md;
 public class MarkdownDocument
 {
     private string I1 => string.Join("", Enumerable.Repeat(" ", settings.Ident));
-    private readonly Settings settings;
+    private readonly Current settings;
     private readonly NpgsqlConnection connection;
     private readonly string NL = "\n";
 
@@ -24,7 +24,7 @@ public class MarkdownDocument
     private static string EndTag => $"{Open}end{Close}";
     private static string Hashtag(string name) => $"<a id=\"user-content-{name}\" href=\"#{name}\">#</a>";
 
-    public MarkdownDocument(Settings settings, NpgsqlConnection connection)
+    public MarkdownDocument(Current settings, NpgsqlConnection connection)
     {
         this.settings = settings;
         this.connection = connection;
@@ -576,7 +576,7 @@ public class MarkdownDocument
                 header.AppendLine($"- Schema file: [{file}]({file})");
             }
 
-            if (Settings.Value.DataDumpFile != null)
+            if (Current.Value.DataDumpFile != null)
             {
                 var file = PathoToUrl(string.Format(settings.DataDumpFile, connectionName));
                 var line = $"- Data file: [{file}]({file})";

@@ -6,7 +6,7 @@ namespace PgRoutiner.Builder.CodeBuilders.Crud;
 public class CrudUpdateReturningCode : CrudCodeBase
 {
     public CrudUpdateReturningCode(
-        Settings settings,
+        Current settings,
         (string schema, string name) item,
         string @namespace,
         IEnumerable<PgColumnGroup> columns) : base(settings, item, @namespace, columns, "UpdateReturning")

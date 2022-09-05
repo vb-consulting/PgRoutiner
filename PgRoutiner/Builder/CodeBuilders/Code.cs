@@ -27,7 +27,7 @@ public abstract class Code
     protected string I5 => Ident(5);
 
     protected readonly string NL = Environment.NewLine;
-    protected readonly Settings settings;
+    protected readonly Current settings;
 
     public string Name { get; set; }
     public Dictionary<string, StringBuilder> Models { get; private set; } = new();
@@ -37,7 +37,7 @@ public abstract class Code
     public List<Method> Methods { get; } = new();
     public string ModuleNamespace { get; set; }
 
-    public Code(Settings settings, string name)
+    public Code(Current settings, string name)
     {
         this.settings = settings;
         Name = name;

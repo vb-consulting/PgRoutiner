@@ -1,41 +1,41 @@
 ﻿# PgRoutiner Cheat Sheet
 
-## TOC
-
-- [Installation](#installation)
-- [Connection Managament](#connection-managament)
-- [Silent console output and basic configuration](#silent-console-output-and-basic-configuration)
-- [List database objects](#list-database-objects)
-- [Create default configuration file](#create-default-configuration-file)
-- [Objects definitions](#objects-definitions)
-- [Generate insert statements](#generate-insert-statements)
-- [Executing SQL scripts and PSQL commands](#executing-sql-scripts-and-psql-commands)
-- [Open PSQL command-line tool](#open-psql-command-line-tool)
-- [Dump schema](#dump-schema)
-- [Create object tree files](#create-object-tree-files)
-- [Build readme markdown database dictionary](#build-readme-markdown-database-dictionary)
-- [Routines data-access code generation](#routines-data-access-code-generation)
-- [CRUD data-access code generation](#crud-data-access-code-generation)
-- [Database difference script](#database-difference-script)
-- [Troubleshooting](#troubleshooting)
+- [PgRoutiner Cheat Sheet](#pgroutiner-cheat-sheet)
+    - [Installation](#installation)
+    - [Connection Management](#connection-management)
+    - [Basic configuration](#basic-configuration)
+    - [Create default configuration file](#create-default-configuration-file)
+    - [List database objects](#list-database-objects)
+    - [Objects definitions (DDL)](#objects-definitions-ddl)
+    - [Generate insert statements](#generate-insert-statements)
+    - [Executing SQL scripts and PSQL commands](#executing-sql-scripts-and-psql-commands)
+    - [Open PSQL command-line tool](#open-psql-command-line-tool)
+    - [Dump schema](#dump-schema)
+    - [Backup and restore](#backup-and-restore)
+    - [Create object tree](#create-object-tree)
+    - [Build readme markdown database dictionary](#build-readme-markdown-database-dictionary)
+    - [Routines data-access code generation](#routines-data-access-code-generation)
+    - [CRUD data-access code generation](#crud-data-access-code-generation)
+    - [Database difference script](#database-difference-script)
+    - [Troubleshooting](#troubleshooting)
 
 ### Installation
 
 ```
 $ dotnet tool install --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' (version '3.14.0') was successfully installed.
+Tool 'dotnet-pgroutiner' (version '3.16.0') was successfully installed.
 ```
 
 To update:
 
 ```
 $ dotnet tool update --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' was successfully updated from version '3.13.0' to version '3.14.0'.
+Tool 'dotnet-pgroutiner' was successfully updated from version '3.15.0' to version '3.16.0'.
 ```
 
-### Connection Managament
+### Connection Management
 
-- PgRoutiner is designed to run from the .NET project root, and it will read any available connections from standard configuration files (`appsettings.Development.json`, `appsettings.json`, in that order, or the custom configuration file `appsettings.PgRoutiner.json`).
+- `pgroutiner` is designed to run from the .NET project root, and it will read any available connections from standard configuration files (`appsettings.Development.json`, `appsettings.json`, in that order, or the custom configuration file `appsettings.PgRoutiner.json`).
 
 - It will use the first available connection string from the `ConnectionStrings` section:
 
@@ -47,6 +47,8 @@ appsettings.json
   }
 }
 ```
+
+- Note: this is the [Npgsql connection string format](https://www.npgsql.org/doc/connection-string-parameters.html).
 
 - Running simple info command to test the connection:
 ```
@@ -118,7 +120,7 @@ Using connection Server=localhost;Db=pdd;Port=5433;User Id=postgres;Password=pos
  Host=localhost;Database=pdd;Port=5433;Username=postgres
 ```
 
-- Both, command-line and configuration files can use PostgreSQL URL format `postgresql://{user}:{password}@{server}:{port}/{database}` - instead of connection string:
+- Both, command-line and configuration files can take advantage of the PostgreSQL URL format `postgresql://{user}:{password}@{server}:{port}/{database}` - instead of [Npgsql connection string](https://www.npgsql.org/doc/connection-string-parameters.html):
 
 
 ```json
@@ -145,7 +147,7 @@ Using connection postgresql://postgres:postgres@localhost:5432/test:
   - `PGUSER` to replace the missing user parameter.
   - `PGPASSWORD` or `PGPASS` to replace the missing password parameter.
 
-### Silent console output and basic configuration
+### Basic configuration
 
 - By default PgRoutiner will output a lot of information in the console like:
 
@@ -163,32 +165,42 @@ Using connection postgresql://postgres:postgres@localhost:5432/test:
 ~$ pgroutiner --list --silent
 
 ... list output
+
 ```
 
-- To permanently turn this option on, use the following configuration:
+- To **permanently turn this option on, use the following configuration**:
 
 `appsettings.json` or `appsettings.Development.json` or `appsettings.PgRoutiner.json`:
 ```json
 {
   "ConnectionStrings": {
     "TestConnection": "postgresql://postgres:postgres@localhost:5432/test"
-  }
+  },
   "PgRoutiner": {
     "Silent": true
   }
 }
 ```
 
-- Every command and switch can be set in a configuration like this. The Command line will always override the configuration setting.
+- Every command and switch can be set in a configuration like this. 
+
+- The Command line will always override the configuration setting.
+
+- For a boolean values (like this `Silent` for example), the default value is `false`, and you can set it to `true` by simply including that option in console (like `-silent` or `--silent`).
+
+- Fox boolean values `false` or `0` and `true` or `1` are acceptable.
+
+- Any configuration value can be overridden with a command line with the same name, where multiple words are separated by the minus sign `-`. For example `Connection` settings will be `--connection` in console, but `SkipConnectionPrompt` will be `--skip-connection-prompt`.
+
 
 ### Create default configuration file
 
 - You can create a default configuration file that contains all available options and settings.
 
-- Simply run `pgroutiner` without any command line parameters and if `PgRoutiner` configuration is not found you will be prompted with the question:
+- Simply run `pgroutiner` without any command line parameters and if `pgroutiner` configuration is not found you will be prompted with the question:
 
 ```
-You don't seem to be using any available command-line commands and PgRoutiner configuration seems to be missing.
+You don't seem to be using any available command-line commands and `pgroutiner` configuration seems to be missing.
 Would you like to create a custom settings file "appsettings.PgRoutiner.json" with your current values?
 This settings configuration file can be used to change settings for this directory without using a command-line.
 Create "appsettings.PgRoutiner.json" in this dir [Y/N]?
@@ -198,9 +210,6 @@ Settings file appsettings.PgRoutiner.json successfully created!
 ```
 
 - Note: this `appsettings.PgRoutiner.json` will contain all default configuration values. You can move this section to `appsettings.json` or `appsettings.Development.json`, whichever suits the best.
-
-- Any configuration value can be overridden with a command line with the same name, where multiple words are separated by the minus sign `-`.
-For example `Connection` settings will be `--connection` in console, but `SkipConnectionPrompt` will be `--skip-connection-prompt`.
 
 ### List database objects
 
@@ -268,7 +277,19 @@ FUNCTION reporting.chart_employee_counts_by_area(integer)
 FUNCTION reporting.chart_employee_counts_by_year(integer)
 ```
 
-### Objects definitions
+- You can also use `--schema--not-similar-to` to exclude schemas NOT similar to expression:
+
+```
+~$ pgroutiner --list --schema-not-similar-to public
+SCHEMA reporting
+EXTENSION plpgsql
+EXTENSION pg_trgm
+FUNCTION reporting.chart_companies_by_country(integer)
+FUNCTION reporting.chart_employee_counts_by_area(integer)
+FUNCTION reporting.chart_employee_counts_by_year(integer)
+```
+
+### Objects definitions (DDL)
 
 - To view object definition use `-def` or `--definition` option:
 
@@ -360,6 +381,29 @@ COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching
 
 ```
 $ pgroutiner -def valid_genders
+--
+-- Type: valid_genders
+--
+CREATE TYPE public.valid_genders AS ENUM (
+    'M',
+    'F'
+);
+
+ALTER TYPE public.valid_genders OWNER TO postgres;
+COMMENT ON TYPE public.valid_genders IS 'There are only two genders.';
+```
+
+- If you want to view DDL definition for multiple objects you can separate names by `;`, and use quotes, for example:
+
+```
+$ pgroutiner -def "reporting;valid_genders"
+--
+-- Schema: reporting
+--
+CREATE SCHEMA reporting;
+
+ALTER SCHEMA reporting OWNER TO postgres;
+
 --
 -- Type: valid_genders
 --
@@ -501,6 +545,14 @@ $ pgroutiner -x test.sql
 (13 rows)
 ```
 
+- You can also specify a file search mask to execute multiple files:
+
+```
+$ pgroutiner -x *.sql
+
+... 
+```
+
 - You can use specific PSQL commands to run, for example, to list all tables:
 
 ```
@@ -523,8 +575,35 @@ $ pgroutiner -x "\dt"
 (12 rows)
 ```
 
-- For other PSQL commands, please consult with the internet.
+- You can combine multiple commands separated by semicolon `;`, For example following command will set output format to HTML with `\H` command and then execute the query:
 
+```
+$ pgroutiner -x "\H;select * from countries limit 1"
+Output format is html.
+<table border="1">
+  <tr>
+    <th align="center">code</th>
+    <th align="center">iso2</th>
+    <th align="center">iso3</th>
+    <th align="center">name</th>
+    <th align="center">name_normalized</th>
+    <th align="center">culture</th>
+  </tr>
+  <tr valign="top">
+    <td align="right">474</td>
+    <td align="left">MQ</td>
+    <td align="left">MTQ</td>
+    <td align="left">Martinique</td>
+    <td align="left">martinique</td>
+    <td align="left">&nbsp; </td>
+  </tr>
+</table>
+<p>(1 row)<br />
+</p>
+```
+
+- You can combine multiple commands and files separated by semicolon `;` too.
+  
 ### Open PSQL command-line tool
 
 ```
@@ -584,9 +663,15 @@ $ pgroutiner --schema-dump > dump.sql
 
 - Dumping to a file with `--schema-dump-file` has more options, see the configuration file for all available options.
 
-### Create object tree files
+### Backup and restore
 
-- PgRoutiner can create one file for each database object containing object DDL definition, in respective directories (tables, views, functions, etc) - by using `-db` or `--db-objects` switch
+- Use `-backup` or `--backup` to backup database.
+
+- Use `-restore` or `--restore` to restore database.
+
+### Create object tree
+
+- `pgroutiner` can create one file for each database object containing object DDL definition, in respective directories (tables, views, functions, etc) - by using `-db` or `--db-objects` switch
 
 When you run `$ pgroutiner -db` or `$ pgroutiner --db-objects`, and not in silent mode, you will see output like this:
 
@@ -636,12 +721,14 @@ Creating markdown file Database/TestConnection/README.md ...
 
 - Use `--md-export-to-html` to create HTML version as well.
 
+- 
+
 ### Routines data-access code generation
 ### CRUD data-access code generation
 ### Database difference script
 ### Troubleshooting
 
-Depending on the command, this tool will start external processes with PostgreSQL client tools like `psql` or `pg_dump`.
+Depending on the command, this tool will start external processes with PostgreSQL client tools like `psql`, `pg_dump` or `pg_restore`.
 
 That means, that PostgreSQL client tools must be installed on the system. PostgreSQL client tools will be installed by default with every PostgreSQL installation.
 
@@ -649,7 +736,7 @@ If you don't want a server, but only client tools:
 - For windows systems, there is option "client tools only" option in the installer.
 - For Linux systems, installing package `postgresql-client` would be enough, something like `$ sudo apt-get install -y postgresql-client`, but depends on the system.
 
-When PgRoutiner calls an external tool, it will first try to call the default alias `psql` or `pg_dump`. Then, if the version of the tool doesn't match the version from the connection it will try to locate the executable on the default location:
+When `pgroutiner` calls an external tool, it will first try to call the default alias `psql` or `pg_dump`. Then, if the version of the tool doesn't match the version from the connection it will try to locate the executable on the default location:
 
 - `C:\Program Files\PostgreSQL\{0}\bin\pg_dump.exe` and `C:\Program Files\PostgreSQL\{0}\bin\psql.exe` for windows systems.
 - `/usr/lib/postgresql/{0}/bin/pg_dump` and `/usr/lib/postgresql/{0}/bin/psql` for Linux systems.

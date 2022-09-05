@@ -6,7 +6,7 @@ public class Executor
 {
     public static void Execute(NpgsqlConnection connection, string content)
     {
-        if (Settings.Value.Dump)
+        if (Current.Value.DumpConsole)
         {
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write(content);
@@ -24,7 +24,7 @@ public class Executor
         }
         Program.WriteLine("");
 
-        if (!Settings.Value.Dump)
+        if (!Current.Value.DumpConsole)
         {
             connection.Execute(content);
         }
@@ -32,11 +32,11 @@ public class Executor
 
     public static bool ExecuteFromSetting(NpgsqlConnection connection)
     {
-        if (Settings.Value.Execute == null)
+        if (Current.Value.Execute == null)
         {
             return false;
         }
-        var file = Path.GetFullPath(Path.Combine(Program.CurrentDir, Settings.Value.Execute));
+        var file = Path.GetFullPath(Path.Combine(Program.CurrentDir, Current.Value.Execute));
         if (File.Exists(file))
         {
             ExecuteFile(connection, file);
@@ -63,7 +63,16 @@ public class Executor
 
     public static void ExecutePsql(NpgsqlConnection connection)
     {
-        new PsqlRunner(Settings.Value, connection).Run($"-c \"{Settings.Value.Execute}\"");
+        var split = Current.Value.Execute.Split(';');
+        var execute = string.Join(" ", split.Select(s =>
+        {
+            if (File.Exists(s))
+            {
+                return $"-f \"{s}\"";
+            }
+            return $"-c \"{s}\"";
+        }));
+        new PsqlRunner(Current.Value, connection).Run(execute);
     }
 
     public static void ExecuteFile(NpgsqlConnection connection, string fileName)
@@ -72,7 +81,7 @@ public class Executor
         {
             Writer.Dump("");
             Writer.DumpRelativePath("Executing file {0} ...", fileName);
-            new PsqlRunner(Settings.Value, connection).Run($"-f \"{fileName}\"");
+            new PsqlRunner(Current.Value, connection).Run($"-f \"{fileName}\"");
         } 
         catch
         {

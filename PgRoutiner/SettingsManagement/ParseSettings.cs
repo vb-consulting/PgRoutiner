@@ -6,46 +6,10 @@ using Microsoft.Extensions.Configuration;
 
 namespace PgRoutiner.SettingsManagement
 {
-    public partial class Settings
+    public partial class Current
     {
         public static IConfigurationRoot ParseSettings(string[] args, string pgroutinerSettingsFile)
         {
-            var argsList = args.ToList();
-
-            void ParseSwitches(object instance, bool setValue = false)
-            {
-                foreach(var prop in instance.GetType().GetProperties())
-                {
-                    if (prop.PropertyType != typeof(bool))
-                    {
-                        continue;
-                    }
-                    Arg argNames;
-                    var argField = typeof(Settings).GetField($"{prop.Name}Args");
-                    if (argField != null)
-                    {
-                        argNames = (Arg)argField.GetValue(null);
-                    }
-                    else
-                    {
-                        argNames = new Arg($"--{prop.Name.ToLower()}", prop.Name);
-                    }
-                    if (Program.ArgsInclude(args, argNames))
-                    {
-                        prop.SetValue(instance, true);
-                        argsList.Remove(argNames.Alias);
-                        argsList.Remove(argNames.Name);
-                        if (setValue)
-                        {
-                            argsList.Add(argNames.Name);
-                            argsList.Add("True");
-                        }
-                    }
-                }
-            }
-            ParseSwitches(Switches.Value);
-            ParseSwitches(Value, true);
-
             var pgroutinerFile = Path.Join(Program.CurrentDir, pgroutinerSettingsFile);
             var pgroutinerFile2 = Path.Join(Program.CurrentDir, "pgroutiner.json");
             var settingsFile = Path.Join(Program.CurrentDir, "appsettings.json");
@@ -122,7 +86,7 @@ namespace PgRoutiner.SettingsManagement
                 }
 
                 Dictionary<string, string> switchMappings = new();
-                foreach (var f in typeof(Settings).GetFields())
+                foreach (var f in typeof(Current).GetFields())
                 {
                     if (f.FieldType != typeof(Arg))
                     {
@@ -132,7 +96,7 @@ namespace PgRoutiner.SettingsManagement
                     switchMappings[arg.Alias] = arg.Original;
                 }
                 new ConfigurationBuilder()
-                    .AddCommandLine(argsList.ToArray(), switchMappings)
+                    .AddCommandLine(args.ToArray(), switchMappings)
                     .Build()
                     .Bind(Value);
             }
@@ -142,7 +106,7 @@ namespace PgRoutiner.SettingsManagement
                 return null;
             }
 
-            Info.ShowStartupInfo();
+            ProgramInfo.ShowStartupInfo();
 
             if (files.Count > 0)
             {
@@ -150,7 +114,7 @@ namespace PgRoutiner.SettingsManagement
                 Program.WriteLine(ConsoleColor.Cyan, files.ToArray());
             }
 
-            foreach (var prop in typeof(Settings).GetProperties())
+            foreach (var prop in typeof(Current).GetProperties())
             {
                 if (prop.PropertyType != typeof(string))
                 {

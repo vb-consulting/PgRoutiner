@@ -6,7 +6,7 @@ public class UnitTestCode : Code
 {
     private readonly ExtensionMethods ext;
 
-    public UnitTestCode(Settings settings, string name, ExtensionMethods ext) : base(settings, name)
+    public UnitTestCode(Current settings, string name, ExtensionMethods ext) : base(settings, name)
     {
         this.ext = ext;
         Build();

@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 
 namespace PgRoutiner;
 
@@ -6,7 +8,7 @@ static partial class Program
 {
     public static void WriteLine(ConsoleColor? color, params string[] lines)
     {
-        if (Settings.Value.Silent)
+        if (Current.Value.Silent)
         {
             return;
         }
@@ -26,7 +28,7 @@ static partial class Program
 
     public static void Write(ConsoleColor? color, string line)
     {
-        if (Settings.Value.Silent)
+        if (Current.Value.Silent)
         {
             return;
         }
@@ -43,7 +45,7 @@ static partial class Program
 
     public static void Write(string line)
     {
-        if (Settings.Value.Silent)
+        if (Current.Value.Silent)
         {
             return;
         }
@@ -52,7 +54,7 @@ static partial class Program
 
     public static void WriteLine(params string[] lines)
     {
-        if (Settings.Value.Silent)
+        if (Current.Value.Silent)
         {
             return;
         }
@@ -83,51 +85,35 @@ static partial class Program
         return answer;
     }
 
-    public static bool ArgsInclude(string[] args, Arg value)
+    public static Current BindConsole(string[] args)
     {
-        foreach (var arg in args)
-        {
-            var lower = arg.ToLower();
-            if (lower.Contains("="))
-            {
-                var left = lower.Split('=', 2, StringSplitOptions.RemoveEmptyEntries).First();
-                if (string.Equals(left, value.Alias) || string.Equals(left, value.Name))
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                if (string.Equals(lower, value.Alias) || string.Equals(lower, value.Name))
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
+        var settings = new Current();
+        new ConfigurationBuilder().AddCommandLine(args).Build().Bind(settings);
+        return settings;
     }
 
     public static string[] ParseArgs(string[] args)
     {
         List<string> result = new();
         var allowed = new HashSet<string>();
+        var props = typeof(Current).GetProperties();
+        var fields = typeof(Current).GetFields(BindingFlags.Public | BindingFlags.Static).Where(f => f.Name.EndsWith("Args")).ToList();
+        var argsList = new List<Arg>();
 
-        foreach (var field in typeof(Settings).GetFields(BindingFlags.Public | BindingFlags.Static))
+        foreach (var field in fields)
         {
-            if (!field.Name.EndsWith("Args"))
-            {
-                continue;
-            }
             var arg = (Arg)field.GetValue(null);
             allowed.Add(arg.Alias.ToLower());
             allowed.Add(string.Concat("--", arg.Original.ToLower()));
+            argsList.Add(arg);
         }
-        foreach (var prop in typeof(Settings).GetProperties())
+        
+        foreach (var prop in props)
         {
             allowed.Add(string.Concat("--", prop.Name.ToLower()));
         }
 
-        foreach (var arg in args)
+        foreach (var (arg, index) in args.Select((a,i) => (a,i)))
         {
             if (arg.StartsWith("-"))
             {
@@ -164,20 +150,83 @@ static partial class Program
                     name = $"{name}:{split[1]}";
                 }
                 var to = arg.IndexOfAny(new[] { '=' });
-                if (to == -1)
+                var propName = name.Replace("-", "").ToLowerInvariant();
+                var prop = props.Where(p => string.Equals(p.Name.ToLowerInvariant(), propName, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+
+                bool isBool = false;
+                if (prop != null)
                 {
-                    result.Add(name);
+                    isBool = prop.PropertyType == typeof(bool);
                 }
                 else
                 {
+                    var argObj = argsList.Where(a => string.Equals(a.Alias, name)).FirstOrDefault();
+                    if (argObj != null)
+                    {
+                        prop = props.Where(p => string.Equals(p.Name.ToLowerInvariant(), argObj.Original, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                        if (prop != null)
+                        {
+                            isBool = prop.PropertyType == typeof(bool);
+                        }
+                    }
+                }
+                if (to == -1)
+                {
+                    if (!isBool)
+                    {
+                        result.Add(name);
+                    }
+                    else
+                    {
+                        string next = null;
+                        if (index < args.Length - 1)
+                        {
+                            next = args[index+1];
+                        }
+                        if (next == null || next.StartsWith("-"))
+                        {
+                            result.Add(name);
+                            result.Add("true");
+                        }
+                        else
+                        {
+                            result.Add(name);
+                        }
+                    }
+                }
+                else
+                {
+                    var v = arg.Substring(to + 1);
                     result.Add(name);
-                    result.Add(arg.Substring(to + 1));
+                    if (v == "0")
+                    {
+                        result.Add("false");
+                    }
+                    else if (v == "1")
+                    {
+                        result.Add("true");
+                    }
+                    else
+                    {
+                        result.Add(v);
+                    }
                 }
 
             }
             else
             {
-                result.Add(arg);
+                if (arg == "0")
+                {
+                    result.Add("false");
+                }
+                else if (arg == "1")
+                {
+                    result.Add("true");
+                }
+                else
+                {
+                    result.Add(arg);
+                }
             }
         }
         return result.ToArray();

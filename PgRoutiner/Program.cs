@@ -22,55 +22,59 @@ static partial class Program
 
     private static string version = null;
 
+    public static Current ConsoleSettings;
+
     static void Main(string[] rawArgs)
     {
+        //rawArgs = new string[] { "-def", "users;people" };
         var args = ParseArgs(rawArgs);
 
         if (args == null)
         {
             return;
         }
-        if (ArgsInclude(args, Settings.HelpArgs))
+        ConsoleSettings = BindConsole(args);
+        if (ConsoleSettings.Help)
         {
-            Info.ShowInfo();
+            ProgramInfo.ShowInfo();
             return;
         }
-        if (ArgsInclude(args, Settings.VersionArgs))
+        if (ConsoleSettings.Version)
         {
-            Info.ShowVersion();
+            ProgramInfo.ShowVersion();
             return;
         }
-        Settings.Value.Silent = ArgsInclude(args, Settings.SilentArgs);
-        Settings.Value.Dump = ArgsInclude(args, Settings.DumpArgs);
+        Current.Value.Silent = ConsoleSettings.Silent;
+        Current.Value.DumpConsole = ConsoleSettings.DumpConsole;
 
         if (!SetCurrentDir(args))
         {
             return;
         }
 
-        var (settingsFile, customSettings) = Settings.GetSettingsFile(args);
-        Config = Settings.ParseSettings(args, settingsFile);
+        var (settingsFile, customSettings) = Current.GetSettingsFile(args);
+        Config = Current.ParseSettings(args, settingsFile);
         WriteLine("", "Using dir: ");
         WriteLine(ConsoleColor.Cyan, " " + CurrentDir);
         if (Config == null)
         {
             return;
         }
-        if (Info.ShowDebug(customSettings))
+        if (ProgramInfo.ShowDebug(customSettings))
         {
             return;
         }
-        Settings.ShowUpdatedSettings();
+        Current.ShowUpdatedSettings();
         using var connection = new ConnectionManager(Config).ParseConnectionString();
         if (connection == null)
         {
             return;
         }
-        if (!Settings.ParseInitialSettings(connection, args.Length > 0, settingsFile))
+        if (!Current.ParseInitialSettings(connection, args.Length > 0, settingsFile))
         {
             return;
         }
-        if (ArgsInclude(args, Settings.InfoArgs))
+        if (ConsoleSettings.Info)
         {
             WriteLine("");
             return;
@@ -110,7 +114,7 @@ static partial class Program
     {
         var configBuilder = new ConfigurationBuilder().AddCommandLine(args,
             new Dictionary<string, string> {
-                    { Settings.DirArgs.Alias, Settings.DirArgs.Name.Replace("--", "") }
+                    { Current.DirArgs.Alias, Current.DirArgs.Name.Replace("--", "") }
             });
         var config = configBuilder.Build();
         var ds = new DirSettings();
@@ -128,7 +132,7 @@ static partial class Program
         return true;
     }
 #if DEBUG
-    public static void ParseProjectSetting(Settings settings)
+    public static void ParseProjectSetting(Current settings)
     {
         if (!string.IsNullOrEmpty(settings.Project))
         {

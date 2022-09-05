@@ -17,7 +17,7 @@ namespace PgRoutiner.SettingsManagement
         public bool NpgsqlIncluded { get; set; } = false;
     }
 
-    public partial class Settings
+    public partial class Current
     {
         public static Project ProjectInfo = null;
 
@@ -119,7 +119,7 @@ namespace PgRoutiner.SettingsManagement
             {
                 if (!Value.SkipUpdateReferences)
                 {
-                    Program.DumpError($"Minimum version for Norm.net package is {Settings.Value.MinNormVersion}. Current version in project is {project.NormVersion}.");
+                    Program.DumpError($"Minimum version for Norm.net package is {Current.Value.MinNormVersion}. Current version in project is {project.NormVersion}.");
                     if (Program.Ask("Update Norm.net package? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
                     {
                         Process.Run("dotnet", "add package Norm.net");

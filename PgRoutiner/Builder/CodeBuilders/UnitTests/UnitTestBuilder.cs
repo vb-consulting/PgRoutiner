@@ -6,18 +6,18 @@ public class UnitTestBuilder
 {
     public static void BuildUnitTests(NpgsqlConnection connection, string schemaFile, string dataFile)
     {
-        if (!Settings.Value.UnitTests || Settings.Value.UnitTestsDir == null)
+        if (!Current.Value.UnitTests || Current.Value.UnitTestsDir == null)
         {
             return;
         }
-        string sufix = Settings.Value.GetAssumedNamespace();
-        var shortDir = string.Format(Settings.Value.UnitTestsDir, sufix);
+        string sufix = Current.Value.GetAssumedNamespace();
+        var shortDir = string.Format(Current.Value.UnitTestsDir, sufix);
         var dir = Path.GetFullPath(Path.Join(Program.CurrentDir, shortDir));
         var name = Path.GetFileName(dir);
         var relativeDir = dir.GetRelativePath();
 
         var exists = Directory.Exists(dir);
-        if (exists && Settings.Value.UnitTestsAskRecreate)
+        if (exists && Current.Value.UnitTestsAskRecreate)
         {
             var answer = Program.Ask($"Directory {relativeDir} already exists. Do you want to recreate this dir? This will delete all existing files. [Y/N]", ConsoleKey.Y, ConsoleKey.N);
             if (answer == ConsoleKey.Y)
@@ -44,13 +44,13 @@ public class UnitTestBuilder
 
         var projectFile = Path.GetFullPath(Path.Join(dir, $"{name}.csproj"));
         List<ExtensionMethods> extensions = new();
-        extensions.AddRange(new CodeRoutinesBuilder(connection, Settings.Value, CodeSettings.ToRoutineSettings(Settings.Value)).GetMethods());
-        extensions.AddRange(new Crud.CodeCrudBuilder(connection, Settings.Value, CodeSettings.ToCrudSettings(Settings.Value)).GetMethods());
+        extensions.AddRange(new CodeRoutinesBuilder(connection, Current.Value, CodeSettings.ToRoutineSettings(Current.Value)).GetMethods());
+        extensions.AddRange(new Crud.CodeCrudBuilder(connection, Current.Value, CodeSettings.ToCrudSettings(Current.Value)).GetMethods());
 
         if (!File.Exists(projectFile))
         {
             Writer.DumpRelativePath("Creating file: {0} ...", projectFile);
-            if (!Writer.WriteFile(projectFile, new UnitTestProjectCsprojFile(Settings.Value, dir).ToString()))
+            if (!Writer.WriteFile(projectFile, new UnitTestProjectCsprojFile(Current.Value, dir).ToString()))
             {
                 return;
             }
@@ -88,8 +88,8 @@ public class UnitTestBuilder
             Writer.DumpRelativePath("Skipping {0}, already exists ...", settingsFile);
         }
 
-        var settings = new Settings { Namespace = name, UseFileScopedNamespaces = Settings.Value.UseFileScopedNamespaces };
-        var useGlobalUsing = Settings.Value.UnitTestProjectTargetFramework == "net6.0" || Settings.Value.UnitTestProjectLangVersion == "10";
+        var settings = new Current { Namespace = name, UseFileScopedNamespaces = Current.Value.UseFileScopedNamespaces };
+        var useGlobalUsing = Current.Value.UnitTestProjectTargetFramework == "net6.0" || Current.Value.UnitTestProjectLangVersion == "10";
 
         HashSet<string> usings = new();
         if (extensions.Any())
@@ -123,7 +123,7 @@ public class UnitTestBuilder
                 {
                     module.AddUsing(ext.ModelNamespace);
                 }
-                var code = new UnitTestCode(Settings.Value, className, ext);
+                var code = new UnitTestCode(Current.Value, className, ext);
                 module.AddItems(code.Class);
                 Writer.DumpRelativePath("Creating file: {0} ...", moduleFile);
                 Writer.WriteFile(moduleFile, module.ToString());
@@ -149,7 +149,7 @@ public class UnitTestBuilder
             module.AddUsing("Xunit");
             module.AddUsing("Norm");
 
-            var code = new UnitTestCode(Settings.Value, className, null);
+            var code = new UnitTestCode(Current.Value, className, null);
             module.AddItems(code.Class);
             Writer.DumpRelativePath("Creating file: {0} ...", moduleFile);
             Writer.WriteFile(moduleFile, module.ToString());

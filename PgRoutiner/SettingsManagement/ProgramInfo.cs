@@ -1,6 +1,6 @@
 ﻿namespace PgRoutiner.SettingsManagement;
 
-public class Info
+public class ProgramInfo
 {
     public static void ShowVersion()
     {
@@ -14,15 +14,15 @@ public class Info
     {
         Program.WriteLine(ConsoleColor.Yellow, $"PgRoutiner: {Program.Version}");
         Program.Write(ConsoleColor.Yellow, "Type ");
-        Program.Write(ConsoleColor.Cyan, $"pgroutiner {Settings.HelpArgs.Alias}");
+        Program.Write(ConsoleColor.Cyan, $"pgroutiner {Current.HelpArgs.Alias}");
         Program.Write(ConsoleColor.Yellow, " or ");
-        Program.Write(ConsoleColor.Cyan, $"pgroutiner {Settings.HelpArgs.Name}");
+        Program.Write(ConsoleColor.Cyan, $"pgroutiner {Current.HelpArgs.Name}");
         Program.Write(ConsoleColor.Yellow, " to see help on available commands and settings.");
         Program.WriteLine("");
         Program.Write(ConsoleColor.Yellow, "Type ");
-        Program.Write(ConsoleColor.Cyan, $"pgroutiner {Settings.SettingsArgs.Alias}");
+        Program.Write(ConsoleColor.Cyan, $"pgroutiner {Current.SettingsArgs.Alias}");
         Program.Write(ConsoleColor.Yellow, " or ");
-        Program.Write(ConsoleColor.Cyan, $"pgroutiner {Settings.SettingsArgs.Name}");
+        Program.Write(ConsoleColor.Cyan, $"pgroutiner {Current.SettingsArgs.Name}");
         Program.WriteLine(ConsoleColor.Yellow, " to see the currently selected settings.");
         Program.Write(ConsoleColor.Yellow, "Issues");
         Program.WriteLine(ConsoleColor.Cyan, "   https://github.com/vb-consulting/PgRoutiner/issues");
@@ -36,13 +36,13 @@ public class Info
 
     public static bool ShowDebug(bool customSettings)
     {
-        if (Switches.Value.Settings && !customSettings)
+        if (Program.ConsoleSettings.Settings && !customSettings)
         {
-            Settings.ShowSettings();
+            Current.ShowSettings();
             return true;
         }
 
-        if (Switches.Value.Debug)
+        if (Program.ConsoleSettings.Debug)
         {
             Program.WriteLine("", "Debug: ");
             Program.WriteLine("Version: ");
@@ -53,15 +53,15 @@ public class Info
             Program.WriteLine("OS: ");
             Program.WriteLine(ConsoleColor.Cyan, " " + Environment.OSVersion);
             Program.WriteLine("Run: ");
-            Program.WriteLine(ConsoleColor.Cyan, $" {Settings.Value.Routines}");
+            Program.WriteLine(ConsoleColor.Cyan, $" {Current.Value.Routines}");
             Program.WriteLine("CommitComments: ");
-            Program.WriteLine(ConsoleColor.Cyan, $" {Settings.Value.CommitMd}");
+            Program.WriteLine(ConsoleColor.Cyan, $" {Current.Value.CommitMd}");
             Program.WriteLine("Dump: ");
-            Program.WriteLine(ConsoleColor.Cyan, $" {Settings.Value.Dump}");
+            Program.WriteLine(ConsoleColor.Cyan, $" {Current.Value.DumpConsole}");
             Program.WriteLine("Execute: ");
-            Program.WriteLine(ConsoleColor.Cyan, $" {Settings.Value.Execute ?? "<null>"}");
+            Program.WriteLine(ConsoleColor.Cyan, $" {Current.Value.Execute ?? "<null>"}");
             Program.WriteLine("Diff: ");
-            Program.WriteLine(ConsoleColor.Cyan, $" {Settings.Value.Diff}");
+            Program.WriteLine(ConsoleColor.Cyan, $" {Current.Value.Diff}");
             return true;
         }
 

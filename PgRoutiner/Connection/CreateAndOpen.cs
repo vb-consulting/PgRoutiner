@@ -18,7 +18,7 @@ public partial class ConnectionManager
         };
         conn.Open();
 
-        var keyValue = typeof(Settings).GetProperty(connectionKey).GetValue(Settings.Value) as string;
+        var keyValue = typeof(Current).GetProperty(connectionKey).GetValue(Current.Value) as string;
         if (!string.IsNullOrEmpty(keyValue))
         {
             Program.WriteLine("");

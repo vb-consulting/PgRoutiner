@@ -2,7 +2,7 @@
 
 public class Param
 {
-    private readonly Settings settings;
+    private readonly Current settings;
 
     public string DbType { get; init; }
     public string Name
@@ -36,7 +36,7 @@ public class Param
     public string Type { get; init; }
     public bool IsInstance { get; init; } = false;
 
-    public Param(Settings settings)
+    public Param(Current settings)
     {
         this.settings = settings;
     }

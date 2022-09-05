@@ -8,7 +8,7 @@
         public bool Overwrite { get; set; }
         public bool AskOverwrite { get; set; }
 
-        public static CodeSettings ToRoutineSettings(Settings settings)
+        public static CodeSettings ToRoutineSettings(Current settings)
         {
             return new CodeSettings
             {
@@ -20,7 +20,7 @@
             };
         }
 
-        public static CodeSettings ToCrudSettings(Settings settings)
+        public static CodeSettings ToCrudSettings(Current settings)
         {
             return new CodeSettings
             {

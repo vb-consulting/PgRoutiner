@@ -2,7 +2,7 @@
 
 public class RoutineModule : Module
 {
-    public RoutineModule(Settings settings, CodeSettings codeSettings, string schema) : base(settings)
+    public RoutineModule(Current settings, CodeSettings codeSettings, string schema) : base(settings)
     {
         if (!settings.SkipAsyncMethods)
         {

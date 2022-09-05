@@ -2,7 +2,7 @@
 
 namespace PgRoutiner.SettingsManagement
 {
-    public partial class Settings
+    public partial class Current
     {
         public static IDictionary<string, string> DefaultTypeMapping { get; set; } = new Dictionary<string, string>
         {
