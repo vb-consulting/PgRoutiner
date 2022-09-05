@@ -1,25 +1,25 @@
 ﻿# PgRoutiner Cheat Sheet
 
 - [PgRoutiner Cheat Sheet](#pgroutiner-cheat-sheet)
-    - [Installation](#installation)
-    - [Connection Management](#connection-management)
-    - [Basic configuration](#basic-configuration)
-    - [Create default configuration file](#create-default-configuration-file)
-    - [List database objects](#list-database-objects)
-    - [Objects definitions (DDL)](#objects-definitions-ddl)
-    - [Generate insert statements](#generate-insert-statements)
-    - [Executing SQL scripts and PSQL commands](#executing-sql-scripts-and-psql-commands)
-    - [Open PSQL command-line tool](#open-psql-command-line-tool)
-    - [Dump schema](#dump-schema)
-    - [Backup and restore](#backup-and-restore)
-    - [Create object tree](#create-object-tree)
-    - [Build readme markdown database dictionary](#build-readme-markdown-database-dictionary)
-    - [Routines data-access code generation](#routines-data-access-code-generation)
-    - [CRUD data-access code generation](#crud-data-access-code-generation)
-    - [Database difference script](#database-difference-script)
-    - [Troubleshooting](#troubleshooting)
+  - [Installation](#installation)
+  - [Connection Management](#connection-management)
+  - [Basic configuration](#basic-configuration)
+  - [Create default configuration file](#create-default-configuration-file)
+  - [List database objects](#list-database-objects)
+  - [Objects definitions (DDL)](#objects-definitions-ddl)
+  - [Generate insert statements](#generate-insert-statements)
+  - [Executing SQL scripts and PSQL commands](#executing-sql-scripts-and-psql-commands)
+  - [Open PSQL command-line tool](#open-psql-command-line-tool)
+  - [Dump schema](#dump-schema)
+  - [Backup and restore](#backup-and-restore)
+  - [Create object tree files](#create-object-tree-files)
+  - [Build readme markdown database dictionary](#build-readme-markdown-database-dictionary)
+  - [Routines data-access code generation](#routines-data-access-code-generation)
+  - [CRUD data-access code generation](#crud-data-access-code-generation)
+  - [Database difference script](#database-difference-script)
+  - [Troubleshooting](#troubleshooting)
 
-### Installation
+## Installation
 
 ```
 $ dotnet tool install --global dotnet-pgroutiner
@@ -33,7 +33,7 @@ $ dotnet tool update --global dotnet-pgroutiner
 Tool 'dotnet-pgroutiner' was successfully updated from version '3.15.0' to version '3.16.0'.
 ```
 
-### Connection Management
+## Connection Management
 
 - `pgroutiner` is designed to run from the .NET project root, and it will read any available connections from standard configuration files (`appsettings.Development.json`, `appsettings.json`, in that order, or the custom configuration file `appsettings.PgRoutiner.json`).
 
@@ -147,7 +147,7 @@ Using connection postgresql://postgres:postgres@localhost:5432/test:
   - `PGUSER` to replace the missing user parameter.
   - `PGPASSWORD` or `PGPASS` to replace the missing password parameter.
 
-### Basic configuration
+## Basic configuration
 
 - By default PgRoutiner will output a lot of information in the console like:
 
@@ -193,7 +193,7 @@ Using connection postgresql://postgres:postgres@localhost:5432/test:
 - Any configuration value can be overridden with a command line with the same name, where multiple words are separated by the minus sign `-`. For example `Connection` settings will be `--connection` in console, but `SkipConnectionPrompt` will be `--skip-connection-prompt`.
 
 
-### Create default configuration file
+## Create default configuration file
 
 - You can create a default configuration file that contains all available options and settings.
 
@@ -211,7 +211,7 @@ Settings file appsettings.PgRoutiner.json successfully created!
 
 - Note: this `appsettings.PgRoutiner.json` will contain all default configuration values. You can move this section to `appsettings.json` or `appsettings.Development.json`, whichever suits the best.
 
-### List database objects
+## List database objects
 
 - Use `-l` or `--list` to list all objects for the connection:
 
@@ -289,7 +289,7 @@ FUNCTION reporting.chart_employee_counts_by_area(integer)
 FUNCTION reporting.chart_employee_counts_by_year(integer)
 ```
 
-### Objects definitions (DDL)
+## Objects definitions (DDL)
 
 - To view object definition use `-def` or `--definition` option:
 
@@ -416,7 +416,7 @@ ALTER TYPE public.valid_genders OWNER TO postgres;
 COMMENT ON TYPE public.valid_genders IS 'There are only two genders.';
 ```
 
-### Generate insert statements
+## Generate insert statements
 
 - You can generate insert statements from multiple tables or queries by using `-i` or `--inserts` option:
 
@@ -486,7 +486,7 @@ INSERT INTO public.countries VALUES (478, 'MR', 'MRT', 'Mauritania', 'mauritania
 INSERT INTO public.countries VALUES (480, 'MU', 'MUS', 'Mauritius', 'mauritius', NULL);
 ```
 
-### Executing SQL scripts and PSQL commands
+## Executing SQL scripts and PSQL commands
 
 - Use `-x` or `--execute` option to execute SQL file or PSQL command:
 
@@ -604,7 +604,7 @@ Output format is html.
 
 - You can combine multiple commands and files separated by semicolon `;` too.
   
-### Open PSQL command-line tool
+## Open PSQL command-line tool
 
 ```
 $ pgroutiner -psql
@@ -623,7 +623,7 @@ Windows systems will open a new window with a windows terminal and start PSQL by
 ❯ dotnet run -- -psql --psql-terminal cmd
 ```
 
-### Dump schema
+## Dump schema
 
 To dump schema from the current connection use `-sd` or `--schema-dump` option:
 
@@ -663,13 +663,43 @@ $ pgroutiner --schema-dump > dump.sql
 
 - Dumping to a file with `--schema-dump-file` has more options, see the configuration file for all available options.
 
-### Backup and restore
+## Backup and restore
 
 - Use `-backup` or `--backup` to backup database.
 
-- Use `-restore` or `--restore` to restore database.
+```
+$ pgroutiner -backup ./mybackup
+```
 
-### Create object tree
+- This will create a directory `mybackup` (only if it not exist) with the backup of your database.
+
+- Backup is in a directory format, with maximum compression, and by using 10 parallel jobs (fastest).
+
+- By default, the object owner is not included in the backup. To include owner, include `--backup-owner`:
+
+```
+$ pgroutiner -backup ./mybackup --backup-owner
+```
+
+- You can use optional format placeholders to add automatic values to the backup name:
+  - `{0}` - current date and time. You can format this by using [custom format specifier](https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings), for example `{0:yyyy-MM-dd}`
+  - `{1}` - current connection name
+
+- Use `-restore` or `--restore` to restore the database.
+
+```
+$ pgroutiner -restore ./mybackup
+```
+
+- By default database owner is not restored (if present). Use `--restore-owner` to restore owner if present:
+
+```
+$ pgroutiner -restore ./mybackup --restore-owner
+```
+
+- Restore will read compressed directory format by using 10 parallel jobs (fastest).
+
+## Create object tree files
 
 - `pgroutiner` can create one file for each database object containing object DDL definition, in respective directories (tables, views, functions, etc) - by using `-db` or `--db-objects` switch
 
@@ -702,9 +732,9 @@ Creating dump file Database/TestConnection/Schemas/reporting.sql ...
 
 - Use `-dbd` or ` --db-objects-dir` to set the target root directory name. Use `{0}` format placeholder to put the connection name.
 
-### Build readme markdown database dictionary
+## Build readme markdown database dictionary
 
-- To create database dictionary readme markdown file use `-md` or `--markdown` command:
+- To create a database dictionary readme markdown file use `-md` or `--markdown` command:
 
 ```
 $ pgroutiner -md
@@ -713,22 +743,22 @@ $ pgroutiner -md
 Creating markdown file Database/TestConnection/README.md ...
 ```
 
-- See live example of output here: [PDD.Database dictionary example](https://github.com/vb-consulting/postgresql-driven-development-demo/tree/master/PDD.Database)
+- See a live example of output here: [PDD.Database dictionary example](https://github.com/vb-consulting/postgresql-driven-development-demo/tree/master/PDD.Database)
 
 - Default markdown file name is `./Database/{0}/README.md`, where `{0}` placeholder is the connection name. Use `-mdf` or `--md-file` to change this file name.
 
-- Use `-cc` or `--commit-md` to commit edited comments back to database.
+- Use `-cc` or `--commit-md` to commit edited comments back to the database.
 
 - Use `--md-export-to-html` to create HTML version as well.
 
 - 
 
-### Routines data-access code generation
-### CRUD data-access code generation
-### Database difference script
-### Troubleshooting
+## Routines data-access code generation
+## CRUD data-access code generation
+## Database difference script
+## Troubleshooting
 
-Depending on the command, this tool will start external processes with PostgreSQL client tools like `psql`, `pg_dump` or `pg_restore`.
+Depending on the command, this tool will start external processes with PostgreSQL client tools like `psql`, `pg_dump`, or `pg_restore`.
 
 That means, that PostgreSQL client tools must be installed on the system. PostgreSQL client tools will be installed by default with every PostgreSQL installation.
 
