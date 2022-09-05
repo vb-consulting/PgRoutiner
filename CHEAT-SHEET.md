@@ -13,24 +13,25 @@
   - [Dump schema](#dump-schema)
   - [Backup and restore](#backup-and-restore)
   - [Create object tree files](#create-object-tree-files)
-  - [Build readme markdown database dictionary](#build-readme-markdown-database-dictionary)
-  - [Routines data-access code generation](#routines-data-access-code-generation)
-  - [CRUD data-access code generation](#crud-data-access-code-generation)
+  - [Build markdown database dictionary](#build-markdown-database-dictionary)
   - [Database difference script](#database-difference-script)
+  - [Code generation](#code-generation)
+    - [Routines (functions and procedures) data-access code generation](#routines-functions-and-procedures-data-access-code-generation)
+    - [CRUD data-access code generation](#crud-data-access-code-generation)
   - [Troubleshooting](#troubleshooting)
 
 ## Installation
 
 ```
 $ dotnet tool install --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' (version '3.16.0') was successfully installed.
+Tool 'dotnet-pgroutiner' (version '3.16.1') was successfully installed.
 ```
 
 To update:
 
 ```
 $ dotnet tool update --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' was successfully updated from version '3.15.0' to version '3.16.0'.
+Tool 'dotnet-pgroutiner' was successfully updated from version '3.16.0' to version '3.16.1'.
 ```
 
 ## Connection Management
@@ -732,9 +733,9 @@ Creating dump file Database/TestConnection/Schemas/reporting.sql ...
 
 - Use `-dbd` or ` --db-objects-dir` to set the target root directory name. Use `{0}` format placeholder to put the connection name.
 
-## Build readme markdown database dictionary
+## Build markdown database dictionary
 
-- To create a database dictionary readme markdown file use `-md` or `--markdown` command:
+- To create a database dictionary "readme" markdown file use `-md` or `--markdown` command:
 
 ```
 $ pgroutiner -md
@@ -765,9 +766,29 @@ Business areas that companies may be invloved.
 
 - Use `--md-include-table-stats` to include statistics for every table.
 
-## Routines data-access code generation
-## CRUD data-access code generation
 ## Database difference script
+
+- `pgroutiner` can generate a schema difference script between to connections to automatically generate schema migrations.
+
+## Code generation
+
+- `pgroutiner` can generate C# 10 for .NET6 data-access code automatically by using your PostgreSQL connection for:
+  - Functions and procedures (routines).
+  - CRUD operations of configured tables.
+  - All appropirate models.
+  - Unit test templates.
+
+- It will look for a .NET project file in the current directory, and, if found, it will add following Nuget libraries (only if missing):
+  - [`Npgsql` - .NET Access to PostgreSQL](https://www.npgsql.org/)
+  - [`System.Linq.Async` - Linq over IAsyncEnumerable sequence](https://www.nuget.org/packages/System.Linq.Async)
+  - [`Norm.net` - extendible high perfomance micro-ORM ](https://github.com/vb-consulting/Norm.net)
+
+### Routines (functions and procedures) data-access code generation
+
+- `pgroutiner` can generate C# 10 for .NET6 data-access code for PostgreSQL routines (functions and procedures) from your connection, along with appropriate data model.
+
+### CRUD data-access code generation
+
 ## Troubleshooting
 
 Depending on the command, this tool will start external processes with PostgreSQL client tools like `psql`, `pg_dump`, or `pg_restore`.
