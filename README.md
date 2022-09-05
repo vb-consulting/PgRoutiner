@@ -782,6 +782,8 @@ Business areas that companies may be invloved.
   - [`System.Linq.Async` - Linq over IAsyncEnumerable sequence](https://www.nuget.org/packages/System.Linq.Async)
   - [`Norm.net` - extendible high perfomance micro-ORM ](https://github.com/vb-consulting/Norm.net)
 
+- These references will be required for the generated code, however, they can be skipped with `--skip-update-references` switch.
+
 ### Routines (functions and procedures) data-access code generation
 
 - `pgroutiner` can generate C# 10 for .NET6 data-access code for PostgreSQL routines (functions and procedures) from your connection, along with appropriate data model.
