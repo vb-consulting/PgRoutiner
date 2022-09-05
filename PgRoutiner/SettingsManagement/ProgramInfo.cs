@@ -73,6 +73,6 @@ public class ProgramInfo
         ShowVersion();
 
         Program.WriteLine("", "To get help please navigate to: ");
-        Program.WriteLine(ConsoleColor.Cyan, " https://github.com/vb-consulting/PgRoutiner/blob/master/CHEAT-SHEET.md", "");
+        Program.WriteLine(ConsoleColor.Cyan, " https://github.com/vb-consulting/postgresql-driven-development-demo/blob/master/PDD.Database/README.md", "");
     }
 }

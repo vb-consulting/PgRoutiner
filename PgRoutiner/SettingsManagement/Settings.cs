@@ -218,8 +218,9 @@ namespace PgRoutiner.SettingsManagement
             { "Procedures", "Procedures/{0}" },
             { "Domains", "Domains/{0}" },
             { "Types", "Types/{0}" },
-            { "Schemas", "Schemas" },
-            { "Sequences", "Sequences/{0}" }
+            { "Schemas", "Schemas/{0}" },
+            { "Sequences", "Sequences/{0}" },
+            { "Extensions", "Extensions/{0}" },
         };
         public bool DbObjectsSkipDeleteDir { get; set; } = false;
         //public bool DbObjectsRemoveExistingDirs { get; set; } = true;

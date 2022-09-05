@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.16.2
+
+- Fix missing db tree output directories (schemas and extensions).
+
+- Change help link to README.md
+
 ## 3.16.1
 
 - Change duplicate alias for ModelDir (`-md`) to `-modeldir`

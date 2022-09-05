@@ -93,7 +93,7 @@ public class FormatedSettings
             sb.AppendLine("    //\"Connection2\": \"postgresql://{user}:{password}@{server}:{port}/{database}\"");
 
             sb.AppendLine("  },");
-            sb.AppendLine("  /* see https://github.com/vb-consulting/PgRoutiner/blob/master/CHEAT-SHEET.md for more info */");
+            sb.AppendLine("  /* see https://github.com/vb-consulting/postgresql-driven-development-demo/blob/master/PDD.Database/README.md for more info */");
             sb.AppendLine("  \"PgRoutiner\": {");
             sb.AppendLine();
         }

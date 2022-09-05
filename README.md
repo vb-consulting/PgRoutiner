@@ -743,7 +743,7 @@ $ pgroutiner -md
 Creating markdown file Database/TestConnection/README.md ...
 ```
 
-- See a live example of output here: [PDD.Database dictionary example](https://github.com/vb-consulting/postgresql-driven-development-demo/tree/master/PDD.Database)
+- See a live example of output here: [PDD.Database dictionary example](https://github.com/vb-consulting/postgresql-driven-development-demo/blob/master/PDD.Database/README.md)
 
 - Default markdown file name is `./Database/{0}/README.md`, where `{0}` placeholder is the connection name. Use `-mdf` or `--md-file` to change this file name.
 
