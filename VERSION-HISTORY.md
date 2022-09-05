@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.16.1
+
+- Change duplicate alias for ModelDir (`-md`) to `-modeldir`
+
 ## 3.16.0
 
 - Switch `Dump` renamed to `DumpConsole` because it was confusing what it actually does. It just forces content out the file to console. Alias `-d` renamed the same.

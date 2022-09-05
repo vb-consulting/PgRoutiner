@@ -749,9 +749,21 @@ Creating markdown file Database/TestConnection/README.md ...
 
 - Use `-cc` or `--commit-md` to commit edited comments back to the database.
 
+  - You can edit generated markdown in between comments for example:
+
+```
+<!-- comment on table "public"."business_areas" is @until-end-tag; -->
+Business areas that companies may be invloved.
+<!-- end -->
+```
+
+- Edit this comment and use `-cc` or `--commit-md` to commit edited comments back to the database.
+
 - Use `--md-export-to-html` to create HTML version as well.
 
-- 
+- Use `--md-include-source-links` to add links to the generated object tree files
+
+- Use `--md-include-table-stats` to include statistics for every table.
 
 ## Routines data-access code generation
 ## CRUD data-access code generation

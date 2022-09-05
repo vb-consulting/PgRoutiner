@@ -50,7 +50,7 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg SimilarToArgs = new("-st", nameof(RoutinesSimilarTo));
         public static readonly Arg SkipSyncMethodsArgs = new("-ss", nameof(SkipSyncMethods));
         public static readonly Arg SkipAsyncMethodsArgs = new("-sa", nameof(SkipAsyncMethods));
-        public static readonly Arg ModelDirArgs = new("-md", nameof(ModelDir));
+        public static readonly Arg ModelDirArgs = new("-modeldir", nameof(ModelDir));
         public static readonly Arg UnitTestsArgs = new("-ut", nameof(UnitTests));
         public static readonly Arg UnitTestsDirArgs = new("-utd", nameof(UnitTestsDir));
         public static readonly Arg SchemaDumpArgs = new("-sd", nameof(SchemaDump));
