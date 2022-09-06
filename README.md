@@ -1,6 +1,35 @@
 ﻿# PgRoutiner - A Different Kind of Object-relational Mapping Tool for .NET projects and PostgreSQL
 
   - [Installation](#installation)
+  - [Quick Start](#quick-start)
+  
+## Installation
+
+```
+$ dotnet tool install --global dotnet-pgroutiner
+Tool 'dotnet-pgroutiner' (version '3.16.1') was successfully installed.
+```
+
+To update:
+
+```
+$ dotnet tool update --global dotnet-pgroutiner
+Tool 'dotnet-pgroutiner' was successfully updated from version '3.16.0' to version '3.16.1'.
+```
+
+## Quick Start
+
+1) Instal `pgroutiner`
+2) Open the terminal in your .NET project configured to use the PostgreSQL database.
+3) Type `pgroutiner --list`
+
+If your connection string is configured for the user with the admin privileges - you will see the **list of all database objects.**
+
+See also
+
+- [PgRoutiner - A Different Kind of Object-relational Mapping Tool for .NET projects and PostgreSQL](#pgroutiner---a-different-kind-of-object-relational-mapping-tool-for-net-projects-and-postgresql)
+  - [Installation](#installation)
+  - [Quick Start](#quick-start)
   - [Connection Management](#connection-management)
   - [Basic configuration](#basic-configuration)
   - [Create default configuration file](#create-default-configuration-file)
@@ -18,20 +47,8 @@
     - [Routines (functions and procedures) data-access code generation](#routines-functions-and-procedures-data-access-code-generation)
     - [CRUD data-access code generation](#crud-data-access-code-generation)
   - [Troubleshooting](#troubleshooting)
-
-## Installation
-
-```
-$ dotnet tool install --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' (version '3.16.1') was successfully installed.
-```
-
-To update:
-
-```
-$ dotnet tool update --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' was successfully updated from version '3.16.0' to version '3.16.1'.
-```
+  - [Support](#support)
+  - [License](#license)
 
 ## Connection Management
 
@@ -767,26 +784,45 @@ Business areas that companies may be invloved.
 
 ## Database difference script
 
-- `pgroutiner` can generate a schema difference script between to connections to automatically generate schema migrations.
+- `pgroutiner` can generate a schema difference script between two connections to automatically generate schema migrations.
 
 ## Code generation
 
 - `pgroutiner` can generate C# 10 for .NET6 data-access code automatically by using your PostgreSQL connection for:
   - Functions and procedures (routines).
   - CRUD operations of configured tables.
-  - All appropirate models.
+  - All appropriate models.
   - Unit test templates.
 
-- It will look for a .NET project file in the current directory, and, if found, it will add following Nuget libraries (only if missing):
+- It will look for a .NET project file in the current directory, and, if found, it will add the following Nuget libraries (only if missing):
   - [`Npgsql` - .NET Access to PostgreSQL](https://www.npgsql.org/)
   - [`System.Linq.Async` - Linq over IAsyncEnumerable sequence](https://www.nuget.org/packages/System.Linq.Async)
-  - [`Norm.net` - extendible high perfomance micro-ORM ](https://github.com/vb-consulting/Norm.net)
+  - [`Norm.net` - extendible, high-performance micro-ORM ](https://github.com/vb-consulting/Norm.net)
 
 - These references will be required for the generated code, however, they can be skipped with `--skip-update-references` switch.
+  
+- There is a number of switches and settings that affect the code generation:
+  
+  - `--namespace` - the name of the namespace for generated code. Default is not set (null) and it will use project default from the project file with respect to the directory. Use this to set a fixed namespace for the generated code.
+  - `--use-records` - force generating C# records instead of classes (default) for all generated models.
+  - `--use-expression-body` - use expression bodies instead of block bodies (default) for all generated functions.
+  - `--use-file-scoped-namespaces` - use file-scoped namespaces (default), instead of block-scoped for all generated source code files
+  - `--use-nullable-strings` - use nullable string types `string?` (default), instead of standard strings.
+  - `--mapping` - type mapping between PostgreSQL types and .NET. This is a dictionary setting, that can be set either from configuration or command line. To set mapping from the command line use `--mapping:text mystring` to set `text` type to point to `mystring`. Use this settings to change existing mappings or add new ones.
+  - `--custom-models` - this a dictionary setting, which is empty by default, where keys are generated model names and values are custom names we wish to override.
+  - `--model-dir` - models code output directory name. Default is `./Models/`.
+  - `--model-custom-namespace` - the name of the custom namespace for models. Default is not set (null) and it will use project default from the project file with respect to the directory. Use this to set a fixed namespace for the generated models.
+  - `--empty-model-dir` - force emptying model directory before files are generated. Set to true to delete all files before generation. The default is false.
+  - `--skip-sync-methods` - don't generate synchronous methods and functions. The default is false - always generates synchronous methods and functions.
+  - `--skip-async-methods` - don't generate asynchronous methods and functions. The default is false - always generates asynchronous methods and functions.
+  - `--source-header-lines` - list of text
+  - `--ident`
+  - `--return-method`
+  - `--method-parameter-names`
 
 ### Routines (functions and procedures) data-access code generation
 
-- `pgroutiner` can generate C# 10 for .NET6 data-access code for PostgreSQL routines (functions and procedures) from your connection, along with appropriate data model.
+- `pgroutiner` can generate C# 10 for .NET6 data-access code for PostgreSQL routines (functions and procedures) from your connection, along with the appropriate data model.
 
 ### CRUD data-access code generation
 
@@ -797,8 +833,8 @@ Depending on the command, this tool will start external processes with PostgreSQ
 That means, that PostgreSQL client tools must be installed on the system. PostgreSQL client tools will be installed by default with every PostgreSQL installation.
 
 If you don't want a server, but only client tools:
-- For windows systems, there is option "client tools only" option in the installer.
-- For Linux systems, installing package `postgresql-client` would be enough, something like `$ sudo apt-get install -y postgresql-client`, but depends on the system.
+- For Windows systems, there is option "client tools only" option in the installer.
+- For Linux systems, installing the package `postgresql-client` would be enough, something like `$ sudo apt-get install -y postgresql-client`, but depends on the system.
 
 When `pgroutiner` calls an external tool, it will first try to call the default alias `psql` or `pg_dump`. Then, if the version of the tool doesn't match the version from the connection it will try to locate the executable on the default location:
 
@@ -822,7 +858,7 @@ If you find it useful please consider rewarding me on my effort by [buying me a 
 Or if you prefer bitcoin:
 bitcoincash:qp93skpzyxtvw3l3lqqy7egwv8zrszn3wcfygeg0mv
  
-## Licence
+## License
  
 Copyright (c) Vedran Bilopavlović - VB Consulting and VB Software 2020
 This source code is licensed under the [MIT license](https://github.com/vb-consulting/PgRoutiner/blob/master/LICENSE).
