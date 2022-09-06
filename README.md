@@ -459,7 +459,7 @@ END $testconnection_data$
 LANGUAGE plpgsql;
 ```
 
-- To ommit transaction wrapper from resulting script include `--data-dump-no-transaction` switch:
+- To omit transaction wrapper from resulting script include `--data-dump-no-transaction` switch:
 
 ```
 $ pgroutiner -i business_areas --data-dump-no-transaction
@@ -592,7 +592,7 @@ $ pgroutiner -x "\dt"
 (12 rows)
 ```
 
-- You can combine multiple commands separated by semicolon `;`, For example following command will set output format to HTML with `\H` command and then execute the query:
+- You can combine multiple commands separated by a semicolon `;`, For example, the following command will set the output format to HTML with `\H` command and then execute the query:
 
 ```
 $ pgroutiner -x "\H;select * from countries limit 1"
@@ -619,7 +619,7 @@ Output format is html.
 </p>
 ```
 
-- You can combine multiple commands and files separated by semicolon `;` too.
+- You can combine multiple commands and files separated by a semicolon `;`.
   
 ## Open PSQL command-line tool
 
@@ -688,7 +688,7 @@ $ pgroutiner --schema-dump > dump.sql
 $ pgroutiner -backup ./mybackup
 ```
 
-- This will create a directory `mybackup` (only if it not exist) with the backup of your database.
+- This will create a directory `mybackup` (only if it does not exist) with the backup of your database.
 
 - Backup is in a directory format, with maximum compression, and by using 10 parallel jobs (fastest).
 
@@ -699,7 +699,7 @@ $ pgroutiner -backup ./mybackup --backup-owner
 ```
 
 - You can use optional format placeholders to add automatic values to the backup name:
-  - `{0}` - current date and time. You can format this by using [custom format specifier](https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings), for example `{0:yyyy-MM-dd}`
+  - `{0}` - current date and time. You can format this by using [a custom format specifier](https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings), for example `{0:yyyy-MM-dd}`
   - `{1}` - current connection name
 
 - Use `-restore` or `--restore` to restore the database.
@@ -708,7 +708,7 @@ $ pgroutiner -backup ./mybackup --backup-owner
 $ pgroutiner -restore ./mybackup
 ```
 
-- By default database owner is not restored (if present). Use `--restore-owner` to restore owner if present:
+- By default, database owner is not restored (if present). Use `--restore-owner` to restore owner if present:
 
 ```
 $ pgroutiner -restore ./mybackup --restore-owner
@@ -808,7 +808,7 @@ Business areas that companies may be invloved.
   - `--use-expression-body` - use expression bodies instead of block bodies (default) for all generated functions.
   - `--use-file-scoped-namespaces` - use file-scoped namespaces (default), instead of block-scoped for all generated source code files
   - `--use-nullable-strings` - use nullable string types `string?` (default), instead of standard strings.
-  - `--mapping` - type mapping between PostgreSQL types and .NET. This is a dictionary setting, that can be set either from configuration or command line. To set mapping from the command line use `--mapping:text mystring` to set `text` type to point to `mystring`. Use this settings to change existing mappings or add new ones.
+  - `--mapping` - type mapping between PostgreSQL types and .NET. This is a dictionary setting, that can be set either from configuration or command line. To set mapping from the command line use `--mapping:text mystring` to set `text` type to point to `mystring`. Use these settings to change existing mappings or add new ones.
   - `--custom-models` - this a dictionary setting, which is empty by default, where keys are generated model names and values are custom names we wish to override.
   - `--model-dir` - models code output directory name. Default is `./Models/`.
   - `--model-custom-namespace` - the name of the custom namespace for models. Default is not set (null) and it will use project default from the project file with respect to the directory. Use this to set a fixed namespace for the generated models.
@@ -846,8 +846,7 @@ Those paths where PostgreSQL installs binaries by default.
 
 When PgRoutiner sees the version mismatch it will prompt a warning and fallback to that path with an appropriate version number.
 
-This behavior can be avoided by setting `PgDumpFallback` and `PsqlFallback` settings values respectively.
-
+This behavior can be avoided by settings `PgDumpFallback` and `PsqlFallback` settings values respectively.
 
 ## Support
  
