@@ -7,14 +7,14 @@
 
 ```
 $ dotnet tool install --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' (version '3.16.1') was successfully installed.
+Tool 'dotnet-pgroutiner' (version '3.16.2') was successfully installed.
 ```
 
 To update:
 
 ```
 $ dotnet tool update --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' was successfully updated from version '3.16.0' to version '3.16.1'.
+Tool 'dotnet-pgroutiner' was successfully updated from version '3.16.0' to version '3.16.2'.
 ```
 
 ## Quick Start
@@ -32,7 +32,7 @@ See also
   - [Quick Start](#quick-start)
   - [Connection Management](#connection-management)
   - [Basic configuration](#basic-configuration)
-  - [Create default configuration file](#create-default-configuration-file)
+  - [Create the default configuration file](#create-the-default-configuration-file)
   - [List database objects](#list-database-objects)
   - [Objects definitions (DDL)](#objects-definitions-ddl)
   - [Generate insert statements](#generate-insert-statements)
@@ -70,7 +70,7 @@ appsettings.json
 - Running simple info command to test the connection:
 ```
 ~$ pgroutiner --info
-PgRoutiner: 3.14.0.0
+PgRoutiner: 3.16.2.0
 Type pgroutiner -h or pgroutiner --help to see help on available commands and settings.
 Type pgroutiner -s or pgroutiner --settings to see the currently selected settings.
 Issues   https://github.com/vb-consulting/PgRoutiner/issues
@@ -95,7 +95,7 @@ Using connection TestConnection:
 ~$ pgroutiner --info --silent
 ```
 
-- To specify connection name, use `-c` or `--connection` parameter:
+- To specify the connection name, use `-c` or `--connection` parameter:
 
 
 ```
@@ -171,7 +171,7 @@ Using connection postgresql://postgres:postgres@localhost:5432/test:
   - Copyright and version info
   - Basic help
   - Current options
-  - Current psql/pg_dump command
+  - Current psql/pg_dump/pg_restore commands
   - Configuration files being used
   - Current dir
   - Current database connection
@@ -203,14 +203,14 @@ Using connection postgresql://postgres:postgres@localhost:5432/test:
 
 - The Command line will always override the configuration setting.
 
-- For a boolean values (like this `Silent` for example), the default value is `false`, and you can set it to `true` by simply including that option in console (like `-silent` or `--silent`).
+- For the boolean values (like this `Silent` for example), the default value is `false`, and you can set it to `true` by simply including that option in console (like `-silent` or `--silent`).
 
 - Fox boolean values `false` or `0` and `true` or `1` are acceptable.
 
 - Any configuration value can be overridden with a command line with the same name, where multiple words are separated by the minus sign `-`. For example `Connection` settings will be `--connection` in console, but `SkipConnectionPrompt` will be `--skip-connection-prompt`.
 
 
-## Create default configuration file
+## Create the default configuration file
 
 - You can create a default configuration file that contains all available options and settings.
 
@@ -256,7 +256,7 @@ FUNCTION reporting.chart_employee_counts_by_area(integer)
 FUNCTION reporting.chart_employee_counts_by_year(integer)
 ```
 
-- To view objects from specific schema, use `-sch` or `--schema-similar-to` option:
+- To view objects from the specific schema, use `-sch` or `--schema-similar-to` option:
 
 ```
 ~$ pgroutiner --list -sch reporting
@@ -294,7 +294,7 @@ FUNCTION reporting.chart_employee_counts_by_area(integer)
 FUNCTION reporting.chart_employee_counts_by_year(integer)
 ```
 
-- You can also use `--schema--not-similar-to` to exclude schemas NOT similar to expression:
+- You can also use `--schema--not-similar-to` to exclude schemas NOT similar to the expression:
 
 ```
 ~$ pgroutiner --list --schema-not-similar-to public
@@ -410,7 +410,7 @@ ALTER TYPE public.valid_genders OWNER TO postgres;
 COMMENT ON TYPE public.valid_genders IS 'There are only two genders.';
 ```
 
-- If you want to view DDL definition for multiple objects you can separate names by `;`, and use quotes, for example:
+- If you want to view the DDL definition for multiple objects you can separate names by `;`, and use quotes, for example:
 
 ```
 $ pgroutiner -def "reporting;valid_genders"
@@ -435,7 +435,7 @@ COMMENT ON TYPE public.valid_genders IS 'There are only two genders.';
 
 ## Generate insert statements
 
-- You can generate insert statements from multiple tables or queries by using `-i` or `--inserts` option:
+- You can generate insert statements from multiple tables or queries by using `-i`, or `--inserts` option:
 
 ```
 $ pgroutiner --inserts business_areas
@@ -505,9 +505,9 @@ INSERT INTO public.countries VALUES (480, 'MU', 'MUS', 'Mauritius', 'mauritius',
 
 ## Executing SQL scripts and PSQL commands
 
-- Use `-x` or `--execute` option to execute SQL file or PSQL command:
+- Use `-x` or `--execute` option to execute the SQL file or PSQL command:
 
-- This will execute PSQL command and show the results:
+- This will execute the PSQL command and show the results:
 
 ```
 $ pgroutiner -x "select * from countries limit 3"
