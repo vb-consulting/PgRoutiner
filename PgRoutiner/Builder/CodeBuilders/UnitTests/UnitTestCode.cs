@@ -24,14 +24,14 @@ public class UnitTestCode : Code
             {
                 Class.AppendLine($"{I1}///");
                 Class.Append($"{I1}");
-                Class.Append(string.Join($"{I1}", method.Description.Split("\n").Select(d => $"/// {d}{NL}")));
+                Class.AppendLine(string.Join($"{I1}", method.Description.Split("\n").Select(d => $"/// {d.Replace(NL, "").Replace("\n", "")}")));
             }
             Class.AppendLine($"{I1}///</summary>");
         }
 
         Class.AppendLine($"{I1}public class {Name} : PostgreSqlConfigurationFixture");
         Class.AppendLine($"{I1}{{");
-        Class.AppendLine($"{I2}public {Name}(PostgreSqlFixture fixture) : base(fixture) {{ }}");
+        Class.AppendLine($"{I2}public {Name}(PostgreSqlUnitTests tests) : base(tests) {{ }}");
         if (ext == null || ext.Methods == null || !ext.Methods.Any())
         {
             BuildEmptyTest();

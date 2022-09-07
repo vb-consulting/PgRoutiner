@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.16.3
+
+- Improve unit test templates, fix typos, fix auto comments and add base fixture with public connection (for extensions).
+
 ## 3.16.2
 
 - Fix missing db tree output directories (schemas and extensions).

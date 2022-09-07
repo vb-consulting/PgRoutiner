@@ -19,7 +19,7 @@ Tool 'dotnet-pgroutiner' was successfully updated from version '3.16.0' to versi
 
 ## Quick Start
 
-1) Instal `pgroutiner`
+1) Install `pgroutiner`
 2) Open the terminal in your .NET project configured to use the PostgreSQL database.
 3) Type `pgroutiner --list`
 

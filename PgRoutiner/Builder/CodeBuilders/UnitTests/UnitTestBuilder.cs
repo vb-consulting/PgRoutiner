@@ -192,7 +192,7 @@ public class UnitTestBuilder
         sb.AppendLine();
         sb.AppendLine(@"    //");
         sb.AppendLine(@"    // Name of the connection string used for testing.");
-        sb.AppendLine(@"    // This connection string should point to an ctual development or test database. ");
+        sb.AppendLine(@"    // This connection string should point to an actual development or test database. ");
         sb.AppendLine(@"    // The real test database is re-created based on this connection string.");
         sb.AppendLine(@"    // Connection string can be defined in this config file or in the config file defined by the ConfigPath value. ");
         sb.AppendLine(@"    //");
@@ -217,7 +217,7 @@ public class UnitTestBuilder
 
         sb.AppendLine();
         sb.AppendLine(@"    //");
-        sb.AppendLine(@"    // If set to true, the test database (defined by TestDatabaseName) - will not be created created - but replicated by using database template from a TestConnection.");
+        sb.AppendLine(@"    // If set to true, the test database (defined by TestDatabaseName) - will not be created - but replicated by using database template from a TestConnection.");
         sb.AppendLine(@"    // Replicated database (using database template) has exactly the same schema and as well as the data as original database.");
         sb.AppendLine(@"    // If set to false, the test database is created as empty database and, if migrations are applied (if any).");
         sb.AppendLine(@"    //");

@@ -119,11 +119,11 @@ public class TestFixtures : Code
         sb.AppendLine(@$"{I2}}}");
         sb.AppendLine(@$"{I1}}}");
         sb.AppendLine(@"");
-        sb.AppendLine(@$"{I1}public sealed class PostgreSqlFixture : IDisposable");
+        sb.AppendLine(@$"{I1}public sealed class PostgreSqlUnitTests : IDisposable");
         sb.AppendLine(@$"{I1}{{");
         sb.AppendLine(@$"{I2}public NpgsqlConnection Connection {{ get; }}");
         sb.AppendLine(@"");
-        sb.AppendLine(@$"{I2}public PostgreSqlFixture()");
+        sb.AppendLine(@$"{I2}public PostgreSqlUnitTests()");
         sb.AppendLine(@$"{I2}{{");
         sb.AppendLine(@$"{I3}Connection = new NpgsqlConnection(Config.ConnectionString);");
         sb.AppendLine(@$"{I3}CreateTestDatabase(Connection);");
@@ -202,30 +202,35 @@ public class TestFixtures : Code
         sb.AppendLine(@"");
 
         sb.AppendLine(@$"{I1}[CollectionDefinition(""PostgreSqlDatabase"")]");
-        sb.AppendLine(@$"{I1}public class DatabaseFixtureCollection : ICollectionFixture<PostgreSqlFixture> {{ }}");
+        sb.AppendLine(@$"{I1}public class DatabaseFixtureCollection : ICollectionFixture<PostgreSqlUnitTests> {{ }}");
         sb.AppendLine("");
+
+        sb.AppendLine(@$"{I1}public abstract class PostgreSqlBaseFixture");
+        sb.AppendLine(@$"{I1}{{");
+        sb.AppendLine(@$"{I2}public NpgsqlConnection Connection {{ get; protected set; }}");
+        sb.AppendLine(@$"{I1}}}");
+        sb.AppendLine("");
+
         sb.AppendLine(@$"{I1}/// <summary>");
         sb.AppendLine(@$"{I1}/// PostgreSQL Unit Test Fixture using configuration settings from testsettings.json");
         sb.AppendLine(@$"{I1}/// </summary>");
         sb.AppendLine(@$"{I1}[Collection(""PostgreSqlDatabase"")]");
-        sb.AppendLine(@$"{I1}public abstract class PostgreSqlConfigurationFixture : IDisposable");
+        sb.AppendLine(@$"{I1}public abstract class PostgreSqlConfigurationFixture : PostgreSqlBaseFixture, IDisposable");
         sb.AppendLine(@$"{I1}{{");
-        sb.AppendLine(@$"{I2}protected NpgsqlConnection Connection {{ get; }}");
-        sb.AppendLine("");
-        sb.AppendLine(@$"{I2}protected PostgreSqlConfigurationFixture(PostgreSqlFixture fixture)");
+        sb.AppendLine(@$"{I2}protected PostgreSqlConfigurationFixture(PostgreSqlUnitTests tests)");
         sb.AppendLine(@$"{I2}{{");
         sb.AppendLine(@$"{I3}if (Config.Value.UnitTestsNewDatabaseFromTemplate)");
         sb.AppendLine(@$"{I3}{{");
         sb.AppendLine(@$"{I4}var dbName = string.Concat(Config.Value.TestDatabaseName, ""_"", Guid.NewGuid().ToString().Replace(""-"", ""_""));");
         sb.AppendLine(@$"{I4}using var connection = new NpgsqlConnection(Config.ConnectionString);");
-        sb.AppendLine(@$"{I4}PostgreSqlFixture.CreateDatabase(connection, dbName, connection.Database);");
-        sb.AppendLine(@$"{I4}Connection = fixture.Connection.CloneWith(fixture.Connection.ConnectionString);");
+        sb.AppendLine(@$"{I4}PostgreSqlUnitTests.CreateDatabase(connection, dbName, connection.Database);");
+        sb.AppendLine(@$"{I4}Connection = tests.Connection.CloneWith(tests.Connection.ConnectionString);");
         sb.AppendLine(@$"{I4}Connection.Open();");
         sb.AppendLine(@$"{I4}Connection.ChangeDatabase(dbName);");
         sb.AppendLine(@$"{I3}}}");
         sb.AppendLine(@$"{I3}else");
         sb.AppendLine(@$"{I3}{{");
-        sb.AppendLine(@$"{I4}Connection = fixture.Connection.CloneWith(fixture.Connection.ConnectionString);");
+        sb.AppendLine(@$"{I4}Connection = tests.Connection.CloneWith(tests.Connection.ConnectionString);");
         sb.AppendLine(@$"{I4}Connection.Open();");
         sb.AppendLine(@$"{I3}}}");
         sb.AppendLine("");
@@ -247,22 +252,21 @@ public class TestFixtures : Code
         sb.AppendLine(@$"{I3}if (Config.Value.UnitTestsNewDatabaseFromTemplate)");
         sb.AppendLine(@$"{I3}{{");
         sb.AppendLine(@$"{I4}using var connection = new NpgsqlConnection(Config.ConnectionString);");
-        sb.AppendLine(@$"{I4}PostgreSqlFixture.DropDatabase(connection, Connection.Database);");
+        sb.AppendLine(@$"{I4}PostgreSqlUnitTests.DropDatabase(connection, Connection.Database);");
         sb.AppendLine(@$"{I3}}}");
         sb.AppendLine(@$"{I2}}}");
         sb.AppendLine(@$"{I1}}}");
         sb.AppendLine("");
+
         sb.AppendLine(@$"{I1}/// <summary>");
         sb.AppendLine(@$"{I1}/// PostgreSQL Unit Test Fixture that uses a pre-created test database.");
         sb.AppendLine(@$"{I1}/// </summary>");
         sb.AppendLine(@$"{I1}[Collection(""PostgreSqlDatabase"")]");
-        sb.AppendLine(@$"{I1}public abstract class PostgreSqlTestDatabaseFixture : IDisposable");
+        sb.AppendLine(@$"{I1}public abstract class PostgreSqlTestDatabaseFixture : PostgreSqlBaseFixture, IDisposable");
         sb.AppendLine(@$"{I1}{{");
-        sb.AppendLine(@$"{I2}protected NpgsqlConnection Connection {{ get; }}");
-        sb.AppendLine("");
-        sb.AppendLine(@$"{I2}protected PostgreSqlTestDatabaseFixture(PostgreSqlFixture fixture)");
+        sb.AppendLine(@$"{I2}protected PostgreSqlTestDatabaseFixture(PostgreSqlUnitTests tests)");
         sb.AppendLine(@$"{I2}{{");
-        sb.AppendLine(@$"{I3}Connection = fixture.Connection.CloneWith(fixture.Connection.ConnectionString);");
+        sb.AppendLine(@$"{I3}Connection = tests.Connection.CloneWith(tests.Connection.ConnectionString);");
         sb.AppendLine(@$"{I3}Connection.Open();");
         sb.AppendLine(@$"{I2}}}");
         sb.AppendLine("");
@@ -274,13 +278,14 @@ public class TestFixtures : Code
         sb.AppendLine(@$"{I2}}}");
         sb.AppendLine(@$"{I1}}}");
         sb.AppendLine("");
+
         sb.AppendLine(@$"{I1}/// <summary>");
         sb.AppendLine(@$"{I1}/// PostgreSQL Unit Test Fixture uses a pre-created test database that runs each test under a new transaction that is rolled-back automatically.");
         sb.AppendLine(@$"{I1}/// </summary>");
         sb.AppendLine(@$"{I1}[Collection(""PostgreSqlDatabase"")]");
         sb.AppendLine(@$"{I1}public abstract class PostgreSqlTestDatabaseTransactionFixture : PostgreSqlTestDatabaseFixture, IDisposable");
         sb.AppendLine(@$"{I1}{{");
-        sb.AppendLine(@$"{I2}protected PostgreSqlTestDatabaseTransactionFixture(PostgreSqlFixture fixture) : base(fixture)");
+        sb.AppendLine(@$"{I2}protected PostgreSqlTestDatabaseTransactionFixture(PostgreSqlUnitTests tests) : base(tests)");
         sb.AppendLine(@$"{I2}{{");
         sb.AppendLine(@$"{I3}Connection.Execute(""begin"");");
         sb.AppendLine(@$"{I2}}}");
@@ -293,20 +298,19 @@ public class TestFixtures : Code
         sb.AppendLine(@$"{I2}}}");
         sb.AppendLine(@$"{I1}}}");
         sb.AppendLine("");
+
         sb.AppendLine(@$"{I1}/// <summary>");
         sb.AppendLine(@$"{I1}/// PostgreSQL Unit Test Fixture using a a database that is created from the test database as a template for the each new tests and cleaned-up (dropped) after the test.");
         sb.AppendLine(@$"{I1}/// </summary>");
         sb.AppendLine(@$"{I1}[Collection(""PostgreSqlDatabase"")]");
-        sb.AppendLine(@$"{I1}public abstract class PostgreSqlTestTemplateDatabaseFixture : IDisposable");
+        sb.AppendLine(@$"{I1}public abstract class PostgreSqlTestTemplateDatabaseFixture : PostgreSqlBaseFixture, IDisposable");
         sb.AppendLine(@$"{I1}{{");
-        sb.AppendLine(@$"{I2}protected NpgsqlConnection Connection {{ get; }}");
-        sb.AppendLine("");
-        sb.AppendLine(@$"{I2}protected PostgreSqlTestTemplateDatabaseFixture(PostgreSqlFixture fixture)");
+        sb.AppendLine(@$"{I2}protected PostgreSqlTestTemplateDatabaseFixture(PostgreSqlUnitTests tests)");
         sb.AppendLine(@$"{I2}{{");
         sb.AppendLine(@$"{I3}var dbName = string.Concat(Config.Value.TestDatabaseName, ""_"", Guid.NewGuid().ToString().Replace(""-"", ""_""));");
         sb.AppendLine(@$"{I3}using var connection = new NpgsqlConnection(Config.ConnectionString);");
-        sb.AppendLine(@$"{I3}PostgreSqlFixture.CreateDatabase(connection, dbName, connection.Database);");
-        sb.AppendLine(@$"{I3}Connection = fixture.Connection.CloneWith(fixture.Connection.ConnectionString);");
+        sb.AppendLine(@$"{I3}PostgreSqlUnitTests.CreateDatabase(connection, dbName, connection.Database);");
+        sb.AppendLine(@$"{I3}Connection = tests.Connection.CloneWith(tests.Connection.ConnectionString);");
         sb.AppendLine(@$"{I3}Connection.Open();");
         sb.AppendLine(@$"{I3}Connection.ChangeDatabase(dbName);");
         sb.AppendLine(@$"{I2}}}");
@@ -317,7 +321,7 @@ public class TestFixtures : Code
         sb.AppendLine(@$"{I3}Connection.Close();");
         sb.AppendLine(@$"{I3}Connection.Dispose();");
         sb.AppendLine(@$"{I3}using var connection = new NpgsqlConnection(Config.ConnectionString);");
-        sb.AppendLine(@$"{I3}PostgreSqlFixture.DropDatabase(connection, Connection.Database);");
+        sb.AppendLine(@$"{I3}PostgreSqlUnitTests.DropDatabase(connection, Connection.Database);");
         sb.AppendLine(@$"{I2}}}");
         sb.AppendLine(@$"{I1}}}");
 
