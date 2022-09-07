@@ -1,5 +1,9 @@
 ﻿# PgRoutiner - A Different Kind of Object-relational Mapping Tool for .NET projects and PostgreSQL
 
+**`PgRoutiner`** is a set of .NET command-line tools for the PostgreSQL databases.
+
+Leverage your application connection string to manage, query, run external tools and generate C# code.
+
   - [Installation](#installation)
   - [Quick Start](#quick-start)
   
@@ -23,7 +27,7 @@ Tool 'dotnet-pgroutiner' was successfully updated from version '3.16.0' to versi
 2) Open the terminal in your .NET project configured to use the PostgreSQL database.
 3) Type `pgroutiner --list`
 
-If your connection string is configured for the user with the admin privileges - you will see the **list of all database objects.**
+If your connection string is configured for the user with the **admin privileges** - you will see the **list of all database objects.**
 
 See also
 
@@ -809,16 +813,16 @@ Business areas that companies may be invloved.
   - `--use-file-scoped-namespaces` - use file-scoped namespaces (default), instead of block-scoped for all generated source code files
   - `--use-nullable-strings` - use nullable string types `string?` (default), instead of standard strings.
   - `--mapping` - type mapping between PostgreSQL types and .NET. This is a dictionary setting, that can be set either from configuration or command line. To set mapping from the command line use `--mapping:text mystring` to set `text` type to point to `mystring`. Use these settings to change existing mappings or add new ones.
-  - `--custom-models` - this a dictionary setting, which is empty by default, where keys are generated model names and values are custom names we wish to override.
+  - `--custom-models` - this is a dictionary setting, which is empty by default, where keys are generated model names and values are custom names we wish to override.
   - `--model-dir` - models code output directory name. Default is `./Models/`.
   - `--model-custom-namespace` - the name of the custom namespace for models. Default is not set (null) and it will use project default from the project file with respect to the directory. Use this to set a fixed namespace for the generated models.
   - `--empty-model-dir` - force emptying model directory before files are generated. Set to true to delete all files before generation. The default is false.
   - `--skip-sync-methods` - don't generate synchronous methods and functions. The default is false - always generates synchronous methods and functions.
   - `--skip-async-methods` - don't generate asynchronous methods and functions. The default is false - always generates asynchronous methods and functions.
-  - `--source-header-lines` - list of text
-  - `--ident`
-  - `--return-method`
-  - `--method-parameter-names`
+  - `--source-header-lines` - list of header comments inserted into each generated source code file.
+  - `--ident` - default indentation, default is 4.
+  - `--return-method` - name of C# Linq extensions method which will be used by default to return a single value. Default is `SingleOrDefault`.
+  - `--method-parameter-names` - dictionary settings that are used to rename generated parameter names. For example, can't have a parameter name `string``. Replacement for this is `@string` and so on.
 
 ### Routines (functions and procedures) data-access code generation
 
