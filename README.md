@@ -826,7 +826,22 @@ Business areas that companies may be invloved.
 
 ### Routines (functions and procedures) data-access code generation
 
-- `pgroutiner` can generate C# 10 for .NET6 data-access code for PostgreSQL routines (functions and procedures) from your connection, along with the appropriate data model.
+- `pgroutiner` can generate C#/.NET6 data-access code for PostgreSQL routines (functions and procedures). Use `-r` or `--routines` switch to start generating code from your PostgreSQL functions and procedures:
+
+```
+$ pgroutiner -r
+
+** ROUTINE SOURCE CODE GENERATION **
+Creating file: Extensions/Function1.cs ...
+Creating file: Extensions/Function2.cs ...
+Creating file: Extensions/Function3.cs ...
+
+**** FINISHED ****
+```
+
+- Generated modules will contain the extension methods over the connection object that will execute configured functions or procedures and return results (if any).
+
+- Default output directory
 
 ### CRUD data-access code generation
 
