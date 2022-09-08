@@ -2,7 +2,7 @@
 
 **`PgRoutiner`** is a set of .NET command-line tools for the PostgreSQL databases.
 
-Leverage your application connection string to manage, query, run external tools and generate C# code.
+Leverage your .NET application connection string to - manage your PostgreSQL database, query your PostgreSQL database, run external tools for your PostgreSQL database and generate C# code from your PostgreSQL database.
 
   - [Installation](#installation)
   - [Quick Start](#quick-start)
@@ -814,7 +814,7 @@ Business areas that companies may be invloved.
   - `--use-nullable-strings` - use nullable string types `string?` (default), instead of standard strings.
   - `--mapping` - type mapping between PostgreSQL types and .NET. This is a dictionary setting, that can be set either from configuration or command line. To set mapping from the command line use `--mapping:text mystring` to set `text` type to point to `mystring`. Use these settings to change existing mappings or add new ones.
   - `--custom-models` - this is a dictionary setting, which is empty by default, where keys are generated model names and values are custom names we wish to override.
-  - `--model-dir` - models code output directory name. Default is `./Models/`.
+  - `--model-dir` or `-modeldir` - models code output directory name. The default is `./Models/{0}/` where `{0}` format placeholder will be replaced with routine schema other than public in upper camel casing.
   - `--model-custom-namespace` - the name of the custom namespace for models. Default is not set (null) and it will use project default from the project file with respect to the directory. Use this to set a fixed namespace for the generated models.
   - `--empty-model-dir` - force emptying model directory before files are generated. Set to true to delete all files before generation. The default is false.
   - `--skip-sync-methods` - don't generate synchronous methods and functions. The default is false - always generates synchronous methods and functions.
@@ -839,9 +839,21 @@ Creating file: Extensions/Function3.cs ...
 **** FINISHED ****
 ```
 
+- See real worlds examples in this [example repository directory](https://github.com/vb-consulting/postgresql-driven-development-demo/tree/master/PDD.Database/Extensions)
+
 - Generated modules will contain the extension methods over the connection object that will execute configured functions or procedures and return results (if any).
 
-- Default output directory
+- The default output directory is `./Extensions/{0}` where `{0}` format placeholder will be replaced with routine schema other than public in upper camel casing.
+
+- Set a different output directory with `-o` or `--output-dir` options.
+
+- Use `-row` or `--routines-overwrite` switch to always overwrite existing files.
+
+-  Use `-modeldir` or `--model-dir` to set target dir for generated model classes or records. The default is `./Models/{0}/` where `{0}` format placeholder will be replaced with routine schema other than public in upper camel casing. Note that this is a shared setting for all code generation features that creates models.
+
+- Use `--routines-schema-similar-to` or `--routines-schema-not-similar-to` to set [similar expressions](https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP) which will be used to filter out schemas from which the routine code should be generated.
+
+- Use `--routines-similar-to` or `--routines-not-similar-to` to set [similar expressions](https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP) which will be used to filter out routine names.
 
 ### CRUD data-access code generation
 
