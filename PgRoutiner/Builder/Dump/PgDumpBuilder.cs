@@ -468,7 +468,7 @@ public class PgDumpBuilder
             {
                 foreach (var (table, selectList) in selectLists)
                 {
-                    if (line.Contains(table))
+                    if (!string.IsNullOrEmpty(selectList) && !string.Equals(selectList, "*") && line.Contains(table))
                     {
                         line = line.Replace(" VALUES", $" ({selectList}) VALUES");
                     }

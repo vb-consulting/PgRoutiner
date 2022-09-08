@@ -11,14 +11,14 @@ Leverage your .NET application connection string to - manage your PostgreSQL dat
 
 ```
 $ dotnet tool install --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' (version '3.16.2') was successfully installed.
+Tool 'dotnet-pgroutiner' (version '3.16.5') was successfully installed.
 ```
 
 To update:
 
 ```
 $ dotnet tool update --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' was successfully updated from version '3.16.0' to version '3.16.2'.
+Tool 'dotnet-pgroutiner' was successfully updated from version '3.16.3' to version '3.16.5'.
 ```
 
 ## Quick Start
@@ -488,19 +488,21 @@ INSERT INTO public.business_areas OVERRIDING SYSTEM VALUE VALUES (13, 'Consumer'
 ```
 $ pgroutiner -i "select name from business_areas limit 3" --data-dump-no-transaction
 -- Data for Name: business_areas; Type: TABLE DATA; Schema: public; Owner: postgres
-INSERT INTO public.business_areas VALUES ('General');
-INSERT INTO public.business_areas VALUES ('Enterprise');
-INSERT INTO public.business_areas VALUES ('Fintech');
+INSERT INTO public.business_areas (name) VALUES ('General');
+INSERT INTO public.business_areas (name) VALUES ('Enterprise');
+INSERT INTO public.business_areas (name) VALUES ('Fintech');
 ```
+
+- Note that when specifying queries, the select list is included, eg. `INSERT INTO public.business_areas (name) VALUES ('General');` instead of `INSERT INTO public.business_areas OVERRIDING SYSTEM VALUE VALUES (1, 'General', DEFAULT);`
 
 - To specify multiple queries or tables use the semicolon (`;`) separated list:
 
 ```
 $ pgroutiner -i "select name from business_areas limit 3; select * from countries limit 3" --data-dump-no-transaction
 -- Data for Name: business_areas; Type: TABLE DATA; Schema: public; Owner: postgres
-INSERT INTO public.business_areas VALUES ('General');
-INSERT INTO public.business_areas VALUES ('Enterprise');
-INSERT INTO public.business_areas VALUES ('Fintech');
+INSERT INTO public.business_areas (name) VALUES ('General');
+INSERT INTO public.business_areas (name) VALUES ('Enterprise');
+INSERT INTO public.business_areas (name) VALUES ('Fintech');
 -- Data for Name: countries; Type: TABLE DATA; Schema: public; Owner: postgres
 INSERT INTO public.countries VALUES (474, 'MQ', 'MTQ', 'Martinique', 'martinique', NULL);
 INSERT INTO public.countries VALUES (478, 'MR', 'MRT', 'Mauritania', 'mauritania', NULL);

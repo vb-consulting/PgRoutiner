@@ -1,9 +1,13 @@
 ﻿# VERSION HISTORY
 
-## 3.16.4
+## 3.16.5
 
 - For `PostgreSqlTestDatabaseTransactionFixture` set deferred all constraints so we don't have to insert related data.
 - For the data exports from queries (inserts generation), also include the select list from the original query into generated insert statement.
+
+## 3.16.4
+
+- Unusable, upgrade to 3.16.5
 
 ## 3.16.3
 
