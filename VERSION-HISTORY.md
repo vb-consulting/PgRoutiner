@@ -1,5 +1,10 @@
 ﻿# VERSION HISTORY
 
+## 3.16.4
+
+- For `PostgreSqlTestDatabaseTransactionFixture` set deferred all constraints so we don't have to insert related data.
+- For the data exports from queries (inserts generation), also include the select list from the original query into generated insert statement.
+
 ## 3.16.3
 
 - Improve unit test templates, fix typos, fix auto comments and add base fixture with public connection (for extensions).

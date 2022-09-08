@@ -415,6 +415,7 @@ public class PgDumpBuilder
         }
         List<string> tables = new();
         Dictionary<string, string> temporary = new();
+        Dictionary<string, string> selectLists = new();
         bool hasTemp = false;
         try
         {
@@ -424,12 +425,16 @@ public class PgDumpBuilder
                 {
                     var from = item.GetFrom();
                     var temp = $"{from}_tmp_{Guid.NewGuid().ToString().Substring(0, 8)}";
-
+                    var selectList = item.SelectList();
                     try
                     {
                         Connection.Execute(@$"create table {temp} as {item}");
                         temporary.Add(temp, from);
                         tables.Add(temp);
+                        if (!string.IsNullOrEmpty(selectList))
+                        {
+                            selectLists.Add(from, selectList);
+                        }
                         hasTemp = true;
                     }
                     catch (Exception e)
@@ -458,6 +463,18 @@ public class PgDumpBuilder
                     settings.DataDumpOptions.StartsWith(" ") ?
                     settings.DataDumpOptions :
                     string.Concat(" ", settings.DataDumpOptions));
+
+            string selectListFunc(string line)
+            {
+                foreach (var (table, selectList) in selectLists)
+                {
+                    if (line.Contains(table))
+                    {
+                        line = line.Replace(" VALUES", $" ({selectList}) VALUES");
+                    }
+                }
+                return line;
+            }
 
             string lineFunc(string line)
             {
@@ -491,7 +508,7 @@ public class PgDumpBuilder
                         line = line.Replace(temp, table);
                     }
                 }
-                return line;
+                return selectListFunc(line);
             }
             if (!settings.DataDumpNoTransaction)
             {

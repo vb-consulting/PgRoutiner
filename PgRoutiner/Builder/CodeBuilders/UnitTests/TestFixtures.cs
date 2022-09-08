@@ -280,14 +280,14 @@ public class TestFixtures : Code
         sb.AppendLine("");
 
         sb.AppendLine(@$"{I1}/// <summary>");
-        sb.AppendLine(@$"{I1}/// PostgreSQL Unit Test Fixture uses a pre-created test database that runs each test under a new transaction that is rolled-back automatically.");
+        sb.AppendLine(@$"{I1}/// PostgreSQL Unit Test Fixture uses a pre-created test database that runs each test under a new transaction with deferred constraint checks, that is rolled-back automatically.");
         sb.AppendLine(@$"{I1}/// </summary>");
         sb.AppendLine(@$"{I1}[Collection(""PostgreSqlDatabase"")]");
         sb.AppendLine(@$"{I1}public abstract class PostgreSqlTestDatabaseTransactionFixture : PostgreSqlTestDatabaseFixture, IDisposable");
         sb.AppendLine(@$"{I1}{{");
         sb.AppendLine(@$"{I2}protected PostgreSqlTestDatabaseTransactionFixture(PostgreSqlUnitTests tests) : base(tests)");
         sb.AppendLine(@$"{I2}{{");
-        sb.AppendLine(@$"{I3}Connection.Execute(""begin"");");
+        sb.AppendLine(@$"{I3}Connection.Execute(""begin; set constraints all deferred;"");");
         sb.AppendLine(@$"{I2}}}");
         sb.AppendLine("");
         sb.AppendLine(@$"{I2}[System.Diagnostics.CodeAnalysis.SuppressMessage(""Usage"", ""CA1816:Dispose methods should call SuppressFinalize"", Justification = ""XUnit"")]");

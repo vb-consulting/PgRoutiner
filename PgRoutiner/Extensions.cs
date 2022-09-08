@@ -139,6 +139,25 @@ public static class Extensions
         return value.Substring(index1, index2 - index1);
     }
 
+    public static string SelectList(this string value)
+    {
+        var lower = value.ToLowerInvariant();
+        var seq = "select";
+        var index1 = lower.IndexOf(seq);
+        if (index1 == -1)
+        {
+            return null;
+        }
+        index1 = index1 + seq.Length;
+        seq = "from";
+        var index2 = lower.IndexOf(seq, index1);
+        if (index2 == -1)
+        {
+            return value.Substring(index1).Trim();
+        }
+        return value.Substring(index1, index2 - index1).Trim();
+    }
+
     public static string Between(this string value, char start, char end)
     {
         if (value is null)
