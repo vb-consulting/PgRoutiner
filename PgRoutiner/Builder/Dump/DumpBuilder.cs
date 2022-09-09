@@ -183,10 +183,12 @@ public class DumpBuilder
 
     private static void CreateDir(string dir, bool skipDelete = false)
     {
+        /*
         if (!Current.Value.DumpConsole)
         {
             return;
         }
+        */
         if (!Directory.Exists(dir))
         {
             Writer.DumpRelativePath("Creating dir: {0} ...", dir);

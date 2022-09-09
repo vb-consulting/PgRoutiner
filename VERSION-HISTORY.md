@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.16.6
+
+- fir bug with "DbObjectsSkipDeleteDir" option that was prevent it from deleting db objects dir.
+
 ## 3.16.5
 
 - For `PostgreSqlTestDatabaseTransactionFixture` set deferred all constraints so we don't have to insert related data.
