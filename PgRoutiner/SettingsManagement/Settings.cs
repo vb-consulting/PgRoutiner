@@ -120,9 +120,10 @@ namespace PgRoutiner.SettingsManagement
         /*code generation general options*/
         public string Namespace { get; set; } = null;
         public bool UseRecords { get; set; } = false;
+        public HashSet<string> UseRecordsForModels { get; set; } = new();
         public bool UseExpressionBody { get; set; } = false;
         public bool UseFileScopedNamespaces { get; set; } = true;
-        public bool UseNullableStrings { get; set; } = true;
+        public bool UseNullableTypes { get; set; } = true;
         public IDictionary<string, string> Mapping { get; set; } = new Dictionary<string, string>();
         public IDictionary<string, string> CustomModels { get; set; } = new Dictionary<string, string>();
         public string ModelDir { get; set; } = "./Models/{0}/";

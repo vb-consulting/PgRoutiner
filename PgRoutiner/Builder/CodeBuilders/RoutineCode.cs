@@ -398,7 +398,7 @@ public class RoutineCode : Code
                 {
                     return new Return { PgName = $"{routine.TypeUdtName}[]", Name = $"{result}[]", IsVoid = false, IsEnumerable = false };
                 }
-                if (settings.UseNullableStrings)
+                if (settings.UseNullableTypes)
                 {
                     return new Return { PgName = routine.DataType, Name = $"{result}?", IsVoid = false, IsEnumerable = false };
                 }
@@ -481,6 +481,10 @@ public class RoutineCode : Code
             {
                 if (returnModel.Array)
                 {
+                    if (settings.UseNullableTypes)
+                    {
+                        return $"{result}[]?";
+                    }
                     return $"{result}[]";
                 }
                 if (result != "string" && returnModel.Nullable)
@@ -492,7 +496,7 @@ public class RoutineCode : Code
                     }
                     return $"{result}?";
                 }
-                if (settings.UseNullableStrings && result == "string" && returnModel.Nullable)
+                if (settings.UseNullableTypes && result == "string" && returnModel.Nullable)
                 {
                     return $"{result}?";
                 }
@@ -504,7 +508,16 @@ public class RoutineCode : Code
         var modelContent = new StringBuilder();
 
         var columns = new List<string>();
-        if (!settings.UseRecords)
+        if (settings.UseRecords || settings.UseRecordsForModels.Contains(name))
+        {
+            var items = func(connection).ToList();
+            columns.AddRange(items.Select(i => i.Name));
+            model.Append($"{I1}public record {name}(");
+            modelContent.Append(string.Join(", ", items.Select(item => $"{getType(item)} {item.Name.ToUpperCamelCase()}")));
+            model.Append(modelContent);
+            model.AppendLine($");");
+        }
+        else
         {
             model.AppendLine($"{I1}public class {name}");
             model.AppendLine($"{I1}{{");
@@ -515,15 +528,6 @@ public class RoutineCode : Code
             }
             model.Append(modelContent);
             model.AppendLine($"{I1}}}");
-        }
-        else
-        {
-            var items = func(connection).ToList();
-            columns.AddRange(items.Select(i => i.Name));
-            model.Append($"{I1}public record {name}(");
-            modelContent.Append(string.Join(", ", items.Select(item => $"{getType(item)} {item.Name.ToUpperCamelCase()}")));
-            model.Append(modelContent);
-            model.AppendLine($");");
         }
         ColumnsDict.Add(name, columns);
         foreach (var (key, value) in ModelContent)

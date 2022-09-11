@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 3.16.7
+
+- Rename option `UseNullableStrings` to `UseNullableTypes` and fix that it applies to all types, not just string (arrays too).
+
+- Add list option `UseRecordsForModels` which contains a list of model names that will be output as record always.
+
 ## 3.16.6
 
 - fir bug with "DbObjectsSkipDeleteDir" option that was prevent it from deleting db objects dir.

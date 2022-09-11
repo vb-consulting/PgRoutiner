@@ -11,14 +11,14 @@ Leverage your .NET application connection string to - manage your PostgreSQL dat
 
 ```
 $ dotnet tool install --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' (version '3.16.6') was successfully installed.
+Tool 'dotnet-pgroutiner' (version '3.16.7') was successfully installed.
 ```
 
 To update:
 
 ```
 $ dotnet tool update --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' was successfully updated from version '3.16.5' to version '3.16.6'.
+Tool 'dotnet-pgroutiner' was successfully updated from version '3.16.6' to version '3.16.7'.
 ```
 
 ## Quick Start

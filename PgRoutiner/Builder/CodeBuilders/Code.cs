@@ -56,19 +56,26 @@ public abstract class Code
     {
         if (TryGetParamMapping(p, out var result))
         {
-            if (p.IsArray)
+            if (settings.UseNullableTypes)
             {
-                return $"{result}[]";
-            }
-            if (settings.UseNullableStrings)
-            {
+                if (p.IsArray)
+                {
+                    return $"{result}[]?";
+                }
                 return $"{result}?";
             }
-            if (result != "string")
+            else
             {
-                return $"{result}?";
+                if (p.IsArray)
+                {
+                    return $"{result}[]";
+                }
+                if (result != "string")
+                {
+                    return $"{result}?";
+                }
+                return result;
             }
-            return result;
         }
         throw new ArgumentException($"Could not find mapping for type \"{p.DataType}\" for parameter \"{p.Name}\" of routine \"{this.Name}\"");
     }
@@ -77,19 +84,26 @@ public abstract class Code
     {
         if (TryGetParamMapping(p, out var result))
         {
-            if (p.IsArray)
+            if (settings.UseNullableTypes)
             {
-                return $"{result}[]";
-            }
-            if (settings.UseNullableStrings && p.IsNullable)
-            {
+                if (p.IsArray)
+                {
+                    return $"{result}[]?";
+                }
                 return $"{result}?";
             }
-            if (result != "string" && p.IsNullable)
+            else
             {
-                return $"{result}?";
+                if (p.IsArray)
+                {
+                    return $"{result}[]";
+                }
+                if (result != "string" && p.IsNullable)
+                {
+                    return $"{result}?";
+                }
+                return result;
             }
-            return result;
         }
         throw new ArgumentException($"Could not find mapping \"{p.DataType}\" for parameter of routine  \"{this.Name}\"");
     }

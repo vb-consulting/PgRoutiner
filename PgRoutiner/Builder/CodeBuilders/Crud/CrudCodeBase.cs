@@ -169,7 +169,13 @@ public abstract class CrudCodeBase : Code
             name = settings.CustomModels[Name];
         }
         var model = new StringBuilder();
-        if (!settings.UseRecords)
+        if (settings.UseRecords || settings.UseRecordsForModels.Contains(name))
+        {
+            model.Append($"{I1}public record {name}(");
+            model.Append(string.Join(", ", this.Columns.Select(item => $"{GetParamType(item)} {item.Name.ToUpperCamelCase()}")));
+            model.AppendLine($");");
+        }
+        else
         {
             model.AppendLine($"{I1}public class {name}");
             model.AppendLine($"{I1}{{");
@@ -178,12 +184,6 @@ public abstract class CrudCodeBase : Code
                 model.AppendLine($"{I2}public {GetParamType(item)} {item.Name.ToUpperCamelCase()} {{ get; set; }}");
             }
             model.AppendLine($"{I1}}}");
-        }
-        else
-        {
-            model.Append($"{I1}public record {name}(");
-            model.Append(string.Join(", ", this.Columns.Select(item => $"{GetParamType(item)} {item.Name.ToUpperCamelCase()}")));
-            model.AppendLine($");");
         }
 
         UserDefinedModels.Add(name);

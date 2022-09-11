@@ -142,9 +142,10 @@ public class FormatedSettings
             $"- CRUD code generation.");
         AddEntry(nameof(Current.Namespace), Current.Value.Namespace);
         AddEntry(nameof(Current.UseRecords), Current.Value.UseRecords);
+        AddEntry(nameof(Current.UseRecordsForModels), Current.Value.UseRecordsForModels);
         AddEntry(nameof(Current.UseExpressionBody), Current.Value.UseExpressionBody);
         AddEntry(nameof(Current.UseFileScopedNamespaces), Current.Value.UseFileScopedNamespaces);
-        AddEntry(nameof(Current.UseNullableStrings), Current.Value.UseNullableStrings);
+        AddEntry(nameof(Current.UseNullableTypes), Current.Value.UseNullableTypes);
         AddEntry(nameof(Current.Mapping), Current.Value.Mapping);
         AddEntry(nameof(Current.CustomModels), Current.Value.CustomModels);
         AddEntry(nameof(Current.ModelDir), Current.Value.ModelDir);
