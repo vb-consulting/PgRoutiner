@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.16.8
+
+- Change default type mapping from `{"uuid", "string"}` to `{"uuid", "Guid"}` (bug due the Norm implementation support for Guid types).
+
 ## 3.16.7
 
 - Rename option `UseNullableStrings` to `UseNullableTypes` and fix that it applies to all types, not just string (arrays too).

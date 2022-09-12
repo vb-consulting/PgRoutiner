@@ -38,7 +38,7 @@ namespace PgRoutiner.SettingsManagement
             {"varchar", "string"},
             {"float4", "float"},
             {"int4", "int"},
-            {"uuid", "string"}
+            {"uuid", "Guid"}
         };
     }
 }
