@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.16.9
+
+- Fix PostgreSqlConfigurationFixture to set deferred constraints
+
 ## 3.16.8
 
 - Change default type mapping from `{"uuid", "string"}` to `{"uuid", "Guid"}` (bug due the Norm implementation support for Guid types).

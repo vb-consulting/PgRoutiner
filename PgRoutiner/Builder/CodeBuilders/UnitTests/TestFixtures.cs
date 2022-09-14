@@ -236,7 +236,7 @@ public class TestFixtures : Code
         sb.AppendLine("");
         sb.AppendLine(@$"{I3}if (Config.Value.UnitTestsUnderTransaction)");
         sb.AppendLine(@$"{I3}{{");
-        sb.AppendLine(@$"{I4}Connection.Execute(""begin"");");
+        sb.AppendLine(@$"{I4}Connection.Execute(""begin; set constraints all deferred;"");");
         sb.AppendLine(@$"{I3}}}");
         sb.AppendLine(@$"{I2}}}");
         sb.AppendLine("");
