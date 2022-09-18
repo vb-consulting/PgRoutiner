@@ -1,4 +1,11 @@
-﻿using PgRoutiner.DataAccess.Models;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Reflection;
+using System.Security.AccessControl;
+using PgRoutiner.Builder.CodeBuilders;
+using PgRoutiner.DataAccess.Models;
+using PgRoutiner.SettingsManagement;
+using static Npgsql.PostgresTypes.PostgresCompositeType;
 
 namespace PgRoutiner.DumpTransformers;
 
@@ -86,7 +93,34 @@ public class RoutineDumpTransformer : DumpTransformer
                 {
                     endSequence = "END";
                 }
-                Create.Add(line);
+                const string returnsTable = "RETURNS TABLE";
+                var returnsTableIndex = line.IndexOf(returnsTable);
+                if (returnsTableIndex == -1)
+                {
+                    if (line.Contains("LANGUAGE") || line.Contains("AS $"))
+                    {
+                        line = line.Trim();
+                    }
+                    Create.Add(line);
+                }
+                else
+                {
+                    returnsTableIndex = line.IndexOf("(", returnsTableIndex + returnsTable.Length);
+                    var original = line;
+                    line = original.Substring(0, returnsTableIndex);
+                    var expression = original.Substring(returnsTableIndex);
+                    
+                    Create.Add(string.Concat(line, '('));
+                    var fieldsExp = expression.Between('(', ')', useLastIndex: true);
+                    var fields = fieldsExp.Split(", ");
+
+                    foreach (var (field, index) in fields.Select((f,i) => (f,i)))
+                    {
+                        Create.Add(string.Concat(Code.GetIdent(1), field, index < fields.Length - 1 ? ',' : ""));
+                    }
+                    Create.Add(expression.Substring(expression.LastIndexOf(')')));
+                }
+                
                 if (createEnd)
                 {
                     isPrepend = false;

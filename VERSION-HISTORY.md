@@ -1,5 +1,12 @@
 ﻿# VERSION HISTORY
 
+## 3.17.0
+
+- Improved routines body DDL output. Better, smarter indentation and multiple lines for returning tables.
+- Fixed null-able models for CRUD generation.
+- Fixed default values for CRUD generation when using generated database fields.
+- All CRUD lists and now strings that can use `;` separator for multiple tables. If value is `*` it will generate CRUD for all tables.
+
 ## 3.16.9
 
 - Fix PostgreSqlConfigurationFixture to set deferred constraints

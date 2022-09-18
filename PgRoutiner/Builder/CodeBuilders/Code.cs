@@ -5,9 +5,11 @@ namespace PgRoutiner.Builder.CodeBuilders;
 
 public abstract class Code
 {
+    public static string GetIdent(int times) => string.Join("", Enumerable.Repeat(" ", Current.Value.Ident * times));
+
     protected string Ident(int times)
     {
-        if (settings.UseFileScopedNamespaces)
+        if (Current.Value.UseFileScopedNamespaces)
         {
             if (times == 1)
             {
@@ -77,14 +79,14 @@ public abstract class Code
                 return result;
             }
         }
-        throw new ArgumentException($"Could not find mapping for type \"{p.DataType}\" for parameter \"{p.Name}\" of routine \"{this.Name}\"");
+        throw new ArgumentException($"Could not find mapping for type \"{(p.DataType.StartsWith("USER-DEF") ? p.Type : p.DataType)}\" for parameter \"{p.Name}\" of routine \"{this.Name}\". Consider adding new entry to \"Mapping\" settings.");
     }
 
     protected string GetParamType(PgColumnGroup p)
     {
         if (TryGetParamMapping(p, out var result))
         {
-            if (settings.UseNullableTypes)
+            if (settings.UseNullableTypes && p.IsNullable || p.HasDefault)
             {
                 if (p.IsArray)
                 {
@@ -105,7 +107,7 @@ public abstract class Code
                 return result;
             }
         }
-        throw new ArgumentException($"Could not find mapping \"{p.DataType}\" for parameter of routine  \"{this.Name}\"");
+        throw new ArgumentException($"Could not find mapping \"{(p.DataType.StartsWith("USER-DEF") ?  p.Type : p.DataType)}\" for parameter of table \"{this.Name}\". Consider adding new entry to \"Mapping\" settings.");
     }
 
     protected string GetParamDbType(PgParameter p)

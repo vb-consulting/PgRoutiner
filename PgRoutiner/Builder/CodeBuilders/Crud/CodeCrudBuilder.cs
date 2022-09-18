@@ -9,22 +9,35 @@ public class CodeCrudBuilder : CodeBuilder
 
     protected override IEnumerable<CodeResult> GetCodes()
     {
-        var nonExisting = connection.GetTablesThatDontExist(settings.CrudReadBy
-            .Union(settings.CrudReadAll)
-            .Union(settings.CrudUpdate)
-            .Union(settings.CrudUpdateReturning)
-            .Union(settings.CrudDeleteBy)
-            .Union(settings.CrudDeleteByReturning)
-            .Union(settings.CrudCreate)
-            .Union(settings.CrudCreateReturning)
-            .Union(settings.CrudCreateOnConflictDoNothing)
-            .Union(settings.CrudCreateOnConflictDoNothingReturning)
-            .Union(settings.CrudCreateOnConflictDoUpdate)
-            .Union(settings.CrudCreateOnConflictDoUpdateReturning).ToList()).ToArray();
+        var crudReadBy = settings.CrudReadBy?.Split(";").ToHashSet() ?? new HashSet<string>();
+        var crudReadAll = settings.CrudReadAll?.Split(";").ToHashSet() ?? new HashSet<string>();
+        var crudUpdate = settings.CrudUpdate?.Split(";").ToHashSet() ?? new HashSet<string>();
+        var crudUpdateReturning = settings.CrudUpdateReturning?.Split(";").ToHashSet() ?? new HashSet<string>();
+        var crudDeleteBy = settings.CrudDeleteBy?.Split(";").ToHashSet() ?? new HashSet<string>();
+        var crudDeleteByReturning = settings.CrudDeleteByReturning?.Split(";").ToHashSet() ?? new HashSet<string>();
+        var crudCreate = settings.CrudCreate?.Split(";").ToHashSet() ?? new HashSet<string>();
+        var crudCreateReturning = settings.CrudCreateReturning?.Split(";").ToHashSet() ?? new HashSet<string>();
+        var crudCreateOnConflictDoNothing = settings.CrudCreateOnConflictDoNothing?.Split(";").ToHashSet() ?? new HashSet<string>();
+        var crudCreateOnConflictDoNothingReturning = settings.CrudCreateOnConflictDoNothingReturning?.Split(";").ToHashSet() ?? new HashSet<string>();
+        var crudCreateOnConflictDoUpdate = settings.CrudCreateOnConflictDoUpdate?.Split(";")?.ToHashSet() ?? new HashSet<string>();
+        var crudCreateOnConflictDoUpdateReturning = settings.CrudCreateOnConflictDoUpdateReturning?.Split(";").ToHashSet() ?? new HashSet<string>();
+
+        var nonExisting = connection.GetTablesThatDontExist(crudReadBy
+            .Union(crudReadAll)
+            .Union(crudUpdate)
+            .Union(crudUpdateReturning)
+            .Union(crudDeleteBy)
+            .Union(crudDeleteByReturning)
+            .Union(crudCreate)
+            .Union(crudCreateReturning)
+            .Union(crudCreateOnConflictDoNothing)
+            .Union(crudCreateOnConflictDoNothingReturning)
+            .Union(crudCreateOnConflictDoUpdate)
+            .Union(crudCreateOnConflictDoUpdateReturning).ToList()).ToArray();
 
         if (nonExisting.Any())
         {
-            Program.WriteLine(ConsoleColor.Yellow, "", $"WARNING: Some of the tables in CRUD configuration are not found in the database. Following tables will be skiped for the CRUD code generation: {string.Join(", ", nonExisting)}");
+            Program.WriteLine(ConsoleColor.Yellow, "", $"WARNING: Some of the tables in CRUD configuration are not found in the database. Following tables will be skipped for the CRUD code generation: {string.Join(", ", nonExisting)}");
         }
 
         foreach (var group in connection.GetTableDefintions(settings))
@@ -62,7 +75,7 @@ public class CodeCrudBuilder : CodeBuilder
             }
 
 
-            if (OptionContains(settings.CrudReadBy, schema, name))
+            if (OptionContains(crudReadBy, schema, name))
             {
                 var result = GetCodeResult("read_by", () => new CrudReadByCode(settings, group.Key, module.Namespace, group));
                 if (result == null)
@@ -71,7 +84,7 @@ public class CodeCrudBuilder : CodeBuilder
                 }
                 yield return result;
             }
-            if (OptionContains(settings.CrudReadAll, schema, name))
+            if (OptionContains(crudReadAll, schema, name))
             {
                 var result = GetCodeResult("read_all", () => new CrudReadAllCode(settings, group.Key, module.Namespace, group));
                 if (result == null)
@@ -80,7 +93,7 @@ public class CodeCrudBuilder : CodeBuilder
                 }
                 yield return result;
             }
-            if (OptionContains(settings.CrudUpdate, schema, name))
+            if (OptionContains(crudUpdate, schema, name))
             {
                 var result = GetCodeResult("update", () => new CrudUpdateCode(settings, group.Key, module.Namespace, group));
                 if (result == null)
@@ -89,7 +102,7 @@ public class CodeCrudBuilder : CodeBuilder
                 }
                 yield return result;
             }
-            if (OptionContains(settings.CrudUpdateReturning, schema, name))
+            if (OptionContains(crudUpdateReturning, schema, name))
             {
                 var result = GetCodeResult("update_returning", () => new CrudUpdateReturningCode(settings, group.Key, module.Namespace, group));
                 if (result == null)
@@ -98,7 +111,7 @@ public class CodeCrudBuilder : CodeBuilder
                 }
                 yield return result;
             }
-            if (OptionContains(settings.CrudDeleteBy, schema, name))
+            if (OptionContains(crudDeleteBy, schema, name))
             {
                 var result = GetCodeResult("delete_by", () => new CrudDeleteByCode(settings, group.Key, module.Namespace, group));
                 if (result == null)
@@ -107,7 +120,7 @@ public class CodeCrudBuilder : CodeBuilder
                 }
                 yield return result;
             }
-            if (OptionContains(settings.CrudDeleteByReturning, schema, name))
+            if (OptionContains(crudDeleteByReturning, schema, name))
             {
                 var result = GetCodeResult("delete_by_returning", () => new CrudDeleteByReturningCode(settings, group.Key, module.Namespace, group));
                 if (result == null)
@@ -116,7 +129,7 @@ public class CodeCrudBuilder : CodeBuilder
                 }
                 yield return result;
             }
-            if (OptionContains(settings.CrudCreate, schema, name))
+            if (OptionContains(crudCreate, schema, name))
             {
                 var result = GetCodeResult("create", () => new CrudCreateCode(settings, group.Key, module.Namespace, group));
                 if (result == null)
@@ -125,7 +138,7 @@ public class CodeCrudBuilder : CodeBuilder
                 }
                 yield return result;
             }
-            if (OptionContains(settings.CrudCreateReturning, schema, name))
+            if (OptionContains(crudCreateReturning, schema, name))
             {
                 var result = GetCodeResult("create_returning", () => new CrudCreateReturningCode(settings, group.Key, module.Namespace, group));
                 if (result == null)
@@ -134,7 +147,7 @@ public class CodeCrudBuilder : CodeBuilder
                 }
                 yield return result;
             }
-            if (OptionContains(settings.CrudCreateOnConflictDoNothing, schema, name))
+            if (OptionContains(crudCreateOnConflictDoNothing, schema, name))
             {
                 var result = GetCodeResult("create_on_conflict_do_nothing", () => new CrudCreateOnConflictDoNothingCode(settings, group.Key, module.Namespace, group));
                 if (result == null)
@@ -143,7 +156,7 @@ public class CodeCrudBuilder : CodeBuilder
                 }
                 yield return result;
             }
-            if (OptionContains(settings.CrudCreateOnConflictDoNothingReturning, schema, name))
+            if (OptionContains(crudCreateOnConflictDoNothingReturning, schema, name))
             {
                 var result = GetCodeResult("create_on_conflict_do_nothing_returning", () => new CrudCreateOnConflictDoNothingReturningCode(settings, group.Key, module.Namespace, group));
                 if (result == null)
@@ -152,7 +165,7 @@ public class CodeCrudBuilder : CodeBuilder
                 }
                 yield return result;
             }
-            if (OptionContains(settings.CrudCreateOnConflictDoUpdate, schema, name))
+            if (OptionContains(crudCreateOnConflictDoUpdate, schema, name))
             {
                 var result = GetCodeResult("create_on_conflict_do_update", () => new CrudCreateOnConflictDoUpdateCode(settings, group.Key, module.Namespace, group));
                 if (result == null)
@@ -161,7 +174,7 @@ public class CodeCrudBuilder : CodeBuilder
                 }
                 yield return result;
             }
-            if (OptionContains(settings.CrudCreateOnConflictDoUpdateReturning, schema, name))
+            if (OptionContains(crudCreateOnConflictDoUpdateReturning, schema, name))
             {
                 var result = GetCodeResult("create_on_conflict_do_update_returning", () => new CrudCreateOnConflictDoUpdateReturningCode(settings, group.Key, module.Namespace, group));
                 if (result == null)
@@ -175,7 +188,8 @@ public class CodeCrudBuilder : CodeBuilder
 
     public static bool OptionContains(HashSet<string> option, string schema, string name)
     {
-        return option.Contains(name) ||
+        return option.Contains("*") || 
+            option.Contains(name) ||
             option.Contains($"{schema}.{name}") ||
             option.Contains($"\"{schema}\".\"{name}\"") ||
             option.Contains($"{schema}.\"{name}\"") ||

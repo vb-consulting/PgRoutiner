@@ -48,9 +48,9 @@ namespace PgRoutiner.SettingsManagement
             }
 
             var routineCount = connection.GetRoutineCount(Value, schemaSimilarTo: Value.RoutinesSchemaSimilarTo, schemaNotSimilarTo: Value.RoutinesSchemaNotSimilarTo);
-            var crudCount = connection.GetTableDefintionsCount(Value);
+            //var crudCount = connection.GetTableDefintionsCount(Value);
             if ((Value.Routines && Value.OutputDir != null && routineCount > 0) ||
-                (Value.Crud && Value.CrudOutputDir != null && crudCount > 0) ||
+                (Value.Crud && Value.CrudOutputDir != null/*&& crudCount > 0*/) ||
                 (Value.UnitTests && Value.UnitTestsDir != null))
             {
                 ProjectInfo = ParseProjectFile();

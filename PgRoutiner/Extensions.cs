@@ -158,7 +158,7 @@ public static class Extensions
         return value.Substring(index1, index2 - index1).Trim();
     }
 
-    public static string Between(this string value, char start, char end)
+    public static string Between(this string value, char start, char end, bool useLastIndex = false)
     {
         if (value is null)
         {
@@ -174,7 +174,7 @@ public static class Extensions
             return null;
         }
         index++;
-        var lastindex = value.IndexOf(end, index);
+        var lastindex = useLastIndex ? value.LastIndexOf(end) : value.IndexOf(end, index);
         int len;
         if (lastindex == -1)
         {

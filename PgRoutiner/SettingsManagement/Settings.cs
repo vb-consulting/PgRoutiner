@@ -278,18 +278,18 @@ namespace PgRoutiner.SettingsManagement
         public bool CrudAskOverwrite { get; set; } = false;
         public bool CrudNoPrepare { get; set; } = false;
         public IDictionary<string, string> CrudReturnMethods { get; set; } = new Dictionary<string, string>();
-        public HashSet<string> CrudCreate { get; set; } = new HashSet<string>();
-        public HashSet<string> CrudCreateReturning { get; set; } = new HashSet<string>();
-        public HashSet<string> CrudCreateOnConflictDoNothing { get; set; } = new HashSet<string>();
-        public HashSet<string> CrudCreateOnConflictDoNothingReturning { get; set; } = new HashSet<string>();
-        public HashSet<string> CrudCreateOnConflictDoUpdate { get; set; } = new HashSet<string>();
-        public HashSet<string> CrudCreateOnConflictDoUpdateReturning { get; set; } = new HashSet<string>();
-        public HashSet<string> CrudReadBy { get; set; } = new HashSet<string>();
-        public HashSet<string> CrudReadAll { get; set; } = new HashSet<string>();
-        public HashSet<string> CrudUpdate { get; set; } = new HashSet<string>();
-        public HashSet<string> CrudUpdateReturning { get; set; } = new HashSet<string>();
-        public HashSet<string> CrudDeleteBy { get; set; } = new HashSet<string>();
-        public HashSet<string> CrudDeleteByReturning { get; set; } = new HashSet<string>();
+        public string CrudCreate { get; set; } = null;
+        public string CrudCreateReturning { get; set; } = null;
+        public string CrudCreateOnConflictDoNothing { get; set; } = null;
+        public string CrudCreateOnConflictDoNothingReturning { get; set; } = null;
+        public string CrudCreateOnConflictDoUpdate { get; set; } = null;
+        public string CrudCreateOnConflictDoUpdateReturning { get; set; } = null;
+        public string CrudReadBy { get; set; } = null;
+        public string CrudReadAll { get; set; } = null;
+        public string CrudUpdate { get; set; } = null;
+        public string CrudUpdateReturning { get; set; } = null;
+        public string CrudDeleteBy { get; set; } = null;
+        public string CrudDeleteByReturning { get; set; } = null;
 
         public static readonly Current Value = new();
     }

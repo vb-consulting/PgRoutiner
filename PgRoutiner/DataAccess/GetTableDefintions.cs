@@ -31,7 +31,11 @@ public static partial class DataAccessConnectionExtensions
                 t.table_name, 
                 c.column_name,
                 c.ordinal_position,
-                c.column_default,
+                case
+                    when c.identity_generation is not null then 'GENERATED ' || c.identity_generation || ' AS IDENTITY'
+                    when c.is_generated <> 'NEVER' then 'GENERATED ' || c.is_generated || ' AS ' || c.generation_expression
+                    else c.column_default
+                end as column_default,
                 c.is_nullable,
                 c.data_type,
                 regexp_replace(c.udt_name, '^[_]', '') as udt_name,
@@ -75,7 +79,7 @@ public static partial class DataAccessConnectionExtensions
             })
             .GroupBy(i => (i.Schema, i.Table));
     }
-
+    /*
     public static int GetTableDefintionsCount(this NpgsqlConnection connection, Current settings)
     {
         int count = 0;
@@ -134,4 +138,5 @@ public static partial class DataAccessConnectionExtensions
         }
         return count;
     }
+    */
 }
