@@ -79,6 +79,7 @@ static partial class Program
             WriteLine("");
             return;
         }
+
         WriteLine("");
         Runner.Run(connection);
         WriteLine("");

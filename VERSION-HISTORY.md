@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.17.1
+
+- Fix prblem with multiple constraints on CRUD models that caused doubling fields.
+
 ## 3.17.0
 
 - Improved routines body DDL output. Better, smarter indentation and multiple lines for returning tables.

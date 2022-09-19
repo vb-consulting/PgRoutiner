@@ -24,7 +24,7 @@ public static partial class DataAccessConnectionExtensions
                 string DataType,
                 string TypeUdtName,
                 string IsIdentity,
-                string ConstraintType)>(@$"
+                string[] ConstraintTypes)>(@$"
 
             select 
                 t.table_schema, 
@@ -40,7 +40,7 @@ public static partial class DataAccessConnectionExtensions
                 c.data_type,
                 regexp_replace(c.udt_name, '^[_]', '') as udt_name,
                 c.is_identity,
-                tc.constraint_type
+                array_agg(tc.constraint_type) as constraint_types
             from 
                 information_schema.tables t
                 inner join information_schema.columns c 
@@ -57,6 +57,19 @@ public static partial class DataAccessConnectionExtensions
                 (   $1 is null or (t.table_schema similar to $1)   )
                 and (   $2 is null or (t.table_schema not similar to $2)   )
                 and (   {GetSchemaExpression("t.table_schema")}  )
+            group by 
+                t.table_schema, 
+                t.table_name, 
+                c.column_name,
+                c.ordinal_position,
+                c.identity_generation,
+                c.is_generated,
+                c.generation_expression,
+                c.column_default,
+                c.is_nullable,
+                c.data_type,
+                c.udt_name,
+                c.is_identity
             order by 
                 t.table_schema, 
                 t.table_name, 
@@ -73,9 +86,9 @@ public static partial class DataAccessConnectionExtensions
                 IsNullable = string.Equals(t.IsNullable, "YES"),
                 DataType = t.DataType,
                 Type = t.TypeUdtName,
-                IsArray = string.Equals(t.ConstraintType, "ARRAY"),
+                IsArray = t.ConstraintTypes.Contains("ARRAY"),
                 IsIdentity = string.Equals(t.IsIdentity, "YES"),
-                IsPk = string.Equals(t.ConstraintType, "PRIMARY KEY"),
+                IsPk = t.ConstraintTypes.Contains("PRIMARY KEY"),
             })
             .GroupBy(i => (i.Schema, i.Table));
     }
