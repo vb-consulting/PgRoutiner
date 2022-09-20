@@ -19,14 +19,16 @@ namespace PgRoutiner.SettingsManagement
 
     public partial class Current
     {
-        public static Project ProjectInfo = null;
+        private static Project projectInfo = null;
+
+        public static Project ProjectInfo { get => projectInfo; set => projectInfo = value; }
 
         public static bool ParseInitialSettings(NpgsqlConnection connection, bool haveArguments, string pgroutinerSettingsFile)
         {
             var pgroutinerFile = Path.Join(Program.CurrentDir, pgroutinerSettingsFile);
             var exists = File.Exists(Path.Join(pgroutinerFile));
 
-            if (!exists && Program.Config.GetSection("PgRoutiner").GetChildren().Count() == 0 && !haveArguments)
+            if (!exists && !Program.Config.GetSection("PgRoutiner").GetChildren().Any() && !haveArguments)
             {
                 Program.WriteLine(ConsoleColor.Yellow, "",
                     "You don't seem to be using any available command-line commands and PgRoutiner configuration seems to be missing.");
@@ -50,7 +52,6 @@ namespace PgRoutiner.SettingsManagement
             var routineCount = connection.GetRoutineCount(Value, schemaSimilarTo: Value.RoutinesSchemaSimilarTo, schemaNotSimilarTo: Value.RoutinesSchemaNotSimilarTo);
             //var crudCount = connection.GetTableDefintionsCount(Value);
             if ((Value.Routines && Value.OutputDir != null && routineCount > 0) ||
-                (Value.Crud && Value.CrudOutputDir != null/*&& crudCount > 0*/) ||
                 (Value.UnitTests && Value.UnitTestsDir != null))
             {
                 ProjectInfo = ParseProjectFile();
@@ -166,7 +167,7 @@ namespace PgRoutiner.SettingsManagement
 
             var ns = Path.GetFileNameWithoutExtension(projectFile);
 
-            Project result = new Project { ProjectFile = projectFile };
+            Project result = new() { ProjectFile = projectFile };
 
             using (var fileStream = File.OpenText(projectFile))
             {

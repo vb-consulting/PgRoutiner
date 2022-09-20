@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.18.0
+
+- Drop the CRUD generation support. Too many problems with too few benefits if any.
+
 ## 3.17.1
 
 - Fix prblem with multiple constraints on CRUD models that caused doubling fields.

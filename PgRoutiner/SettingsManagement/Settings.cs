@@ -75,9 +75,6 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg DiffPgDumpArgs = new("-diff-pg-dump", nameof(DiffPgDump));
         public static readonly Arg DiffTargetArgs = new("-diff-target", nameof(DiffTarget));
 
-        public static readonly Arg CrudArgs = new("-crud", nameof(Crud));
-        public static readonly Arg CrudOutputDirArgs = new("-crud-o", nameof(CrudOutputDir));
-
 #if DEBUG
         [JsonIgnore] public string Project { get; set; }
 #endif
@@ -270,26 +267,6 @@ namespace PgRoutiner.SettingsManagement
         public bool DiffPrivileges { get; set; } = false;
         public string DiffSkipSimilarTo { get; set; } = "pg_%";
 
-        /*crud settings*/
-        public bool Crud { get; set; } = false;
-        public string CrudOutputDir { get; set; } = "./Extensions/{0}/";
-        public bool CrudEmptyOutputDir { get; set; } = false;
-        public bool CrudOverwrite { get; set; } = false;
-        public bool CrudAskOverwrite { get; set; } = false;
-        public bool CrudNoPrepare { get; set; } = false;
-        public IDictionary<string, string> CrudReturnMethods { get; set; } = new Dictionary<string, string>();
-        public string CrudCreate { get; set; } = null;
-        public string CrudCreateReturning { get; set; } = null;
-        public string CrudCreateOnConflictDoNothing { get; set; } = null;
-        public string CrudCreateOnConflictDoNothingReturning { get; set; } = null;
-        public string CrudCreateOnConflictDoUpdate { get; set; } = null;
-        public string CrudCreateOnConflictDoUpdateReturning { get; set; } = null;
-        public string CrudReadBy { get; set; } = null;
-        public string CrudReadAll { get; set; } = null;
-        public string CrudUpdate { get; set; } = null;
-        public string CrudUpdateReturning { get; set; } = null;
-        public string CrudDeleteBy { get; set; } = null;
-        public string CrudDeleteByReturning { get; set; } = null;
 
         public static readonly Current Value = new();
     }

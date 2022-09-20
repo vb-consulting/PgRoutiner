@@ -11,14 +11,14 @@ Leverage your .NET application connection string to - manage your PostgreSQL dat
 
 ```
 $ dotnet tool install --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' (version '3.16.7') was successfully installed.
+Tool 'dotnet-pgroutiner' (version '3.18.0') was successfully installed.
 ```
 
 To update:
 
 ```
 $ dotnet tool update --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' was successfully updated from version '3.16.6' to version '3.16.7'.
+Tool 'dotnet-pgroutiner' was successfully updated from version '3.17.6' to version '3.18.0'.
 ```
 
 ## Quick Start
@@ -48,8 +48,8 @@ See also
   - [Build markdown database dictionary](#build-markdown-database-dictionary)
   - [Database difference script](#database-difference-script)
   - [Code generation](#code-generation)
-    - [Routines (functions and procedures) data-access code generation](#routines-functions-and-procedures-data-access-code-generation)
-    - [CRUD data-access code generation](#crud-data-access-code-generation)
+    - [Routines data-access code generation](#routines-data-access-code-generation)
+    - [Unit Test Project template generation](#unit-test-project-template-generation)
   - [Troubleshooting](#troubleshooting)
   - [Support](#support)
   - [License](#license)
@@ -826,7 +826,7 @@ Business areas that companies may be invloved.
   - `--return-method` - name of C# Linq extensions method which will be used by default to return a single value. Default is `SingleOrDefault`.
   - `--method-parameter-names` - dictionary settings that are used to rename generated parameter names. For example, can't have a parameter name `string``. Replacement for this is `@string` and so on.
 
-### Routines (functions and procedures) data-access code generation
+### Routines data-access code generation
 
 - `pgroutiner` can generate C#/.NET6 data-access code for PostgreSQL routines (functions and procedures). Use `-r` or `--routines` switch to start generating code from your PostgreSQL functions and procedures:
 
@@ -857,7 +857,9 @@ Creating file: Extensions/Function3.cs ...
 
 - Use `--routines-similar-to` or `--routines-not-similar-to` to set [similar expressions](https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP) which will be used to filter out routine names.
 
-### CRUD data-access code generation
+### Unit Test Project template generation
+
+...
 
 ## Troubleshooting
 

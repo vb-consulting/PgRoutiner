@@ -14,10 +14,10 @@
     <PackageProjectUrl Condition="'$(Configuration)'!='SelfContained'">https://github.com/vb-consulting/PgRoutiner</PackageProjectUrl>
     <PackageTags Condition="'$(Configuration)'!='SelfContained'">PostgreSQL</PackageTags>
     <GeneratePackageOnBuild Condition="'$(Configuration)'!='SelfContained'">true</GeneratePackageOnBuild>
-    <Version>3.17.1.0</Version>
+    <Version>3.18.0.0</Version>
     <PackageId Condition="'$(Configuration)'!='SelfContained'">dotnet-pgroutiner</PackageId>
-    <AssemblyVersion>3.17.1.0</AssemblyVersion>
-    <FileVersion>3.17.1.0</FileVersion>
+    <AssemblyVersion>3.18.9.0</AssemblyVersion>
+    <FileVersion>3.18.0.0</FileVersion>
     <Configurations>Debug;Release;SelfContained</Configurations>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
@@ -50,12 +50,6 @@
     <PackageReference Include="Norm.net" Version="5.2.3" />
     <PackageReference Include="Npgsql" Version="6.0.6" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="appsettings.PgRoutiner.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>

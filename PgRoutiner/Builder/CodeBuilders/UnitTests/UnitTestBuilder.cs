@@ -45,7 +45,6 @@ public class UnitTestBuilder
         var projectFile = Path.GetFullPath(Path.Join(dir, $"{name}.csproj"));
         List<ExtensionMethods> extensions = new();
         extensions.AddRange(new CodeRoutinesBuilder(connection, Current.Value, CodeSettings.ToRoutineSettings(Current.Value)).GetMethods());
-        extensions.AddRange(new Crud.CodeCrudBuilder(connection, Current.Value, CodeSettings.ToCrudSettings(Current.Value)).GetMethods());
 
         if (!File.Exists(projectFile))
         {

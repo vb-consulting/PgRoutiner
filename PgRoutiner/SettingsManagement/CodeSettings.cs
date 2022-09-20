@@ -19,17 +19,5 @@
                 AskOverwrite = settings.RoutinesAskOverwrite
             };
         }
-
-        public static CodeSettings ToCrudSettings(Current settings)
-        {
-            return new CodeSettings
-            {
-                Enabled = settings.Crud,
-                OutputDir = settings.CrudOutputDir,
-                EmptyOutputDir = settings.CrudEmptyOutputDir,
-                Overwrite = settings.CrudOverwrite,
-                AskOverwrite = settings.CrudAskOverwrite
-            };
-        }
     }
 }

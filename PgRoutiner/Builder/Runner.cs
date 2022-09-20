@@ -132,12 +132,6 @@ public class Runner
             new CodeBuilders.CodeRoutinesBuilder(connection, Current.Value, CodeSettings.ToRoutineSettings(Current.Value)).Build();
         }
 
-        if (Current.Value.Crud)
-        {
-            Writer.DumpTitle("** CRUD SOURCE CODE GENERATION **");
-            new CodeBuilders.Crud.CodeCrudBuilder(connection, Current.Value, CodeSettings.ToCrudSettings(Current.Value)).Build();
-        }
-
         if (Current.Value.UnitTests)
         {
             Writer.DumpTitle("** UNIT TEST PROJECT TEMPLATE CODE GENERATION **");

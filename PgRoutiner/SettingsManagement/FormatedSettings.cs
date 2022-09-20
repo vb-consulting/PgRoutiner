@@ -301,33 +301,7 @@ public class FormatedSettings
         AddEntry(nameof(Current.DiffFilePattern), Current.Value.DiffFilePattern);
         AddEntry(nameof(Current.DiffPgDump), Current.Value.DiffPgDump);
         AddEntry(nameof(Current.DiffPrivileges), Current.Value.DiffPrivileges);
-        AddEntry(nameof(Current.DiffSkipSimilarTo), Current.Value.DiffSkipSimilarTo);
-
-        sb.AppendLine();
-        AddSectionComment(
-            "CRUD scripts settings",
-            null,
-            $"- Use \"{Current.CrudArgs.Alias}\" or \"--{Current.CrudArgs.Original.ToKebabCase()}\" switch to run CRUD extension methods generation from the command line.",
-            $"- Use \"{Current.CrudOutputDirArgs.Alias}\" or \"--{Current.CrudOutputDirArgs.Original.ToKebabCase()}\" option to set the custom models output dir for the generated CRUD extension methods code from the command line.");
-        AddEntry(nameof(Current.Crud), Current.Value.Crud);
-        AddEntry(nameof(Current.CrudOutputDir), Current.Value.CrudOutputDir);
-        AddEntry(nameof(Current.CrudEmptyOutputDir), Current.Value.CrudEmptyOutputDir);
-        AddEntry(nameof(Current.CrudOverwrite), Current.Value.CrudOverwrite);
-        AddEntry(nameof(Current.CrudAskOverwrite), Current.Value.CrudAskOverwrite);
-        AddEntry(nameof(Current.CrudNoPrepare), Current.Value.CrudNoPrepare);
-        AddEntry(nameof(Current.CrudReturnMethods), Current.Value.CrudReturnMethods);
-        AddEntry(nameof(Current.CrudCreate), Current.Value.CrudCreate);
-        AddEntry(nameof(Current.CrudCreateReturning), Current.Value.CrudCreateReturning);
-        AddEntry(nameof(Current.CrudCreateOnConflictDoNothing), Current.Value.CrudCreateOnConflictDoNothing);
-        AddEntry(nameof(Current.CrudCreateOnConflictDoNothingReturning), Current.Value.CrudCreateOnConflictDoNothingReturning);
-        AddEntry(nameof(Current.CrudCreateOnConflictDoUpdate), Current.Value.CrudCreateOnConflictDoUpdate);
-        AddEntry(nameof(Current.CrudCreateOnConflictDoUpdateReturning), Current.Value.CrudCreateOnConflictDoUpdateReturning);
-        AddEntry(nameof(Current.CrudReadBy), Current.Value.CrudReadBy);
-        AddEntry(nameof(Current.CrudReadAll), Current.Value.CrudReadAll);
-        AddEntry(nameof(Current.CrudUpdate), Current.Value.CrudUpdate);
-        AddEntry(nameof(Current.CrudUpdateReturning), Current.Value.CrudUpdateReturning);
-        AddEntry(nameof(Current.CrudDeleteBy), Current.Value.CrudDeleteBy);
-        AddEntry(nameof(Current.CrudDeleteByReturning), Current.Value.CrudDeleteByReturning, "");
+        AddEntry(nameof(Current.DiffSkipSimilarTo), Current.Value.DiffSkipSimilarTo, "");
 
         if (wrap)
         {
