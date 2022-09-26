@@ -183,7 +183,13 @@ public class MarkdownDocument
                 content.AppendLine();
                 content.AppendLine(
                     $"### {result.Type.First().ToString().ToUpper()}{result.Type[1..]} `{schema}.{result.Signature}`");
-                var routineAnchor = result.Signature.ToLower().Replace("(", "").Replace(")", "").Replace(",", "").Replace(" ", "-");
+                var routineAnchor = result.Signature.ToLower()
+                    .Replace("(", "")
+                    .Replace(")", "")
+                    .Replace(",", "")
+                    .Replace("[", "")
+                    .Replace("]", "")
+                    .Replace(" ", "-");
                 header.AppendLine($"- {result.Type.First().ToString().ToUpper()}{result.Type[1..]} [`{schema}.{result.Signature}`](#{result.Type.ToLower()}-{schema.ToLower()}{routineAnchor})");
                 content.AppendLine();
                 content.AppendLine($"- Returns `{result.Returns}`");

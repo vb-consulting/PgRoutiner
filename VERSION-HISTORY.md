@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.18.1
+
+- Fix broken TOC entries in generated Markdown for functions when containing array types
+
 ## 3.18.0
 
 - Drop the CRUD generation support. Too many problems with too few benefits if any.
