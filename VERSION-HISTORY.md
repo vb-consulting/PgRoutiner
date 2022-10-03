@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.18.2
+
+- Fix wrong readme URL link.
+
 ## 3.18.1
 
 - Fix broken TOC entries in generated Markdown for functions when containing array types

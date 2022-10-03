@@ -1,4 +1,4 @@
-﻿# PgRoutiner - A Different Kind of Object-relational Mapping Tool for .NET projects and PostgreSQL
+﻿# PgRoutiner - Database-First Development with .NET and PostgreSQL.
 
 **`PgRoutiner`** is a set of .NET command-line tools for the PostgreSQL databases.
 
@@ -9,17 +9,48 @@ Leverage your .NET application connection string to - manage your PostgreSQL dat
   
 ## Installation
 
+To install a global tool (recommended):
+
 ```
 $ dotnet tool install --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' (version '3.18.0') was successfully installed.
+Tool 'dotnet-pgroutiner' (version '3.18.2') was successfully installed.
 ```
 
-To update:
+To update a global tool:
 
 ```
 $ dotnet tool update --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' was successfully updated from version '3.17.6' to version '3.18.0'.
+Tool 'dotnet-pgroutiner' was successfully updated from version '3.18.1' to version '3.18.2'.
 ```
+
+This will enable a global command line tool `pgroutiner`. Try typing `pgroutiner --help`.
+
+To add a local tool to your project only you need to create a manifest file and add a tool without `-`-global` switch as described in this [tutorial](https://learn.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use).
+
+TLDR:
+
+- Add this `.config` dir to your project or solution dir.
+
+- Add this `dotnet-tools.json` file to this dir with this content:
+
+```json
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "dotnet-pgroutiner": {
+      "version": "3.18.2",
+      "commands": [
+        "pgroutiner"
+      ]
+    }
+  }
+}
+```
+
+- From your command line type `dotnet tool restore`
+
+- Run the tool with `dotnet tool run pgroutiner`
 
 ## Quick Start
 
@@ -31,7 +62,7 @@ If your connection string is configured for the user with the **admin privileges
 
 See also
 
-- [PgRoutiner - A Different Kind of Object-relational Mapping Tool for .NET projects and PostgreSQL](#pgroutiner---a-different-kind-of-object-relational-mapping-tool-for-net-projects-and-postgresql)
+- [PgRoutiner - Database-First Development with .NET and PostgreSQL.](#pgroutiner---database-first-development-with-net-and-postgresql)
   - [Installation](#installation)
   - [Quick Start](#quick-start)
   - [Connection Management](#connection-management)

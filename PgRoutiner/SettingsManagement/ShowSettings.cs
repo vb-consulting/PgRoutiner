@@ -48,7 +48,7 @@ namespace PgRoutiner.SettingsManagement
             }
 
             Program.WriteLine("", "To get help please navigate to: ");
-            Program.WriteLine(ConsoleColor.Cyan, " https://github.com/vb-consulting/postgresql-driven-development-demo/blob/master/PDD.Database/README.md", "");
+            Program.WriteLine(ConsoleColor.Cyan, " https://github.com/vb-consulting/PgRoutiner#readme", "");
         }
 
 
