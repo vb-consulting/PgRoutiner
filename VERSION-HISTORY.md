@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 3.18.4
+
+- Remove donation and issues from header text.
+
 ## 3.18.3
 ## 3.18.2
 

@@ -12,6 +12,8 @@ public class ProgramInfo
 
     public static void ShowStartupInfo()
     {
+        Program.Write(ConsoleColor.Yellow, $"Copyright (c) VB Consulting and VB Software {DateTime.Now.Year}. This program and source code is licensed under the MIT license.");
+        Program.WriteLine(ConsoleColor.Cyan, " https://github.com/vb-consulting/PgRoutiner/blob/master/LICENSE");
         Program.WriteLine(ConsoleColor.Yellow, $"PgRoutiner: {Program.Version}");
         Program.Write(ConsoleColor.Yellow, "Type ");
         Program.Write(ConsoleColor.Cyan, $"pgroutiner {Current.HelpArgs.Alias}");
@@ -24,14 +26,7 @@ public class ProgramInfo
         Program.Write(ConsoleColor.Yellow, " or ");
         Program.Write(ConsoleColor.Cyan, $"pgroutiner {Current.SettingsArgs.Name}");
         Program.WriteLine(ConsoleColor.Yellow, " to see the currently selected settings.");
-        Program.Write(ConsoleColor.Yellow, "Issues");
-        Program.WriteLine(ConsoleColor.Cyan, "   https://github.com/vb-consulting/PgRoutiner/issues");
-        Program.Write(ConsoleColor.Yellow, "Donate");
-        Program.Write(ConsoleColor.Cyan, "   bitcoincash:qp93skpzyxtvw3l3lqqy7egwv8zrszn3wcfygeg0mv");
-        Program.WriteLine(ConsoleColor.Cyan, "   https://www.paypal.com/paypalme/vbsoftware/");
-        Program.WriteLine(ConsoleColor.Yellow, $"Copyright (c) VB Consulting and VB Software {DateTime.Now.Year}.",
-            "This program and source code is licensed under the MIT license.");
-        Program.WriteLine(ConsoleColor.Cyan, "https://github.com/vb-consulting/PgRoutiner/blob/master/LICENSE");
+        
     }
 
     public static bool ShowDebug(bool customSettings)
