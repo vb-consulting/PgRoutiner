@@ -1,17 +1,17 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Reflection;
-using System.Security.AccessControl;
+﻿using System;
 using PgRoutiner.Builder.CodeBuilders;
 using PgRoutiner.DataAccess.Models;
-using PgRoutiner.SettingsManagement;
 using static Npgsql.PostgresTypes.PostgresCompositeType;
+
 
 namespace PgRoutiner.DumpTransformers;
 
 public class RoutineDumpTransformer : DumpTransformer
 {
     public PgItem Item { get; }
+    const string returnsTableLine = "RETURNS TABLE";
+    const string funcLine = "FUNCTION ";
+    const string procLine = "PROC ";
 
     public RoutineDumpTransformer(PgItem item, List<string> lines) : base(lines)
     {
@@ -77,6 +77,18 @@ public class RoutineDumpTransformer : DumpTransformer
                 {
                     Create.Add("");
                 }
+                if (!line.Contains("()"))
+                {
+                    var pIndex = line.IndexOf("(");
+                    Create.Add(line.Substring(0, pIndex + 1));
+                    var parameters = line.Substring(pIndex + 1, line.IndexOf(')', pIndex) - pIndex - 1).Split(',');
+                    foreach (var (p, index) in parameters.Select((p, i) => (p.Trim(), i)))
+                    {
+                        Create.Add(string.Concat(Code.GetIdent(1), p, index < parameters.Length - 1 ? ',' : "")); ;
+                    }
+                    Create.Add(")");
+                    line = line.Substring(line.IndexOf(')', pIndex) + 2);
+                }
             }
             if (isCreate)
             {
@@ -93,8 +105,8 @@ public class RoutineDumpTransformer : DumpTransformer
                 {
                     endSequence = "END";
                 }
-                const string returnsTable = "RETURNS TABLE";
-                var returnsTableIndex = line.IndexOf(returnsTable);
+                
+                var returnsTableIndex = line.IndexOf(returnsTableLine);
                 if (returnsTableIndex == -1)
                 {
                     if (line.Contains("LANGUAGE") || line.Contains("AS $"))
@@ -105,7 +117,7 @@ public class RoutineDumpTransformer : DumpTransformer
                 }
                 else
                 {
-                    returnsTableIndex = line.IndexOf("(", returnsTableIndex + returnsTable.Length);
+                    returnsTableIndex = line.IndexOf("(", returnsTableIndex + returnsTableLine.Length);
                     var original = line;
                     line = original.Substring(0, returnsTableIndex);
                     var expression = original.Substring(returnsTableIndex);

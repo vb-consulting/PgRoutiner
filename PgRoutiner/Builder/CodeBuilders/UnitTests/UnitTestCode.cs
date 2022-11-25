@@ -23,8 +23,14 @@ public class UnitTestCode : Code
             if (method.Description != null)
             {
                 Class.AppendLine($"{I1}///");
-                Class.Append($"{I1}");
-                Class.AppendLine(string.Join($"{I1}", method.Description.Split("\n").Select(d => $"/// {d.Replace(NL, "").Replace("\n", "")}")));
+                foreach (var line in method.Description.Split("\n"))
+                {
+                    var l = line.Replace(NL, "").Replace("\n", "").Trim();
+                    if (!string.IsNullOrEmpty(l))
+                    {
+                        Class.AppendLine($"{I1}/// {l}");
+                    }
+                }
             }
             Class.AppendLine($"{I1}///</summary>");
         }

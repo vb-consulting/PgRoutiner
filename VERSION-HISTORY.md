@@ -1,5 +1,33 @@
 ﻿# VERSION HISTORY
 
+## 3.19.0
+
+- .NET 7.0
+
+- Function and procedure parameters are now new-lined, just like function table declaration, for example:
+
+```sql
+CREATE FUNCTION search(
+    _search character varying,
+    _countries smallint[],
+    _areas smallint[],
+    _sort_asc boolean,
+    _skip integer,
+    _take integer
+)
+RETURNS json
+```
+
+instead of this ugliness:
+
+```sql
+CREATE FUNCTION search(_search character varying, _countries smallint[], _areas smallint[], _sort_asc boolean, _skip integer, _take integer) RETURNS json
+```
+
+- Fixed unit tests header comments finally.
+
+- Fixed broken enum types in database dictionary.
+
 ## 3.18.4
 
 - Remove donation and issues from header text.

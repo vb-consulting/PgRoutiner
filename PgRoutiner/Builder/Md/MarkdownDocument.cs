@@ -514,18 +514,20 @@ public class MarkdownDocument
                 {
                     content.AppendLine();
                     content.AppendLine("## Enums");
-                    enumHeader = true;
-                }
+                    content.AppendLine();
+                    
+                    if (settings.MdIncludeSourceLinks)
+                    {
+                        content.AppendLine("| Type name | Values | Comment | Source |");
+                        content.AppendLine("| --------- | ------ | --------| ------ |");
+                    }
+                    else
+                    {
+                        content.AppendLine("| Type name | Values | Comment |");
+                        content.AppendLine("| --------- | ------ | --------|");
+                    }
 
-                if (settings.MdIncludeSourceLinks)
-                {
-                    content.AppendLine("| Type name | Values | Comment | Source |");
-                    content.AppendLine("| --------- | ------ | --------| ------ |");
-                }
-                else
-                {
-                    content.AppendLine("| Type name | Values | Comment |");
-                    content.AppendLine("| --------- | ------ | --------|");
+                    enumHeader = true;
                 }
 
                 var name = $"enum-{schema.ToLower()}-{result.Name.ToLower()}";
@@ -535,7 +537,7 @@ public class MarkdownDocument
                 {
                     var url = GetUrl(DumpType.Types, schema, result.Name);
                     content.AppendLine(
-                        $"| {Hashtag(name)}`{result.Name}` " +
+                        $"| {Hashtag(name)}`{schema}.{result.Name}` " +
                         $"| `{result.Values}` " +
                         $"| {StartTag("type", $"\"{schema}\".\"{result.Name}\"")}{result.Comment}{EndTag} " +
                         $"| [{url}]({url}) |");
@@ -543,7 +545,7 @@ public class MarkdownDocument
                 else
                 {
                     content.AppendLine(
-                        $"| {Hashtag(name)}`{result.Name}` " +
+                        $"| {Hashtag(name)}`{schema}.{result.Name}` " +
                         $"| `{result.Values}` " +
                         $"| {StartTag("type", $"\"{schema}\".\"{result.Name}\"")}{result.Comment}{EndTag} |");
                 }
