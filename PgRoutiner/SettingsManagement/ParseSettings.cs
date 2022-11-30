@@ -102,7 +102,7 @@ namespace PgRoutiner.SettingsManagement
             }
             catch (Exception e)
             {
-                Program.DumpError($"Failed to bind configuration: {e.Message}");
+                Program.DumpError($"Failed to bind configuration: {e.Message} {e.InnerException?.Message} {e.InnerException?.InnerException?.Message}");
                 return null;
             }
 
@@ -158,11 +158,11 @@ namespace PgRoutiner.SettingsManagement
                 Value.Markdown = false;
             }
 
-            if (!new string[] { "Single", "SingleOrDefault", "First", "FirstOrDefault" }.Contains(Value.ReturnMethod))
-            {
-                Program.DumpError($"ReturnMethod setting must be one of the allowed values: Single, SingleOrDefault, First or FirstOrDefault");
-                return null;
-            }
+            //if (!new string[] { "Single", "SingleOrDefault", "First", "FirstOrDefault" }.Contains(Value.ReturnMethod))
+            //{
+            //    Program.DumpError($"ReturnMethod setting must be one of the allowed values: Single, SingleOrDefault, First or FirstOrDefault");
+            //    return null;
+            //}
 
             if (!string.IsNullOrEmpty(Value.Inserts))
             {

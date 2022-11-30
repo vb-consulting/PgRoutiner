@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace PgRoutiner.SettingsManagement
 {
@@ -118,7 +116,7 @@ namespace PgRoutiner.SettingsManagement
         public string Namespace { get; set; } = null;
         public bool UseRecords { get; set; } = false;
         public HashSet<string> UseRecordsForModels { get; set; } = new();
-        public bool UseExpressionBody { get; set; } = false;
+        //public bool UseExpressionBody { get; set; } = false;
         public bool UseFileScopedNamespaces { get; set; } = true;
         public bool UseNullableTypes { get; set; } = true;
         public IDictionary<string, string> Mapping { get; set; } = new Dictionary<string, string>();
@@ -128,14 +126,14 @@ namespace PgRoutiner.SettingsManagement
         public bool EmptyModelDir { get; set; } = false;
         public bool SkipSyncMethods { get; set; } = false;
         public bool SkipAsyncMethods { get; set; } = false;
-        public string MinNormVersion { get; set; } = "5.2.3";
+        //public string MinNormVersion { get; set; } = "5.2.3";
         public HashSet<string> SourceHeaderLines { get; set; } = new()
         {
             "#pragma warning disable CS8632",
             $"// pgroutiner auto-generated code",
         };
         public int Ident { get; set; } = 4;
-        public string ReturnMethod { get; set; } = "SingleOrDefault";
+        //public string ReturnMethod { get; set; } = "SingleOrDefault";
         public IDictionary<string, string> MethodParameterNames { get; set; } = new Dictionary<string, string>()
         {
             { "string", "@string" },
@@ -173,6 +171,10 @@ namespace PgRoutiner.SettingsManagement
         {
             "sql", "plpgsql"
         };
+        public HashSet<string> RoutinesCustomCodeLines { get; set; } = new()
+        {
+        };
+
 
         /*unit tests*/
         public bool UnitTests { get; set; } = false;
@@ -228,6 +230,7 @@ namespace PgRoutiner.SettingsManagement
         public bool DbObjectsPrivileges { get; set; } = false;
         public bool DbObjectsCreateOrReplace { get; set; } = false;
         public bool DbObjectsRaw { get; set; } = false;
+        public string DbObjectsSchema { get; set; } = null;
 
         /*comments markdown file*/
         public bool Markdown { get; set; } = false;
@@ -236,6 +239,9 @@ namespace PgRoutiner.SettingsManagement
         public string MdFile { get; set; } = "./Database/{0}/README.md";
         public bool MdOverwrite { get; set; } = false;
         public bool MdAskOverwrite { get; set; } = false;
+        public bool MdSkipHeader { get; set; } = false;
+        public bool MdSkipToc { get; set; } = false;
+        public bool MdSkipTables { get; set; } = false;
         public bool MdSkipRoutines { get; set; } = false;
         public bool MdSkipViews { get; set; } = false;
         public bool MdSkipEnums { get; set; } = false;

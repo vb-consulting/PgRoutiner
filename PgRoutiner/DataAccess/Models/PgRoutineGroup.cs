@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace PgRoutiner.DataAccess.Models;
+﻿namespace PgRoutiner.DataAccess.Models;
 
 public record PgRoutineGroup
 {
@@ -14,4 +12,6 @@ public record PgRoutineGroup
     public string TypeUdtName { get; set; }
     public string DataType { get; set; }
     public List<PgParameter> Parameters { get; set; }
+    //public List<string> ModelNames { get; set; } = new();
+    public List<(string type, string name)> ModelItems { get; set; } = new();
 }

@@ -1,5 +1,213 @@
 ﻿# VERSION HISTORY
 
+## 4.0.0
+
+## Upgrade unit tests project generator to .NET 7.0
+
+## Removed Norm, micro-ORM data access from generated routine code
+
+From this version on, the generated code will not use Norm, a micro-ORM data access library. 
+
+Instead, the generated code will use direct, low-level data readers and data commands. 
+All mapping code is now generated, rather than automatic (provided by mapping library).
+
+This increases performances and reduces memory consumption slightly.
+
+- Example of single value generated code:
+
+```csharp
+public static class PgRoutineTest
+{
+    public const string Name = "companies.test";
+    public const string Query = $"select row from {Name}()";
+
+    /// <summary>
+    /// Executes sql function companies.test()
+    /// </summary>
+    /// <returns>IEnumerable of string? instances</returns>
+    public static IEnumerable<string?> Test(this NpgsqlConnection connection)
+    {
+        using var command = new NpgsqlCommand(Query, connection)
+        {
+            CommandType = System.Data.CommandType.Text,
+            AllResultTypesAreUnknown = true
+        };
+        using var reader = command.ExecuteReader(System.Data.CommandBehavior.Default);
+        while (reader.Read())
+        {
+            var value = reader.GetProviderSpecificValue(0);
+            yield return value == DBNull.Value ? null : (string)value;
+        }
+    }
+
+    /// <summary>
+    /// Asynchronously executes sql function companies.test()
+    /// </summary>
+    /// <returns>IAsyncEnumerable of string? instances</returns>
+    public static async IAsyncEnumerable<string?> TestAsync(this NpgsqlConnection connection)
+    {
+        using var command = new NpgsqlCommand(Query, connection)
+        {
+            CommandType = System.Data.CommandType.Text,
+            AllResultTypesAreUnknown = true
+        };
+        using var reader = await command.ExecuteReaderAsync(System.Data.CommandBehavior.Default);
+        while (await reader.ReadAsync())
+        {
+            var value = reader.GetProviderSpecificValue(0);
+            yield return value == DBNull.Value ? null : (string)value;
+        }
+    }
+}
+```
+
+- Example of multiple values generated code that maps to class instances:
+
+```csharp
+public class BusinessAreasResult
+{
+    public short? Value { get; set; }
+    public string? Name { get; set; }
+}
+
+public static class PgRoutineBusinessAreas
+{
+    public const string Name = "companies.business_areas";
+    public const string Query = $"select value, name from {Name}()";
+
+    /// <summary>
+    /// Executes sql function companies.business_areas()
+    /// select value and name from business_areas
+    /// </summary>
+    /// <returns>IEnumerable of BusinessAreasResult instances</returns>
+    public static IEnumerable<BusinessAreasResult> BusinessAreas(this NpgsqlConnection connection)
+    {
+        using var command = new NpgsqlCommand(Query, connection)
+        {
+            CommandType = System.Data.CommandType.Text,
+            UnknownResultTypeList = new bool[] { false, true }
+        };
+        using var reader = command.ExecuteReader(System.Data.CommandBehavior.Default);
+        while (reader.Read())
+        {
+            object[] values = new object[2];
+            reader.GetProviderSpecificValues(values);
+            yield return new BusinessAreasResult
+            {
+                Value = values[0] == DBNull.Value ? null : (short)values[0],
+                Name = values[1] == DBNull.Value ? null : (string)values[1]
+            };
+        }
+    }
+
+    /// <summary>
+    /// Asynchronously executes sql function companies.business_areas()
+    /// select value and name from business_areas
+    /// </summary>
+    /// <returns>IAsyncEnumerable of BusinessAreasResult instances</returns>
+    public static async IAsyncEnumerable<BusinessAreasResult> BusinessAreasAsync(this NpgsqlConnection connection)
+    {
+        using var command = new NpgsqlCommand(Query, connection)
+        {
+            CommandType = System.Data.CommandType.Text,
+            UnknownResultTypeList = new bool[] { false, true }
+        };
+        using var reader = await command.ExecuteReaderAsync(System.Data.CommandBehavior.Default);
+        while (await reader.ReadAsync())
+        {
+            object[] values = new object[2];
+            reader.GetProviderSpecificValues(values);
+            yield return new BusinessAreasResult
+            {
+                Value = values[0] == DBNull.Value ? null : (short)values[0],
+                Name = values[1] == DBNull.Value ? null : (string)values[1]
+            };
+        }
+    }
+}
+```
+
+### Removed options
+
+Following options have been removed from the command line interface and from configuration files:
+
+- `UseExpressionBody` - from now on, generator always uses statements body for generated methods
+- `ReturnMethod` - not neccessary any more. Single values, if not present will return default by default.
+- `MinNormVersion` - Norm is not used any more.
+
+### New option for code generation `RoutinesCustomCodeLines`
+
+`RoutinesCustomCodeLines` is list of strings that will be injected into code generation after command is created.
+
+For example:
+
+```json
+    "RoutinesCustomCodeLines": [
+		"// line 1",
+		"// line 2"
+    ],
+```
+
+will generate code like this:
+
+```csharp
+    public static IEnumerable<string?> Test(this NpgsqlConnection connection)
+    {
+        using var command = new NpgsqlCommand(Query, connection)
+        {
+            CommandType = System.Data.CommandType.Text,
+            AllResultTypesAreUnknown = true
+        };
+        // line 1
+        // line 2
+        using var reader = command.ExecuteReader(System.Data.CommandBehavior.Default);
+        while (reader.Read())
+        {
+            var value = reader.GetProviderSpecificValue(0);
+            yield return value == DBNull.Value ? null : (string)value;
+        }
+    }
+```
+
+### Database objects file creataion
+
+#### Fix missing `plpgsql` extension script
+
+#### Fix unnecessary pg_dump call
+
+#### Fix routines parsing bug
+
+#### New option `DbObjectsSchema`
+
+- Set to schema name to generate only objects from that schema.
+- Set to null to generate all objects from all schemas.
+- Value uses [psql pattern matching](https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-PATTERNS)
+
+### Database dictionary changes
+
+#### Fixed missing code formatting in schema header.
+
+#### Added following options:
+
+```json
+"MdSkipHeader": false, // skips header
+"MdSkipToc": false, // skips TOC
+"MdSkipTables": false, // skips tables
+```
+
+#### Fixed empty spaces adfter TOC
+
+#### Fixed routines signature
+
+- Removed output parameters
+- Added parameter names
+
+#### Fixed routine return values `record` and `USER-DEFINED`
+
+- Full output description in TABLE format.
+
+#### Fixed missing schema name on PK
+
 ## 3.19.0
 
 - .NET 7.0

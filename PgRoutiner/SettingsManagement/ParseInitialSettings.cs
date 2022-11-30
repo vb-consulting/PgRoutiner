@@ -12,8 +12,6 @@ namespace PgRoutiner.SettingsManagement
     public class Project
     {
         public string ProjectFile { get; set; } = null;
-        public string NormVersion { get; set; } = null;
-        public bool AsyncLinqIncluded { get; set; } = false;
         public bool NpgsqlIncluded { get; set; } = false;
     }
 
@@ -81,52 +79,6 @@ namespace PgRoutiner.SettingsManagement
                     }
                 }
             }
-
-            if (!Value.SkipAsyncMethods && project.AsyncLinqIncluded == false)
-            {
-                if (!Value.SkipUpdateReferences)
-                {
-                    Program.DumpError($"To be able to use async methods, System.Linq.Async package is required.");
-                    if (Program.Ask("Add System.Linq.Async package reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
-                    {
-                        Process.Run("dotnet", "add package System.Linq.Async");
-                    }
-                }
-            }
-
-            if (string.IsNullOrEmpty(project.NormVersion))
-            {
-                if (!Value.SkipUpdateReferences)
-                {
-                    Program.DumpError($"Norm.net package package is required.");
-                    if (Program.Ask("Add Norm.net reference? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
-                    {
-                        Process.Run("dotnet", "add package Norm.net");
-                        project.NormVersion = Value.MinNormVersion;
-                    }
-                }
-            }
-
-            var minNormVersion = Convert.ToInt32(Value.MinNormVersion.Replace(".", ""));
-            try
-            {
-                var version = Convert.ToInt32(project.NormVersion.Replace(".", ""));
-                if (version < minNormVersion)
-                {
-                    throw new Exception();
-                }
-            }
-            catch (Exception)
-            {
-                if (!Value.SkipUpdateReferences)
-                {
-                    Program.DumpError($"Minimum version for Norm.net package is {Current.Value.MinNormVersion}. Current version in project is {project.NormVersion}.");
-                    if (Program.Ask("Update Norm.net package? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.Y)
-                    {
-                        Process.Run("dotnet", "add package Norm.net");
-                    }
-                }
-            }
         }
 
         private static Project ParseProjectFile()
@@ -184,14 +136,6 @@ namespace PgRoutiner.SettingsManagement
 
                     if (reader.NodeType == XmlNodeType.Element && reader.Name == "PackageReference")
                     {
-                        if (reader.GetAttribute("Include") == "Norm.net")
-                        {
-                            result.NormVersion = reader.GetAttribute("Version");
-                        }
-                        if (reader.GetAttribute("Include") == "System.Linq.Async")
-                        {
-                            result.AsyncLinqIncluded = true;
-                        }
                         if (reader.GetAttribute("Include") == "Npgsql")
                         {
                             result.NpgsqlIncluded = true;

@@ -14,19 +14,21 @@ public static partial class DataAccessConnectionExtensions
             (settings.MdNotSimilarTo, DbType.AnsiString),
             (settings.MdSimilarTo, DbType.AnsiString),
             (settings.RoutinesLanguages, NpgsqlDbType.Array | NpgsqlDbType.Text))
-        .Read<(string Type, string Name, string Signature, string Returns, string Language, string Comment)>(@"
+        .Read<(string Type, string Name, string SpecificName, string Signature, string Returns, string Language, string Comment)>(@"
 
                 select
                     lower(r.routine_type) as type,
                     r.routine_name,
-
+                    r.specific_name,
                     r.routine_name || 
                         '(' || 
                         array_to_string(
                             array_agg(
                                 case    when p.parameter_mode = 'IN' 
                                         then '' else lower(p.parameter_mode) || ' ' 
-                                end || coalesce(case when p.data_type = 'ARRAY' then regexp_replace(p.udt_name, '^[_]', '')  || '[]' else p.data_type end, '')
+                                end 
+                                || p.parameter_name || ' '
+                                || coalesce(case when p.data_type = 'ARRAY' then regexp_replace(p.udt_name, '^[_]', '')  || '[]' else p.data_type end, '')
                                 order by p.ordinal_position
                             ), 
                             ', '
@@ -48,7 +50,7 @@ public static partial class DataAccessConnectionExtensions
                 from 
                     information_schema.routines r
                     left outer join information_schema.parameters p 
-                    on r.specific_name = p.specific_name and r.specific_schema = p.specific_schema
+                    on r.specific_name = p.specific_name and r.specific_schema = p.specific_schema and (p.parameter_mode = 'IN' or p.parameter_mode = 'INOUT')
 
                     inner join pg_catalog.pg_proc proc on r.specific_name = proc.proname || '_' || proc.oid
                     left outer join pg_catalog.pg_description pgdesc on proc.oid = pgdesc.objoid
@@ -68,6 +70,7 @@ public static partial class DataAccessConnectionExtensions
             {
                 Comment = t.Comment,
                 Language = t.Language,
+                SpecificName = t.SpecificName,
                 Name = t.Name,
                 Returns = t.Returns,
                 Signature = t.Signature,

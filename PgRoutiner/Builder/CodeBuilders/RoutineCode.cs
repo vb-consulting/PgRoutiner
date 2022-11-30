@@ -1,6 +1,5 @@
 ﻿using System.Linq;
-using System.Security.Claims;
-using Microsoft.Extensions.Primitives;
+using System.Xml.Linq;
 using PgRoutiner.Builder.CodeBuilders.Models;
 using PgRoutiner.Builder.DiffBuilder;
 using PgRoutiner.DataAccess.Models;
@@ -35,13 +34,18 @@ public class RoutineCode : Code
         Class.AppendLine($"{I1}public static class PgRoutine{Name.ToUpperCamelCase()}");
         Class.AppendLine($"{I1}{{");
         Class.AppendLine($"{I2}public const string Name = \"{schema}.{Name}\";");
-        //Class.AppendLine($"{I2}public const string Command = \"{BuildSelectExpression(@return, @params)}\";");
-        
+
+        var queryAdded = false;
         foreach (var routine in routines)
         {
             PrepareParams(routine);
             var @return = GetReturnInfo(routine);
             var @params = GetParamsInfo(routine);
+            if (!queryAdded)
+            {
+                Class.AppendLine($"{I2}public const string Query = {BuildSelectExpression(routine, @return, @params)};");
+                queryAdded = true;
+            }
             if (!settings.SkipSyncMethods)
             {
                 BuildSyncMethod(routine, @return, @params);
@@ -73,107 +77,41 @@ public class RoutineCode : Code
         Class.AppendLine();
         BuildCommentHeader(routine, @return, @params, true, returnMethod);
         var actualReturns = @return.IsEnumerable ? $"IEnumerable<{@return.Name}>" : (returnMethod == null ? $"IEnumerable<{@return.Name}>" : @return.Name);
-        void AddMethod()
+
+        BuildExtensionsStart(@return, @params, name, actualReturns);
+
+        if (@return.IsVoid)
         {
-            Methods.Add(new Method
-            {
-                Name = name,
-                Namespace = @namespace,
-                Description = routine.Description,
-                Routine = $"{routine.Language} {routine.RoutineType} {routine.SpecificSchema}.{routine.RoutineName}({string.Join(", ", @params.Select(p => p.PgType))})",
-                Params = @params,
-                Returns = @return,
-                ActualReturns = actualReturns,
-                Sync = true
-            });
-        }
-
-        void AddBodyCode(string bodyTab, string paramsTab)
-        {
-            SetUnknownType(@return, bodyTab);
-            SetSingleResult(@return, bodyTab);
-
-            BuildParams(@params, paramsTab, bodyTab);
-
-            if (@return.IsVoid)
-            {
-                Class.Append($"{bodyTab}.Execute({BuildSelectExpression(@return, @params)}");
-                Class.AppendLine(");");
-                AddMethod();
-                return;
-            }
-            else
-            {
-                Class.Append($"{bodyTab}.Read<{@return.Name}>({BuildSelectExpression(@return, @params)}");
-                AddMethod();
-            }
-
-            if (settings.RoutinesCallerInfo)
-            {
-                Class.Append(", memberName: memberName, sourceFilePath: sourceFilePath, sourceLineNumber: sourceLineNumber");
-            }
-
-            if (@return.IsVoid || @return.IsEnumerable || returnMethod == null)
-            {
-                Class.AppendLine(");");
-            }
-            else
-            {
-                Class.AppendLine(")");
-                Class.AppendLine($"{bodyTab}.{returnMethod}();");
-            }
-
-        }
-
-        if (settings.UseExpressionBody)
-        {
-            Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
-            BuildMethodParams(@params);
-            if (settings.RoutinesCallerInfo)
-            {
-                Class.Append(", [CallerMemberName] string memberName = \"\", [CallerFilePath] string sourceFilePath = \"\", [CallerLineNumber] int sourceLineNumber = 0");
-            }
-            Class.AppendLine(") => connection");
-            AddBodyCode(I3, I3);
+            Class.AppendLine($"{I3}command.ExecuteNonQuery();");
         }
         else
         {
-            Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
-            BuildMethodParams(@params);
-            if (settings.RoutinesCallerInfo)
+            if (!@return.IsEnumerable)
             {
-                Class.Append(", [CallerMemberName] string memberName = \"\", [CallerFilePath] string sourceFilePath = \"\", [CallerLineNumber] int sourceLineNumber = 0");
-            }
-            Class.AppendLine(")");
-            Class.AppendLine($"{I2}{{");
-            if (@return.IsVoid)
-            {
-                Class.AppendLine($"{I3}connection");
+                Class.AppendLine($"{I3}using var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);");
+                Class.AppendLine($"{I3}if (reader.Read())");
+                MapSingle(@return);
             }
             else
             {
-                Class.AppendLine($"{I3}return connection");
+                Class.AppendLine($"{I3}using var reader = command.ExecuteReader(System.Data.CommandBehavior.Default);");
+                Class.AppendLine($"{I3}while (reader.Read())");
+                BuildMapInstance(routine, @return);
             }
-            AddBodyCode(I4, I4);
-            Class.AppendLine($"{I2}}}");
         }
-        //AddMethod();
-    }
 
-    private void SetUnknownType(Return @return, string bodyTab)
-    {
-        if (settings.RoutinesUnknownReturnTypes.Contains(@return.PgName))
+        Class.AppendLine($"{I2}}}");
+        Methods.Add(new Method
         {
-            Class.AppendLine($"{bodyTab}.WithUnknownResultType()");
-        }
-    }
-
-    private void SetSingleResult(Return @return, string bodyTab)
-    {
-        if (!@return.IsEnumerable && !@return.IsVoid)
-        {
-            Class.AppendLine($"{bodyTab}.WithCommandBehavior(System.Data.CommandBehavior.SingleResult)");
-        }
+            Name = name,
+            Namespace = @namespace,
+            Description = routine.Description,
+            Routine = $"{routine.Language} {routine.RoutineType} {routine.SpecificSchema}.{routine.RoutineName}({string.Join(", ", @params.Select(p => p.PgType))})",
+            Params = @params,
+            Returns = @return,
+            ActualReturns = actualReturns,
+            Sync = true
+        });
     }
 
     private void BuildAsyncMethod(PgRoutineGroup routine, Return @return, List<Param> @params)
@@ -182,97 +120,133 @@ public class RoutineCode : Code
         var returnMethod = GetReturnMethod(routine, name);
         Class.AppendLine();
         BuildCommentHeader(routine, @return, @params, false, returnMethod);
-        var actualReturns = @return.IsEnumerable ? $"IAsyncEnumerable<{@return.Name}>" : (@return.IsVoid ? "async ValueTask" : (returnMethod == null ? $"IAsyncEnumerable<{@return.Name}>" : $"async ValueTask<{@return.Name}>"));
-        void AddMethod()
+        var actualReturns = @return.IsEnumerable ? $"async IAsyncEnumerable<{@return.Name}>" : (@return.IsVoid ? "async Task" : (returnMethod == null ? $"async IAsyncEnumerable<{@return.Name}>" : $"async Task<{@return.Name}>"));
+
+        BuildExtensionsStart(@return, @params, name, actualReturns);
+        
+        if (@return.IsVoid)
         {
-            Methods.Add(new Method
-            {
-                Name = name,
-                Namespace = @namespace,
-                Routine = $"{routine.Language} {routine.RoutineType} {routine.SpecificSchema}.{routine.RoutineName}({string.Join(", ", @params.Select(p => p.PgType))})",
-                Description = routine.Description,
-                Params = @params,
-                Returns = @return,
-                ActualReturns = actualReturns,
-                Sync = false
-            });
-        }
-
-        void AddBodyCode(string bodyTab, string paramsTab)
-        {
-            SetUnknownType(@return, bodyTab);
-            SetSingleResult(@return, bodyTab);
-
-            BuildParams(@params, paramsTab, bodyTab);
-
-            if (@return.IsVoid)
-            {
-                Class.Append($"{bodyTab}.ExecuteAsync({BuildSelectExpression(@return, @params)}");
-                Class.AppendLine(");");
-                AddMethod();
-                return;
-            }
-            else
-            {
-                Class.Append($"{bodyTab}.ReadAsync<{@return.Name}>({BuildSelectExpression(@return, @params)}");
-            }
-
-            if (settings.RoutinesCallerInfo)
-            {
-                Class.Append(", memberName: memberName, sourceFilePath: sourceFilePath, sourceLineNumber: sourceLineNumber");
-            }
-
-            if (@return.IsVoid || @return.IsEnumerable || returnMethod == null)
-            {
-                Class.AppendLine(");");
-            }
-            else
-            {
-                Class.AppendLine(")");
-                Class.AppendLine($"{bodyTab}.{returnMethod}Async();");
-            }
-        }
-
-        if (settings.UseExpressionBody)
-        {
-            Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
-            BuildMethodParams(@params);
-            if (settings.RoutinesCallerInfo)
-            {
-                Class.Append(", [CallerMemberName] string memberName = \"\", [CallerFilePath] string sourceFilePath = \"\", [CallerLineNumber] int sourceLineNumber = 0");
-            }
-            Class.AppendLine(@return.IsEnumerable || returnMethod == null ? ") => connection" : ") => await connection");
-
-            AddBodyCode(I3, I3);
+            Class.AppendLine($"{I3}await command.ExecuteNonQueryAsync();");
         }
         else
         {
-            Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
-            BuildMethodParams(@params);
-            if (settings.RoutinesCallerInfo)
+            if (!@return.IsEnumerable)
             {
-                Class.Append(", [CallerMemberName] string memberName = \"\", [CallerFilePath] string sourceFilePath = \"\", [CallerLineNumber] int sourceLineNumber = 0");
-            }
-            Class.AppendLine(")");
-            Class.AppendLine($"{I2}{{");
-            if (@return.IsVoid)
-            {
-                Class.AppendLine(@return.IsEnumerable || returnMethod == null ? $"{I3}connection" : $"{I3}await connection");
+                Class.AppendLine($"{I3}using var reader = await command.ExecuteReaderAsync(System.Data.CommandBehavior.SingleResult);");
+                Class.AppendLine($"{I3}if (await reader.ReadAsync())");
+                MapSingle(@return);
             }
             else
             {
-                Class.AppendLine(@return.IsEnumerable || returnMethod == null ? $"{I3}return connection" : $"{I3}return await connection");
+                Class.AppendLine($"{I3}using var reader = await command.ExecuteReaderAsync(System.Data.CommandBehavior.Default);");
+                Class.AppendLine($"{I3}while (await reader.ReadAsync())");
+                BuildMapInstance(routine, @return);
             }
-            AddBodyCode(I4, I4);
-            Class.AppendLine($"{I2}}}");
         }
 
-        AddMethod();
+        Class.AppendLine($"{I2}}}");
+
+        Methods.Add(new Method
+        {
+            Name = name,
+            Namespace = @namespace,
+            Routine = $"{routine.Language} {routine.RoutineType} {routine.SpecificSchema}.{routine.RoutineName}({string.Join(", ", @params.Select(p => p.PgType))})",
+            Description = routine.Description,
+            Params = @params,
+            Returns = @return,
+            ActualReturns = actualReturns,
+            Sync = false
+        });
     }
 
-    private Dictionary<string, List<string>> ColumnsDict = new();
+    private void MapSingle(Return @return)
+    {
+        Class.AppendLine($"{I3}{{");
+        Class.AppendLine($"{I4}var value = reader.GetProviderSpecificValue(0);");
+        Class.AppendLine($"{I4}return value == DBNull.Value ? null : ({@return.Name.Replace("?", "")})value;");
+        Class.AppendLine($"{I3}}}");
+        Class.AppendLine($"{I3}return default;");
+    }
 
-    private string BuildSelectExpression(Return @return, List<Param> @params)
+    private void BuildExtensionsStart(Return @return, List<Param> @params, string name, string actualReturns)
+    {
+        Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
+        BuildMethodParams(@params);
+        if (settings.RoutinesCallerInfo)
+        {
+            Class.Append(", [CallerMemberName] string memberName = \"\", [CallerFilePath] string sourceFilePath = \"\", [CallerLineNumber] int sourceLineNumber = 0");
+        }
+        Class.AppendLine(")");
+        Class.AppendLine($"{I2}{{");
+
+        Class.AppendLine($"{I3}using var command = new NpgsqlCommand(Query, connection)");
+        Class.AppendLine($"{I3}{{");
+        Class.AppendLine($"{I4}CommandType = System.Data.CommandType.Text,");
+        if (@params.Any())
+        {
+            Class.AppendLine($"{I4}Parameters =");
+            Class.AppendLine($"{I4}{{");
+            Class.AppendLine(string.Join($",{NL}", @params.Select(p => $"{I5}new() {{ NpgsqlDbType = {p.DbType}, Value = (object){p.Name} ?? DBNull.Value }}")));
+            Class.AppendLine($"{I4}}},");
+        }
+        if (settings.RoutinesUnknownReturnTypes.Contains(@return.PgName))
+        {
+            Class.AppendLine($"{I4}AllResultTypesAreUnknown = true");
+        }
+        else if (@return.Record.Any())
+        {
+            if (@return.Record.All(r => !r.Array && settings.RoutinesUnknownReturnTypes.Contains(r.Type) || settings.RoutinesUnknownReturnTypes.Contains(r.DataType)))
+            {
+                Class.AppendLine($"{I4}AllResultTypesAreUnknown = true");
+            }
+            else
+            {
+                Class.AppendLine($"{I4}UnknownResultTypeList = new bool[] {{ {string.Join(", ", @return.Record.Select(r => !r.Array && settings.RoutinesUnknownReturnTypes.Contains(r.Type) || settings.RoutinesUnknownReturnTypes.Contains(r.DataType) ? "true" : "false"))} }}");
+            }
+        }
+        Class.AppendLine($"{I3}}};");
+        if (settings.RoutinesCustomCodeLines != null && settings.RoutinesCustomCodeLines.Any())
+        {
+            foreach (var line in settings.RoutinesCustomCodeLines)
+            {
+                Class.AppendLine($"{I3}{line}");
+            }
+        }
+    }
+
+    private void BuildMapInstance(PgRoutineGroup routine, Return @return)
+    {
+        Class.AppendLine($"{I3}{{");
+
+        if (@return.Record.Count == 1)
+        {
+            Class.AppendLine($"{I4}var value = reader.GetProviderSpecificValue(0);");
+            Class.AppendLine($"{I4}yield return value == DBNull.Value ? null : ({@return.Name.Replace("?", "")})value;");
+        }
+        else
+        {
+            Class.AppendLine($"{I4}object[] values = new object[{@return.Record.Count}];");
+
+            if (settings.UseRecords || settings.UseRecordsForModels.Contains(@return.Name))
+            {
+                Class.AppendLine($"{I4}reader.GetProviderSpecificValues(values);");
+                Class.AppendLine($"{I4}yield return new {@return.Name}(");
+                Class.AppendLine(string.Join($",{NL}", routine.ModelItems.Select((m, idx) => $"{I5}values[{idx}] == DBNull.Value ? null : ({m.type.Replace("?", "")})values[{idx}]")));
+                Class.AppendLine($"{I4});");
+            }
+            else
+            {
+                Class.AppendLine($"{I4}reader.GetProviderSpecificValues(values);");
+                Class.AppendLine($"{I4}yield return new {@return.Name}");
+                Class.AppendLine($"{I4}{{");
+                Class.AppendLine(string.Join($",{NL}", routine.ModelItems.Select((m, idx) => $"{I5}{m.name} = values[{idx}] == DBNull.Value ? null : ({m.type.Replace("?", "")})values[{idx}]")));
+                Class.AppendLine($"{I4}}};");
+            }
+        }
+        Class.AppendLine($"{I3}}}");
+    }
+
+    private string BuildSelectExpression(PgRoutineGroup routine, Return @return, List<Param> @params)
     {
         string Select()
         {
@@ -284,18 +258,15 @@ public class RoutineCode : Code
             {
                 return "select ";
             }
-            if (ColumnsDict.TryGetValue(@return.Name, out var columns))
+            if (@return.Record.Any())
             {
-                if (columns != null && columns.Count > 0)
-                {
-                    return $"select {string.Join(", ", columns)} from ";
-                }
+                return $"select {string.Join(", ", @return.Record.OrderBy(r => r.Ordinal).Select(r => r.Name))} from ";
             }
             return $"select * from ";
         }
         return $"$\"{Select()}{{Name}}({string.Join(", ", @params.Select((p, i) => $"${i + 1}"))})\"";
     }
-
+    
     private string GetReturnMethod(PgRoutineGroup routine, string name)
     {
         if (settings.RoutinesReturnMethods.TryGetValue(routine.RoutineName, out var result))
@@ -306,7 +277,7 @@ public class RoutineCode : Code
         {
             return string.IsNullOrEmpty(result) ? null : result;
         }
-        return settings.ReturnMethod;
+        return "";// settings.ReturnMethod;
     }
 
     private void BuildMethodParams(List<Param> @params)
@@ -316,17 +287,6 @@ public class RoutineCode : Code
             Class.Append(", ");
             Class.Append(string.Join(", ", @params.Select(p => $"{p.Type} {p.Name}")));
         }
-    }
-
-    private void BuildParams(List<Param> @params, string paramsTab, string bodyTab)
-    {
-        if (@params.Count == 0)
-        {
-            return;
-        }
-        Class.AppendLine($"{bodyTab}.WithParameters(");
-        Class.Append(string.Join($",{NL}", @params.Select(p => $"{paramsTab}{I2}({p.Name}, {p.DbType})")));
-        Class.AppendLine($")");
     }
 
     private void BuildCommentHeader(PgRoutineGroup routine, Return @return, List<Param> @params, bool sync, string returnMethod)
@@ -382,6 +342,7 @@ public class RoutineCode : Code
 
     private Return GetReturnInfo(PgRoutineGroup routine)
     {
+        List<PgReturns> record = connection.GetRoutineReturnsRecord(routine).ToList();
         Return GetResult()
         {
             if (routine == null || routine.DataType == null || routine.DataType == "void")
@@ -410,17 +371,16 @@ public class RoutineCode : Code
             }
             if (routine.DataType == "USER-DEFINED")
             {
-                return new Return { PgName = routine.TypeUdtName, Name = BuildUserDefinedModel(routine), IsVoid = false, IsEnumerable = true };
+                return new Return { PgName = routine.TypeUdtName, Name = BuildUserDefinedModel(routine, record), IsVoid = false, IsEnumerable = true };
             }
             if (routine.DataType == "record")
             {
-                return new Return { PgName = routine.TypeUdtName, Name = BuildRecordModel(routine), IsVoid = false, IsEnumerable = true };
+                return new Return { PgName = routine.TypeUdtName, Name = BuildRecordModel(routine, record), IsVoid = false, IsEnumerable = true };
             }
             throw new ArgumentException($"Could not find mapping \"{routine.DataType}\" for return type of routine \"{routine.RoutineName}\"");
         }
-
         var result = GetResult();
-
+        result.Record = record;
         if (settings.RoutinesUnknownReturnTypes.Contains(result.PgName))
         {
             result.Name = "string?";
@@ -429,7 +389,7 @@ public class RoutineCode : Code
         return result;
     }
 
-    private string BuildUserDefinedModel(PgRoutineGroup routine)
+    private string BuildUserDefinedModel(PgRoutineGroup routine, List<PgReturns> items)
     {
         var name = routine.TypeUdtName.ToUpperCamelCase();
         if (settings.Mapping.TryGetValue(name, out var custom))
@@ -444,12 +404,12 @@ public class RoutineCode : Code
         {
             name = settings.CustomModels[routine.TypeUdtName];
         }
-        BuildModel(name, connection => connection.GetRoutineReturnsTable(routine));
+        BuildModel(routine, name, items);
         UserDefinedModels.Add(name);
         return name;
     }
 
-    private string BuildRecordModel(PgRoutineGroup routine)
+    private string BuildRecordModel(PgRoutineGroup routine, List<PgReturns> items)
     {
         var suffix = ++recordModelCount == 1 ? "" : recordModelCount.ToString();
         var name = $"{this.Name.ToUpperCamelCase()}{suffix}Result";
@@ -466,10 +426,10 @@ public class RoutineCode : Code
         {
             name = settings.CustomModels[routine.TypeUdtName];
         }
-        return BuildModel(name, connection => connection.GetRoutineReturnsRecord(routine));
+        return BuildModel(routine, name, items);
     }
 
-    private string BuildModel(string name, Func<NpgsqlConnection, IEnumerable<PgReturns>> func)
+    private string BuildModel(PgRoutineGroup routine, string name, List<PgReturns> items)
     {
         if (Models.ContainsKey(name))
         {
@@ -508,12 +468,14 @@ public class RoutineCode : Code
         var modelContent = new StringBuilder();
 
         var columns = new List<string>();
+
+        List<(string type, string name)> modelItems = items.Select(item => (getType(item), item.Name.ToUpperCamelCase())).ToList();
+        
         if (settings.UseRecords || settings.UseRecordsForModels.Contains(name))
         {
-            var items = func(connection).ToList();
             columns.AddRange(items.Select(i => i.Name));
             model.Append($"{I1}public record {name}(");
-            modelContent.Append(string.Join(", ", items.Select(item => $"{getType(item)} {item.Name.ToUpperCamelCase()}")));
+            modelContent.Append(string.Join(", ", modelItems.Select(item => $"{item.type} {item.name}")));
             model.Append(modelContent);
             model.AppendLine($");");
         }
@@ -521,15 +483,16 @@ public class RoutineCode : Code
         {
             model.AppendLine($"{I1}public class {name}");
             model.AppendLine($"{I1}{{");
-            foreach (var item in func(connection))
+            foreach (var item in modelItems)
             {
-                modelContent.AppendLine($"{I2}public {getType(item)} {item.Name.ToUpperCamelCase()} {{ get; set; }}");
-                columns.Add(item.Name);
+                modelContent.AppendLine($"{I2}public {item.type} {item.name} {{ get; set; }}");
+                columns.Add(item.name);
             }
             model.Append(modelContent);
             model.AppendLine($"{I1}}}");
         }
-        ColumnsDict.Add(name, columns);
+        routine.ModelItems = modelItems;
+
         foreach (var (key, value) in ModelContent)
         {
             if (value.Equals(modelContent))

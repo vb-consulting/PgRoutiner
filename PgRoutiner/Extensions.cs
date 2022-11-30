@@ -291,8 +291,20 @@ public static class Extensions
 
     public static string ToPsqlFormatString(this NpgsqlConnection connection)
     {
-        var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
+        var password = connection.ExtractPassword();
         return $"postgresql://{connection.UserName}:{password}@{connection.Host}:{connection.Port}/{connection.Database}";
+    }
+
+    public static string ExtractPassword(this NpgsqlConnection connection)
+    {
+        var connString = typeof(NpgsqlConnection).GetField("_connectionString", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection);
+        string password = "";
+        var segment = connString.ToString().Split(';').FirstOrDefault(x => x.StartsWith("Password=", StringComparison.OrdinalIgnoreCase));
+        if (segment != null)
+        {
+            password = segment.Split('=')[^1];
+        }
+        return password;
     }
 
     public static bool PathEquals(this string path1, string path2)

@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PgRoutiner.Builder.Dump;
 
@@ -47,7 +49,7 @@ public static class PgDumpCache
 
     private static (List<string> content, string error) GetDumpContent(NpgsqlConnection connection, string args, string pgDumpCmd)
     {
-        var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
+        var password = connection.ExtractPassword();
         Environment.SetEnvironmentVariable("PGPASSWORD", password);
 
         List<string> content = new();
@@ -67,7 +69,6 @@ public static class PgDumpCache
         {
             Program.WriteLine(ConsoleColor.White, $"{pgDumpCmd} {process.StartInfo.Arguments}");
         }
-
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
         process.StartInfo.RedirectStandardOutput = true;

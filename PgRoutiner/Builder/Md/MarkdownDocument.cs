@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-using PgRoutiner.DataAccess;
-using PgRoutiner.DataAccess.Models;
+﻿using PgRoutiner.DataAccess.Models;
 using static PgRoutiner.Builder.Dump.DumpBuilder;
 
 namespace PgRoutiner.Builder.Md;
@@ -57,6 +55,11 @@ public class MarkdownDocument
             BuildViews(content, header, schemas);
             BuildEnums(content, header, schemas);
             BuildRoutines(content, header, schemas);
+        }
+
+        if (header.Length > 0 && !settings.MdSkipToc)
+        {
+            header.AppendLine();
         }
         
         return string.Concat(header.ToString(), content.ToString());
@@ -171,7 +174,8 @@ public class MarkdownDocument
                 break;
             }
             var routinesHeader = false;
-            foreach (var result in connection.GetRoutineComments(settings, schema))
+            var routineComments = connection.GetRoutineComments(settings, schema).ToList();
+            foreach (var result in routineComments)
             {
                 if (!routinesHeader)
                 {
@@ -190,10 +194,32 @@ public class MarkdownDocument
                     .Replace("[", "")
                     .Replace("]", "")
                     .Replace(" ", "-");
-                header.AppendLine($"- {result.Type.First().ToString().ToUpper()}{result.Type[1..]} [`{schema}.{result.Signature}`](#{result.Type.ToLower()}-{schema.ToLower()}{routineAnchor})");
+                if (!settings.MdSkipToc)
+                {
+                    header.AppendLine($"- {result.Type.First().ToString().ToUpper()}{result.Type[1..]} [`{schema}.{result.Signature}`](#{result.Type.ToLower()}-{schema.ToLower()}{routineAnchor})");
+                }
                 content.AppendLine();
                 content.AppendLine($"- Returns `{result.Returns}`");
                 content.AppendLine();
+
+                if (result.Returns == "record" || result.Returns == "USER-DEFINED")
+                {
+                    var records = connection.GetRoutineReturnsRecord(new PgRoutineGroup
+                    {
+                        SpecificName = result.SpecificName,
+                        SpecificSchema = schema
+                    }).ToList();
+                    if (records.Any())
+                    {
+                        content.AppendLine($"```");
+                        content.AppendLine($"TABLE (");
+                        content.AppendLine(string.Join($",{NL}", records.Select(r => $"  {r.Name} {r.DataType}{(r.Array ? "[]" : "")}")));
+                        content.AppendLine($")");
+                        content.AppendLine($"```");
+                        content.AppendLine();
+                    }
+                }
+                
                 content.AppendLine($"- Language is `{result.Language}`");
                 content.AppendLine();
                 if (settings.MdIncludeSourceLinks)
@@ -281,7 +307,10 @@ public class MarkdownDocument
                     }
 
                     content.AppendLine($"### View `{schema}.{result.Table}`");
-                    header.AppendLine($"- View [`{schema}.{result.Table}`](#view-{schema.ToLower()}{result.Table.ToLower()})");
+                    if (!settings.MdSkipToc)
+                    {
+                        header.AppendLine($"- View [`{schema}.{result.Table}`](#view-{schema.ToLower()}{result.Table.ToLower()})");
+                    }
                     content.AppendLine();
                     content.AppendLine(StartTag("view", $"\"{schema}\".\"{result.Table}\""));
                     if (comment != null)
@@ -376,6 +405,10 @@ public class MarkdownDocument
 
         foreach (var schema in schemas)
         {
+            if (settings.MdSkipTables)
+            {
+                break;
+            }
             foreach (var result in connection.GetTableComments(settings, schema).ToList())
             {
                 if (!tablesHeader)
@@ -413,7 +446,10 @@ public class MarkdownDocument
                     }
 
                     content.AppendLine($"### Table `{schema}.{result.Table}`");
-                    header.AppendLine($"- Table [`{schema}.{result.Table}`](#table-{schema.ToLower()}{result.Table.ToLower()})");
+                    if (!settings.MdSkipToc)
+                    {
+                        header.AppendLine($"- Table [`{schema}.{result.Table}`](#table-{schema.ToLower()}{result.Table.ToLower()})");
+                    }
                     content.AppendLine();
                     content.AppendLine(StartTag("table", $"\"{schema}\".\"{result.Table}\""));
 
@@ -531,8 +567,10 @@ public class MarkdownDocument
                 }
 
                 var name = $"enum-{schema.ToLower()}-{result.Name.ToLower()}";
-                header.AppendLine($"- Enum [`{schema}.{result.Name}`](#{name})");
-
+                if (!settings.MdSkipToc)
+                {
+                    header.AppendLine($"- Enum [`{schema}.{result.Name}`](#{name})");
+                }
                 if (settings.MdIncludeSourceLinks)
                 {
                     var url = GetUrl(DumpType.Types, schema, result.Name);
@@ -564,50 +602,59 @@ public class MarkdownDocument
     {
         header.AppendLine($"# Dictionary for database `{connection.Database}`");
         header.AppendLine();
-        header.AppendLine(
-            $"- Server: PostgreSQL `{connection.Host}:{connection.Port}`, version `{connection.ServerVersion}`");
-        header.AppendLine($"- Local time stamp: `{DateTime.Now:o}`");
-        if (schemas.Count == 1)
-        {
-            header.AppendLine($"- Schema: {schemas.First()}");
-        }
-        else
-        {
-            header.AppendLine($"- Schema's: {string.Join(", ", schemas.Select(s => $"`{s}`"))}");
-        }
         
-        if (settings.MdIncludeSourceLinks)
-        {
-            if (settings.SchemaDumpFile != null)
-            {
-                var file = PathoToUrl(string.Format(settings.SchemaDumpFile, connectionName));
-                header.AppendLine($"- Schema file: [{file}]({file})");
-            }
 
-            if (Current.Value.DataDumpFile != null)
+        if (!settings.MdSkipHeader)
+        {
+            header.AppendLine(
+                $"- Server: PostgreSQL `{connection.Host}:{connection.Port}`, version `{connection.ServerVersion}`");
+            header.AppendLine($"- Local time stamp: `{DateTime.Now:o}`");
+            if (schemas.Count == 1)
             {
-                var file = PathoToUrl(string.Format(settings.DataDumpFile, connectionName));
-                var line = $"- Data file: [{file}]({file})";
-                if (settings.DataDumpTables != null && settings.DataDumpTables.Count > 0)
-                {
-                    line = string.Concat(line, 
-                        " for tables ", 
-                        string.Join(", ", settings.DataDumpTables.Select(t =>
-                        {
-                            var split = t.Split('.');
-                            if (split.Length == 1)
-                            {
-                                return $"[{t}](#table-public{t.ToLower()})";
-                            }
-                            return $"[{t}](#table-{split[0].ToLower()}{split[1].ToLower()})";
-                        })));
-                }
-                header.AppendLine(line);
+                header.AppendLine($"- Schema: `{schemas.First()}`");
             }
+            else
+            {
+                header.AppendLine($"- Schema's: {string.Join(", ", schemas.Select(s => $"`{s}`"))}");
+            }
+        
+            if (settings.MdIncludeSourceLinks)
+            {
+                if (settings.SchemaDumpFile != null)
+                {
+                    var file = PathoToUrl(string.Format(settings.SchemaDumpFile, connectionName));
+                    header.AppendLine($"- Schema file: [{file}]({file})");
+                }
+
+                if (Current.Value.DataDumpFile != null)
+                {
+                    var file = PathoToUrl(string.Format(settings.DataDumpFile, connectionName));
+                    var line = $"- Data file: [{file}]({file})";
+                    if (settings.DataDumpTables != null && settings.DataDumpTables.Count > 0)
+                    {
+                        line = string.Concat(line, 
+                            " for tables ", 
+                            string.Join(", ", settings.DataDumpTables.Select(t =>
+                            {
+                                var split = t.Split('.');
+                                if (split.Length == 1)
+                                {
+                                    return $"[{t}](#table-public{t.ToLower()})";
+                                }
+                                return $"[{t}](#table-{split[0].ToLower()}{split[1].ToLower()})";
+                            })));
+                    }
+                    header.AppendLine(line);
+                }
+            }
+            header.AppendLine();
         }
-        header.AppendLine();
-        header.AppendLine("## Table of Contents");
-        header.AppendLine();
+
+        if (!settings.MdSkipToc)
+        {
+            header.AppendLine("## Table of Contents");
+            header.AppendLine();
+        }
     }
 
     private string PathoToUrl(string path)

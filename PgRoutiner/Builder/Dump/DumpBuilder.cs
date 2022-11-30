@@ -114,6 +114,10 @@ public class DumpBuilder
 
         foreach (var (shortFilename, content, type, schema) in builder.GetDatabaseObjects())
         {
+            if (content == null || content.Trim() == "")
+            {
+                continue;
+            }
             var dir = type switch
             {
                 PgType.Table => ParseSchema(baseTablesDir, schema),

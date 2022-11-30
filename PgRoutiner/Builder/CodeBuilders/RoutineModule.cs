@@ -8,7 +8,6 @@ public class RoutineModule : Module
         {
             AddUsing("System.Threading.Tasks");
         }
-        AddUsing("Norm");
         AddUsing("NpgsqlTypes");
         AddUsing("Npgsql");
         if (settings.RoutinesCallerInfo)

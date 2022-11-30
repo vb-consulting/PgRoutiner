@@ -33,19 +33,27 @@ public class RoutineDumpTransformer : DumpTransformer
             lineCallback = s => { };
         }
 
+        bool isComment = false;
         bool isPrepend = true;
         bool isCreate = false;
         bool isAppend = true;
 
-        var name1 = $"{Item.Schema}.{Item.Name}{paramsString ?? "("}";
-        var name2 = $"{Item.Schema}.\"{Item.Name}\"{paramsString ?? "("}";
-        var name3 = $"\"{Item.Schema}\".\"{Item.Name}\"{paramsString ?? "("}";
-        var name4 = $"\"{Item.Schema}\".{Item.Name}{paramsString ?? "("}";
+        var name1 = $"{Item.TypeName} {Item.Schema}.{Item.Name}{paramsString ?? "("}";
+        var name2 = $"{Item.TypeName} {Item.Schema}.\"{Item.Name}\"{paramsString ?? "("}";
+        var name3 = $"{Item.TypeName} \"{Item.Schema}\".\"{Item.Name}\"{paramsString ?? "("}";
+        var name4 = $"{Item.TypeName} \"{Item.Schema}\".{Item.Name}{paramsString ?? "("}";
 
-        var startSequence1 = $"CREATE {Item.TypeName} {name1}";
-        var startSequence2 = $"CREATE {Item.TypeName} {name2}";
-        var startSequence3 = $"CREATE {Item.TypeName} {name3}";
-        var startSequence4 = $"CREATE {Item.TypeName} {name4}";
+        var startSequence1 = $"CREATE {name1}";
+        var startSequence2 = $"CREATE {name2}";
+        var startSequence3 = $"CREATE {name3}";
+        var startSequence4 = $"CREATE {name4}";
+
+        var skip1 = $"execute {Item.TypeName.ToLowerInvariant()} {Item.Name.ToLowerInvariant()}(";
+        var skip2 = $"execute {Item.TypeName.ToLowerInvariant()} \"{Item.Name.ToLowerInvariant()}\"(";
+        var skip3 = $"execute {Item.TypeName.ToLowerInvariant()} {Item.Schema.ToLowerInvariant()}.{Item.Name.ToLowerInvariant()}(";
+        var skip4 = $"execute {Item.TypeName.ToLowerInvariant()} {Item.Schema.ToLowerInvariant()}.\"{Item.Name.ToLowerInvariant()}\"(";
+        var skip5 = $"execute {Item.TypeName.ToLowerInvariant()} \"{Item.Schema.ToLowerInvariant()}\".\"{Item.Name.ToLowerInvariant()}\"(";
+        var skip6 = $"execute {Item.TypeName.ToLowerInvariant()} \"{Item.Schema.ToLowerInvariant()}\".{Item.Name.ToLowerInvariant()}(";
 
         string statement = "";
         string endSequence = null;
@@ -57,11 +65,41 @@ public class RoutineDumpTransformer : DumpTransformer
             {
                 continue;
             }
-            if (!isCreate && string.IsNullOrEmpty(statement) && !line.Contains(name1) && !line.Contains(name2) && !line.Contains(name3) && !line.Contains(name4))
+            if (!isCreate && isComment && line.Contains("*/"))
+            {
+                isComment = false;
+            }
+            if (!isCreate && isComment)
             {
                 continue;
             }
-
+            if (!isCreate && line.Contains("/*") && !line.Contains("*/"))
+            {
+                isComment = true;
+            }
+            if (!isCreate && string.IsNullOrEmpty(statement) && 
+                !line.Contains(name1) && 
+                !line.Contains(name2) && 
+                !line.Contains(name3) && 
+                !line.Contains(name4))
+            {
+                continue;
+            }
+            
+            if (!isCreate)
+            {
+                var lower = line.ToLowerInvariant();
+                if (lower.Contains(skip1) || 
+                    lower.Contains(skip2) || 
+                    lower.Contains(skip3) || 
+                    lower.Contains(skip4) ||
+                    lower.Contains(skip5) ||
+                    lower.Contains(skip6))
+                {
+                    continue;
+                }
+            }
+            
             var createStart = line.StartsWith(startSequence1) || line.StartsWith(startSequence2) || line.StartsWith(startSequence3) || line.StartsWith(startSequence4);
             var createEnd = endSequence != null && line.Contains($"{endSequence};");
             if (createStart)

@@ -59,7 +59,7 @@ public static partial class DataAccessConnectionExtensions
                                             then ''
                                             else ccu.table_schema || '.'
                                     end 
-                                    || ccu.table_name || '.' || ccu.column_name || '`**'
+                                    || case when ccu.table_schema = 'public' then '' else  ccu.table_schema || '.' end || ccu.table_name || '.' || ccu.column_name || '`**'
                                 when tc.constraint_type = 'CHECK' then (select '`' || pg_get_constraintdef((select oid from pg_constraint where conname = tc.constraint_name), true) || '`')
                                 else tc.constraint_type
                         end as description_markup

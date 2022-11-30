@@ -88,7 +88,11 @@ public class UnitTestBuilder
         }
 
         var settings = new Current { Namespace = name, UseFileScopedNamespaces = Current.Value.UseFileScopedNamespaces };
-        var useGlobalUsing = Current.Value.UnitTestProjectTargetFramework == "net6.0" || Current.Value.UnitTestProjectLangVersion == "10";
+        var useGlobalUsing = 
+            Current.Value.UnitTestProjectTargetFramework == "net6.0" || 
+            Current.Value.UnitTestProjectLangVersion == "10" ||
+            Current.Value.UnitTestProjectTargetFramework == "net7.0" ||
+            Current.Value.UnitTestProjectLangVersion == "11";
 
         HashSet<string> usings = new();
         if (extensions.Any())

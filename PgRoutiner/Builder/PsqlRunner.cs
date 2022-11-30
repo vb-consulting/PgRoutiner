@@ -20,7 +20,7 @@ public class PsqlRunner
 
     public void Run(string args)
     {
-        var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
+        var password = connection.ExtractPassword();
         Environment.SetEnvironmentVariable("PGPASSWORD", password);
         try
         {
@@ -77,7 +77,7 @@ public class PsqlRunner
             return;
         }
 
-        var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
+        var password = connection.ExtractPassword();
         Environment.SetEnvironmentVariable("PGPASSWORD", password);
         try
         {
@@ -101,7 +101,7 @@ public class PsqlRunner
 
     public void RunAsShellExecute()
     {
-        var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
+        var password = connection.ExtractPassword();
         Environment.SetEnvironmentVariable("PGPASSWORD", password);
         try
         {

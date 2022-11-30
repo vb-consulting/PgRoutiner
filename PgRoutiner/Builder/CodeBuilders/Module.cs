@@ -4,9 +4,9 @@ public class Module : Code
 {
     public HashSet<string> Usings = new()
     {
-        "System",
-        "System.Linq",
-        "System.Collections.Generic"
+        //"System",
+        //"System.Linq",
+        //"System.Collections.Generic"
     };
 
     protected List<object> items = new();

@@ -1,14 +1,7 @@
-﻿using System.Drawing;
-using System.Reflection;
-using System.Xml.Linq;
-using Norm;
-using PgRoutiner.Builder.CodeBuilders.Models;
+﻿using Norm;
 using PgRoutiner.Builder.DiffBuilder;
-using PgRoutiner.DataAccess;
 using PgRoutiner.DataAccess.Models;
 using PgRoutiner.DumpTransformers;
-using PgRoutiner.SettingsManagement;
-using static System.Net.Mime.MediaTypeNames;
 using static PgRoutiner.Builder.Dump.DumpBuilder;
 
 namespace PgRoutiner.Builder.Dump;
@@ -30,7 +23,6 @@ public class PgDumpBuilder
         this.settings = settings;
         Connection = connection;
 
-        //var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(connection) as string;
         //baseArg = $"--dbname=postgresql://{connection.UserName}:{password}@{connection.Host}:{connection.Port}/{connection.Database} --encoding=UTF8";
 
         baseArg = $"-h {connection.Host} -p {connection.Port} -U {connection.UserName} {(utf8 ? "--encoding=UTF8" : "")}";
@@ -47,7 +39,7 @@ public class PgDumpBuilder
 
     public void Run(string args)
     {
-        var password = typeof(NpgsqlConnection).GetProperty("Password", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Connection) as string;
+        var password = Connection.ExtractPassword();
         Environment.SetEnvironmentVariable("PGPASSWORD", password);
 
         using var process = new System.Diagnostics.Process();
@@ -93,7 +85,8 @@ public class PgDumpBuilder
             baseArg,
             " --schema-only",
             settings.DbObjectsOwners ? "" : " --no-owner",
-            settings.DbObjectsPrivileges ? "" : " --no-acl");
+            settings.DbObjectsPrivileges ? "" : " --no-acl",
+            settings.DbObjectsSchema == null ? "" : $" --schema={settings.DbObjectsSchema}");
 
         bool HasKey(DumpType key)
         {
@@ -109,6 +102,13 @@ public class PgDumpBuilder
             var tables = Connection.GetTables(settings).ToList();
             foreach (var table in tables)
             {
+                if (settings.DbObjectsSchema != null)
+                {
+                    if (table.Schema != settings.DbObjectsSchema)
+                    {
+                        continue;
+                    }
+                }
                 var name = table.GetFileName();
                 string content = null;
                 try
@@ -135,6 +135,13 @@ public class PgDumpBuilder
         {
             foreach (var seq in Connection.GetSequences(settings))
             {
+                if (settings.DbObjectsSchema != null)
+                {
+                    if (seq.Schema != settings.DbObjectsSchema)
+                    {
+                        continue;
+                    }
+                }
                 var name = seq.GetFileName();
                 string content;
                 try
@@ -169,6 +176,13 @@ public class PgDumpBuilder
                 {
                     foreach (var routine in Connection.GetRoutines(settings))
                     {
+                        if (settings.DbObjectsSchema != null)
+                        {
+                            if (routine.Schema != settings.DbObjectsSchema)
+                            {
+                                continue;
+                            }
+                        }
                         var name = routine.GetFileName();
                         string content;
                         try
@@ -190,6 +204,13 @@ public class PgDumpBuilder
                 {
                     foreach (var domain in Connection.GetDomains(settings))
                     {
+                        if (settings.DbObjectsSchema != null)
+                        {
+                            if (domain.Schema != settings.DbObjectsSchema)
+                            {
+                                continue;
+                            }
+                        }
                         var name = domain.GetFileName();
                         string content;
                         try
@@ -211,6 +232,13 @@ public class PgDumpBuilder
                 {
                     foreach (var type in Connection.FilterTypes(types, settings))
                     {
+                        if (settings.DbObjectsSchema != null)
+                        {
+                            if (type.Schema != settings.DbObjectsSchema)
+                            {
+                                continue;
+                            }
+                        }
                         var name = type.GetFileName();
                         string content;
                         try
@@ -232,6 +260,13 @@ public class PgDumpBuilder
                 {
                     foreach (var schema in Connection.GetSchemas(settings))
                     {
+                        if (settings.DbObjectsSchema != null)
+                        {
+                            if (schema != settings.DbObjectsSchema)
+                            {
+                                continue;
+                            }
+                        }
                         if (string.Equals(schema, "public"))
                         {
                             continue;
@@ -259,20 +294,34 @@ public class PgDumpBuilder
                 {
                     foreach (var ext in Connection.GetExtensions())
                     {
+                        if (settings.DbObjectsSchema != null)
+                        {
+                            if (ext.Schema != settings.DbObjectsSchema)
+                            {
+                                continue;
+                            }
+                        }
                         var name = ext.GetFileName();
-                        string content;
-                        try
+                        if (string.Equals(ext.Name, "plpgsql"))
                         {
-                            content = new ExtensionDumpTransformer(ext.Name, lines)
-                                .BuildLines()
-                                .ToString();
+                            yield return (name, "CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;", ext.Type, ext.Schema);
                         }
-                        catch (Exception e)
+                        else
                         {
-                            Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
-                            continue;
+                            string content;
+                            try
+                            {
+                                content = new ExtensionDumpTransformer(ext.Name, lines)
+                                    .BuildLines()
+                                    .ToString();
+                            }
+                            catch (Exception e)
+                            {
+                                Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
+                                continue;
+                            }
+                            yield return (name, content, ext.Type, ext.Schema);
                         }
-                        yield return (name, content, ext.Type, ext.Schema);
                     }
                 }
             }
@@ -607,7 +656,8 @@ public class PgDumpBuilder
         if (item == null)
         {
             List<string> lines = new();
-            GetPgDumpContent($"{args} {excludeTables}", lineFunc: line =>
+            //GetPgDumpContent($"{args} {excludeTables}", lineFunc: line =>
+            GetPgDumpContent($"{args}", lineFunc: line =>
             {
                 lines.Add(line);
                 if (lineAction != null)

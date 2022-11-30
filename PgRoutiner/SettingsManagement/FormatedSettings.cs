@@ -143,7 +143,7 @@ public class FormatedSettings
         AddEntry(nameof(Current.Namespace), Current.Value.Namespace);
         AddEntry(nameof(Current.UseRecords), Current.Value.UseRecords);
         AddEntry(nameof(Current.UseRecordsForModels), Current.Value.UseRecordsForModels);
-        AddEntry(nameof(Current.UseExpressionBody), Current.Value.UseExpressionBody);
+        //AddEntry(nameof(Current.UseExpressionBody), Current.Value.UseExpressionBody);
         AddEntry(nameof(Current.UseFileScopedNamespaces), Current.Value.UseFileScopedNamespaces);
         AddEntry(nameof(Current.UseNullableTypes), Current.Value.UseNullableTypes);
         AddEntry(nameof(Current.Mapping), Current.Value.Mapping);
@@ -153,10 +153,10 @@ public class FormatedSettings
         AddEntry(nameof(Current.EmptyModelDir), Current.Value.EmptyModelDir);
         AddEntry(nameof(Current.SkipSyncMethods), Current.Value.SkipSyncMethods);
         AddEntry(nameof(Current.SkipAsyncMethods), Current.Value.SkipAsyncMethods);
-        AddEntry(nameof(Current.MinNormVersion), Current.Value.MinNormVersion);
+        //AddEntry(nameof(Current.MinNormVersion), Current.Value.MinNormVersion);
         AddEntry(nameof(Current.SourceHeaderLines), Current.Value.SourceHeaderLines);
         AddEntry(nameof(Current.Ident), Current.Value.Ident);
-        AddEntry(nameof(Current.ReturnMethod), Current.Value.ReturnMethod);
+        //AddEntry(nameof(Current.ReturnMethod), Current.Value.ReturnMethod);
         AddEntry(nameof(Current.MethodParameterNames), Current.Value.MethodParameterNames);
 
         sb.AppendLine();
@@ -181,7 +181,8 @@ public class FormatedSettings
         AddEntry(nameof(Current.RoutinesUnknownReturnTypes), Current.Value.RoutinesUnknownReturnTypes);
         AddEntry(nameof(Current.RoutinesCallerInfo), Current.Value.RoutinesCallerInfo);
         AddEntry(nameof(Current.RoutinesLanguages), Current.Value.RoutinesLanguages);
-        
+        AddEntry(nameof(Current.RoutinesCustomCodeLines), Current.Value.RoutinesCustomCodeLines);
+
         sb.AppendLine();
         AddSectionComment(
             "Unit tests code-generation settings",
@@ -250,6 +251,7 @@ public class FormatedSettings
         AddEntry(nameof(Current.DbObjectsPrivileges), Current.Value.DbObjectsPrivileges);
         AddEntry(nameof(Current.DbObjectsCreateOrReplace), Current.Value.DbObjectsCreateOrReplace);
         AddEntry(nameof(Current.DbObjectsRaw), Current.Value.DbObjectsRaw);
+        AddEntry(nameof(Current.DbObjectsSchema), Current.Value.DbObjectsSchema);
 
         sb.AppendLine();
         AddSectionComment(
@@ -264,6 +266,9 @@ public class FormatedSettings
         AddEntry(nameof(Current.MdSchemaNotSimilarTo), Current.Value.MdSchemaNotSimilarTo);
         AddEntry(nameof(Current.MdOverwrite), Current.Value.MdOverwrite);
         AddEntry(nameof(Current.MdAskOverwrite), Current.Value.MdAskOverwrite);
+        AddEntry(nameof(Current.MdSkipHeader), Current.Value.MdSkipHeader);
+        AddEntry(nameof(Current.MdSkipToc), Current.Value.MdSkipToc);
+        AddEntry(nameof(Current.MdSkipTables), Current.Value.MdSkipTables);
         AddEntry(nameof(Current.MdSkipRoutines), Current.Value.MdSkipRoutines);
         AddEntry(nameof(Current.MdSkipViews), Current.Value.MdSkipViews);
         AddEntry(nameof(Current.MdSkipEnums), Current.Value.MdSkipEnums);
