@@ -19,7 +19,28 @@ public static partial class DataAccessConnectionExtensions
                 regexp_replace(p.udt_name, '^[_]', '') as type,
                 p.data_type,
                 p.data_type = 'ARRAY' as array,
-                true as nullable
+                true as nullable,
+
+                case    when p.data_type = 'USER-DEFINED' 
+                        then p.udt_name 
+                        else case   when p.udt_schema <> 'pg_catalog' 
+                                    then p.udt_schema || '.' 
+                                    else '' 
+                        end || p.udt_name::regtype 
+                end || 
+                case    when p.data_type <> 'integer' and p.data_type <> 'bigint' and p.data_type <> 'smallint' 
+                        then
+                            case    when p.character_maximum_length is not null 
+                                    then '(' || cast(p.character_maximum_length as varchar) || ')'
+                                    else 
+                                        case    when p.numeric_precision is not null 
+                                                then '(' || cast(p.numeric_precision as varchar) || ',' || cast(p.numeric_scale as varchar) || ')'
+                                        else ''
+                                        end
+                            end
+                        else ''
+                end as data_type_formatted
+
             from 
                 information_schema.parameters p
             where 

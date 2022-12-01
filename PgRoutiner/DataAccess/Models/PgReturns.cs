@@ -8,4 +8,5 @@ public class PgReturns
     public string DataType { get; set; }
     public bool Array { get; set; }
     public bool Nullable { get; set; }
+    public string DataTypeFormatted { get; set; }
 };

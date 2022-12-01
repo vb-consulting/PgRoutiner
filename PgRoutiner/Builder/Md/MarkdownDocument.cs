@@ -1,4 +1,8 @@
-﻿using PgRoutiner.DataAccess.Models;
+﻿using System.Data;
+using System.Net.WebSockets;
+using Norm;
+using PgRoutiner.DataAccess.Models;
+using PgRoutiner.SettingsManagement;
 using static PgRoutiner.Builder.Dump.DumpBuilder;
 
 namespace PgRoutiner.Builder.Md;
@@ -12,6 +16,8 @@ public class MarkdownDocument
 
     private readonly string connectionName = null;
     private readonly string baseUrl = null;
+
+    private readonly string additionalCommentsSql = null;
 
     private const string Open = "<!-- ";
     private const string Close = " -->";
@@ -30,6 +36,18 @@ public class MarkdownDocument
         {
             connectionName = (settings.Connection ?? $"{connection.Host}_{connection.Port}_{connection.Database}").SanitazePath();
             baseUrl = PathoToUrl(string.Format(settings.DbObjectsDir, connectionName));
+        }
+        if (settings.MdAdditionalCommentsSql != null)
+        {
+            var file = Path.Combine(Program.CurrentDir, settings.MdAdditionalCommentsSql);
+            if (File.Exists(file))
+            {
+                additionalCommentsSql = File.ReadAllText(file);
+            }
+            else
+            {
+                additionalCommentsSql = settings.MdAdditionalCommentsSql;
+            }
         }
     }
 
@@ -213,7 +231,7 @@ public class MarkdownDocument
                     {
                         content.AppendLine($"```");
                         content.AppendLine($"TABLE (");
-                        content.AppendLine(string.Join($",{NL}", records.Select(r => $"  {r.Name} {r.DataType}{(r.Array ? "[]" : "")}")));
+                        content.AppendLine(string.Join($",{NL}", records.Select(r => $"  {r.Name} {r.DataTypeFormatted}")));
                         content.AppendLine($")");
                         content.AppendLine($"```");
                         content.AppendLine();
@@ -292,7 +310,7 @@ public class MarkdownDocument
                 {
                     if (result.Comment != null)
                     {
-                        comment = string.Join($"{NL}{NL}", result.Comment);
+                        comment = result.Comment.Replace("\n", "").Replace("\r", "");
                     }
                     content.AppendLine();
 
@@ -341,17 +359,17 @@ public class MarkdownDocument
                         enumValue = connection.GetEnumValueAggregate(schema, result.ColumnType);
                         if (enumValue == null)
                         {
-                            typeMarkup = $" <sub>user definded</sub>";
+                            typeMarkup = $" <sub>user defined</sub>";
                         }
                         else
                         {
                             if (!settings.MdSkipEnums)
                             {
-                                typeMarkup = $" <sub>user definded `AS ENUM ({enumValue})` [➝](#enum-{schema.ToLower()}-{result.ColumnType.ToLower()})</sub>";
+                                typeMarkup = $" <sub>user defined `AS ENUM ({enumValue})` [➝](#enum-{schema.ToLower()}-{result.ColumnType.ToLower()})</sub>";
                             }
                             else
                             {
-                                typeMarkup = $" <sub>user definded `AS ENUM ({enumValue})`</sub>";
+                                typeMarkup = $" <sub>user defined `AS ENUM ({enumValue})`</sub>";
                             }
                         }
                     }
@@ -409,6 +427,8 @@ public class MarkdownDocument
             {
                 break;
             }
+            string additionalTableComment = null;
+            Dictionary<string, string> additionalColumnComments = new();
             foreach (var result in connection.GetTableComments(settings, schema).ToList())
             {
                 if (!tablesHeader)
@@ -416,14 +436,27 @@ public class MarkdownDocument
                     content.AppendLine("## Tables");
                     tablesHeader = true;
                 }
+                
+                if (result.Column == null && additionalCommentsSql != null)
+                {
+                    additionalTableComment = null;
+                    additionalColumnComments = connection
+                        .WithParameters((schema, DbType.AnsiString), (result.Table, DbType.AnsiString))
+                        .Read<string, string, string>(additionalCommentsSql)
+                        .Select(tuple =>
+                        {
+                            additionalTableComment ??= tuple.Item1;
+                            return tuple;
+                        })
+                        .ToDictionary(tuple => tuple.Item2, tuple => tuple.Item3);
+                }
 
                 string comment = null;
                 if (result.Column == null)
                 {
-
-                    if (result.Comment != null)
+                    if (result.Comment != null || additionalCommentsSql != null)
                     {
-                        comment = string.Join($"{NL}{NL}", result.Comment);
+                        comment = string.Concat($"{NL}", $"{result.Comment}{NL}{additionalTableComment}".Trim());
                     }
 
                     if (prevTable != null)
@@ -482,9 +515,17 @@ public class MarkdownDocument
                 }
                 else
                 {
-                    if (result.Comment != null)
+                    additionalColumnComments.TryGetValue(result.Column, out var additional);
+                    if (result.Comment != null || additional != null)
                     {
-                        comment = string.Join(" ", result.Comment);
+                        if (result.Comment != null)
+                        {
+                            comment = result.Comment.Replace("\n", "").Replace("\r", "");
+                        }
+                        if (additional != null)
+                        {
+                            comment = string.Concat(result.Comment != null ? " " : "", additional);
+                        }
                     }
                     var name = $"{schema.ToLower()}-{result.Table.ToLower()}-{result.Column.ToLower()}";
                     
@@ -495,17 +536,17 @@ public class MarkdownDocument
                         enumValue = connection.GetEnumValueAggregate(schema, result.ColumnType);
                         if (enumValue == null)
                         {
-                            typeMarkup = $" <sub>user definded</sub>";
+                            typeMarkup = $" <sub>user defined</sub>";
                         }
                         else
                         {
                             if (!settings.MdSkipEnums)
                             {
-                                typeMarkup = $" <sub>user definded `AS ENUM ({enumValue})` [➝](#enum-{schema.ToLower()}-{result.ColumnType.ToLower()})</sub>";
+                                typeMarkup = $" <sub>user defined `AS ENUM ({enumValue})` [➝](#enum-{schema.ToLower()}-{result.ColumnType.ToLower()})</sub>";
                             }
                             else
                             {
-                                typeMarkup = $" <sub>user definded `AS ENUM ({enumValue})`</sub>";
+                                typeMarkup = $" <sub>user defined `AS ENUM ({enumValue})`</sub>";
                             }
                         }
                     }

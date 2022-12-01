@@ -1,5 +1,32 @@
 ﻿# VERSION HISTORY
 
+## 4.1.0
+
+### Database dictionary changes
+
+#### Fixed incorect decimal type precision 
+
+#### Fixed array types
+
+#### Added new option `MdAdditionalCommentsSql`
+
+If present, represent a SQL query that returns additional comments for tables in database dictionary. 
+
+It can be raw SQL or SQL file name if it exists. 
+
+Query receives two positional parameters: 
+1) Position `$1` - current `schema` name.
+2) Position `$2` - current `table` name.
+
+The query must return three columns: 
+1) `table_description` - table description. This field can repeat for each table column. This description is appended to table comment.
+2) `column` - column name.
+3) `column_description` - column description. This description is appended to column comment.
+
+### Database objects file creation
+
+#### Fix type objects file creation
+
 ## 4.0.0
 
 ## Upgrade unit tests project generator to .NET 7.0
@@ -169,7 +196,7 @@ will generate code like this:
     }
 ```
 
-### Database objects file creataion
+### Database objects file creation
 
 #### Fix missing `plpgsql` extension script
 

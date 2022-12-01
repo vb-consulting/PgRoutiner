@@ -49,6 +49,14 @@ public static class PgDumpCache
 
     private static (List<string> content, string error) GetDumpContent(NpgsqlConnection connection, string args, string pgDumpCmd)
     {
+        //if (!string.Equals(args, "--version"))
+        //{
+        //    return (File.ReadAllLines("C:\\vb-consulting\\PgRoutiner\\PgRoutiner\\Test\\cpims.sql")
+        //        .Where(l => !string.IsNullOrWhiteSpace(l))
+        //        .ToList(), 
+        //        "");
+        //}
+        
         var password = connection.ExtractPassword();
         Environment.SetEnvironmentVariable("PGPASSWORD", password);
 

@@ -105,24 +105,26 @@ public static partial class DataAccessConnectionExtensions
                 c.column_name,
                 tc.is_pk,
                 tc.description_markup,
-                case when c.data_type = 'USER-DEFINED' then c.udt_name else c.data_type end || 
 
-                    case    when c.data_type <> 'integer' and c.data_type <> 'bigint' and c.data_type <> 'smallint' 
-                            then
-                                case    when c.character_maximum_length is not null 
-                                        then '(' || cast(c.character_maximum_length as varchar) || ')'
-                                        else 
-                                            case    when c.numeric_precision is not null 
-                                                    then '(' || cast(c.numeric_precision as varchar) || ',' || cast(c.numeric_precision_radix as varchar) || ')' || 
-                                                        case    when coalesce(c.numeric_scale, 0) = 0 
-                                                                then '' 
-                                                                else ',' || cast(c.numeric_scale as varchar) || ')'
-                                                        end
-                                            else ''
-                                            end
-                                end
-                            else ''
-                    end as data_type,
+                case    when c.data_type = 'USER-DEFINED' 
+                        then c.udt_name 
+                        else case   when c.udt_schema <> 'pg_catalog' 
+                                    then c.udt_schema || '.' 
+                                    else '' 
+                        end || c.udt_name::regtype 
+                end || 
+                case    when c.data_type <> 'integer' and c.data_type <> 'bigint' and c.data_type <> 'smallint' 
+                        then
+                            case    when c.character_maximum_length is not null 
+                                    then '(' || cast(c.character_maximum_length as varchar) || ')'
+                                    else 
+                                        case    when c.numeric_precision is not null 
+                                                then '(' || cast(c.numeric_precision as varchar) || ',' || cast(c.numeric_scale as varchar) || ')'
+                                        else ''
+                                        end
+                            end
+                        else ''
+                end as data_type,
 
                 c.data_type = 'USER-DEFINED' as is_udt,
 
@@ -269,25 +271,27 @@ public static partial class DataAccessConnectionExtensions
                 c.column_name,
                 tc.is_pk,
                 tc.description_markup,
-                case when c.data_type = 'USER-DEFINED' then c.udt_name else c.data_type end || 
 
-                    case    when c.data_type <> 'integer' and c.data_type <> 'bigint' and c.data_type <> 'smallint' 
-                            then
-                                case    when c.character_maximum_length is not null 
-                                        then '(' || cast(c.character_maximum_length as varchar) || ')'
-                                        else 
-                                            case    when c.numeric_precision is not null 
-                                                    then '(' || cast(c.numeric_precision as varchar) || ',' || cast(c.numeric_precision_radix as varchar) || ')' || 
-                                                        case    when coalesce(c.numeric_scale, 0) = 0 
-                                                                then '' 
-                                                                else ',' || cast(c.numeric_scale as varchar) || ')'
-                                                        end
-                                            else ''
-                                            end
-                                end
-                            else ''
-                    end as data_type,
-                
+                case    when c.data_type = 'USER-DEFINED' 
+                        then c.udt_name 
+                        else case   when c.udt_schema <> 'pg_catalog' 
+                                    then c.udt_schema || '.' 
+                                    else '' 
+                        end || c.udt_name::regtype 
+                end || 
+                case    when c.data_type <> 'integer' and c.data_type <> 'bigint' and c.data_type <> 'smallint' 
+                        then
+                            case    when c.character_maximum_length is not null 
+                                    then '(' || cast(c.character_maximum_length as varchar) || ')'
+                                    else 
+                                        case    when c.numeric_precision is not null 
+                                                then '(' || cast(c.numeric_precision as varchar) || ',' || cast(c.numeric_scale as varchar) || ')'
+                                        else ''
+                                        end
+                            end
+                        else ''
+                end as data_type,
+
                 c.data_type = 'USER-DEFINED' as is_udt,
                 
                 case when c.is_nullable = 'NO' then '**NO**' else c.is_nullable end as nullableMarkup,

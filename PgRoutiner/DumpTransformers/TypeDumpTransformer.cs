@@ -28,8 +28,8 @@ public partial class TypeDumpTransformer : DumpTransformer
         bool isCreate = false;
         bool isAppend = true;
 
-        var name1 = $"{Item.Schema}.{Item.Name}";
-        var startSequence1 = $"CREATE TYPE {name1} AS ";
+        var name1 = $"TYPE {Item.Schema}.{Item.Name}";
+        var startSequence1 = $"CREATE {name1} AS ";
 
         string statement = "";
         const string endSequence = ";";
