@@ -9,6 +9,8 @@ Leverage your .NET application connection string to - manage your PostgreSQL dat
   
 ## Installation
 
+### Global tool
+
 To install a global tool (recommended):
 
 ```
@@ -24,6 +26,8 @@ Tool 'dotnet-pgroutiner' was successfully updated from version '3.18.1' to versi
 ```
 
 This will enable a global command line tool `pgroutiner`. Try typing `pgroutiner --help`.
+
+### Local tool
 
 To add a local tool to your project only you need to create a manifest file and add a tool without `-`-global` switch as described in this [tutorial](https://learn.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use).
 
@@ -51,6 +55,24 @@ TLDR:
 - From your command line type `dotnet tool restore`
 
 - Run the tool with `dotnet tool run pgroutiner`
+
+### Docker image
+
+There is a [Dockerfile](https://github.com/vb-consulting/PgRoutiner/blob/master/Dockerfile) which you can use.
+
+- Download or copy this file.
+
+- Run `docker build -t pgroutiner .` to build the image.
+
+- To run pgroutiner type `docker run -it --rm pgroutiner --help` for help (link to this file) or `docker run -it --rm pgroutiner --version` to display current version.
+
+- To mount a current directory when running (where presumably your configuration may be located) use following switches:
+    - `docker run --rm -it -v $(pwd):/home/ pgroutiner` on Linux
+    - `docker run --rm -it -v ${PWD}:/home/ pgroutiner` on PowerShell
+    - `docker run --rm -it -v $%cd%:/home/ pgroutiner` on Win Command-Line
+
+Note, to be able to access your local database, use `host.docker.internal` as your host name instead of `localhost`, for example:
+`docker run --rm -it -v ${PWD}:/home/ pgroutiner -c "Server=host.docker.internal;Db=database;Port=5432;User Id=user;Password=password;"`
 
 ## Quick Start
 
@@ -833,8 +855,6 @@ Business areas that companies may be invloved.
 
 - It will look for a .NET project file in the current directory, and, if found, it will add the following Nuget libraries (only if missing):
   - [`Npgsql` - .NET Access to PostgreSQL](https://www.npgsql.org/)
-  - [`System.Linq.Async` - Linq over IAsyncEnumerable sequence](https://www.nuget.org/packages/System.Linq.Async)
-  - [`Norm.net` - extendible, high-performance micro-ORM ](https://github.com/vb-consulting/Norm.net)
 
 - These references will be required for the generated code, however, they can be skipped with `--skip-update-references` switch.
   

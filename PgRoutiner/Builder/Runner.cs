@@ -6,6 +6,10 @@ public class Runner
     public static void Run(NpgsqlConnection connection)
     {
         var connectionName = (Current.Value.Connection ?? $"{connection.Host}_{connection.Port}_{connection.Database}").SanitazePath();
+        if (connectionName.Contains("=") || connectionName.Contains(":") || connectionName.Contains("/"))
+        {
+            connectionName = $"{connection.Host}_{connection.Port}_{connection.Database}".SanitazePath();
+        }
 
         if (Current.Value.Execute != null)
         {

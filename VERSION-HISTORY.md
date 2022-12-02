@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 4.1.2
+
+- Fix connection name when connection string overrides connection name.
+
 ## 4.1.1
 
 - Fix problem with command line aliases

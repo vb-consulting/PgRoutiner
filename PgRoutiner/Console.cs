@@ -94,7 +94,11 @@ static partial class Program
             var arg = (Arg)field.GetValue(null);
             if (args.Contains(arg.Alias))
             {
-                settings.GetType().GetProperty(arg.Original).SetValue(settings, true);
+                var prop = settings.GetType().GetProperty(arg.Original);
+                if (prop.GetType() == typeof(bool))
+                {
+                    settings.GetType().GetProperty(arg.Original).SetValue(settings, true);
+                }
             }
         }
         return settings;
