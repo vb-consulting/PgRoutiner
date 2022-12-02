@@ -26,7 +26,7 @@ static partial class Program
 
     static void Main(string[] rawArgs)
     {
-        //rawArgs = new string[] { "--inserts", "select id, first_name, last_name from people order by id limit 5;select person_id, role_id from person_roles where person_id in (select id from people order by id limit 5);select company_id, person_id, employment_started_at, employment_ended_at from employee_records where person_id in (select id from people order by id limit 5);select id, name, country from companies where id in (select distinct company_id from employee_records where person_id in (select id from people order by id limit 5))" };
+        //rawArgs = new string[] { "-h" };
         var args = ParseArgs(rawArgs);
 
         if (args == null)

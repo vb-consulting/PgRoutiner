@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 4.1.1
+
+- Fix problem with command line aliases
+
+- Add Dockerfile, first version
+
 ## 4.1.0
 
 ### Database dictionary changes

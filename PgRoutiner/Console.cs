@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
 
 namespace PgRoutiner;
 
@@ -89,6 +88,15 @@ static partial class Program
     {
         var settings = new Current();
         new ConfigurationBuilder().AddCommandLine(args).Build().Bind(settings);
+
+        foreach (var field in typeof(Current).GetFields(BindingFlags.Public | BindingFlags.Static).Where(f => f.Name.EndsWith("Args")).ToList())
+        {
+            var arg = (Arg)field.GetValue(null);
+            if (args.Contains(arg.Alias))
+            {
+                settings.GetType().GetProperty(arg.Original).SetValue(settings, true);
+            }
+        }
         return settings;
     }
 
