@@ -186,7 +186,7 @@ public class RoutineCode : Code
         {
             Class.AppendLine($"{I4}Parameters =");
             Class.AppendLine($"{I4}{{");
-            Class.AppendLine(string.Join($",{NL}", @params.Select(p => $"{I5}new() {{ NpgsqlDbType = {p.DbType}, Value = (object){p.Name} ?? DBNull.Value }}")));
+            Class.AppendLine(string.Join($",{NL}", @params.Select(p => $"{I5}new() {{ NpgsqlDbType = {p.DbType}, Value = {p.Name} == null ? DBNull.Value : {p.Name} }}")));
             Class.AppendLine($"{I4}}},");
         }
         if (settings.RoutinesUnknownReturnTypes.Contains(@return.PgName))

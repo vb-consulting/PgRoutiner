@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 4.1.3
+
+- Fix DBNull parameter conversion and update dockerfile
+
 ## 4.1.2
 
 - Fix connection name when connection string overrides connection name.

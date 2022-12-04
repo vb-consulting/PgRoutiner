@@ -44,7 +44,7 @@ RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-k
 # Install postgresql client tools for version 15:
 # Note: change postgresql-client-15 for desired version.
 #
-RUN apt-get update && apt-get install -y postgresql-client-15
+RUN apt-get update && apt-get install -y postgresql-client-15 && apt-get install -y postgresql-client-14 && apt-get install -y postgresql-client-13 && apt-get install -y postgresql-client-12 && apt-get install -y postgresql-client-11 && apt-get install -y postgresql-client-10 && apt-get install -y postgresql-client-9.6
 
 #
 # Run pgroutiner on entry
