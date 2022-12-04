@@ -1,29 +1,51 @@
 ﻿#
-# Install the .NET7 Software Development Kit (SDK)
+# Install the .NET7 Software Development Kit (SDK):
 #
 FROM mcr.microsoft.com/dotnet/sdk:7.0 as builder
 
 #
-# Install pgroutiner global tool with latest version.
+# Install pgroutiner global tool with latest version:
 # Note, to use a different version add --version <number> command line parameter to this line
 #
 RUN dotnet tool install --global dotnet-pgroutiner
 
 #
-# Now, Install .NET7 runtime, which is a significantly smaller image
+# Now, Install .NET7 runtime, which is a significantly smaller image:
 #
 FROM mcr.microsoft.com/dotnet/runtime:7.0
+# FROM ubuntu:20.04
 
 #
-# Copy all global tools to /opt/bin, since tools are complied on install and path to /opt/bin
+# Set working dir to home dir. This dir will be used for mounting configurations:
+#
+WORKDIR /home
+
+#
+# Copy all global tools to /opt/bin, since tools are complied on install and path to /opt/bin:
 #
 COPY --from=builder /root/.dotnet/tools/ /opt/bin
 ENV PATH="/opt/bin:${PATH}"
 
 #
-# Set working dir to home dir. This dir will be used for mounting configurations.
+# Install wget and gnupg needed for the repository configuration
 #
-WORKDIR /home
+RUN apt-get update && apt-get install -y wget gnupg
+
+#
+# Create the file repository configuration for postgresql client tools:
+#
+RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+
+#
+# Import the repository signing key for postgresql client tools:
+#
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+
+#
+# Install postgresql client tools for version 15:
+# Note: change postgresql-client-15 for desired version.
+#
+RUN apt-get update && apt-get install -y postgresql-client-15
 
 #
 # Run pgroutiner on entry
