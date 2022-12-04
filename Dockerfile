@@ -13,7 +13,6 @@ RUN dotnet tool install --global dotnet-pgroutiner
 # Now, Install .NET7 runtime, which is a significantly smaller image:
 #
 FROM mcr.microsoft.com/dotnet/runtime:7.0
-# FROM ubuntu:20.04
 
 #
 # Set working dir to home dir. This dir will be used for mounting configurations:
