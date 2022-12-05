@@ -6,11 +6,15 @@ public class RoutineModule : Module
     {
         if (!settings.SkipAsyncMethods)
         {
+            if (settings.RoutinesCancellationToken)
+            {
+                AddUsing("System.Threading");
+            }
             AddUsing("System.Threading.Tasks");
         }
         AddUsing("NpgsqlTypes");
         AddUsing("Npgsql");
-        if (settings.RoutinesCallerInfo)
+        if (settings.RoutinesCallerInfo || (settings.RoutinesCancellationToken && !settings.SkipAsyncMethods))
         {
             AddUsing("System.Runtime.CompilerServices");
         }

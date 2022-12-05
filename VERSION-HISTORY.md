@@ -1,5 +1,12 @@
 ﻿# VERSION HISTORY
 
+## 4.1.4
+
+- Add missing connection open block.
+- Wrap up caller info parameters.
+- Add optional CancellationToken parameter by setting new option `RoutinesCancellationToken` to true (default is false).
+- DB Dictionary renamed text from `Data Access Extension` to `Data Access Code` and `Unit Test` to `Unit Tests`
+
 ## 4.1.3
 
 - Fix DBNull parameter conversion and update dockerfile

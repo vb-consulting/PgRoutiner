@@ -254,7 +254,7 @@ public class MarkdownDocument
                         .Replace("\\", "/")
                         .Replace("./", "/")
                         .Replace("//", "/");
-                    content.AppendLine($"- Data Access Extension: [{url}]({url})");
+                    content.AppendLine($"- Data Access Code: [{url}]({url})");
                     content.AppendLine();
                 }
 
@@ -267,7 +267,7 @@ public class MarkdownDocument
                         .Replace("\\", "/")
                         .Replace("./", "/")
                         .Replace("//", "/");
-                    content.AppendLine($"- Unit Test: [{url}]({url})");
+                    content.AppendLine($"- Unit Tests: [{url}]({url})");
                     content.AppendLine();
                 }
 

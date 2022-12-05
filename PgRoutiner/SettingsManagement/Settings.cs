@@ -174,6 +174,7 @@ namespace PgRoutiner.SettingsManagement
         public HashSet<string> RoutinesCustomCodeLines { get; set; } = new()
         {
         };
+        public bool RoutinesCancellationToken { get; set; } = false;
 
 
         /*unit tests*/

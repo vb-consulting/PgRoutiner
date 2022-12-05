@@ -182,6 +182,7 @@ public class FormatedSettings
         AddEntry(nameof(Current.RoutinesCallerInfo), Current.Value.RoutinesCallerInfo);
         AddEntry(nameof(Current.RoutinesLanguages), Current.Value.RoutinesLanguages);
         AddEntry(nameof(Current.RoutinesCustomCodeLines), Current.Value.RoutinesCustomCodeLines);
+        AddEntry(nameof(Current.RoutinesCancellationToken), Current.Value.RoutinesCancellationToken);
 
         sb.AppendLine();
         AddSectionComment(

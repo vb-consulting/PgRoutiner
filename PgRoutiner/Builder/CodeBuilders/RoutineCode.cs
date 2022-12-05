@@ -78,7 +78,12 @@ public class RoutineCode : Code
         BuildCommentHeader(routine, @return, @params, true, returnMethod);
         var actualReturns = @return.IsEnumerable ? $"IEnumerable<{@return.Name}>" : (returnMethod == null ? $"IEnumerable<{@return.Name}>" : @return.Name);
 
-        BuildExtensionsStart(@return, @params, name, actualReturns);
+        BuildExtensionsStart(@return, @params, name, actualReturns, false);
+
+        Class.AppendLine($"{I3}if (connection.State != System.Data.ConnectionState.Open)");
+        Class.AppendLine($"{I3}{{");
+        Class.AppendLine($"{I4}connection.Open();");
+        Class.AppendLine($"{I3}}}");
 
         if (@return.IsVoid)
         {
@@ -122,24 +127,29 @@ public class RoutineCode : Code
         BuildCommentHeader(routine, @return, @params, false, returnMethod);
         var actualReturns = @return.IsEnumerable ? $"async IAsyncEnumerable<{@return.Name}>" : (@return.IsVoid ? "async Task" : (returnMethod == null ? $"async IAsyncEnumerable<{@return.Name}>" : $"async Task<{@return.Name}>"));
 
-        BuildExtensionsStart(@return, @params, name, actualReturns);
-        
+        BuildExtensionsStart(@return, @params, name, actualReturns, true);
+
+        Class.AppendLine($"{I3}if (connection.State != System.Data.ConnectionState.Open)");
+        Class.AppendLine($"{I3}{{");
+        Class.AppendLine($"{I4}await connection.OpenAsync({(settings.RoutinesCancellationToken ? "cancellationToken" : "")});");
+        Class.AppendLine($"{I3}}}");
+
         if (@return.IsVoid)
         {
-            Class.AppendLine($"{I3}await command.ExecuteNonQueryAsync();");
+            Class.AppendLine($"{I3}await command.ExecuteNonQueryAsync({(settings.RoutinesCancellationToken ? "cancellationToken" : "")});");
         }
         else
         {
             if (!@return.IsEnumerable)
             {
-                Class.AppendLine($"{I3}using var reader = await command.ExecuteReaderAsync(System.Data.CommandBehavior.SingleResult);");
-                Class.AppendLine($"{I3}if (await reader.ReadAsync())");
+                Class.AppendLine($"{I3}using var reader = await command.ExecuteReaderAsync(System.Data.CommandBehavior.SingleResult{(settings.RoutinesCancellationToken ? ", cancellationToken" : "")});");
+                Class.AppendLine($"{I3}if (await reader.ReadAsync({(settings.RoutinesCancellationToken ? "cancellationToken" : "")}))");
                 MapSingle(@return);
             }
             else
             {
-                Class.AppendLine($"{I3}using var reader = await command.ExecuteReaderAsync(System.Data.CommandBehavior.Default);");
-                Class.AppendLine($"{I3}while (await reader.ReadAsync())");
+                Class.AppendLine($"{I3}using var reader = await command.ExecuteReaderAsync(System.Data.CommandBehavior.Default{(settings.RoutinesCancellationToken ? ", cancellationToken" : "")});");
+                Class.AppendLine($"{I3}while (await reader.ReadAsync({(settings.RoutinesCancellationToken ? "cancellationToken" : "")}))");
                 BuildMapInstance(routine, @return);
             }
         }
@@ -168,13 +178,26 @@ public class RoutineCode : Code
         Class.AppendLine($"{I3}return default;");
     }
 
-    private void BuildExtensionsStart(Return @return, List<Param> @params, string name, string actualReturns)
+    private void BuildExtensionsStart(Return @return, List<Param> @params, string name, string actualReturns, bool isAsync)
     {
         Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
         BuildMethodParams(@params);
+        
+        if (isAsync && settings.RoutinesCancellationToken)
+        {
+            if (@return.IsEnumerable)
+            {
+                Class.Append($",{NL}{I3}[EnumeratorCancellation] CancellationToken cancellationToken = default");
+            }
+            else
+            {
+                Class.Append($",{NL}{I3}CancellationToken cancellationToken = default");
+            }
+        }
+
         if (settings.RoutinesCallerInfo)
         {
-            Class.Append(", [CallerMemberName] string memberName = \"\", [CallerFilePath] string sourceFilePath = \"\", [CallerLineNumber] int sourceLineNumber = 0");
+            Class.Append($",{NL}{I3}[CallerMemberName] string memberName = \"\",{NL}{I3}[CallerFilePath] string sourceFilePath = \"\",{NL}{I3}[CallerLineNumber] int sourceLineNumber = 0");
         }
         Class.AppendLine(")");
         Class.AppendLine($"{I2}{{");
