@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Xml.Linq;
-using PgRoutiner.Builder.CodeBuilders.Models;
-using PgRoutiner.Builder.DiffBuilder;
+﻿using PgRoutiner.Builder.CodeBuilders.Models;
 using PgRoutiner.DataAccess.Models;
 
 namespace PgRoutiner.Builder.CodeBuilders;
@@ -173,7 +170,14 @@ public class RoutineCode : Code
     {
         Class.AppendLine($"{I3}{{");
         Class.AppendLine($"{I4}var value = reader.GetProviderSpecificValue(0);");
-        Class.AppendLine($"{I4}return value == DBNull.Value ? null : ({@return.Name.Replace("?", "")})value;");
+        if (@return.Name.Contains('?'))
+        {
+            Class.AppendLine($"{I4}return value == DBNull.Value ? null : ({@return.Name.Replace("?", "")})value;");
+        }
+        else
+        {
+            Class.AppendLine($"{I4}return ({@return.Name})value;");
+        }
         Class.AppendLine($"{I3}}}");
         Class.AppendLine($"{I3}return default;");
     }
@@ -244,7 +248,14 @@ public class RoutineCode : Code
         if (@return.Record.Count == 1)
         {
             Class.AppendLine($"{I4}var value = reader.GetProviderSpecificValue(0);");
-            Class.AppendLine($"{I4}yield return value == DBNull.Value ? null : ({@return.Name.Replace("?", "")})value;");
+            if (@return.Name.Contains('?'))
+            {
+                Class.AppendLine($"{I4}return value == DBNull.Value ? null : ({@return.Name.Replace("?", "")})value;");
+            }
+            else
+            {
+                Class.AppendLine($"{I4}return ({@return.Name})value;");
+            }
         }
         else
         {
@@ -254,7 +265,14 @@ public class RoutineCode : Code
             {
                 Class.AppendLine($"{I4}reader.GetProviderSpecificValues(values);");
                 Class.AppendLine($"{I4}yield return new {@return.Name}(");
-                Class.AppendLine(string.Join($",{NL}", routine.ModelItems.Select((m, idx) => $"{I5}values[{idx}] == DBNull.Value ? null : ({m.type.Replace("?", "")})values[{idx}]")));
+                Class.AppendLine(string.Join($",{NL}", routine.ModelItems.Select((m, idx) => 
+                {
+                    if (m.type.Contains('?'))
+                    {
+                        return $"{I5}values[{idx}] == DBNull.Value ? null : ({m.type.Replace("?", "")})values[{idx}]";
+                    }
+                    return $"{I5}({m.type})values[{idx}]";
+                }))); 
                 Class.AppendLine($"{I4});");
             }
             else
@@ -262,7 +280,14 @@ public class RoutineCode : Code
                 Class.AppendLine($"{I4}reader.GetProviderSpecificValues(values);");
                 Class.AppendLine($"{I4}yield return new {@return.Name}");
                 Class.AppendLine($"{I4}{{");
-                Class.AppendLine(string.Join($",{NL}", routine.ModelItems.Select((m, idx) => $"{I5}{m.name} = values[{idx}] == DBNull.Value ? null : ({m.type.Replace("?", "")})values[{idx}]")));
+                Class.AppendLine(string.Join($",{NL}", routine.ModelItems.Select((m, idx) => 
+                {
+                    if (m.type.Contains('?'))
+                    {
+                        return $"{I5}{m.name} = values[{idx}] == DBNull.Value ? null : ({m.type.Replace("?", "")})values[{idx}]";
+                    }
+                    return $"{I5}{m.name} = ({m.type})values[{idx}]";
+                })));
                 Class.AppendLine($"{I4}}};");
             }
         }
@@ -347,7 +372,7 @@ public class RoutineCode : Code
             }
             else
             {
-                Class.AppendLine($"{I2}/// <returns>ValueTask whose Result property is {@return.Name}</returns>");
+                Class.AppendLine($"{I2}/// <returns>Task whose Result property is {@return.Name}</returns>");
             }
         }
     }
@@ -366,6 +391,10 @@ public class RoutineCode : Code
     private Return GetReturnInfo(PgRoutineGroup routine)
     {
         List<PgReturns> record = connection.GetRoutineReturnsRecord(routine).ToList();
+        if (record.Count == 0)
+        {
+            record = connection.GetRoutineReturnsTable(routine).ToList();
+        }
         Return GetResult()
         {
             if (routine == null || routine.DataType == null || routine.DataType == "void")

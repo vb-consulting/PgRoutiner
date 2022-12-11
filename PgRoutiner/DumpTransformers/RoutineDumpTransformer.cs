@@ -133,6 +133,13 @@ public class RoutineDumpTransformer : DumpTransformer
                 if (endSequence == null)
                 {
                     endSequence = line.GetSequence();
+                    if (endSequence != null)
+                    {
+                        if (line.IsRepeatedSubstring(endSequence, 2))
+                        {
+                            createEnd = true;
+                        }
+                    }
                 }
                 if (endSequence == null && line.Contains("RETURN "))
                 {

@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 4.1.5
+
+- Fix return value comment (Task instead of ValueTask).
+- Fix regression bug with functions returning `setof` actual table.
+- Fix one-line functions parser.
+
 ## 4.1.4
 
 - Add missing connection open block.

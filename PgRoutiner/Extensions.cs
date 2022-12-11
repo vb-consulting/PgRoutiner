@@ -289,6 +289,19 @@ public static class Extensions
         return null;
     }
 
+    public static bool IsRepeatedSubstring(this string input, string substring, int times)
+    {
+        var m = substring.Length;
+        int count = 0;
+        int index = input.IndexOf(substring);
+        while (index > -1)
+        {
+            count++;
+            index = input.IndexOf(substring, index + m);
+        }
+        return count == times;
+    }
+
     public static string ToPsqlFormatString(this NpgsqlConnection connection)
     {
         var password = connection.ExtractPassword();
