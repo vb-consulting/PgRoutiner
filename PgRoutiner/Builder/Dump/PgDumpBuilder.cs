@@ -916,14 +916,14 @@ public class PgDumpBuilder
                         blockStart = "END";
                     }
                 }
-                else
+                //else
+                //{
+                if (line.EndsWith($"{blockStart};"))
                 {
-                    if (line.EndsWith($"{blockStart};"))
-                    {
-                        insideBlock = false;
-                        blockStart = null;
-                    }
+                    insideBlock = false;
+                    blockStart = null;
                 }
+                //}
                 continue;
             }
 

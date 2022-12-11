@@ -1,5 +1,38 @@
 ﻿# VERSION HISTORY
 
+## 4.2.0
+
+- Stop showing startup info on every startup.
+- Fix another parsing bug with one-line functions.
+
+- Add command synonyms replacements: 
+
+`settings` -> `-settings"`
+`routines` -> `-routines"`
+`x` -> `--execute"`
+`exec` -> `--execute" `
+`execute" , "--execute"`
+`l` -> `--list"`
+`ls` -> `--list"`
+`list` -> `--list"`
+`def` -> `--definition"`
+`ddl` -> `--definition"`
+`definition` -> `--definition"`
+`i` -> `--inserts"`
+`insert` -> `--inserts"`
+`inserts` -> `--inserts"`
+`bck` -> `--backup"`
+`backup` -> `--backup"`
+`restore` -> `--restore"`
+`silent` -> `--silent"`
+`pgdump` -> `--pgdump"`
+`pgrestore` -> `--pgrestore"`
+`psql` -> `--psql"`
+`c` -> `--connection"`
+`conn` -> `--connection"`
+`connection` -> `--connection"`
+
+
 ## 4.1.5
 
 - Fix return value comment (Task instead of ValueTask).

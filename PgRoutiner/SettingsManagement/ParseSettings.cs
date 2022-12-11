@@ -106,7 +106,7 @@ namespace PgRoutiner.SettingsManagement
                 return null;
             }
 
-            ProgramInfo.ShowStartupInfo();
+            //ProgramInfo.ShowStartupInfo();
 
             if (files.Count > 0)
             {

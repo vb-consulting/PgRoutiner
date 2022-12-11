@@ -14,6 +14,43 @@ namespace PgRoutiner.SettingsManagement
             Name = $"--{name.ToLower()}";
             Original = name;
         }
+
+        public static readonly Dictionary<string, string> ArgReplacements = new()
+        {
+            { "settings", "-settings" },
+            
+            { "routines", "-routines" },
+
+            { "x", "--execute" },
+            { "exec", "--execute"  },
+            { "execute" , "--execute" },
+
+            { "l", "--list" },
+            { "ls", "--list" },
+            { "list", "--list" },
+
+            { "def", "--definition" },
+            { "ddl", "--definition" },
+            { "definition", "--definition" },
+
+            { "i", "--inserts" },
+            { "insert", "--inserts" },
+            { "inserts", "--inserts" },
+
+            { "bck", "--backup" },
+            { "backup", "--backup" },
+
+            { "restore", "--restore" },
+            { "silent", "--silent" },
+            
+            { "pgdump", "--pgdump" },
+            { "pgrestore", "--pgrestore" },
+            { "psql", "--psql" },
+
+            { "c", "--connection" },
+            { "conn", "--connection" },
+            { "connection", "--connection" },
+        };
     }
 
     public partial class Current
@@ -33,7 +70,7 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg BackupArgs = new("-backup", nameof(Backup));
         public static readonly Arg RestoreArgs = new("-restore", nameof(Restore));
 
-        public static readonly Arg DumpConsoleArgs = new("-d", nameof(DumpConsole));
+        public static readonly Arg DumpConsoleArgs = new(alias: "-d", nameof(DumpConsole));
         public static readonly Arg SilentArgs = new("-silent", nameof(Silent));
         public static readonly Arg DebugArgs = new("-dbg", nameof(Debug));
         public static readonly Arg ConnectionArgs = new("-c", nameof(Connection));
@@ -57,7 +94,7 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg SchemaDumpAskOverwriteArgs = new("-scask", nameof(SchemaDumpAskOverwriteArgs));
         public static readonly Arg DataDumpArgs = new("-dd", nameof(DataDump));
         public static readonly Arg DataDumpFileArgs = new("-ddf", nameof(DataDumpFile));
-        public static readonly Arg DataDumpListArgs = new("-ddl", nameof(DataDumpList));
+        public static readonly Arg DataDumpListArgs = new("-dumplist", nameof(DataDumpList));
         public static readonly Arg DataDumpOverwriteArgs = new("-ddow", nameof(DataDumpOverwrite));
         public static readonly Arg DataDumpAskOverwriteArgs = new("-ddask", nameof(DataDumpAskOverwrite));
         public static readonly Arg DbObjectsArgs = new("-db", nameof(DbObjects));
@@ -179,7 +216,7 @@ namespace PgRoutiner.SettingsManagement
 
         /*unit tests*/
         public bool UnitTests { get; set; } = false;
-        public string UnitTestProjectTargetFramework { get; set; } = "net6.0";
+        public string UnitTestProjectTargetFramework { get; set; } = "net7.0";
         public string UnitTestProjectLangVersion { get; set; } = null;
         public string UnitTestsDir { get; set; } = "../{0}Tests";
         public bool UnitTestsAskRecreate { get; set; } = false;

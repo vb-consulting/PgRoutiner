@@ -104,8 +104,22 @@ static partial class Program
         return settings;
     }
 
-    public static string[] ParseArgs(string[] args)
+    public static string[] ParseArgs(string[] rawArgs)
     {
+        string[] args = new string[rawArgs.Length];
+        int i = 0;
+        foreach(var arg in rawArgs)
+        {
+            if (/*(i+1 % 2 == 1) && */Arg.ArgReplacements.TryGetValue(arg, out var replacement))
+            {
+                args[i++] = replacement;
+            }
+            else
+            {
+                args[i++] = arg;
+            }
+        }
+
         List<string> result = new();
         var allowed = new HashSet<string>();
         var props = typeof(Current).GetProperties();
