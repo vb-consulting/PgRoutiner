@@ -1,5 +1,34 @@
 ﻿# VERSION HISTORY
 
+## 4.2.1
+
+- Synonyms replacements updated:
+
+`-settings` -> `--settings`
+`-exec` -> `--execute`
+`-execute" , "--execute`
+`--exec` -> `--execute`
+`--execute" , "--execute`
+`-ls` -> `--list`
+`--ls` -> `--list`
+`-ddl` -> `--definition`
+`-definition` -> `--definition`
+`-i` -> `--inserts`
+`-ins` -> `--inserts`
+`-insert` -> `--inserts`
+`-bck` -> `--backup`
+`-backup` -> `--backup`
+`-restore` -> `--restore`
+`-rest` -> `--restore`
+`--rest` -> `--restore`
+`-silent` -> `--silent`
+`-psql` -> `--psql`
+`-sql` -> `--psql`
+`--sql` -> `--psql`
+`-conn` -> `--connection`
+`--conn` -> `--connection`
+`-connection` -> `--connection`
+
 ## 4.2.0
 
 - Stop showing startup info on every startup.

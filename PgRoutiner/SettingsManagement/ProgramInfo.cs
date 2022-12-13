@@ -47,7 +47,9 @@ public class ProgramInfo
             Program.WriteLine(ConsoleColor.Cyan, " " + path);
             Program.WriteLine("OS: ");
             Program.WriteLine(ConsoleColor.Cyan, " " + Environment.OSVersion);
-            Program.WriteLine("Run: ");
+            Program.WriteLine("Docker: ");
+            Program.WriteLine(ConsoleColor.Cyan, " " + Program.Docker);
+            Program.WriteLine("Routines: ");
             Program.WriteLine(ConsoleColor.Cyan, $" {Current.Value.Routines}");
             Program.WriteLine("CommitComments: ");
             Program.WriteLine(ConsoleColor.Cyan, $" {Current.Value.CommitMd}");

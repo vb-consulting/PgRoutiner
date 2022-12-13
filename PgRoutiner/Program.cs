@@ -21,6 +21,7 @@ static partial class Program
     public static string CurrentDir { get; private set; } = Directory.GetCurrentDirectory();
 
     private static string version = null;
+    private static bool? docker = false;
 
     public static Current ConsoleSettings;
 
@@ -103,6 +104,31 @@ static partial class Program
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(location);
             version = fvi.FileVersion;
             return version;
+        }
+    }
+
+    public static bool Docker
+    {
+        get
+        {
+            if (docker != null)
+            {
+                return docker.Value;
+            }
+            
+            if (OperatingSystem.IsWindows())
+            {
+                docker = false;
+                return false;
+            }
+
+            if (File.Exists("/.dockerenv"))
+            {
+                docker = true;
+                return true;
+            }
+
+            return docker.Value;
         }
     }
 

@@ -17,39 +17,43 @@ namespace PgRoutiner.SettingsManagement
 
         public static readonly Dictionary<string, string> ArgReplacements = new()
         {
-            { "settings", "-settings" },
+            { "-settings", "--settings"  },
+            { "-exec", "--execute"  },
+            { "-execute" , "--execute" },
+            { "--exec", "--execute"  },
+            { "--execute" , "--execute" },
+
+            { "-ls", "--list" },
+            { "--ls", "--list" },
+           
+            { "-ddl", "--definition" },
+            { "-definition", "--definition" },
+
+            { "-i", "--inserts" },
+            { "-ins", "--inserts" },
+            { "-insert", "--inserts" },
+
+            { "-bck", "--backup" },
+            { "-backup", "--backup" },
+
+            { "-restore", "--restore" },
+            { "-rest", "--restore" },
+            { "--rest", "--restore" },
+            { "-silent", "--silent" },
             
-            { "routines", "-routines" },
+            //{ "-pgdump", "--pgdump" },
+            //{ "-pgrestore", "--pgrestore" },
+            //{ "-pg_dump", "--pgdump" },
+            //{ "-pg_restore", "--pgrestore" },
+            //{ "--pg_dump", "--pgdump" },
+            //{ "--pg_restore", "--pgrestore" },
+            { "-psql", "--psql" },
+            { "-sql", "--psql" },
+            { "--sql", "--psql" },
 
-            { "x", "--execute" },
-            { "exec", "--execute"  },
-            { "execute" , "--execute" },
-
-            { "l", "--list" },
-            { "ls", "--list" },
-            { "list", "--list" },
-
-            { "def", "--definition" },
-            { "ddl", "--definition" },
-            { "definition", "--definition" },
-
-            { "i", "--inserts" },
-            { "insert", "--inserts" },
-            { "inserts", "--inserts" },
-
-            { "bck", "--backup" },
-            { "backup", "--backup" },
-
-            { "restore", "--restore" },
-            { "silent", "--silent" },
-            
-            { "pgdump", "--pgdump" },
-            { "pgrestore", "--pgrestore" },
-            { "psql", "--psql" },
-
-            { "c", "--connection" },
-            { "conn", "--connection" },
-            { "connection", "--connection" },
+            { "-conn", "--connection" },
+            { "--conn", "--connection" },
+            { "-connection", "--connection" },
         };
     }
 
