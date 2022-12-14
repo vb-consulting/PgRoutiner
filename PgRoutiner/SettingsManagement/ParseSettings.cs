@@ -108,7 +108,7 @@ namespace PgRoutiner.SettingsManagement
 
             //ProgramInfo.ShowStartupInfo();
 
-            if (files.Count > 0)
+            if (Value.Verbose && files.Count > 0)
             {
                 Program.WriteLine("", "Using configuration files: ");
                 Program.WriteLine(ConsoleColor.Cyan, files.ToArray());

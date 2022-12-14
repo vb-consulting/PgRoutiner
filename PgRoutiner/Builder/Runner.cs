@@ -13,28 +13,28 @@ public class Runner
 
         if (Current.Value.Execute != null)
         {
-            Writer.DumpTitle("** EXECUTION **");
+            if (Current.Value.Verbose) Writer.DumpTitle("** EXECUTION **");
             Executor.ExecuteFromSetting(connection);
             //return;
         }
 
         if (Current.Value.Psql)
         {
-            Writer.DumpTitle("** PSQL TERMINAL **");
+            if (Current.Value.Verbose) Writer.DumpTitle("** PSQL TERMINAL **");
             new PsqlRunner(Current.Value, connection).TryRunFromTerminal();
             //return;
         }
 
         if (Current.Value.CommitMd)
         {
-            Writer.DumpTitle("** COMMIT MARKDOWN (MD) EDITS **");
+            if (Current.Value.Verbose) Writer.DumpTitle("** COMMIT MARKDOWN (MD) EDITS **");
             Md.MarkdownBuilder.BuildMdDiff(connection);
             //return;
         }
 
         if (Current.Value.List)
         {
-            Writer.DumpTitle("** LIST OBJECTS **");
+            if (Current.Value.Verbose) Writer.DumpTitle("** LIST OBJECTS **");
             var builder = new Dump.PgDumpBuilder(Current.Value, connection);
             if (Dump.PgDumpVersion.Check(builder))
             {
@@ -45,7 +45,7 @@ public class Runner
 
         if (!string.IsNullOrEmpty(Current.Value.Backup))
         {
-            Writer.DumpTitle("** BACKUP **");
+            if (Current.Value.Verbose) Writer.DumpTitle("** BACKUP **");
             var builder = new Dump.PgDumpBuilder(Current.Value, connection, utf8: false);
             if (Dump.PgDumpVersion.Check(builder))
             {
@@ -61,7 +61,7 @@ public class Runner
 
         if (!string.IsNullOrEmpty(Current.Value.Restore))
         {
-            Writer.DumpTitle("** RESTORE **");
+            if (Current.Value.Verbose) Writer.DumpTitle("** RESTORE **");
             var builder = new Dump.PgDumpBuilder(Current.Value, connection, dumpName: nameof(Current.PgRestore), utf8: false);
             if (Dump.PgDumpVersion.Check(builder, restore: true))
             {
@@ -93,12 +93,12 @@ public class Runner
             {
                 if (Current.Value.DbObjects)
                 {
-                    Writer.DumpTitle("** DATA OBJECTS SCRIPTS TREE GENERATION **");
+                    if (Current.Value.Verbose) Writer.DumpTitle("** DATA OBJECTS SCRIPTS TREE GENERATION **");
                     Dump.DumpBuilder.BuildObjectDumps(builder, connectionName);
                 }
                 if (Current.Value.SchemaDump)
                 {
-                    Writer.DumpTitle("** SCHEMA DUMP SCRIPT GENERATION **");
+                    if (Current.Value.Verbose) Writer.DumpTitle("** SCHEMA DUMP SCRIPT GENERATION **");
                     Dump.DumpBuilder.BuildDump(
                         dumpFile: Current.Value.SchemaDumpFile,
                         file: schemaFile,
@@ -108,7 +108,7 @@ public class Runner
                 }
                 if (Current.Value.DataDump)
                 {
-                    Writer.DumpTitle("** DATA DUMP SCRIPT GENERATION **");
+                    if (Current.Value.Verbose) Writer.DumpTitle("** DATA DUMP SCRIPT GENERATION **");
                     Dump.DumpBuilder.BuildDump(
                         dumpFile: Current.Value.DataDumpFile,
                         file: dataFile,
@@ -126,28 +126,28 @@ public class Runner
 
         if (Current.Value.Diff)
         {
-            Writer.DumpTitle("** DIFF  SCRIPT GENERATION **");
+            if (Current.Value.Verbose) Writer.DumpTitle("** DIFF  SCRIPT GENERATION **");
             DiffBuilder.DiffScript.BuildDiffScript(connection, connectionName);
         }
 
         if (Current.Value.Routines)
         {
-            Writer.DumpTitle("** ROUTINE SOURCE CODE GENERATION **");
+            if (Current.Value.Verbose) Writer.DumpTitle("** ROUTINE SOURCE CODE GENERATION **");
             new CodeBuilders.CodeRoutinesBuilder(connection, Current.Value, CodeSettings.ToRoutineSettings(Current.Value)).Build();
         }
 
         if (Current.Value.UnitTests)
         {
-            Writer.DumpTitle("** UNIT TEST PROJECT TEMPLATE CODE GENERATION **");
+            if (Current.Value.Verbose) Writer.DumpTitle("** UNIT TEST PROJECT TEMPLATE CODE GENERATION **");
             CodeBuilders.UnitTests.UnitTestBuilder.BuildUnitTests(connection, schemaFile, dataFile);
         }
 
         if (Current.Value.Markdown)
         {
-            Writer.DumpTitle("** MARKDOWN (MD) GENERATION **");
+            if (Current.Value.Verbose) Writer.DumpTitle("** MARKDOWN (MD) GENERATION **");
             Md.MarkdownBuilder.BuilMd(connection, connectionName);
         }
 
-        Writer.DumpTitle("", "", "**** FINISHED ****");
+        if (Current.Value.Verbose) Writer.DumpTitle("", "", "**** FINISHED ****");
     }
 }

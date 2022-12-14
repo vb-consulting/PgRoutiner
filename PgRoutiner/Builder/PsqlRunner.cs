@@ -29,7 +29,8 @@ public class PsqlRunner
             process.StartInfo.Arguments = $"{baseArg} {args ?? ""}".Trim();
             if (settings.DumpPgCommands)
             {
-                Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
+                if (Current.Value.Verbose)
+                    Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
             }
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
@@ -86,7 +87,7 @@ public class PsqlRunner
             process.StartInfo.Arguments = $"{command} {baseArg} {settings.PsqlOptions ?? ""}".Trim();
             if (settings.DumpPgCommands)
             {
-                Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
+                if (Current.Value.Verbose) Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
             }
             process.StartInfo.CreateNoWindow = false;
             process.StartInfo.RedirectStandardOutput = false;
@@ -140,7 +141,7 @@ public class PsqlRunner
             try
             {
                 GetPsqlVersion(command);
-                Program.WriteLine(ConsoleColor.Yellow, "",
+                if (Current.Value.Verbose) Program.WriteLine(ConsoleColor.Yellow, "",
                 $"WARNING: Using fall-back path for psql: {command}. To remove this warning set the Psql setting to point to this path.",
                 "");
             }
@@ -161,7 +162,7 @@ public class PsqlRunner
         process.StartInfo.Arguments = "--version";
         if (settings.DumpPgCommands)
         {
-            Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
+            if (Current.Value.Verbose) Program.WriteLine(ConsoleColor.White, $"{process.StartInfo.FileName} {process.StartInfo.Arguments}");
         }
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;

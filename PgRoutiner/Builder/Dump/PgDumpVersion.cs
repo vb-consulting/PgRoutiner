@@ -39,7 +39,7 @@ public static class PgDumpVersion
                 PgDumpMistmatch(builder.Connection, connVersion, fullDumpVersion, dumpVersion, value, option, restore: restore);
                 return false;
             }
-            Program.WriteLine(ConsoleColor.Yellow, "",
+            if (Current.Value.Verbose) Program.WriteLine(ConsoleColor.Yellow, "",
                 $"WARNING: Using fall-back path for {(restore ? "pg_restore" : "pg_dump")}: {value}. To remove this warning set the {option} setting to point to this path.",
                 "");
         }

@@ -47,7 +47,8 @@ public class PgDumpBuilder
         process.StartInfo.Arguments = $"{baseArg} {args ?? ""}".Trim();
         if (Current.Value.DumpPgCommands)
         {
-            Program.WriteLine(ConsoleColor.White, $"{pgDumpCmd} {process.StartInfo.Arguments}");
+            if (Current.Value.Verbose)
+                Program.WriteLine(ConsoleColor.White, $"{pgDumpCmd} {process.StartInfo.Arguments}");
         }
 
         process.StartInfo.UseShellExecute = false;

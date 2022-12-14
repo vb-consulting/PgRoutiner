@@ -19,20 +19,23 @@ public partial class ConnectionManager
         conn.Open();
 
         var keyValue = typeof(Current).GetProperty(connectionKey).GetValue(Current.Value) as string;
-        if (!string.IsNullOrEmpty(keyValue))
+        if (Current.Value.Verbose)
         {
-            Program.WriteLine("");
-            Program.Write($"Using {name1} ");
-            Program.Write(ConsoleColor.Yellow, keyValue);
-            Program.Write(":");
-            Program.WriteLine("");
-            Program.WriteLine(ConsoleColor.Cyan, " " + conn.ConnectionString);
-        }
-        else
-        {
-            Program.WriteLine("");
-            Program.Write($"Using {name1}:");
-            Program.WriteLine(ConsoleColor.Cyan, " " + conn.ConnectionString);
+            if (!string.IsNullOrEmpty(keyValue))
+            {
+                Program.WriteLine("");
+                Program.Write($"Using {name1} ");
+                Program.Write(ConsoleColor.Yellow, keyValue);
+                Program.Write(":");
+                Program.WriteLine("");
+                Program.WriteLine(ConsoleColor.Cyan, " " + conn.ConnectionString);
+            }
+            else
+            {
+                Program.WriteLine("");
+                Program.Write($"Using {name1}:");
+                Program.WriteLine(ConsoleColor.Cyan, " " + conn.ConnectionString);
+            }
         }
         return conn;
     }

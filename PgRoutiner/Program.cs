@@ -10,6 +10,7 @@ global using PgRoutiner.SettingsManagement;
 using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using PgRoutiner.Builder;
 using PgRoutiner.Connection;
 
@@ -27,7 +28,7 @@ static partial class Program
 
     static void Main(string[] rawArgs)
     {
-        //rawArgs = new string[] { "-h" };
+        //rawArgs = new string[] { "-ls" };
         var args = ParseArgs(rawArgs);
 
         if (args == null)
@@ -55,8 +56,12 @@ static partial class Program
 
         var (settingsFile, customSettings) = Current.GetSettingsFile(args);
         Config = Current.ParseSettings(args, settingsFile);
-        WriteLine("", "Using dir: ");
-        WriteLine(ConsoleColor.Cyan, " " + CurrentDir);
+        if (Current.Value != null && Current.Value.Verbose)
+        {
+            WriteLine("", "Using dir: ");
+            WriteLine(ConsoleColor.Cyan, " " + CurrentDir);
+        }
+            
         if (Config == null)
         {
             return;
@@ -65,7 +70,10 @@ static partial class Program
         {
             return;
         }
-        Current.ShowUpdatedSettings();
+        if (Current.Value.Verbose)
+        {
+            Current.ShowUpdatedSettings();
+        }
         using var connection = new ConnectionManager(Config).ParseConnectionString();
         if (connection == null)
         {
@@ -81,9 +89,9 @@ static partial class Program
             return;
         }
 
-        WriteLine("");
+        //WriteLine("");
         Runner.Run(connection);
-        WriteLine("");
+        //WriteLine("");
     }
 
     public static string Version
@@ -116,19 +124,13 @@ static partial class Program
                 return docker.Value;
             }
             
-            if (OperatingSystem.IsWindows())
-            {
-                docker = false;
-                return false;
-            }
-
             if (File.Exists("/.dockerenv"))
             {
                 docker = true;
                 return true;
             }
-
-            return docker.Value;
+            docker = false;
+            return false;
         }
     }
 

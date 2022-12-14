@@ -126,6 +126,7 @@ namespace PgRoutiner.SettingsManagement
 
         public bool DumpConsole { get; set; } = false;
         public bool Silent { get; set; } = false;
+        public bool Verbose { get; set; } = false;
         public string Execute { get; set; } = null;
         //public string Options { get; set; } = null;
         public bool List { get; set; } = false;

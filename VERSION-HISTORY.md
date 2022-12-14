@@ -1,5 +1,25 @@
 ﻿# VERSION HISTORY
 
+## 4.2.2
+
+* Fix: Connection string management improvement:
+
+If any component missing from the connection string, it will be added automatically.
+
+This applies for both formats:
+- Npgsql format: `"Server={server};Db={database};Port={port};User Id={user};Password={password};"`
+- URL format:`"postgresql://{user}:{password}@{server}:{port}/{database}"`
+
+If either of these components is missing, it will be replaced with environment variable values:
+
+- PGPASSWORD or PGPASS for password.
+- PGUSER for user.
+- PGPORT for port.
+- PGHOST or PGSERVER for server.
+- PGDATABASE or PGDDB for database.
+
+* New setting: `Verbose` or `--verbose`. If not set (default), omits all non-essential output except for errors.
+
 ## 4.2.1
 
 - Synonyms replacements updated:

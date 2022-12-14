@@ -121,22 +121,60 @@ public partial class ConnectionManager
                 {
                     server = $"Server={server};";
                 }
+                else
+                {
+                    if (EnvPgHost != null)
+                    {
+                        server = $"Server={EnvPgHost};";
+                    }
+                }
+                
                 if (!string.IsNullOrEmpty(port))
                 {
                     port = $"Port={port};";
                 }
+                else
+                {
+                    if (EnvPgPort != null)
+                    {
+                        port = $"Port={EnvPgPort};";
+                    }
+                }
+
+                
                 if (!string.IsNullOrEmpty(database))
                 {
                     database = $"Db={database};";
+                }
+                else
+                {
+                    if (EnvPgDb != null)
+                    {
+                        database = $"Db={EnvPgDb};";
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(user))
                 {
                     user = $"User Id={user};";
                 }
+                else
+                {
+                    if (EnvPgUser != null)
+                    {
+                        user = $"User Id={EnvPgUser};";
+                    }
+                }
                 if (!string.IsNullOrEmpty(pass))
                 {
                     pass = $"Password={pass};";
+                }
+                else
+                {
+                    if (EnvPgPass != null)
+                    {
+                        pass = $"Password={EnvPgPass};";
+                    }
                 }
             }
             else
@@ -152,27 +190,62 @@ public partial class ConnectionManager
                     }
                     if (string.Equals(first, "user id") || string.Equals(first, "user") || string.Equals(first, "username"))
                     {
-                        user = $"User Id={second};";
+                        if (string.IsNullOrEmpty(second))
+                        {
+                            user = $"User Id={EnvPgUser};";
+                        } 
+                        else
+                        {
+                            user = $"User Id={second};";
+                        }
                         continue;
                     }
                     if (string.Equals(first, "password"))
                     {
-                        pass = $"Password={second};";
+                        if (string.IsNullOrEmpty(second))
+                        {
+                            pass = $"Password={EnvPgPass};";
+                        }
+                        else
+                        {
+                            pass = $"Password={second};";
+                        }
                         continue;
                     }
                     if (string.Equals(first, "server") || string.Equals(first, "host"))
                     {
-                        server = $"Server={second};";
+                        if (string.IsNullOrEmpty(second))
+                        {
+                            server = $"Server={EnvPgHost};";
+                        }
+                        else
+                        {
+                            server = $"Server={second};";
+                        }
                         continue;
                     }
                     if (string.Equals(first, "port"))
                     {
-                        port = $"Port={second};";
+                        if (string.IsNullOrEmpty(second))
+                        {
+                            port = $"Port={EnvPgPort};";
+                        }
+                        else
+                        {
+                            port = $"Port={second};";
+                        }
                         continue;
                     }
                     if (string.Equals(first, "db") || string.Equals(first, "database"))
                     {
-                        database = $"Db={second};";
+                        if (string.IsNullOrEmpty(second))
+                        {
+                            database = $"Db={EnvPgDb};";
+                        }
+                        else
+                        {
+                            database = $"Db={second};";
+                        }
                         continue;
                     }
                     if (!string.IsNullOrEmpty(part))

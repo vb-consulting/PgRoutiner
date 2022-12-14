@@ -126,6 +126,7 @@ public class FormatedSettings
         AddEntry(nameof(Current.RestoreOwner), Current.Value.RestoreOwner);
         AddEntry(nameof(Current.DumpConsole), Current.Value.DumpConsole);
         AddEntry(nameof(Current.Silent), Current.Value.Silent);
+        AddEntry(nameof(Current.Verbose), Current.Value.Verbose);
         AddEntry(nameof(Current.SkipIfExists), Current.Value.SkipIfExists);
         AddEntry(nameof(Current.SkipUpdateReferences), Current.Value.SkipUpdateReferences);
         AddEntry(nameof(Current.PgDump), Current.Value.PgDump);

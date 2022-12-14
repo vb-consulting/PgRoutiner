@@ -2,6 +2,12 @@
 
 public partial class ConnectionManager
 {
+    public static string EnvPgUser => Environment.GetEnvironmentVariable("PGUSER");
+    public static string EnvPgHost => Environment.GetEnvironmentVariable("PGHOST") ?? Environment.GetEnvironmentVariable("PGSERVER");
+    public static string EnvPgPort => Environment.GetEnvironmentVariable("PGPORT");
+    public static string EnvPgDb => Environment.GetEnvironmentVariable("PGDATABASE") ?? Environment.GetEnvironmentVariable("PGDB");
+    public static string EnvPgPass => Environment.GetEnvironmentVariable("PGPASSWORD") ?? Environment.GetEnvironmentVariable("PGPASS");
+
     private string GetConnectionString()
     {
         Console.WriteLine();
@@ -15,7 +21,7 @@ public partial class ConnectionManager
 
     private string GetUser(bool skipPrompt = false)
     {
-        var env = Environment.GetEnvironmentVariable("PGUSER");
+        var env = EnvPgUser;
         if (!string.IsNullOrEmpty(env) && skipPrompt)
         {
             return $"User Id={env};";
@@ -37,11 +43,7 @@ public partial class ConnectionManager
 
     private string GetServer(bool skipPrompt = false)
     {
-        var env = Environment.GetEnvironmentVariable("PGHOST");
-        if (env == null)
-        {
-            env = Environment.GetEnvironmentVariable("PGSERVER");
-        }
+        var env = EnvPgHost;
         if (!string.IsNullOrEmpty(env) && skipPrompt)
         {
             return $"Server={env};";
@@ -63,7 +65,7 @@ public partial class ConnectionManager
 
     private string GetPort(bool skipPrompt = false)
     {
-        var env = Environment.GetEnvironmentVariable("PGPORT");
+        var env = EnvPgPort;
         if (!string.IsNullOrEmpty(env) && skipPrompt)
         {
             return $"Port={env};";
@@ -85,11 +87,7 @@ public partial class ConnectionManager
 
     private string GetDatabase(bool skipPrompt = false)
     {
-        var env = Environment.GetEnvironmentVariable("PGDATABASE");
-        if (env == null)
-        {
-            env = Environment.GetEnvironmentVariable("PGDB");
-        }
+        var env = EnvPgDb;
         if (!string.IsNullOrEmpty(env) && skipPrompt)
         {
             return $"Db={env};";
@@ -111,11 +109,7 @@ public partial class ConnectionManager
 
     private string GetPassword(bool skipPrompt = false)
     {
-        var env = Environment.GetEnvironmentVariable("PGPASSWORD");
-        if (env == null)
-        {
-            env = Environment.GetEnvironmentVariable("PGPASS");
-        }
+        var env = EnvPgPass;
         if (!string.IsNullOrEmpty(env) && skipPrompt)
         {
             return $"Password={env};";
