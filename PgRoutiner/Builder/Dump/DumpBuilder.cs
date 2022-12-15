@@ -148,7 +148,7 @@ public class DumpBuilder
 
             var exists = File.Exists(file);
 
-            if (exists && Current.Value.DbObjectsOverwrite == false)
+            if (exists && Current.Value.Overwrite == false)
             {
                 Writer.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
                 continue;
@@ -160,7 +160,7 @@ public class DumpBuilder
                 Writer.DumpFormat("Skipping {0}, already exists ...", relative);
                 continue;
             }
-            if (exists && Current.Value.DbObjectsAskOverwrite &&
+            if (exists && Current.Value.AskOverwrite &&
                 Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
             {
                 Writer.DumpFormat("Skipping {0} ...", relative);

@@ -43,6 +43,13 @@ public class Runner
             //return;
         }
 
+        if (Current.Value.ModelOutputQuery != null)
+        {
+            if (Current.Value.Verbose) Writer.DumpTitle("** MODEL OUTPUT **");
+            ModelOutput.BuilModelOutput(connection, connectionName);
+            //return;
+        }
+
         if (!string.IsNullOrEmpty(Current.Value.Backup))
         {
             if (Current.Value.Verbose) Writer.DumpTitle("** BACKUP **");
@@ -102,8 +109,10 @@ public class Runner
                     Dump.DumpBuilder.BuildDump(
                         dumpFile: Current.Value.SchemaDumpFile,
                         file: schemaFile,
-                        overwrite: Current.Value.SchemaDumpOverwrite,
-                        askOverwrite: Current.Value.SchemaDumpAskOverwrite,
+                        //overwrite: Current.Value.SchemaDumpOverwrite,
+                        //askOverwrite: Current.Value.SchemaDumpAskOverwrite,
+                        overwrite: Current.Value.Overwrite,
+                        askOverwrite: Current.Value.AskOverwrite,
                         contentFunc: () => builder.GetSchemaContent());
                 }
                 if (Current.Value.DataDump)
@@ -112,8 +121,10 @@ public class Runner
                     Dump.DumpBuilder.BuildDump(
                         dumpFile: Current.Value.DataDumpFile,
                         file: dataFile,
-                        overwrite: Current.Value.DataDumpOverwrite,
-                        askOverwrite: Current.Value.DataDumpAskOverwrite,
+                        //overwrite: Current.Value.DataDumpOverwrite,
+                        //askOverwrite: Current.Value.DataDumpAskOverwrite,
+                        overwrite: Current.Value.Overwrite,
+                        askOverwrite: Current.Value.AskOverwrite,
                         contentFunc: () => builder.GetDataContent());
                 }
 

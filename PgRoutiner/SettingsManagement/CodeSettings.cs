@@ -15,8 +15,10 @@
                 Enabled = settings.Routines,
                 OutputDir = settings.OutputDir,
                 EmptyOutputDir = settings.RoutinesEmptyOutputDir,
-                Overwrite = settings.RoutinesOverwrite,
-                AskOverwrite = settings.RoutinesAskOverwrite
+                //Overwrite = settings.RoutinesOverwrite,
+                //AskOverwrite = settings.RoutinesAskOverwrite
+                Overwrite = settings.Overwrite,
+                AskOverwrite = settings.AskOverwrite
             };
         }
     }

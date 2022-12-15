@@ -1,5 +1,127 @@
 ﻿# VERSION HISTORY
 
+## 4.3.0
+
+* Removed settings: 
+    - `RoutinesOverwrite`
+    - `RoutinesAskOverwrite`
+    - `SchemaDumpOverwrite`
+    - `SchemaDumpAskOverwrite`
+    - `DataDumpOverwrite`
+    - `DataDumpAskOverwrite`
+    - `DbObjectsOverwrite`
+    - `DbObjectsAskOverwrite`
+    - `MdOverwrite`
+    - `MdAskOverwrite`
+
+And replaced with two shared settings `Overwrite` and `AskOverwrite`
+
+## **New feature** - build models from queries
+
+New settings section
+
+```
+    /*
+      Model output from a query settings
+      - Use "-moq" or "--model-output-query" to set query or file name containing a query from which to build a model.
+    */
+    "ModelOutputQuery": null,
+    "ModelOutputFile": null
+```
+
+Use `-moq` or `--model-output-query` (`ModelOutputQuery` setting) - to set one or more database queries (multiple queries separated by `;`) which will be used to build models.
+
+This value can also be a path to SQL file with those queries. 
+
+Queries will be executed in the order they are specified one by one and **only the first row** will be fetched to build a model. If query is invalid or contain no wors, it will be skipped.
+
+Example:
+
+```
+    "ModelOutputQuery": "select * from countries; select * from people",
+    "ModelOutputFile": "./Test/Test.cs"
+```
+
+This will produce following console output:
+
+```
+#pragma warning disable CS8632
+// pgroutiner auto-generated code
+
+namespace PgRoutiner;
+
+public class Countries
+{
+    public short? Code { get; set; }
+    public string? Iso2 { get; set; }
+    public string? Iso3 { get; set; }
+    public string? Name { get; set; }
+    public string? Culture { get; set; }
+}
+
+public class People
+{
+    public Guid? Id { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public short? EmployeeStatus { get; set; }
+    public string? Gender { get; set; }
+    public string? Email { get; set; }
+    public string? Linkedin { get; set; }
+    public string? Twitter { get; set; }
+    public DateTime? Birth { get; set; }
+    public short? Country { get; set; }
+    public DateTime? CreatedAt { get; set; }
+    public DateTime? ModifiedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public Guid? ModifiedBy { get; set; }
+}
+```
+
+Use `--model-output-file` (`ModelOutputFile` setting) to set the output file instead of console.
+
+If `--model-output-file` (`ModelOutputFile` setting) is not set, the output will be written to console.
+
+If `--model-output-file` (`ModelOutputFile` setting) ends with `.ts` or `.TS` - TypeScript interfaces will be generated instead of C#.
+
+To generate TypeScript interfaces directly to console use `--model-output-file` (`ModelOutputFile` setting) with value `.ts`, example:
+
+```
+    "ModelOutputQuery": "select * from countries; select * from people",
+    "ModelOutputFile": ".ts"
+```
+
+This will produce following console output:
+
+```
+// pgroutiner auto-generated code
+
+interface ICountries {
+    code?: number,
+    iso2?: string,
+    iso3?: string,
+    name?: string,
+    culture?: string
+}
+
+interface IPeople {
+    id?: string,
+    firstName?: string,
+    lastName?: string,
+    employeeStatus?: number,
+    gender?: string,
+    email?: string,
+    linkedin?: string,
+    twitter?: string,
+    birth?: string,
+    country?: number,
+    createdAt?: string,
+    modifiedAt?: string,
+    createdBy?: string,
+    modifiedBy?: string
+}
+```
+
 ## 4.2.2
 
 * Fix: Connection string management improvement:

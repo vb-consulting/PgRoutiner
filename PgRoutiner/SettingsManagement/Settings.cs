@@ -32,21 +32,13 @@ namespace PgRoutiner.SettingsManagement
             { "-i", "--inserts" },
             { "-ins", "--inserts" },
             { "-insert", "--inserts" },
-
+        
             { "-bck", "--backup" },
-            { "-backup", "--backup" },
 
-            { "-restore", "--restore" },
             { "-rest", "--restore" },
             { "--rest", "--restore" },
             { "-silent", "--silent" },
             
-            //{ "-pgdump", "--pgdump" },
-            //{ "-pgrestore", "--pgrestore" },
-            //{ "-pg_dump", "--pgdump" },
-            //{ "-pg_restore", "--pgrestore" },
-            //{ "--pg_dump", "--pgdump" },
-            //{ "--pg_restore", "--pgrestore" },
             { "-psql", "--psql" },
             { "-sql", "--psql" },
             { "--sql", "--psql" },
@@ -83,8 +75,8 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg PgDumpArgs = new("-pgdump", nameof(PgDump));
         public static readonly Arg PgRestoreArgs = new("-pgrestore", nameof(PgRestore));
         public static readonly Arg OutputDirArgs = new("-o", nameof(OutputDir));
-        public static readonly Arg RoutinesOverwriteArgs = new("-row", nameof(RoutinesOverwrite));
-        public static readonly Arg RoutinesAskOverwriteArgs = new("-rask", nameof(RoutinesAskOverwrite));
+        //public static readonly Arg RoutinesOverwriteArgs = new("-row", nameof(RoutinesOverwrite));
+        //public static readonly Arg RoutinesAskOverwriteArgs = new("-rask", nameof(RoutinesAskOverwrite));
         public static readonly Arg NotSimilarToArgs = new("-nst", nameof(RoutinesNotSimilarTo));
         public static readonly Arg SimilarToArgs = new("-st", nameof(RoutinesSimilarTo));
         public static readonly Arg SkipSyncMethodsArgs = new("-ss", nameof(SkipSyncMethods));
@@ -94,25 +86,27 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg UnitTestsDirArgs = new("-utd", nameof(UnitTestsDir));
         public static readonly Arg SchemaDumpArgs = new("-sd", nameof(SchemaDump));
         public static readonly Arg SchemaDumpFileArgs = new("-sdf", nameof(SchemaDumpFile));
-        public static readonly Arg SchemaDumpOverwriteArgs = new("-scow", nameof(SchemaDumpOverwrite));
-        public static readonly Arg SchemaDumpAskOverwriteArgs = new("-scask", nameof(SchemaDumpAskOverwriteArgs));
+        //public static readonly Arg SchemaDumpOverwriteArgs = new("-scow", nameof(SchemaDumpOverwrite));
+        //public static readonly Arg SchemaDumpAskOverwriteArgs = new("-scask", nameof(SchemaDumpAskOverwriteArgs));
         public static readonly Arg DataDumpArgs = new("-dd", nameof(DataDump));
         public static readonly Arg DataDumpFileArgs = new("-ddf", nameof(DataDumpFile));
         public static readonly Arg DataDumpListArgs = new("-dumplist", nameof(DataDumpList));
-        public static readonly Arg DataDumpOverwriteArgs = new("-ddow", nameof(DataDumpOverwrite));
-        public static readonly Arg DataDumpAskOverwriteArgs = new("-ddask", nameof(DataDumpAskOverwrite));
+        //public static readonly Arg DataDumpOverwriteArgs = new("-ddow", nameof(DataDumpOverwrite));
+        //public static readonly Arg DataDumpAskOverwriteArgs = new("-ddask", nameof(DataDumpAskOverwrite));
         public static readonly Arg DbObjectsArgs = new("-db", nameof(DbObjects));
         public static readonly Arg DbObjectsDirArgs = new("-dbd", nameof(DbObjectsDir));
-        public static readonly Arg DbObjectsOverwriteArgs = new("-dbow", nameof(DbObjectsOverwrite));
-        public static readonly Arg DbObjectsAskOverwriteArgs = new("-dbask", nameof(DbObjectsAskOverwrite));
+        //public static readonly Arg DbObjectsOverwriteArgs = new("-dbow", nameof(DbObjectsOverwrite));
+        //public static readonly Arg DbObjectsAskOverwriteArgs = new("-dbask", nameof(DbObjectsAskOverwrite));
         public static readonly Arg MarkdownArgs = new("-md", nameof(Markdown));
         public static readonly Arg MdFileArgs = new("-mdf", nameof(MdFile));
-        public static readonly Arg MdOverwriteArgs = new("-mdow", nameof(MdOverwrite));
-        public static readonly Arg MdAskOverwriteArgs = new("-mdask", nameof(MdAskOverwrite));
+        //public static readonly Arg MdOverwriteArgs = new("-mdow", nameof(MdOverwrite));
+        //public static readonly Arg MdAskOverwriteArgs = new("-mdask", nameof(MdAskOverwrite));
         public static readonly Arg PsqlArgs = new("-psql", nameof(Psql));
         public static readonly Arg DiffArgs = new("-diff", nameof(Diff));
         public static readonly Arg DiffPgDumpArgs = new("-diff-pg-dump", nameof(DiffPgDump));
         public static readonly Arg DiffTargetArgs = new("-diff-target", nameof(DiffTarget));
+
+        public static readonly Arg ModelOutputQueryArgs = new("-moq", nameof(ModelOutputQuery));
 
 #if DEBUG
         [JsonIgnore] public string Project { get; set; }
@@ -191,6 +185,8 @@ namespace PgRoutiner.SettingsManagement
             { "namespace", "@namespace" },
             { "using", "@using" },
         };
+        public bool Overwrite { get; set; } = false;
+        public bool AskOverwrite { get; set; } = false;
 
         /*routines data-access extensions*/
         public bool Routines { get; set; } = false;
@@ -198,8 +194,8 @@ namespace PgRoutiner.SettingsManagement
         public string RoutinesSchemaNotSimilarTo { get; set; } = null;
         public string OutputDir { get; set; } = "./Extensions/{0}/";
         public bool RoutinesEmptyOutputDir { get; set; } = false;
-        public bool RoutinesOverwrite { get; set; } = false;
-        public bool RoutinesAskOverwrite { get; set; } = false;
+        //public bool RoutinesOverwrite { get; set; } = false;
+        //public bool RoutinesAskOverwrite { get; set; } = false;
         public string RoutinesNotSimilarTo { get; set; } = null;
         public string RoutinesSimilarTo { get; set; } = null;
         public IDictionary<string, string> RoutinesReturnMethods { get; set; } = new Dictionary<string, string>();
@@ -231,8 +227,8 @@ namespace PgRoutiner.SettingsManagement
         /*schema dump*/
         public bool SchemaDump { get; set; } = false;
         public string SchemaDumpFile { get; set; } = null;//"./Database/{0}/Schema.sql";
-        public bool SchemaDumpOverwrite { get; set; } = false;
-        public bool SchemaDumpAskOverwrite { get; set; } = false;
+        //public bool SchemaDumpOverwrite { get; set; } = false;
+        //public bool SchemaDumpAskOverwrite { get; set; } = false;
         public bool SchemaDumpOwners { get; set; } = false;
         public bool SchemaDumpPrivileges { get; set; } = false;
         public bool SchemaDumpNoDropIfExists { get; set; } = false;
@@ -242,8 +238,8 @@ namespace PgRoutiner.SettingsManagement
         /*data dump*/
         public bool DataDump { get; set; } = false;
         public string DataDumpFile { get; set; } = null;//"./Database/{0}/Data.sql";
-        public bool DataDumpOverwrite { get; set; } = false;
-        public bool DataDumpAskOverwrite { get; set; } = false;
+        //public bool DataDumpOverwrite { get; set; } = false;
+        //public bool DataDumpAskOverwrite { get; set; } = false;
         public string DataDumpList { get; set; } = null;
         public IList<string> DataDumpTables { get; set; } = new List<string>();
         public string DataDumpOptions { get; set; } = null;
@@ -267,8 +263,8 @@ namespace PgRoutiner.SettingsManagement
         };
         public bool DbObjectsSkipDeleteDir { get; set; } = false;
         //public bool DbObjectsRemoveExistingDirs { get; set; } = true;
-        public bool DbObjectsOverwrite { get; set; } = false;
-        public bool DbObjectsAskOverwrite { get; set; } = false;
+        //public bool DbObjectsOverwrite { get; set; } = false;
+        //public bool DbObjectsAskOverwrite { get; set; } = false;
         public bool DbObjectsOwners { get; set; } = false;
         public bool DbObjectsPrivileges { get; set; } = false;
         public bool DbObjectsCreateOrReplace { get; set; } = false;
@@ -280,8 +276,8 @@ namespace PgRoutiner.SettingsManagement
         public string MdSchemaSimilarTo { get; set; } = null;
         public string MdSchemaNotSimilarTo { get; set; } = null;
         public string MdFile { get; set; } = "./Database/{0}/README.md";
-        public bool MdOverwrite { get; set; } = false;
-        public bool MdAskOverwrite { get; set; } = false;
+        //public bool MdOverwrite { get; set; } = false;
+        //public bool MdAskOverwrite { get; set; } = false;
         public bool MdSkipHeader { get; set; } = false;
         public bool MdSkipToc { get; set; } = false;
         public bool MdSkipTables { get; set; } = false;
@@ -317,6 +313,8 @@ namespace PgRoutiner.SettingsManagement
         public bool DiffPrivileges { get; set; } = false;
         public string DiffSkipSimilarTo { get; set; } = "pg_%";
 
+        public string ModelOutputQuery { get; set; } = null;
+        public string ModelOutputFile { get; set; } = null;
 
         public static readonly Current Value = new();
     }

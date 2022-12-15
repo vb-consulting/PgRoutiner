@@ -118,7 +118,7 @@ public abstract class CodeBuilder
                         Writer.DumpFormat("Skipping {0}, already exists ...", modelFileName.Relative);
                         continue;
                     }
-                    if (modelExists && settings.RoutinesAskOverwrite &&
+                    if (modelExists && settings.AskOverwrite &&
                         Program.Ask($"File {modelFileName.Relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
                     {
                         Writer.DumpFormat("Skipping {0} ...", modelFileName.Relative);

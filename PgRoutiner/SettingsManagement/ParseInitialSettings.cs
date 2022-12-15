@@ -50,7 +50,7 @@ namespace PgRoutiner.SettingsManagement
             var routineCount = connection.GetRoutineCount(Value, schemaSimilarTo: Value.RoutinesSchemaSimilarTo, schemaNotSimilarTo: Value.RoutinesSchemaNotSimilarTo);
             //var crudCount = connection.GetTableDefintionsCount(Value);
             if ((Value.Routines && Value.OutputDir != null && routineCount > 0) ||
-                (Value.UnitTests && Value.UnitTestsDir != null))
+                (Value.UnitTests && Value.UnitTestsDir != null) /*|| Value.ModelOutputQuery != null*/ )
             {
                 ProjectInfo = ParseProjectFile();
                 if (ProjectInfo == null)
@@ -114,9 +114,12 @@ namespace PgRoutiner.SettingsManagement
                     return null;
                 }
             }
-            Program.WriteLine("", "Using project file: ");
-            Program.WriteLine(ConsoleColor.Cyan, " " + Path.GetFileName(projectFile));
-
+            if (Value.Verbose)
+            {
+                Program.WriteLine("", "Using project file: ");
+                Program.WriteLine(ConsoleColor.Cyan, " " + Path.GetFileName(projectFile));
+            }
+            
             var ns = Path.GetFileNameWithoutExtension(projectFile);
 
             Project result = new() { ProjectFile = projectFile };

@@ -22,7 +22,7 @@ public class MarkdownBuilder
             Directory.CreateDirectory(dir);
         }
 
-        if (exists && Current.Value.MdOverwrite == false)
+        if (exists && Current.Value.Overwrite == false)
         {
             Writer.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
             return;
@@ -34,7 +34,7 @@ public class MarkdownBuilder
             Writer.DumpFormat("Skipping {0}, already exists ...", relative);
             return;
         }
-        if (exists && Current.Value.MdAskOverwrite &&
+        if (exists && Current.Value.AskOverwrite &&
             Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
         {
             Writer.DumpFormat("Skipping {0} ...", relative);

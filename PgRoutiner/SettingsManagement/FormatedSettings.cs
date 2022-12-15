@@ -159,6 +159,8 @@ public class FormatedSettings
         AddEntry(nameof(Current.Ident), Current.Value.Ident);
         //AddEntry(nameof(Current.ReturnMethod), Current.Value.ReturnMethod);
         AddEntry(nameof(Current.MethodParameterNames), Current.Value.MethodParameterNames);
+        AddEntry(nameof(Current.Overwrite), Current.Value.Overwrite);
+        AddEntry(nameof(Current.AskOverwrite), Current.Value.AskOverwrite);
 
         sb.AppendLine();
         AddSectionComment(
@@ -166,15 +168,15 @@ public class FormatedSettings
             null,
             $"- Use \"{Current.RoutinesArgs.Alias}\" or \"--{Current.RoutinesArgs.Original.ToKebabCase()}\" switch to run routines data-access extensions code-generation from the command line.",
             $"- Use \"{Current.OutputDirArgs.Alias}\" or \"--{Current.OutputDirArgs.Original.ToKebabCase()}\" option to set the output dir for the generated code from the command line.",
-            $"- Use \"{Current.RoutinesOverwriteArgs.Alias}\" or \"--{Current.RoutinesOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated code from the command line.",
+            //$"- Use \"{Current.RoutinesOverwriteArgs.Alias}\" or \"--{Current.RoutinesOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated code from the command line.",
             $"- Use \"{Current.ModelDirArgs.Alias}\" or \"--{Current.ModelDirArgs.Original.ToKebabCase()}\" option to set the custom models output dir for the generated code from the command line.");
         AddEntry(nameof(Current.Routines), Current.Value.Routines);
         AddEntry(nameof(Current.RoutinesSchemaSimilarTo), Current.Value.RoutinesSchemaSimilarTo);
         AddEntry(nameof(Current.RoutinesSchemaNotSimilarTo), Current.Value.RoutinesSchemaNotSimilarTo);
         AddEntry(nameof(Current.OutputDir), Current.Value.OutputDir);
         AddEntry(nameof(Current.RoutinesEmptyOutputDir), Current.Value.RoutinesEmptyOutputDir);
-        AddEntry(nameof(Current.RoutinesOverwrite), Current.Value.RoutinesOverwrite);
-        AddEntry(nameof(Current.RoutinesAskOverwrite), Current.Value.RoutinesAskOverwrite);
+        //AddEntry(nameof(Current.RoutinesOverwrite), Current.Value.RoutinesOverwrite);
+        //AddEntry(nameof(Current.RoutinesAskOverwrite), Current.Value.RoutinesAskOverwrite);
         AddEntry(nameof(Current.RoutinesNotSimilarTo), Current.Value.RoutinesNotSimilarTo);
         AddEntry(nameof(Current.RoutinesSimilarTo), Current.Value.RoutinesSimilarTo);
         AddEntry(nameof(Current.RoutinesReturnMethods), Current.Value.RoutinesReturnMethods);
@@ -205,12 +207,12 @@ public class FormatedSettings
             null,
             $"- Use \"{Current.SchemaDumpArgs.Alias}\" or \"--{Current.SchemaDumpArgs.Original.ToKebabCase()}\" switch to run schema script dump from the command line.",
             $"- Use \"{Current.SchemaDumpFileArgs.Alias}\" or \"--{Current.SchemaDumpFileArgs.Original.ToKebabCase()}\" option to set generated schema file name from the command line.",
-            $"- Use \"{Current.SchemaDumpOverwriteArgs.Alias}\" or \"--{Current.SchemaDumpOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated schema file from the command line.",
+            //$"- Use \"{Current.SchemaDumpOverwriteArgs.Alias}\" or \"--{Current.SchemaDumpOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated schema file from the command line.",
             $"- Use \"--{nameof(Current.SchemaDumpPrivileges).ToKebabCase()}\" switch to include object privileges in schema file from the command line.");
         AddEntry(nameof(Current.SchemaDump), Current.Value.SchemaDump);
         AddEntry(nameof(Current.SchemaDumpFile), Current.Value.SchemaDumpFile);
-        AddEntry(nameof(Current.SchemaDumpOverwrite), Current.Value.SchemaDumpOverwrite);
-        AddEntry(nameof(Current.SchemaDumpAskOverwrite), Current.Value.SchemaDumpAskOverwrite);
+        //AddEntry(nameof(Current.SchemaDumpOverwrite), Current.Value.SchemaDumpOverwrite);
+        //AddEntry(nameof(Current.SchemaDumpAskOverwrite), Current.Value.SchemaDumpAskOverwrite);
         AddEntry(nameof(Current.SchemaDumpOwners), Current.Value.SchemaDumpOwners);
         AddEntry(nameof(Current.SchemaDumpPrivileges), Current.Value.SchemaDumpPrivileges);
         AddEntry(nameof(Current.SchemaDumpNoDropIfExists), Current.Value.SchemaDumpNoDropIfExists);
@@ -223,12 +225,12 @@ public class FormatedSettings
             null,
             $"- Use \"{Current.DataDumpArgs.Alias}\" or \"--{Current.DataDumpArgs.Original.ToKebabCase()}\" switch to run data script dump from the command line.",
             $"- Use \"{Current.DataDumpFileArgs.Alias}\" or \"--{Current.DataDumpFileArgs.Original.ToKebabCase()}\" option to set generated data script file name from the command line.",
-            $"- Use \"{Current.DataDumpOverwriteArgs.Alias}\" or \"--{Current.DataDumpOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated data script file from the command line.",
+            //$"- Use \"{Current.DataDumpOverwriteArgs.Alias}\" or \"--{Current.DataDumpOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated data script file from the command line.",
             $"- Use \"{Current.DataDumpListArgs.Alias}\" or \"--{Current.DataDumpListArgs.Original.ToKebabCase()}\" set semicolon separated list of tables or queries merged with \"DataDumpTables\" option and to be dumped.");
         AddEntry(nameof(Current.DataDump), Current.Value.DataDump);
         AddEntry(nameof(Current.DataDumpFile), Current.Value.DataDumpFile);
-        AddEntry(nameof(Current.DataDumpOverwrite), Current.Value.DataDumpOverwrite);
-        AddEntry(nameof(Current.DataDumpAskOverwrite), Current.Value.DataDumpAskOverwrite);
+        //AddEntry(nameof(Current.DataDumpOverwrite), Current.Value.DataDumpOverwrite);
+        //AddEntry(nameof(Current.DataDumpAskOverwrite), Current.Value.DataDumpAskOverwrite);
         AddEntry(nameof(Current.DataDumpList), Current.Value.DataDumpList);
         AddEntry(nameof(Current.DataDumpTables), Current.Value.DataDumpTables);
         AddEntry(nameof(Current.DataDumpOptions), Current.Value.DataDumpOptions);
@@ -240,12 +242,12 @@ public class FormatedSettings
             "Object file tree settings",
             null,
             $"- Use \"{Current.DbObjectsArgs.Alias}\" or \"--{Current.DbObjectsArgs.Original.ToKebabCase()}\" switch to run object files tree dump from the command line.",
-            $"- Use \"{Current.DbObjectsDirArgs.Alias}\" or \"--{Current.DbObjectsDirArgs.Original.ToKebabCase()}\" option to set the root output dir from the command line.",
-            $"- Use \"{Current.DbObjectsOverwriteArgs.Alias}\" or \"--{Current.DbObjectsOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated files from the command line.");
+            $"- Use \"{Current.DbObjectsDirArgs.Alias}\" or \"--{Current.DbObjectsDirArgs.Original.ToKebabCase()}\" option to set the root output dir from the command line.");
+            //$"- Use \"{Current.DbObjectsOverwriteArgs.Alias}\" or \"--{Current.DbObjectsOverwriteArgs.Original.ToKebabCase()}\" switch to set the overwrite mode for the generated files from the command line.");
         AddEntry(nameof(Current.DbObjects), Current.Value.DbObjects);
         AddEntry(nameof(Current.DbObjectsDir), Current.Value.DbObjectsDir);
-        AddEntry(nameof(Current.DbObjectsOverwrite), Current.Value.DbObjectsOverwrite);
-        AddEntry(nameof(Current.DbObjectsAskOverwrite), Current.Value.DbObjectsAskOverwrite);
+        //AddEntry(nameof(Current.DbObjectsOverwrite), Current.Value.DbObjectsOverwrite);
+        //AddEntry(nameof(Current.DbObjectsAskOverwrite), Current.Value.DbObjectsAskOverwrite);
         AddEntry(nameof(Current.DbObjectsDirNames), Current.Value.DbObjectsDirNames);
         AddEntry(nameof(Current.DbObjectsSkipDeleteDir), Current.Value.DbObjectsSkipDeleteDir);
         //AddEntry(nameof(Settings.DbObjectsRemoveExistingDirs), Settings.Value.DbObjectsRemoveExistingDirs);
@@ -266,8 +268,8 @@ public class FormatedSettings
         AddEntry(nameof(Current.MdFile), Current.Value.MdFile);
         AddEntry(nameof(Current.MdSchemaSimilarTo), Current.Value.MdSchemaSimilarTo);
         AddEntry(nameof(Current.MdSchemaNotSimilarTo), Current.Value.MdSchemaNotSimilarTo);
-        AddEntry(nameof(Current.MdOverwrite), Current.Value.MdOverwrite);
-        AddEntry(nameof(Current.MdAskOverwrite), Current.Value.MdAskOverwrite);
+        //AddEntry(nameof(Current.MdOverwrite), Current.Value.MdOverwrite);
+        //AddEntry(nameof(Current.MdAskOverwrite), Current.Value.MdAskOverwrite);
         AddEntry(nameof(Current.MdSkipHeader), Current.Value.MdSkipHeader);
         AddEntry(nameof(Current.MdSkipToc), Current.Value.MdSkipToc);
         AddEntry(nameof(Current.MdSkipTables), Current.Value.MdSkipTables);
@@ -309,7 +311,15 @@ public class FormatedSettings
         AddEntry(nameof(Current.DiffFilePattern), Current.Value.DiffFilePattern);
         AddEntry(nameof(Current.DiffPgDump), Current.Value.DiffPgDump);
         AddEntry(nameof(Current.DiffPrivileges), Current.Value.DiffPrivileges);
-        AddEntry(nameof(Current.DiffSkipSimilarTo), Current.Value.DiffSkipSimilarTo, "");
+        AddEntry(nameof(Current.DiffSkipSimilarTo), Current.Value.DiffSkipSimilarTo);
+
+        sb.AppendLine();
+        AddSectionComment(
+            "Model output from a query settings",
+            null,
+            $"- Use \"{Current.ModelOutputQueryArgs.Alias}\" or \"--{Current.ModelOutputQueryArgs.Original.ToKebabCase()}\" to set query or file name containing a query from which to build a model.");
+        AddEntry(nameof(Current.ModelOutputQuery), Current.Value.ModelOutputQuery);
+        AddEntry(nameof(Current.ModelOutputFile), Current.Value.ModelOutputFile);
 
         if (wrap)
         {
