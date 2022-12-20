@@ -132,7 +132,8 @@ public static partial class DataAccessConnectionExtensions
                     "SCHEMA" => PgType.Schema,
                     "EXTENSION" => PgType.Extension,
                     _ => PgType.Unknown
-                }
+                },
+                TypeName = t.Type.ToUpperInvariant(),
             });
 }
 }

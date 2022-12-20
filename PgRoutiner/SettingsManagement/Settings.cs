@@ -22,16 +22,19 @@ namespace PgRoutiner.SettingsManagement
             { "-execute" , "--execute" },
             { "--exec", "--execute"  },
             { "--execute" , "--execute" },
+            { "--x" , "--execute" },
+
+            { "--modeldir" , "--model-dir" },
 
             { "-ls", "--list" },
             { "--ls", "--list" },
            
             { "-ddl", "--definition" },
+            { "--ddl", "--definition" },
             { "-definition", "--definition" },
 
-            { "-i", "--inserts" },
             { "-ins", "--inserts" },
-            { "-insert", "--inserts" },
+            { "-inserts", "--inserts" },
         
             { "-bck", "--backup" },
 
@@ -46,6 +49,48 @@ namespace PgRoutiner.SettingsManagement
             { "-conn", "--connection" },
             { "--conn", "--connection" },
             { "-connection", "--connection" },
+
+            { "-routines", "--routines" },
+            { "--r", "--routines" },
+            { "-rout", "--routines" },
+            { "--rout", "--routines" },
+
+            { "--rs", "--routines-similar-to" },
+            { "-routines-similar", "--routines-similar-to" },
+            { "--routines-similar", "--routines-similar-to" },
+            { "-r-similar", "--routines-similar-to" },
+            { "--r-similar", "--routines-similar-to" },
+
+            { "--rns", "--routines-not-similar-to" },
+            { "-routines-not-similar", "--routines-not-similar-to" },
+            { "--routines-not-similar", "--routines-not-similar-to" },
+            { "-r-not-similar", "--routines-not-similar-to" },
+            { "--r-not-similar", "--routines-not-similar-to" },
+
+            { "--mo", "--model-output" },
+            { "-model", "--model-output" },
+            { "--model", "--model-output" },
+            { "-model-output", "--model-output" },
+            
+            { "--mos", "--model-save-to-model-dir" },
+            { "--model-save", "--model-save-to-model-dir" },
+            { "-model-save", "--model-save-to-model-dir" },
+
+            { "--mof", "--model-output-file" },
+            { "--model-file", "--model-output-file" },
+            { "-model-file", "--model-output-file" },
+
+            { "--cf", "--config-file" },
+            { "-config-file", "--config-file" },
+            { "--config", "--config-file" },
+            { "-config", "--config-file" },
+            
+            { "--d", "--dump-console" },
+            { "-console", "--dump-console" },
+            { "--console", "--dump-console" },
+            { "-dump", "--dump-console" },
+            { "--dump", "--dump-console" },
+            { "-dump-console", "--dump-console" },
         };
     }
 
@@ -54,9 +99,12 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg DirArgs = new("-dir", nameof(Dir)); // set current dir
         public static readonly Arg HelpArgs = new("-h", nameof(Help));
         public static readonly Arg VersionArgs = new("-v", nameof(Version));
-        public static readonly Arg InfoArgs = new("-info", nameof(Info));
         public static readonly Arg SettingsArgs = new("-s", nameof(Settings));
         public static readonly Arg RoutinesArgs = new("-r", nameof(Routines));
+
+        public static readonly Arg RoutinesSimilarToArgs = new("-rs", nameof(RoutinesSimilarTo));
+        public static readonly Arg RoutinesNotSimilarToArgs = new("-rns", nameof(RoutinesNotSimilarTo));
+
         public static readonly Arg CommitMdArgs = new("-cc", nameof(CommitMd));
         public static readonly Arg ExecuteArgs = new("-x", nameof(Execute));
         //public static readonly Arg OptionsArgs = new("-opt", nameof(Options));
@@ -106,17 +154,23 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg DiffPgDumpArgs = new("-diff-pg-dump", nameof(DiffPgDump));
         public static readonly Arg DiffTargetArgs = new("-diff-target", nameof(DiffTarget));
 
-        public static readonly Arg ModelOutputQueryArgs = new("-moq", nameof(ModelOutputQuery));
+        public static readonly Arg ModelOutputArgs = new("-mo", nameof(ModelOutput));
+        public static readonly Arg ModelOutputFileArgs = new("-mof", nameof(ModelOutputFile));
+        public static readonly Arg ModelSaveToModelDirArgs = new("-mos", nameof(ModelSaveToModelDir));
+
+        public static readonly Arg WriteConfigFileArgs = new("-wcf", nameof(WriteConfigFile));
+        public static readonly Arg ConfigFileArgs = new("-cf", nameof(ConfigFile));
 
 #if DEBUG
         [JsonIgnore] public string Project { get; set; }
 #endif
         [JsonIgnore] public bool Help { get; set; } = false;
         [JsonIgnore] public bool Version { get; set; } = false;
-        [JsonIgnore] public bool Info { get; set; } = false;
         [JsonIgnore] public bool Dir { get; set; } = false;
         [JsonIgnore] public bool Settings { get; set; } = false;
         [JsonIgnore] public bool Debug { get; set; } = false;
+        [JsonIgnore] public string WriteConfigFile { get; set; } = null;
+        [JsonIgnore] public string ConfigFile { get; set; } = null;
 
         public bool DumpConsole { get; set; } = false;
         public bool Silent { get; set; } = false;
@@ -313,8 +367,28 @@ namespace PgRoutiner.SettingsManagement
         public bool DiffPrivileges { get; set; } = false;
         public string DiffSkipSimilarTo { get; set; } = "pg_%";
 
-        public string ModelOutputQuery { get; set; } = null;
+        /* model output settings */
+        public string ModelOutput { get; set; } = null;
         public string ModelOutputFile { get; set; } = null;
+        public bool ModelSaveToModelDir { get; set; } = false;
+
+        /* crud settings */
+        public bool CrudUseAtomic { get; set; } = true;
+        public bool CrudCreateDefaults { get; set; } = true;
+        public string CrudNamePattern { get; set; } = "{0}\"{1}_{2}\"";
+        public string CrudCreate { get; set; } = null;
+        public string CrudCreateReturning { get; set; } = null;
+        public string CrudCreateOnConflictDoNothing { get; set; } = null;
+        public string CrudCreateOnConflictDoNothingReturning { get; set; } = null;
+        public string CrudCreateOnConflictDoUpdate { get; set; } = null;
+        public string CrudCreateOnConflictDoUpdateReturning { get; set; } = null;
+        public string CrudReadBy { get; set; } = null;
+        public string CrudReadAll { get; set; } = null;
+        public string CrudReadPage { get; set; } = null;
+        public string CrudUpdate { get; set; } = null;
+        public string CrudUpdateReturning { get; set; } = null;
+        public string CrudDeleteBy { get; set; } = null;
+        public string CrudDeleteByReturning { get; set; } = null;
 
         public static readonly Current Value = new();
     }

@@ -28,7 +28,7 @@ public partial class ConnectionManager
             }
             catch (Exception e)
             {
-                Program.DumpError($"Could not open {name}{Environment.NewLine}{e.Message}{Environment.NewLine}Exiting...");
+                Program.DumpError($"Could not open {name}{Environment.NewLine}{e.Message}{Environment.NewLine}{e.InnerException?.Message}{Environment.NewLine}{e.InnerException?.InnerException?.Message}");
                 return null;
             }
         }
@@ -49,7 +49,7 @@ public partial class ConnectionManager
                 }
                 catch (Exception e)
                 {
-                    Program.DumpError($"Could not open {name}{Environment.NewLine}{e.Message}{Environment.NewLine}Exiting...");
+                    Program.DumpError($"Could not open {name}{Environment.NewLine}{e.Message}{Environment.NewLine}{e.InnerException?.Message}{Environment.NewLine}{e.InnerException?.InnerException?.Message}");
                     return null;
                 }
             }
@@ -62,7 +62,7 @@ public partial class ConnectionManager
                 }
                 catch (Exception e)
                 {
-                    Program.DumpError($"Could not open {connectionStr}{Environment.NewLine}{e.Message}{Environment.NewLine}Exiting...");
+                    Program.DumpError($"Could not open {connectionStr}{Environment.NewLine}{e.Message}{Environment.NewLine}{e.InnerException?.Message}{Environment.NewLine}{e.InnerException?.InnerException?.Message}");
                     return null;
                 }
             }

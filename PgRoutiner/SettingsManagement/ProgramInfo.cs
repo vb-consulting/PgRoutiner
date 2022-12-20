@@ -68,6 +68,33 @@ public class ProgramInfo
     public static void ShowInfo()
     {
         ShowVersion();
+        
+        void Show((string header, List<(string cmds, string help)> args) section)
+        {
+            if (section.header != null)
+            {
+                Program.WriteLine(ConsoleColor.Yellow, $"{section.header}");
+            }
+            foreach (var entry in section.args)
+            {
+                Program.Write(ConsoleColor.Cyan, $"  {entry.cmds}");
+                Program.WriteLine($"    {entry.help}");
+            }
+            Console.WriteLine();
+        }
+
+        Show(FormatedSettings.SettingHelp());
+        Show(FormatedSettings.GeneralSettingHelp());
+        Show(FormatedSettings.CodeGenGeneralSettingHelp());
+        Show(FormatedSettings.RoutinesSettingHelp());
+        Show(FormatedSettings.UnitTestsSettingHelp());
+        Show(FormatedSettings.SchemaDumpSettingHelp());
+        Show(FormatedSettings.DataDumpSettingHelp());
+        Show(FormatedSettings.ObjTreeSettingHelp());
+        Show(FormatedSettings.MarkdownSettingHelp());
+        Show(FormatedSettings.PsqlSettingHelp());
+        Show(FormatedSettings.ModelSettingHelp());
+        Show(FormatedSettings.CrudSettingHelp());
 
         Program.WriteLine("", "To get help please navigate to: ");
         Program.WriteLine(ConsoleColor.Cyan, " https://github.com/vb-consulting/PgRoutiner#readme", "");

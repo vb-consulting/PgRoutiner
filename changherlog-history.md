@@ -1,5 +1,4 @@
 ﻿# VERSION HISTORY
-
 ## 4.3.0
 
 * Removed settings: 

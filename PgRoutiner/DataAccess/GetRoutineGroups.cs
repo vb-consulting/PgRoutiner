@@ -58,7 +58,26 @@ public static partial class DataAccessConnectionExtensions
                                 'type', regexp_replace(p.udt_name, '^[_]', ''),
                                 'dataType', p.data_type,
                                 'isArray', p.data_type = 'ARRAY',
-                                'default', p.parameter_default
+                                'default', p.parameter_default,
+                                'dataTypeFormatted', case    when p.data_type = 'USER-DEFINED' 
+                                                                then p.udt_name 
+                                                                else case   when p.udt_schema <> 'pg_catalog' 
+                                                                            then p.udt_schema || '.' 
+                                                                            else '' 
+                                                                end || p.udt_name::regtype 
+                                                        end || 
+                                                        case    when p.data_type <> 'integer' and p.data_type <> 'bigint' and p.data_type <> 'smallint' 
+                                                                then
+                                                                    case    when p.character_maximum_length is not null 
+                                                                            then '(' || cast(p.character_maximum_length as varchar) || ')'
+                                                                            else 
+                                                                                case    when p.numeric_precision is not null 
+                                                                                        then '(' || cast(p.numeric_precision as varchar) || ',' || cast(p.numeric_scale as varchar) || ')'
+                                                                                else ''
+                                                                                end
+                                                                    end
+                                                                else ''
+                                                        end
                             ) 
                             order by 
                                 p.ordinal_position

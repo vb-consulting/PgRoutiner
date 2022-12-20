@@ -8,4 +8,5 @@ public class PgParameter
     public string DataType { get; set; }
     public bool IsArray { get; set; }
     public string Default { get; set; }
+    public string DataTypeFormatted { get; set; }
 }

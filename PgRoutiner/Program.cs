@@ -10,7 +10,6 @@ global using PgRoutiner.SettingsManagement;
 using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
 using PgRoutiner.Builder;
 using PgRoutiner.Connection;
 
@@ -28,7 +27,7 @@ static partial class Program
 
     static void Main(string[] rawArgs)
     {
-        //rawArgs = new string[] { "-ls" };
+        //rawArgs = new string[] { "--mo" };
         var args = ParseArgs(rawArgs);
 
         if (args == null)
@@ -61,7 +60,7 @@ static partial class Program
             WriteLine("", "Using dir: ");
             WriteLine(ConsoleColor.Cyan, " " + CurrentDir);
         }
-            
+
         if (Config == null)
         {
             return;
@@ -74,18 +73,14 @@ static partial class Program
         {
             Current.ShowUpdatedSettings();
         }
+
         using var connection = new ConnectionManager(Config).ParseConnectionString();
-        if (connection == null)
-        {
-            return;
-        }
         if (!Current.ParseInitialSettings(connection, args.Length > 0, settingsFile))
         {
             return;
         }
-        if (ConsoleSettings.Info)
+        if (connection == null)
         {
-            WriteLine("");
             return;
         }
 

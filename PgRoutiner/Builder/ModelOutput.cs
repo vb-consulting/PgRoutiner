@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.Xml.Linq;
 using PgRoutiner.Builder.CodeBuilders;
 using PgRoutiner.DataAccess.Models;
 
@@ -14,72 +13,120 @@ public class ModelOutput : Code
 
     public static void BuilModelOutput(NpgsqlConnection connection, string connectionName)
     {
-        if (string.IsNullOrEmpty(Current.Value.ModelOutputQuery))
+        if (string.IsNullOrEmpty(Current.Value.ModelOutput))
         {
             return;
         }
-
-        var modelOutputFile = string.Equals(Current.Value.ModelOutputFile?.ToLowerInvariant(), ".ts") ? null : Current.Value.ModelOutputFile;
-        var content = new ModelOutput(modelOutputFile).BuilModelOutputContent(connection, connectionName);
-        
-        
-        if (modelOutputFile == null)
-        {
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write(content);
-            Console.ResetColor();
-        }
-        else
-        {
-            var file = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, modelOutputFile)), connectionName);
-            var relative = file.GetRelativePath();
-            var shortFilename = Path.GetFileName(file);
-            var dir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(file)));
-            var exists = File.Exists(file);
-
-            if (!Current.Value.DumpConsole && !Directory.Exists(dir))
-            {
-                Writer.DumpRelativePath("Creating dir: {0} ...", dir);
-                Directory.CreateDirectory(dir);
-            }
-
-            if (exists && Current.Value.Overwrite == false)
-            {
-                Writer.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
-                return;
-            }
-            if (exists && Current.Value.SkipIfExists != null && (
-                Current.Value.SkipIfExists.Contains(shortFilename) || Current.Value.SkipIfExists.Contains(relative))
-                )
-            {
-                Writer.DumpFormat("Skipping {0}, already exists ...", relative);
-                return;
-            }
-            if (exists && Current.Value.Overwrite &&
-                Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
-            {
-                Writer.DumpFormat("Skipping {0} ...", relative);
-                return;
-            }
-
-            Writer.DumpFormat("Creating model file {0} ...", relative);
-            Writer.WriteFile(file, content);
-        }
-    }
-
-    private string BuilModelOutputContent(NpgsqlConnection connection, string connectionName)
-    {
-        var sb = new StringBuilder();
         if (connection.State != ConnectionState.Open)
         {
             connection.Open();
         }
 
-        var file = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Current.Value.ModelOutputQuery)), connectionName);
-        string queries = File.Exists(file) ? File.ReadAllText(file) : Current.Value.ModelOutputQuery;
-        var ts = Current.Value.ModelOutputFile?.ToLowerInvariant()?.EndsWith(".ts") ?? false;
+        var (queries, ts) = GetInfo(connectionName);
+
+        var modelOutputFile = string.Equals(Current.Value.ModelOutputFile?.ToLowerInvariant(), ".ts") ? null : Current.Value.ModelOutputFile;
+        var builder = new ModelOutput(modelOutputFile);
+        var header = builder.GetHeader(ts, connectionName);
+        var footer = builder.GetFooter(ts);
+        var sb = new StringBuilder();
+
+        sb.Append(header);
+        int modelCount = 0;
         
-        foreach(var line in Current.Value.SourceHeaderLines)
+        foreach(var (content, name, schema) in builder.BuilModelOutputContent(connection, queries, ts))
+        {
+            if (content != null)
+            {
+                if (modelCount > 0)
+                {
+                    sb.AppendLine();
+                }
+                sb.Append(content);
+                modelCount++;
+
+                if (Current.Value.ModelSaveToModelDir)
+                {
+                    var modelSb = new StringBuilder();
+                    modelSb.Append(header);
+                    modelSb.Append(content);
+                    modelSb.Append(footer);
+                    var fileName = Path.Combine(Current.Value.ModelDir ?? Program.CurrentDir, 
+                        ts ? $"{name.ToUpperCamelCase()}.ts" : $"{name.ToUpperCamelCase()}.cs");
+                    SaveToFile(fileName, connectionName, modelSb.ToString(), schema);
+                }
+            }
+        }
+        sb.Append(footer);
+
+        if (modelOutputFile == null && Current.Value.ModelSaveToModelDir == false)
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write(sb.ToString());
+            Console.ResetColor();
+        }
+
+        if (modelOutputFile != null)
+        {
+            SaveToFile(modelOutputFile, connectionName, sb.ToString());
+        }
+    }
+
+    private static void SaveToFile(string fileName, string connectionName, string content, string schema = null)
+    {
+        var file = schema == null ?
+            string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, fileName)), connectionName) :
+            string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, fileName)), schema == "public" ? "" : schema.ToUpperCamelCase())
+                .Replace("//", "/")
+                .Replace("\\\\", "\\");
+
+        var relative = file.GetRelativePath();
+        var shortFilename = Path.GetFileName(file);
+        var dir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(file)));
+        var exists = File.Exists(file);
+
+        if (!Current.Value.DumpConsole && !Directory.Exists(dir))
+        {
+            Writer.DumpRelativePath("Creating dir: {0} ...", dir);
+            Directory.CreateDirectory(dir);
+        }
+
+        if (exists && Current.Value.Overwrite == false)
+        {
+            Writer.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
+            return;
+        }
+        if (exists && Current.Value.SkipIfExists != null && (
+            Current.Value.SkipIfExists.Contains(shortFilename) || Current.Value.SkipIfExists.Contains(relative))
+            )
+        {
+            Writer.DumpFormat("Skipping {0}, already exists ...", relative);
+            return;
+        }
+        if (exists && Current.Value.AskOverwrite &&
+            Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
+        {
+            Writer.DumpFormat("Skipping {0} ...", relative);
+            return;
+        }
+
+        Writer.DumpFormat("Creating model file {0} ...", relative);
+        Writer.WriteFile(file, content);
+    }
+
+    private static (string queries, bool ts) GetInfo(string connectionName)
+    {
+        var file = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Current.Value.ModelOutput)), connectionName);
+        string queries = File.Exists(file) ? File.ReadAllText(file) : Current.Value.ModelOutput;
+        var ts = Current.Value.ModelOutputFile?.ToLowerInvariant()?.EndsWith(".ts") ?? false;
+
+        return (queries, ts);
+    }
+
+    private string GetHeader(bool ts, string connectionName)
+    {
+        var sb = new StringBuilder();
+
+        foreach (var line in Current.Value.SourceHeaderLines)
         {
             if (ts && line.StartsWith("#pragma"))
             {
@@ -119,61 +166,129 @@ public class ModelOutput : Code
                 sb.AppendLine();
             }
         }
+        return sb.ToString();
+    }
 
-        foreach (var (query, index) in queries.Split(";", StringSplitOptions.RemoveEmptyEntries).Select((q, i) => (q, i)))
-        {
-            var name = query.GetFrom()?.ToUpperCamelCase();
-            if (name == null)
-            {
-                Program.WriteLine(ConsoleColor.Red, $"ERROR: Following query might be malformed, skipping. Skipping. Query:{NL}{query}");
-            }
-            using var command = connection.CreateCommand();
-            command.CommandText = query;
-
-            try
-            {
-                using var reader = command.ExecuteReader(CommandBehavior.SingleRow);
-                if (!reader.Read())
-                {
-                    Program.WriteLine(ConsoleColor.Red, $"ERROR: Following query doesn't seem to contain any rows. Skipping. Query:{NL}{query}");
-                }
-                else
-                {
-                    if (!ts)
-                    {
-                        if (!Current.Value.UseRecords)
-                        {
-                            AddCsClass(reader, sb, name, index);
-                        }
-                        else
-                        {
-                            AddCsRecord(reader, sb, name, index);
-                        }
-                    }
-                    else
-                    {
-                        AddTsModel(reader, sb, name, index);
-                    }
-                }
-            }
-            catch(Exception exc)
-            {
-                Program.WriteLine(ConsoleColor.Red, $"ERROR: Following query raised error, skipping. Skipping. Query:{NL}{query}{NL}Error:{NL}{exc}");
-            }
-        }
+    private string GetFooter(bool ts)
+    {
         if (!ts && !Current.Value.UseFileScopedNamespaces)
         {
-            sb.AppendLine("}");
+            return "}";
+        }
+        return "";
+    }
+
+    private IEnumerable<(string content, string name, string schema)> BuilModelOutputContent(NpgsqlConnection connection, string queries, bool ts)
+    {
+        var entries = queries.Split(";", StringSplitOptions.RemoveEmptyEntries);
+        var singleWordHashes = entries.Where(e => !e.Contains(" ")).ToHashSet();
+        var enums = connection.GetAllEnums().ToDictionary(k => $"{k.schema}.{k.name}", v => v);
+
+        foreach (var enumInfo in enums.Values)
+        {
+            if (singleWordHashes.Contains(enumInfo.name) || singleWordHashes.Contains($"{enumInfo.name}.{enumInfo.schema}"))
+            {
+                yield return (BuildEnumModelContent(enumInfo, ts), enumInfo.name, enumInfo.schema);
+            }
+        }
+
+        foreach (var entry in entries)
+        {
+            var query = entry.Trim();
+            var singleWord = !query.Contains(" ");
+            string name, schema, content;
+
+            if (singleWord)
+            {
+                name = query;
+                query = $"select * from {query} limit 1";
+            }
+            else
+            {
+                name = query.GetFrom();
+            }
+            if (string.IsNullOrEmpty(name))
+            {
+                Program.WriteLine(ConsoleColor.Red, $"ERROR: Following query might be malformed. Skipping...{NL}Query: {query}");
+            }
+
+            if (name.Contains("."))
+            {
+                var parts = name.Split(".");
+                schema = parts[0];
+                name = parts[1];
+            }
+            else
+            {
+                schema = "public";
+            }
+            if (enums.TryGetValue($"{schema}.{name}", out var enumInfo))
+            {
+                //yield return (BuildEnumModelContent(enumInfo, ts), name, schema);
+                continue;
+            }
+
+            content = BuildModelContent(connection, query, name, ts);
+            yield return (content, name, schema);
+        }
+    }
+
+    private string BuildEnumModelContent((string schema, string name, string[] values, string comment) enumInfo, bool ts)
+    {
+        var name = enumInfo.name.ToUpperCamelCase();
+        StringBuilder sb = new();
+        if (!ts)
+        {
+            sb.AppendLine($"{I1}public enum {name}");
+            sb.AppendLine($"{I1}{{");
+            sb.AppendLine(string.Join($",{NL}", enumInfo.values.Select(v => $"{I2}{v}")));
+            sb.AppendLine($"{I1}}}");
+        }
+        else
+        {
+            sb.AppendLine($"type {name} = ");
+            sb.Append(string.Join($" |{NL}", enumInfo.values.Select(v => $"{GetIdent(1)}\"{v}\"")));
+            sb.AppendLine(";");
         }
         return sb.ToString();
     }
 
-    private void AddCsClass(NpgsqlDataReader reader, StringBuilder sb, string name, int index)
+    private string BuildModelContent(NpgsqlConnection connection, string query, string name, bool ts)
     {
-        if (index > 0)
+        name = name.ToUpperCamelCase();
+        StringBuilder sb = new();
+        using var command = connection.CreateCommand();
+        command.CommandText = query;
+        try
         {
-            sb.AppendLine();
+            using var reader = command.ExecuteReader(CommandBehavior.SingleRow);
+            reader.Read();
+            if (!ts)
+            {
+                if (!Current.Value.UseRecords)
+                {
+                    AddCsClass(reader, sb, name);
+                }
+                else
+                {
+                    AddCsRecord(reader, sb, name);
+                }
+            }
+            else
+            {
+                AddTsModel(reader, sb, name);
+            }
+            return sb.ToString();
         }
+        catch (Exception exc)
+        {
+            Program.WriteLine(ConsoleColor.Red, $"ERROR: Following query raised error. Skipping...{NL}Query: {query}{NL}Error: {exc.Message}");
+            return null;
+        }
+    }
+
+    private void AddCsClass(NpgsqlDataReader reader, StringBuilder sb, string name)
+    {
         sb.AppendLine($"{I1}public class {name}");
         sb.AppendLine($"{I1}{{");
         for (int i = 0; i < reader.FieldCount; i++)
@@ -184,12 +299,8 @@ public class ModelOutput : Code
         }
         sb.AppendLine($"{I1}}}");
     }
-    private void AddCsRecord(NpgsqlDataReader reader, StringBuilder sb, string name, int index)
+    private void AddCsRecord(NpgsqlDataReader reader, StringBuilder sb, string name)
     {
-        if (index > 0)
-        {
-            sb.AppendLine();
-        }
         sb.AppendLine($"{I1}public record {name}(");
 
         for (int i = 0; i < reader.FieldCount; i++)
@@ -209,12 +320,8 @@ public class ModelOutput : Code
         sb.AppendLine($"{I1});");
     }
 
-    private void AddTsModel(NpgsqlDataReader reader, StringBuilder sb, string name, int index)
+    private void AddTsModel(NpgsqlDataReader reader, StringBuilder sb, string name)
     {
-        if (index > 0)
-        {
-            sb.AppendLine();
-        }
         sb.AppendLine($"interface I{name} {{");
         for (int i = 0; i < reader.FieldCount; i++)
         {

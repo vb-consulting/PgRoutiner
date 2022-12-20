@@ -365,7 +365,7 @@ public class PgDumpBuilder
             foreach(var item in group)
             {
                 
-                Console.WriteLine($"{item.RoutineType.ToUpper()} {schema}.{name}({string.Join(", ", item.Parameters.Select(p => p.DataType))})");
+                Console.WriteLine($"{item.RoutineType.ToUpper()} {schema}.{name}({string.Join(", ", item.Parameters.Select(p => p.DataTypeFormatted))})");
             }
             
         }

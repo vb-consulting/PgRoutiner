@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using Npgsql;
 using System.Xml;
-using PgRoutiner.DataAccess;
 using PgRoutiner.Builder;
 
 namespace PgRoutiner.SettingsManagement
@@ -23,6 +22,7 @@ namespace PgRoutiner.SettingsManagement
 
         public static bool ParseInitialSettings(NpgsqlConnection connection, bool haveArguments, string pgroutinerSettingsFile)
         {
+            bool configWritten = false;
             var pgroutinerFile = Path.Join(Program.CurrentDir, pgroutinerSettingsFile);
             var exists = File.Exists(Path.Join(pgroutinerFile));
 
@@ -44,13 +44,14 @@ namespace PgRoutiner.SettingsManagement
                 if (answer == ConsoleKey.Y)
                 {
                     BuildSettingsFile(pgroutinerFile, connection, pgroutinerSettingsFile);
+                    configWritten = true;
                 }
             }
-
+            /*
             var routineCount = connection.GetRoutineCount(Value, schemaSimilarTo: Value.RoutinesSchemaSimilarTo, schemaNotSimilarTo: Value.RoutinesSchemaNotSimilarTo);
             //var crudCount = connection.GetTableDefintionsCount(Value);
             if ((Value.Routines && Value.OutputDir != null && routineCount > 0) ||
-                (Value.UnitTests && Value.UnitTestsDir != null) /*|| Value.ModelOutputQuery != null*/ )
+                (Value.UnitTests && Value.UnitTestsDir != null)  )
             {
                 ProjectInfo = ParseProjectFile();
                 if (ProjectInfo == null)
@@ -63,6 +64,53 @@ namespace PgRoutiner.SettingsManagement
                     UpdateProjectReferences(ProjectInfo);
                 }
             }
+            */
+            ProjectInfo = ParseProjectFile();
+
+            if (string.IsNullOrEmpty(Value.Namespace))
+            {
+                Value.Namespace = Program.CurrentDir.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                    .Last()
+                    .SanitazeName()
+                    .ToUpperCamelCase();
+            }
+
+            if (ProjectInfo != null && Value.Routines)
+            {
+                UpdateProjectReferences(ProjectInfo);
+            }
+            if (!configWritten)
+            {
+                if (Value.WriteConfigFile != null)
+                {
+
+                    var file = Path.GetFullPath(Path.Combine(Program.CurrentDir, Value.WriteConfigFile));
+                  
+                    if (File.Exists(file))
+                    {
+                        if (Program.Ask($"File {Value.WriteConfigFile} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
+                        {
+                            return false;
+                        }
+                    }
+                    
+                    try
+                    {
+                        File.WriteAllText(file, FormatedSettings.Build(connection: connection));
+                        Program.WriteLine("");
+                        Program.Write(ConsoleColor.Yellow, $"Settings file ");
+                        Program.Write(ConsoleColor.Cyan, Value.WriteConfigFile);
+                        Program.WriteLine(ConsoleColor.Yellow, $" successfully created!", "");
+                    }
+                    catch (Exception e)
+                    {
+                        Program.DumpError($"File {Value.WriteConfigFile} could not be written: {e.Message}");
+                    }
+
+                    return false;
+                }
+            }
+            
             return true;
         }
 
@@ -94,7 +142,7 @@ namespace PgRoutiner.SettingsManagement
                 projectFile = Path.Combine(Program.CurrentDir, Path.GetFileName(projectSetting));
                 if (!File.Exists(projectFile))
                 {
-                    Program.DumpError($"Couldn't find a project to run. Ensure that a {Path.GetFullPath(projectFile)} project exists, or pass the path to the project in a first argument (pgroutiner path)");
+                    //Program.DumpError($"Couldn't find a project to run. Ensure that a {Path.GetFullPath(projectFile)} project exists, or pass the path to the project in a first argument (pgroutiner path)");
                     return null;
                 }
             }
@@ -110,7 +158,7 @@ namespace PgRoutiner.SettingsManagement
                 }
                 if (projectFile == null)
                 {
-                    Program.DumpError($"Couldn't find a project to run. Ensure a project exists in {Path.GetFullPath(Program.CurrentDir)}, or pass the path to the project in a first argument (pgroutiner path)");
+                    //Program.DumpError($"Couldn't find a project to run. Ensure a project exists in {Path.GetFullPath(Program.CurrentDir)}, or pass the path to the project in a first argument (pgroutiner path)");
                     return null;
                 }
             }

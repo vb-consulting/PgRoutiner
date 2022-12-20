@@ -11,6 +11,8 @@ public class Runner
             connectionName = $"{connection.Host}_{connection.Port}_{connection.Database}".SanitazePath();
         }
 
+        Crud.BuildCrudRoutines(connection);
+
         if (Current.Value.Execute != null)
         {
             if (Current.Value.Verbose) Writer.DumpTitle("** EXECUTION **");
@@ -43,7 +45,7 @@ public class Runner
             //return;
         }
 
-        if (Current.Value.ModelOutputQuery != null)
+        if (Current.Value.ModelOutput != null)
         {
             if (Current.Value.Verbose) Writer.DumpTitle("** MODEL OUTPUT **");
             ModelOutput.BuilModelOutput(connection, connectionName);

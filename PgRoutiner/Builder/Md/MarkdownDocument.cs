@@ -296,7 +296,8 @@ public class MarkdownDocument
                 break;
             }
             var viewsHeader = false;
-            foreach (var result in connection.GetViewComments(settings, schema))
+            var viewComments = connection.GetViewComments(settings, schema).ToList();
+            foreach (var result in viewComments)
             {
                 if (!viewsHeader)
                 {
