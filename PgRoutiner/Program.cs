@@ -27,7 +27,12 @@ static partial class Program
 
     static void Main(string[] rawArgs)
     {
+        //rawArgs = new string[] { "--info" };
         //rawArgs = new string[] { "--mo" };
+        //rawArgs = new string[] { "-wcf", "./Test/test.json" };
+        //rawArgs = new string[] { "--list", "int" };
+        //rawArgs = new string[] { "--ddl", "*" };
+        //rawArgs = new string[] { "--s", "comp" };
         var args = ParseArgs(rawArgs);
 
         if (args == null)
@@ -45,6 +50,18 @@ static partial class Program
             ProgramInfo.ShowVersion();
             return;
         }
+        if (ConsoleSettings.Info)
+        {
+            ProgramInfo.ShowVersion();
+            Console.WriteLine();
+            var path = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
+            WriteLine("Executable dir: ");
+            WriteLine(ConsoleColor.Cyan, " " + path);
+            Console.WriteLine();
+            WriteLine("OS: ");
+            WriteLine(ConsoleColor.Cyan, " " + Environment.OSVersion);
+        }
+        
         Current.Value.Silent = ConsoleSettings.Silent;
         Current.Value.DumpConsole = ConsoleSettings.DumpConsole;
 
@@ -55,7 +72,7 @@ static partial class Program
 
         var (settingsFile, customSettings) = Current.GetSettingsFile(args);
         Config = Current.ParseSettings(args, settingsFile);
-        if (Current.Value != null && Current.Value.Verbose)
+        if ((Current.Value != null && Current.Value.Verbose) || Current.Value.Info || ConsoleSettings.Info)
         {
             WriteLine("", "Using dir: ");
             WriteLine(ConsoleColor.Cyan, " " + CurrentDir);
@@ -65,20 +82,56 @@ static partial class Program
         {
             return;
         }
-        if (ProgramInfo.ShowDebug(customSettings))
-        {
-            return;
-        }
-        if (Current.Value.Verbose)
+        if (Current.Value.Verbose || Current.Value.Info || ConsoleSettings.Info)
         {
             Current.ShowUpdatedSettings();
         }
-
+        //AppContext.SetSwitch("Npgsql.EnableSqlRewriting", false);
         using var connection = new ConnectionManager(Config).ParseConnectionString();
         if (!Current.ParseInitialSettings(connection, args.Length > 0, settingsFile))
         {
             return;
         }
+
+        if (Current.Value.Info || ConsoleSettings.Info)
+        {
+            if (connection != null)
+            {
+                var builder = new Builder.Dump.PgDumpBuilder(Current.Value, connection);
+                var hasPgDump = Builder.Dump.PgDumpVersion.Check(builder);
+                if (hasPgDump)
+                {
+                    WriteLine("");
+                    WriteLine("pg_dump: ");
+                    WriteLine(ConsoleColor.Cyan, " " + builder.Command);
+                }
+                else
+                {
+                    WriteLine("");
+                    WriteLine("pg_dump: ");
+                    WriteLine(ConsoleColor.Red, " Not available.");
+                }
+
+                var hasPgRestore = Builder.Dump.PgDumpVersion.Check(builder, restore: true);
+                if (hasPgRestore)
+                {
+                    WriteLine("");
+                    WriteLine("pg_restore: ");
+                    WriteLine(ConsoleColor.Cyan, " " + builder.Command);
+                }
+                else
+                {
+                    WriteLine("");
+                    WriteLine("pg_restore: ");
+                    WriteLine(ConsoleColor.Red, " Not available.");
+                }
+            }
+            
+
+            WriteLine("");
+            return;
+        }
+
         if (connection == null)
         {
             return;

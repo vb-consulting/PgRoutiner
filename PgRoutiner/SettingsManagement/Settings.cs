@@ -1,7 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 
 namespace PgRoutiner.SettingsManagement
 {
+    public sealed class EmptyAttribute : Attribute
+    {
+    }
+    
     public class Arg
     {
         public string Alias { get; }
@@ -17,7 +22,8 @@ namespace PgRoutiner.SettingsManagement
 
         public static readonly Dictionary<string, string> ArgReplacements = new()
         {
-            { "-settings", "--settings"  },
+            { "-h", "--help"  },
+            
             { "-exec", "--execute"  },
             { "-execute" , "--execute" },
             { "--exec", "--execute"  },
@@ -91,6 +97,22 @@ namespace PgRoutiner.SettingsManagement
             { "-dump", "--dump-console" },
             { "--dump", "--dump-console" },
             { "-dump-console", "--dump-console" },
+
+            { "--ow", "--overwrite" },
+            { "--ask", "--ask-overwrite" },
+            { "--s", "--search" },
+
+            { "-create-returning", "--crud-create-returning" },
+            { "-create-on-conflict-do-nothing", "--crud-create-on-conflict-do-nothing" },
+            { "-create-on-conflict-do-nothing-returning", "--crud-create-on-conflict-do-nothing-returning" },
+            { "-create-on-conflict-do-update", "--crud-create-on-conflict-do-update" },
+            { "-create-on-conflict-do-update-returning", "--crud-create-on-conflict-do-update-returning" },
+            { "-read-by", "--crud-read-by" },
+            { "-read-all", "--crud-read-all" },
+            { "-read-page", "--crud-read-page" },
+            { "-crud-update-returning", "--crud-update-returning" },
+            { "-delete-by", "--crud-delete-by" },
+            { "-delete-by-returning", "--crud-delete-by-returning" },
         };
     }
 
@@ -99,7 +121,7 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg DirArgs = new("-dir", nameof(Dir)); // set current dir
         public static readonly Arg HelpArgs = new("-h", nameof(Help));
         public static readonly Arg VersionArgs = new("-v", nameof(Version));
-        public static readonly Arg SettingsArgs = new("-s", nameof(Settings));
+        public static readonly Arg SettingsArgs = new("-settings", nameof(Settings));
         public static readonly Arg RoutinesArgs = new("-r", nameof(Routines));
 
         public static readonly Arg RoutinesSimilarToArgs = new("-rs", nameof(RoutinesSimilarTo));
@@ -116,7 +138,6 @@ namespace PgRoutiner.SettingsManagement
 
         public static readonly Arg DumpConsoleArgs = new(alias: "-d", nameof(DumpConsole));
         public static readonly Arg SilentArgs = new("-silent", nameof(Silent));
-        public static readonly Arg DebugArgs = new("-dbg", nameof(Debug));
         public static readonly Arg ConnectionArgs = new("-c", nameof(Connection));
         public static readonly Arg SchemaArgs = new("-sch", nameof(SchemaSimilarTo));
         public static readonly Arg NotSchemaArgs = new("-nsch", nameof(SchemaNotSimilarTo));
@@ -125,8 +146,9 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg OutputDirArgs = new("-o", nameof(OutputDir));
         //public static readonly Arg RoutinesOverwriteArgs = new("-row", nameof(RoutinesOverwrite));
         //public static readonly Arg RoutinesAskOverwriteArgs = new("-rask", nameof(RoutinesAskOverwrite));
-        public static readonly Arg NotSimilarToArgs = new("-nst", nameof(RoutinesNotSimilarTo));
-        public static readonly Arg SimilarToArgs = new("-st", nameof(RoutinesSimilarTo));
+        //public static readonly Arg NotSimilarToArgs = new("-nst", nameof(RoutinesNotSimilarTo));
+        //public static readonly Arg SimilarToArgs = new("-st", nameof(RoutinesSimilarTo));
+        
         public static readonly Arg SkipSyncMethodsArgs = new("-ss", nameof(SkipSyncMethods));
         public static readonly Arg SkipAsyncMethodsArgs = new("-sa", nameof(SkipAsyncMethods));
         public static readonly Arg ModelDirArgs = new("-modeldir", nameof(ModelDir));
@@ -150,9 +172,9 @@ namespace PgRoutiner.SettingsManagement
         //public static readonly Arg MdOverwriteArgs = new("-mdow", nameof(MdOverwrite));
         //public static readonly Arg MdAskOverwriteArgs = new("-mdask", nameof(MdAskOverwrite));
         public static readonly Arg PsqlArgs = new("-psql", nameof(Psql));
-        public static readonly Arg DiffArgs = new("-diff", nameof(Diff));
-        public static readonly Arg DiffPgDumpArgs = new("-diff-pg-dump", nameof(DiffPgDump));
-        public static readonly Arg DiffTargetArgs = new("-diff-target", nameof(DiffTarget));
+        //public static readonly Arg DiffArgs = new("-diff", nameof(Diff));
+        //public static readonly Arg DiffPgDumpArgs = new("-diff-pg-dump", nameof(DiffPgDump));
+        //public static readonly Arg DiffTargetArgs = new("-diff-target", nameof(DiffTarget));
 
         public static readonly Arg ModelOutputArgs = new("-mo", nameof(ModelOutput));
         public static readonly Arg ModelOutputFileArgs = new("-mof", nameof(ModelOutputFile));
@@ -160,15 +182,35 @@ namespace PgRoutiner.SettingsManagement
 
         public static readonly Arg WriteConfigFileArgs = new("-wcf", nameof(WriteConfigFile));
         public static readonly Arg ConfigFileArgs = new("-cf", nameof(ConfigFile));
+        public static readonly Arg OverwriteArgs = new("-ow", nameof(Overwrite));
+        public static readonly Arg AskOverwriteArgs = new("-ask", nameof(AskOverwrite));
+
+        public static readonly Arg SearchArgs = new("-s", nameof(Search));
+        public static readonly Arg InfoArgs = new("-info", nameof(Info));
+
+        public static readonly Arg CrudCreateArgs = new("-create", nameof(CrudCreate));
+        public static readonly Arg CrudCreateReturningArgs = new("-create_returning", nameof(CrudCreateReturning));
+        public static readonly Arg CrudCreateOnConflictDoNothingArgs = new("-create_on_conflict_do_nothing", nameof(CrudCreateOnConflictDoNothing));
+        public static readonly Arg CrudCreateOnConflictDoNothingReturningArgs = new("-create_on_conflict_do_nothing_returning", nameof(CrudCreateOnConflictDoNothingReturning));
+        public static readonly Arg CrudCreateOnConflictDoUpdateArgs = new("-create_on_conflict_do_update", nameof(CrudCreateOnConflictDoUpdate));
+        public static readonly Arg CrudCreateOnConflictDoUpdateReturningArgs = new("-create_on_conflict_do_update_returning", nameof(CrudCreateOnConflictDoUpdateReturning));
+        public static readonly Arg CrudReadByArgs = new("-read_by", nameof(CrudReadBy));
+        public static readonly Arg CrudReadAllArgs = new("-read_all", nameof(CrudReadAll));
+        public static readonly Arg CrudReadPageArgs = new("-read_page", nameof(CrudReadPage));
+        public static readonly Arg CrudUpdateArgs = new("-update", nameof(CrudUpdate));
+        public static readonly Arg CrudUpdateReturningArgs = new("-crud_update_returning", nameof(CrudUpdateReturning));
+        public static readonly Arg CrudDeleteByArgs = new("-delete_by", nameof(CrudDeleteBy));
+        public static readonly Arg CrudDeleteByReturningArgs = new("-delete_by_returning", nameof(CrudDeleteByReturning));
 
 #if DEBUG
         [JsonIgnore] public string Project { get; set; }
 #endif
         [JsonIgnore] public bool Help { get; set; } = false;
+        [JsonIgnore] public bool Info { get; set; } = false;
         [JsonIgnore] public bool Version { get; set; } = false;
         [JsonIgnore] public bool Dir { get; set; } = false;
         [JsonIgnore] public bool Settings { get; set; } = false;
-        [JsonIgnore] public bool Debug { get; set; } = false;
+        //[JsonIgnore] public bool Debug { get; set; } = false;
         [JsonIgnore] public string WriteConfigFile { get; set; } = null;
         [JsonIgnore] public string ConfigFile { get; set; } = null;
 
@@ -177,8 +219,9 @@ namespace PgRoutiner.SettingsManagement
         public bool Verbose { get; set; } = false;
         public string Execute { get; set; } = null;
         //public string Options { get; set; } = null;
-        public bool List { get; set; } = false;
+        [Empty] public string List { get; set; } = null;
         public string Definition { get; set; } = null;
+        public string Search { get; set; } = null;
         public string Inserts { get; set; } = null;
         public string Backup { get; set; } = null;
         public bool BackupOwner { get; set; } = false;
@@ -201,6 +244,8 @@ namespace PgRoutiner.SettingsManagement
         public string PgRestoreFallback { get; set; } = null;
 
         public string ConfigPath { get; set; } = null;
+        public bool Overwrite { get; set; } = false;
+        public bool AskOverwrite { get; set; } = false;
 
         /*code generation general options*/
         public string Namespace { get; set; } = null;
@@ -239,8 +284,6 @@ namespace PgRoutiner.SettingsManagement
             { "namespace", "@namespace" },
             { "using", "@using" },
         };
-        public bool Overwrite { get; set; } = false;
-        public bool AskOverwrite { get; set; } = false;
 
         /*routines data-access extensions*/
         public bool Routines { get; set; } = false;
@@ -373,8 +416,9 @@ namespace PgRoutiner.SettingsManagement
         public bool ModelSaveToModelDir { get; set; } = false;
 
         /* crud settings */
-        public bool CrudUseAtomic { get; set; } = true;
-        public bool CrudCreateDefaults { get; set; } = true;
+        //public bool CrudUseAtomic { get; set; } = true;
+        public string CrudFunctionAttributes { get; set; } = null;
+        public bool CrudCoalesceDefaults { get; set; } = false;
         public string CrudNamePattern { get; set; } = "{0}\"{1}_{2}\"";
         public string CrudCreate { get; set; } = null;
         public string CrudCreateReturning { get; set; } = null;

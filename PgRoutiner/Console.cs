@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Microsoft.Extensions.Configuration;
 
 namespace PgRoutiner;
@@ -84,15 +85,18 @@ static partial class Program
         return answer;
     }
 
+    private static List<FieldInfo> _fields = typeof(Current).GetFields(BindingFlags.Public | BindingFlags.Static).Where(f => f.Name.EndsWith("Args")).ToList();
+    public static Dictionary<string, Arg> ArgsDict = _fields.Select(f => (Arg)f.GetValue(null)).ToDictionary(a => a.Original, a => a);
+
     public static Current BindConsole(string[] args)
     {
         var settings = new Current();
         new ConfigurationBuilder().AddCommandLine(args).Build().Bind(settings);
-
-        foreach (var field in typeof(Current).GetFields(BindingFlags.Public | BindingFlags.Static).Where(f => f.Name.EndsWith("Args")).ToList())
+        var hashes = args.ToHashSet();
+        foreach (var field in _fields)
         {
             var arg = (Arg)field.GetValue(null);
-            if (args.Contains(arg.Alias))
+            if (hashes.Contains(arg.Alias))
             {
                 var prop = settings.GetType().GetProperty(arg.Original);
                 if (prop.GetType() == typeof(bool))
@@ -123,10 +127,10 @@ static partial class Program
         List<string> result = new();
         var allowed = new HashSet<string>();
         var props = typeof(Current).GetProperties();
-        var fields = typeof(Current).GetFields(BindingFlags.Public | BindingFlags.Static).Where(f => f.Name.EndsWith("Args")).ToList();
+        //var fields = _fields;
         var argsList = new List<Arg>();
 
-        foreach (var field in fields)
+        foreach (var field in _fields)
         {
             var arg = (Arg)field.GetValue(null);
             allowed.Add(arg.Alias.ToLower());
@@ -256,5 +260,28 @@ static partial class Program
             }
         }
         return result.ToArray();
+    }
+
+    //
+    // Write method to highlight text in console
+    //
+    public static void Highlight(string text, string search, ConsoleColor color = ConsoleColor.Cyan, ConsoleColor highlight = ConsoleColor.Yellow)
+    {
+        Console.ForegroundColor = color;
+        while(true)
+        {
+            var index = text.IndexOf(search, StringComparison.OrdinalIgnoreCase);
+            if (index == -1)
+            {
+                Console.Write(text);
+                break;
+            }
+            Console.Write(text.Substring(0, index));
+            Console.ForegroundColor = highlight;
+            Console.Write(text.Substring(index, search.Length));
+            Console.ForegroundColor = color;
+            text = text.Substring(index + search.Length);
+        }
+        Console.ResetColor();
     }
 }

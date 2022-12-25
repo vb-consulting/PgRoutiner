@@ -2,6 +2,42 @@
 
 public class Writer
 {
+    public static void CreateFile(string file, string content)
+    {
+        var relative = file.GetRelativePath();
+        var shortFilename = Path.GetFileName(file);
+        var dir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(file)));
+        var exists = File.Exists(file);
+
+        if (!Current.Value.DumpConsole && !Directory.Exists(dir))
+        {
+            DumpRelativePath("Creating dir: {0} ...", dir);
+            Directory.CreateDirectory(dir);
+        }
+
+        if (exists && Current.Value.Overwrite == false)
+        {
+            DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
+            return;
+        }
+        if (exists && Current.Value.SkipIfExists != null && (
+            Current.Value.SkipIfExists.Contains(shortFilename) || Current.Value.SkipIfExists.Contains(relative))
+            )
+        {
+            DumpFormat("Skipping {0}, already exists ...", relative);
+            return;
+        }
+        if (exists && Current.Value.AskOverwrite &&
+            Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
+        {
+            DumpFormat("Skipping {0} ...", relative);
+            return;
+        }
+
+        DumpFormat("Creating file {0} ...", relative);
+        WriteFile(file, content);
+    }
+    
     public static bool WriteFile(string path, string content)
     {
         if (content == null)

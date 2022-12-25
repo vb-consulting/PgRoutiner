@@ -64,16 +64,16 @@ namespace PgRoutiner.SettingsManagement
                 }
                 if (value == null)
                 {
-                    Program.Write(ConsoleColor.Yellow, $" {name.ToKebabCase()} = ");
+                    Program.Write(ConsoleColor.Yellow, $" --{name.ToKebabCase()} ");
                     Program.WriteLine(ConsoleColor.Cyan, "null");
                 }
                 else if (type == typeof(bool) && (bool)value)
                 {
-                    Program.WriteLine(ConsoleColor.Yellow, $" {name.ToKebabCase()}");
+                    Program.WriteLine(ConsoleColor.Yellow, $" --{name.ToKebabCase()}");
                 }
                 else
                 {
-                    Program.Write(ConsoleColor.Yellow, $" {name.ToKebabCase()} = ");
+                    Program.Write(ConsoleColor.Yellow, $" --{name.ToKebabCase()} ");
                     if (type == typeof(IList<string>))
                     {
                         Program.WriteLine(ConsoleColor.Cyan, $"{string.Join(", ", (value as IList<string>).ToArray())}");

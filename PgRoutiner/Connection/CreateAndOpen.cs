@@ -19,7 +19,7 @@ public partial class ConnectionManager
         conn.Open();
 
         var keyValue = typeof(Current).GetProperty(connectionKey).GetValue(Current.Value) as string;
-        if (Current.Value.Verbose)
+        if (Current.Value.Verbose || Current.Value.Info)
         {
             if (!string.IsNullOrEmpty(keyValue))
             {
@@ -28,13 +28,16 @@ public partial class ConnectionManager
                 Program.Write(ConsoleColor.Yellow, keyValue);
                 Program.Write(":");
                 Program.WriteLine("");
-                Program.WriteLine(ConsoleColor.Cyan, " " + conn.ConnectionString);
+                Program.Write(ConsoleColor.Cyan, " " + conn.ConnectionString);
+                Program.WriteLine(ConsoleColor.Yellow, $"  (PostgreSQL {conn.PostgreSqlVersion})");
             }
             else
             {
                 Program.WriteLine("");
                 Program.Write($"Using {name1}:");
                 Program.WriteLine(ConsoleColor.Cyan, " " + conn.ConnectionString);
+                Program.Write(ConsoleColor.Yellow, " " + conn.PostgreSqlVersion);
+                Program.WriteLine(ConsoleColor.Yellow, $"  (PostgreSQL {conn.PostgreSqlVersion})");
             }
         }
         return conn;

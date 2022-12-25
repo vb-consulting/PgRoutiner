@@ -30,3 +30,201 @@
 
 * Fix: Fix proper showing of user defined routine parameters on list command.
 
+* Fix: bug on markdown creation on views returning enum field type.
+
+* Fix: disable mutually exclusive settings.
+
+* New: List setting (`-l -ls --ls --list`) is converted from bool to string. If parameter value is not included it acts like a switch. If parameter value is included it will be used as a filter for list command. Search matches are highlighted.
+
+* New: Definition setting (`-def -ddl --ddl -definition --definition`) now can use `*` to dump all object definitions.
+
+* New: Search setting (`-s --s --search`) will search and highlight all matching objects definitions that definition contains searched string.
+
+* New: Info setting (`--info`) includes lot more information like exe dir, OS, pg_dump and pg_restore versions. Also, connection info includes server version.
+
+* Fix: error trying to enumerate directory with invalid characters on execute command.
+
+* Fix: fix routine data access code-gen when returning single complex type or set of complex types.
+
+### New feature - CRUD generator
+
+From version 5, `pgroutiner` can generate CRUD routines for your database tables. 
+
+Example of generated CRUD routine (create on conflict do update) for the `test_table` table to console (`-console` switch):
+
+
+```
+$ pgroutiner -console -create-on-conflict-do-update-returning test_table
+
+drop function if exists "test_table_create_on_conflict_do_update_returning"(int2, varchar, int2[], numeric);
+
+--
+-- function "test_table_create_on_conflict_do_update_returning"(int2, varchar, int2[], numeric)
+--
+create function "test_table_create_on_conflict_do_update_returning"(
+    _id int2,
+    _name varchar,
+    _types int2[],
+    _height_cm numeric
+)
+returns "test_table"
+language sql
+volatile
+as $$
+insert into "test_table"
+(
+    "id",
+    "name",
+    "types",
+    "height_cm"
+)
+overriding system value values
+(
+    _id,
+    _name,
+    _types,
+    _height_cm
+)
+on conflict ("id") do update set
+    "name" = EXCLUDED."name",
+    "types" = EXCLUDED."types",
+    "height_cm" = EXCLUDED."height_cm"
+returning
+    "id",
+    "name",
+    "default",
+    "default_name",
+    "types",
+    "height_cm",
+    "height_in",
+    "created_at";
+$$;
+
+comment on function "test_table_create_on_conflict_do_update_returning"(int2, varchar, int2[], numeric) is 'Create and return a new record in table "test_table" and update a row with new data on key violation (id).';
+
+$
+```
+
+New settings:
+
+#### Setting `CrudFunctionAttributes` (override command `--crud-function-attributes`)
+
+- Type: string
+- Default value: null (not used)
+
+Applies additional attributes to generated CRUD functions. For example, if you want to add `security definer` attribute to all generated CRUD functions, you can set this setting to `security definer`.
+
+#### Setting `CrudCoalesceDefaults` (override command `--crud-coalesce-defaults`)
+
+- Type: boolean
+- Default value: false
+
+If set to true, generated CRUD functions will use `coalesce` function to set default values for columns that have default values defined in database.
+
+This applies only to `insert` and `update` CRUD functions. When used, parameters that create or update default values will be included and will fallback to default when set to NULL.
+
+For example: `coalesce(_parameter_with_default_value, 'default value eyxpression'::character varying),`
+
+#### Setting `CrudNamePattern` (override command `--crud-name-pattern`)
+
+- Type: string
+- Default value: `{0}\"{1}_{2}\"`
+
+Sets the pattern for generated CRUD function names using format placeholders: 
+
+- `{0}` is replaced with schema name. If schema is public it is skipped, otherwise quoted schema name.
+- `{1}` is replaced with table name (unquoted).
+- `{2}` is replaced with applied CRUD setting suffix in lower underline case. For example, if setting `CrudCreateOnConflictDoNothingReturning` is used, this will be `create_on_conflict_do_nothing_returning`.
+
+#### Setting `CrudCreate` (override commands `-create`, `--crud-create`)
+
+- Type: string
+- Default value: null (not used)
+
+Similar to expression of table names to generate function for this CRUD type.
+
+#### Setting `CrudCreateReturning` (override commands `-create_returning`, `-create-returning`, `--crud-create-returning`)
+
+- Type: string
+- Default value: null (not used)
+
+Similar to expression of table names to generate function for this CRUD type.
+
+#### Setting `CrudCreateOnConflictDoNothing` (override commands `-create_on_conflict_do_nothing`, `-create-on-conflict-do-nothing`, `--crud-create-on-conflict-do-nothing`)
+
+- Type: string
+- Default value: null (not used)
+
+Similar to expression of table names to generate function for this CRUD type.
+
+#### Setting `CrudCreateOnConflictDoNothingReturning` (override commands `-create_on_conflict_do_nothing_returning`, `-create-on-conflict-do-nothing-returning`, `--crud-create-on-conflict-do-nothing-returning`)
+
+- Type: string
+- Default value: null (not used)
+
+Similar to expression of table names to generate function for this CRUD type.
+
+#### Setting `CrudCreateOnConflictDoUpdate` (override commands `-create_on_conflict_do_update`, `-create-on-conflict-do-update`, `--crud-create-on-conflict-do-update`)
+
+- Type: string
+- Default value: null (not used)
+
+Similar to expression of table names to generate function for this CRUD type.
+
+#### Setting `CrudCreateOnConflictDoUpdateReturning` (override commands `-create_on_conflict_do_update_returning`, `-create-on-conflict-do-update-returning`, `--crud-create-on-conflict-do-update-returning`)
+
+- Type: string
+- Default value: null (not used)
+
+Similar to expression of table names to generate function for this CRUD type.
+
+#### Setting `CrudReadBy` (override commands `-read_by`, `-read-by`, `--crud-read-by`)
+
+- Type: string
+- Default value: null (not used)
+
+Similar to expression of table names to generate function for this CRUD type.
+
+#### Setting `CrudReadAll` (override commands `-read_all`, `-read-all`, `--crud-read-all`)
+
+- Type: string
+- Default value: null (not used)
+
+Similar to expression of table names to generate function for this CRUD type.
+
+#### Setting `CrudReadPage` (override commands `-read_page`, `-read-page`, `--crud-read-page`)
+
+- Type: string
+- Default value: null (not used)
+
+Similar to expression of table names to generate function for this CRUD type.
+
+#### Setting `CrudUpdate` (override commands `-update`, `--crud-update`)
+
+- Type: string
+- Default value: null (not used)
+
+Similar to expression of table names to generate function for this CRUD type.
+
+#### Setting `CrudUpdateReturning ` (override commands `-crud_update_returning`, `-crud-update-returning`, `--crud-update-returning`)
+
+- Type: string
+- Default value: null (not used)
+
+Similar to expression of table names to generate function for this CRUD type.
+
+#### Setting `CrudDeleteBy` (override commands  `-delete_by`, `-delete-by`, `--crud-delete-by`)
+
+- Type: string
+- Default value: null (not used)
+
+Similar to expression of table names to generate function for this CRUD type.
+
+#### Setting `CrudDeleteByReturning` (override commands `-delete_by_returning`, `-delete-by-returning`, `--crud-delete-by-returning`)
+
+- Type: string
+- Default value: null (not used)
+
+Similar to expression of table names to generate function for this CRUD type.
+
+

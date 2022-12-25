@@ -6,10 +6,13 @@ public class FormatedSettings
         "\"PgRoutiner\" configuration section is used to configure PgRoutiner. Use command line to override these values:",
         GetHelpTexts(
             (Current.VersionArgs, "(switch) to check out current version."),
+            (Current.InfoArgs, "(switch) show environment info."),
             (Current.SettingsArgs, "(switch) to see all currently active settings, including command lines overrides and all configuration files."),
             (Current.DumpConsoleArgs, "(switch) to redirect all results into console output instead of files or database."),
             (Current.WriteConfigFileArgs, "to create new configuration file based on current settings."),
-            (Current.ConfigFileArgs, "to load additional custom configuration file.")
+            (Current.ConfigFileArgs, "to load additional custom configuration file."),
+            (Current.OverwriteArgs, "(switch) to force overwrite existing files for each generated files."),
+            (Current.AskOverwriteArgs, "(switch) to prompt overwrite question of existing files for each generated files.")
         ));
 
     public static (string header, List<(string cmds, string help)>) GeneralSettingHelp() => (
@@ -19,8 +22,9 @@ public class FormatedSettings
             (Current.SchemaArgs, "to set schema similar to expression from the command line."),
             (Current.ExecuteArgs, "option to execute SQL file or PSQL command on your current connection from the command line."),
             (Current.SilentArgs, "to silent not required console texts."),
-            (Current.ListArgs, "to dump object list for current connection and with current schema."),
+            (Current.ListArgs, "to dump or search object list to console. Use switch to dump all objects or parameter value to search."),
             (Current.DefinitionArgs, "to dump object schema definition in console supplied as value parameter."),
+            (Current.SearchArgs, "to search object schema definitions and dump highlighted results to console."),
             (Current.InsertsArgs, "to dump objects or queries (semicolon separated) insert definitions.")
         ));
 
@@ -94,7 +98,21 @@ public class FormatedSettings
 
     public static (string header, List<(string cmds, string help)>) CrudSettingHelp() => (
         "CRUD to routines settings:",
-        GetHelpTexts());
+        GetHelpTexts(
+            (Current.CrudCreateArgs, "similar to expression of table names to generate create routines."),
+            (Current.CrudCreateReturningArgs, "similar to expression of table names to generate create returning routines."),
+            (Current.CrudCreateOnConflictDoNothingArgs, "similar to expression of table names to generate create routines that will do nothing on primary key(s) conflicts."),
+            (Current.CrudCreateOnConflictDoNothingReturningArgs, "similar to expression of table names to generate create returning routines that will do nothing on primary key(s) conflicts."),
+            (Current.CrudCreateOnConflictDoUpdateArgs, "similar to expression of table names to generate create routines that will update on primary key(s) conflicts."),
+            (Current.CrudCreateOnConflictDoUpdateReturningArgs, "similar to expression of table names to generate create returning routines that will update on primary key(s) conflicts."),
+            (Current.CrudReadByArgs, "similar to expression of table names to generate read by primary key(s) routines."),
+            (Current.CrudReadAllArgs, "similar to expression of table names to generate read all data routines."),
+            (Current.CrudReadPageArgs, "similar to expression of table names to generate search and read page routines."),
+            (Current.CrudUpdateArgs, "similar to expression of table names to generate update routines."),
+            (Current.CrudUpdateReturningArgs, "similar to expression of table names to generate update returning routines."),
+            (Current.CrudDeleteByArgs, "similar to expression of table names to generate delete by primary key(s) routines."),
+            (Current.CrudDeleteByReturningArgs, "similar to expression of table names to generate delete returning by primary key(s) routines.")
+        ));
 
     public static string Build(bool wrap = true, NpgsqlConnection connection = null)
     {
@@ -180,6 +198,9 @@ public class FormatedSettings
             if (Current.Value.Connection == null && connection != null)
             {
                 Current.Value.Connection = $"{connection.Database.ToUpperCamelCase()}Connection";
+            }
+            if (connection != null)
+            {
                 sb.AppendLine($"    \"{Current.Value.Connection}\": \"{connection.ToPsqlFormatString()}\"");
             }
             sb.AppendLine("    //\"Connection1\": \"Server={server};Db={database};Port={port};User Id={user};Password={password};\"");
@@ -202,6 +223,7 @@ public class FormatedSettings
         //AddEntry(nameof(Settings.Options), Settings.Value.Options);
         AddEntry(nameof(Current.List), Current.Value.List);
         AddEntry(nameof(Current.Definition), Current.Value.Definition);
+        AddEntry(nameof(Current.Search), Current.Value.Search);
         AddEntry(nameof(Current.Inserts), Current.Value.Inserts);
         AddEntry(nameof(Current.Backup), Current.Value.Backup);
         AddEntry(nameof(Current.BackupOwner), Current.Value.BackupOwner);
@@ -217,6 +239,8 @@ public class FormatedSettings
         AddEntry(nameof(Current.PgRestore), Current.Value.PgRestore);
         AddEntry(nameof(Current.PgRestoreFallback), Current.Value.PgRestoreFallback);
         AddEntry(nameof(Current.ConfigPath), Current.Value.ConfigPath);
+        AddEntry(nameof(Current.Overwrite), Current.Value.Overwrite);
+        AddEntry(nameof(Current.AskOverwrite), Current.Value.AskOverwrite);
 
         sb.AppendLine();
 
@@ -239,8 +263,6 @@ public class FormatedSettings
         AddEntry(nameof(Current.Ident), Current.Value.Ident);
         //AddEntry(nameof(Current.ReturnMethod), Current.Value.ReturnMethod);
         AddEntry(nameof(Current.MethodParameterNames), Current.Value.MethodParameterNames);
-        AddEntry(nameof(Current.Overwrite), Current.Value.Overwrite);
-        AddEntry(nameof(Current.AskOverwrite), Current.Value.AskOverwrite);
 
         sb.AppendLine();
         AddComment(RoutinesSettingHelp());
@@ -366,8 +388,9 @@ public class FormatedSettings
 
         sb.AppendLine();
         AddComment(CrudSettingHelp());
-        AddEntry(nameof(Current.CrudUseAtomic), Current.Value.CrudUseAtomic);
-        AddEntry(nameof(Current.CrudCreateDefaults), Current.Value.CrudCreateDefaults);
+        //AddEntry(nameof(Current.CrudUseAtomic), Current.Value.CrudUseAtomic);
+        AddEntry(nameof(Current.CrudFunctionAttributes), Current.Value.CrudFunctionAttributes);
+        AddEntry(nameof(Current.CrudCoalesceDefaults), Current.Value.CrudCoalesceDefaults);
         AddEntry(nameof(Current.CrudNamePattern), Current.Value.CrudNamePattern);
         AddEntry(nameof(Current.CrudCreate), Current.Value.CrudCreate);
         AddEntry(nameof(Current.CrudCreateReturning), Current.Value.CrudCreateReturning);

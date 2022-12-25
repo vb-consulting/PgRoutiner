@@ -34,7 +34,7 @@ public class Runner
             //return;
         }
 
-        if (Current.Value.List)
+        if (Current.Value.List != null)
         {
             if (Current.Value.Verbose) Writer.DumpTitle("** LIST OBJECTS **");
             var builder = new Dump.PgDumpBuilder(Current.Value, connection);
@@ -95,7 +95,9 @@ public class Runner
             dataFile = string.Format(Path.GetFullPath(Path.Combine(Program.CurrentDir, Current.Value.DataDumpFile)), connectionName);
         }
 
-        if (Current.Value.DbObjects || Current.Value.SchemaDump || Current.Value.DataDump || !string.IsNullOrEmpty(Current.Value.Definition))
+        if (Current.Value.DbObjects || Current.Value.SchemaDump || Current.Value.DataDump || 
+            !string.IsNullOrEmpty(Current.Value.Definition) || 
+            !string.IsNullOrEmpty(Current.Value.Search))
         {
             var builder = new Dump.PgDumpBuilder(Current.Value, connection);
             if (Dump.PgDumpVersion.Check(builder))
@@ -132,7 +134,12 @@ public class Runner
 
                 if (!string.IsNullOrEmpty(Current.Value.Definition))
                 {
-                    builder.DumpObjectDefintion();
+                    builder.DumpObjectDefintions();
+                }
+                
+                if (!string.IsNullOrEmpty(Current.Value.Search))
+                {
+                    builder.SearchObjectDefintions();
                 }
             }
         }

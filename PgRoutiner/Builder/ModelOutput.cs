@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Reflection.Metadata;
 using PgRoutiner.Builder.CodeBuilders;
 using PgRoutiner.DataAccess.Models;
 
@@ -79,38 +80,7 @@ public class ModelOutput : Code
                 .Replace("//", "/")
                 .Replace("\\\\", "\\");
 
-        var relative = file.GetRelativePath();
-        var shortFilename = Path.GetFileName(file);
-        var dir = Path.GetFullPath(Path.GetDirectoryName(Path.GetFullPath(file)));
-        var exists = File.Exists(file);
-
-        if (!Current.Value.DumpConsole && !Directory.Exists(dir))
-        {
-            Writer.DumpRelativePath("Creating dir: {0} ...", dir);
-            Directory.CreateDirectory(dir);
-        }
-
-        if (exists && Current.Value.Overwrite == false)
-        {
-            Writer.DumpFormat("File {0} exists, overwrite is set to false, skipping ...", relative);
-            return;
-        }
-        if (exists && Current.Value.SkipIfExists != null && (
-            Current.Value.SkipIfExists.Contains(shortFilename) || Current.Value.SkipIfExists.Contains(relative))
-            )
-        {
-            Writer.DumpFormat("Skipping {0}, already exists ...", relative);
-            return;
-        }
-        if (exists && Current.Value.AskOverwrite &&
-            Program.Ask($"File {relative} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
-        {
-            Writer.DumpFormat("Skipping {0} ...", relative);
-            return;
-        }
-
-        Writer.DumpFormat("Creating model file {0} ...", relative);
-        Writer.WriteFile(file, content);
+        Writer.CreateFile(file, content);
     }
 
     private static (string queries, bool ts) GetInfo(string connectionName)

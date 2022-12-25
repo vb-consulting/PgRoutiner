@@ -5,6 +5,7 @@ using System.Linq;
 using Npgsql;
 using System.Xml;
 using PgRoutiner.Builder;
+using System.Reflection.Metadata;
 
 namespace PgRoutiner.SettingsManagement
 {
@@ -83,30 +84,8 @@ namespace PgRoutiner.SettingsManagement
             {
                 if (Value.WriteConfigFile != null)
                 {
-
                     var file = Path.GetFullPath(Path.Combine(Program.CurrentDir, Value.WriteConfigFile));
-                  
-                    if (File.Exists(file))
-                    {
-                        if (Program.Ask($"File {Value.WriteConfigFile} already exists, overwrite? [Y/N]", ConsoleKey.Y, ConsoleKey.N) == ConsoleKey.N)
-                        {
-                            return false;
-                        }
-                    }
-                    
-                    try
-                    {
-                        File.WriteAllText(file, FormatedSettings.Build(connection: connection));
-                        Program.WriteLine("");
-                        Program.Write(ConsoleColor.Yellow, $"Settings file ");
-                        Program.Write(ConsoleColor.Cyan, Value.WriteConfigFile);
-                        Program.WriteLine(ConsoleColor.Yellow, $" successfully created!", "");
-                    }
-                    catch (Exception e)
-                    {
-                        Program.DumpError($"File {Value.WriteConfigFile} could not be written: {e.Message}");
-                    }
-
+                    Writer.CreateFile(file, FormatedSettings.Build(connection: connection));
                     return false;
                 }
             }
@@ -162,7 +141,7 @@ namespace PgRoutiner.SettingsManagement
                     return null;
                 }
             }
-            if (Value.Verbose)
+            if (Value.Verbose || Value.Info || Program.ConsoleSettings.Info)
             {
                 Program.WriteLine("", "Using project file: ");
                 Program.WriteLine(ConsoleColor.Cyan, " " + Path.GetFileName(projectFile));

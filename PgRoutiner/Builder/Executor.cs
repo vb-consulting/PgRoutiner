@@ -1,4 +1,5 @@
-﻿using Norm;
+﻿using Microsoft.Extensions.FileSystemGlobbing.Internal;
+using Norm;
 
 namespace PgRoutiner.Builder;
 
@@ -13,7 +14,7 @@ public class Executor
             Console.ResetColor();
             return;
         }
-        const int max = 1000;
+        const int max = 100;
         var len = content.Length;
         var dump = content.Substring(0, max > len ? len : max);
         Program.WriteLine("SQL:");
@@ -45,7 +46,7 @@ public class Executor
         var dir = Path.GetDirectoryName(file);
         var fileName = Path.GetFileName(file);
         var pattern = string.IsNullOrEmpty(fileName) ? "*.*" : fileName;
-        var fileList = Directory.EnumerateFiles(dir, pattern, SearchOption.TopDirectoryOnly).ToList();
+        var fileList = TryGetFileList(dir, pattern); //Directory.EnumerateFiles(dir, pattern, SearchOption.TopDirectoryOnly).ToList();
         var count = fileList.Count();
         if (count == 0)
         {
@@ -53,12 +54,25 @@ public class Executor
             return true;
         }
 
-        Writer.DumpFormat("Found {0} files in top directory only of {1} for the searh pattern {2}", fileList.Count(), dir, pattern);
+        Writer.DumpFormat("Found {0} files in top directory only of {1} for the search pattern {2}", fileList.Count(), dir, pattern);
         foreach (var f in fileList)
         {
             ExecuteFile(connection, f);
         }
         return true;
+    }
+
+    private static List<string> TryGetFileList(string dir, string pattern)
+    {
+        try
+        {
+            return Directory.EnumerateFiles(dir, pattern, SearchOption.TopDirectoryOnly).ToList();
+        } 
+        catch
+        {
+            return new();
+        }
+        
     }
 
     public static void ExecutePsql(NpgsqlConnection connection)

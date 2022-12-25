@@ -5,9 +5,8 @@ public class ProgramInfo
     public static void ShowVersion()
     {
         Console.WriteLine();
-        Console.ResetColor();
-        Console.WriteLine($"PgRoutiner ({Program.Version})");
-        Console.WriteLine();
+        Program.WriteLine("Version: ");
+        Program.WriteLine(ConsoleColor.Cyan, " " + Program.Version);
     }
 
     public static void ShowStartupInfo()
@@ -29,45 +28,10 @@ public class ProgramInfo
         
     }
 
-    public static bool ShowDebug(bool customSettings)
-    {
-        if (Program.ConsoleSettings.Settings && !customSettings)
-        {
-            Current.ShowSettings();
-            return true;
-        }
-
-        if (Program.ConsoleSettings.Debug)
-        {
-            Program.WriteLine("", "Debug: ");
-            Program.WriteLine("Version: ");
-            Program.WriteLine(ConsoleColor.Cyan, " " + Program.Version);
-            var path = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-            Program.WriteLine("Executable dir: ");
-            Program.WriteLine(ConsoleColor.Cyan, " " + path);
-            Program.WriteLine("OS: ");
-            Program.WriteLine(ConsoleColor.Cyan, " " + Environment.OSVersion);
-            Program.WriteLine("Docker: ");
-            Program.WriteLine(ConsoleColor.Cyan, " " + Program.Docker);
-            Program.WriteLine("Routines: ");
-            Program.WriteLine(ConsoleColor.Cyan, $" {Current.Value.Routines}");
-            Program.WriteLine("CommitComments: ");
-            Program.WriteLine(ConsoleColor.Cyan, $" {Current.Value.CommitMd}");
-            Program.WriteLine("Dump: ");
-            Program.WriteLine(ConsoleColor.Cyan, $" {Current.Value.DumpConsole}");
-            Program.WriteLine("Execute: ");
-            Program.WriteLine(ConsoleColor.Cyan, $" {Current.Value.Execute ?? "<null>"}");
-            Program.WriteLine("Diff: ");
-            Program.WriteLine(ConsoleColor.Cyan, $" {Current.Value.Diff}");
-            return true;
-        }
-
-        return false;
-    }
-
     public static void ShowInfo()
     {
         ShowVersion();
+        Console.WriteLine();
         
         void Show((string header, List<(string cmds, string help)> args) section)
         {

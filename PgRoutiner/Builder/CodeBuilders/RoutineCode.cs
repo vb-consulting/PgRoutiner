@@ -92,13 +92,14 @@ public class RoutineCode : Code
             {
                 Class.AppendLine($"{I3}using var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);");
                 Class.AppendLine($"{I3}if (reader.Read())");
-                MapSingle(@return);
+                MapReturn(routine, @return);
+                Class.AppendLine($"{I3}return default;");
             }
             else
             {
                 Class.AppendLine($"{I3}using var reader = command.ExecuteReader(System.Data.CommandBehavior.Default);");
                 Class.AppendLine($"{I3}while (reader.Read())");
-                BuildMapInstance(routine, @return);
+                MapReturn(routine, @return);
             }
         }
 
@@ -141,13 +142,14 @@ public class RoutineCode : Code
             {
                 Class.AppendLine($"{I3}using var reader = await command.ExecuteReaderAsync(System.Data.CommandBehavior.SingleResult{(settings.RoutinesCancellationToken ? ", cancellationToken" : "")});");
                 Class.AppendLine($"{I3}if (await reader.ReadAsync({(settings.RoutinesCancellationToken ? "cancellationToken" : "")}))");
-                MapSingle(@return);
+                MapReturn(routine, @return);
+                Class.AppendLine($"{I3}return default;");
             }
             else
             {
                 Class.AppendLine($"{I3}using var reader = await command.ExecuteReaderAsync(System.Data.CommandBehavior.Default{(settings.RoutinesCancellationToken ? ", cancellationToken" : "")});");
                 Class.AppendLine($"{I3}while (await reader.ReadAsync({(settings.RoutinesCancellationToken ? "cancellationToken" : "")}))");
-                BuildMapInstance(routine, @return);
+                MapReturn(routine, @return);
             }
         }
 
@@ -166,22 +168,81 @@ public class RoutineCode : Code
         });
     }
 
-    private void MapSingle(Return @return)
+    //private void MapSingle(PgRoutineGroup routine, Return @return)
+    //{
+    //    Class.AppendLine($"{I3}{{");
+    //    Class.AppendLine($"{I4}var value = reader.GetProviderSpecificValue(0);");
+    //    if (@return.Name.Contains('?'))
+    //    {
+    //        Class.AppendLine($"{I4}return value == DBNull.Value ? null : ({@return.Name.Replace("?", "")})value;");
+    //    }
+    //    else
+    //    {
+    //        Class.AppendLine($"{I4}return ({@return.Name})value;");
+    //    }
+    //    Class.AppendLine($"{I3}}}");
+    //    Class.AppendLine($"{I3}return default;");
+    //}
+
+    private void MapReturn(PgRoutineGroup routine, Return @return)
     {
+        var returnExp = @return.IsEnumerable ? "yield return" : "return";
         Class.AppendLine($"{I3}{{");
-        Class.AppendLine($"{I4}var value = reader.GetProviderSpecificValue(0);");
-        if (@return.Name.Contains('?'))
+
+        if (@return.Record.Count <= 1)
         {
-            Class.AppendLine($"{I4}return value == DBNull.Value ? null : ({@return.Name.Replace("?", "")})value;");
+            Class.AppendLine($"{I4}var value = reader.GetProviderSpecificValue(0);");
+            if (@return.Name.Contains('?'))
+            {
+                Class.AppendLine($"{I4}{returnExp} value == DBNull.Value ? null : ({@return.Name.Replace("?", "")})value;");
+            }
+            else
+            {
+                Class.AppendLine($"{I4}{returnExp} ({@return.Name})value;");
+            }
         }
         else
         {
-            Class.AppendLine($"{I4}return ({@return.Name})value;");
+            Class.AppendLine($"{I4}object[] values = new object[{@return.Record.Count}];");
+
+            if (settings.UseRecords || settings.UseRecordsForModels.Contains(@return.Name))
+            {
+                Class.AppendLine($"{I4}reader.GetProviderSpecificValues(values);");
+                Class.AppendLine($"{I4}{returnExp} new {@return.Name}(");
+                Class.AppendLine(string.Join($",{NL}", routine.ModelItems.Select((m, idx) =>
+                {
+                    if (m.type.Contains('?'))
+                    {
+                        return $"{I5}values[{idx}] == DBNull.Value ? null : ({m.type.Replace("?", "")})values[{idx}]";
+                    }
+                    return $"{I5}({m.type})values[{idx}]";
+                })));
+                Class.AppendLine($"{I4});");
+            }
+            else
+            {
+                Class.AppendLine($"{I4}reader.GetProviderSpecificValues(values);");
+                Class.AppendLine($"{I4}{returnExp} new {@return.Name}");
+                Class.AppendLine($"{I4}{{");
+                Class.AppendLine(string.Join($",{NL}", routine.ModelItems.Select((m, idx) =>
+                {
+                    if (m.type.Contains('?'))
+                    {
+                        return $"{I5}{m.name} = values[{idx}] == DBNull.Value ? null : ({m.type.Replace("?", "")})values[{idx}]";
+                    }
+                    return $"{I5}{m.name} = ({m.type})values[{idx}]";
+                })));
+                Class.AppendLine($"{I4}}};");
+            }
         }
         Class.AppendLine($"{I3}}}");
-        Class.AppendLine($"{I3}return default;");
     }
 
+
+
+    
+
+    
     private void BuildExtensionsStart(Return @return, List<Param> @params, string name, string actualReturns, bool isAsync)
     {
         Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
@@ -239,59 +300,6 @@ public class RoutineCode : Code
                 Class.AppendLine($"{I3}{line}");
             }
         }
-    }
-
-    private void BuildMapInstance(PgRoutineGroup routine, Return @return)
-    {
-        Class.AppendLine($"{I3}{{");
-
-        if (@return.Record.Count == 1)
-        {
-            Class.AppendLine($"{I4}var value = reader.GetProviderSpecificValue(0);");
-            if (@return.Name.Contains('?'))
-            {
-                Class.AppendLine($"{I4}return value == DBNull.Value ? null : ({@return.Name.Replace("?", "")})value;");
-            }
-            else
-            {
-                Class.AppendLine($"{I4}return ({@return.Name})value;");
-            }
-        }
-        else
-        {
-            Class.AppendLine($"{I4}object[] values = new object[{@return.Record.Count}];");
-
-            if (settings.UseRecords || settings.UseRecordsForModels.Contains(@return.Name))
-            {
-                Class.AppendLine($"{I4}reader.GetProviderSpecificValues(values);");
-                Class.AppendLine($"{I4}yield return new {@return.Name}(");
-                Class.AppendLine(string.Join($",{NL}", routine.ModelItems.Select((m, idx) => 
-                {
-                    if (m.type.Contains('?'))
-                    {
-                        return $"{I5}values[{idx}] == DBNull.Value ? null : ({m.type.Replace("?", "")})values[{idx}]";
-                    }
-                    return $"{I5}({m.type})values[{idx}]";
-                }))); 
-                Class.AppendLine($"{I4});");
-            }
-            else
-            {
-                Class.AppendLine($"{I4}reader.GetProviderSpecificValues(values);");
-                Class.AppendLine($"{I4}yield return new {@return.Name}");
-                Class.AppendLine($"{I4}{{");
-                Class.AppendLine(string.Join($",{NL}", routine.ModelItems.Select((m, idx) => 
-                {
-                    if (m.type.Contains('?'))
-                    {
-                        return $"{I5}{m.name} = values[{idx}] == DBNull.Value ? null : ({m.type.Replace("?", "")})values[{idx}]";
-                    }
-                    return $"{I5}{m.name} = ({m.type})values[{idx}]";
-                })));
-                Class.AppendLine($"{I4}}};");
-            }
-        }
-        Class.AppendLine($"{I3}}}");
     }
 
     private string BuildSelectExpression(PgRoutineGroup routine, Return @return, List<Param> @params)
@@ -399,31 +407,31 @@ public class RoutineCode : Code
         {
             if (routine == null || routine.DataType == null || routine.DataType == "void")
             {
-                return new Return { PgName = "void", Name = "void", IsVoid = true, IsEnumerable = false };
+                return new Return { PgName = "void", Name = "void", IsVoid = true, IsEnumerable = routine.IsSet };
             }
             if (TryGetRoutineMapping(routine, out var result))
             {
                 if (routine.DataType == "record")
                 {
-                    return new Return { PgName = routine.DataType, Name = $"{result}?", IsVoid = false, IsEnumerable = true };
+                    return new Return { PgName = routine.DataType, Name = $"{result}?", IsVoid = false, IsEnumerable = routine.IsSet };
                 }
                 if (routine.DataType == "ARRAY")
                 {
-                    return new Return { PgName = $"{routine.TypeUdtName}[]", Name = $"{result}[]", IsVoid = false, IsEnumerable = false };
+                    return new Return { PgName = $"{routine.TypeUdtName}[]", Name = $"{result}[]", IsVoid = false, IsEnumerable = routine.IsSet };
                 }
                 if (settings.UseNullableTypes)
                 {
-                    return new Return { PgName = routine.DataType, Name = $"{result}?", IsVoid = false, IsEnumerable = false };
+                    return new Return { PgName = routine.DataType, Name = $"{result}?", IsVoid = false, IsEnumerable = routine.IsSet };
                 }
                 if (result != "string")
                 {
-                    return new Return { PgName = routine.DataType, Name = $"{result}?", IsVoid = false, IsEnumerable = false };
+                    return new Return { PgName = routine.DataType, Name = $"{result}?", IsVoid = false, IsEnumerable = routine.IsSet };
                 }
-                return new Return { PgName = routine.DataType, Name = result, IsVoid = false, IsEnumerable = false };
+                return new Return { PgName = routine.DataType, Name = result, IsVoid = false, IsEnumerable = routine.IsSet };
             }
             if (routine.DataType == "USER-DEFINED")
             {
-                return new Return { PgName = routine.TypeUdtName, Name = BuildUserDefinedModel(routine, record), IsVoid = false, IsEnumerable = true };
+                return new Return { PgName = routine.TypeUdtName, Name = BuildUserDefinedModel(routine, record), IsVoid = false, IsEnumerable = routine.IsSet };
             }
             if (routine.DataType == "record")
             {

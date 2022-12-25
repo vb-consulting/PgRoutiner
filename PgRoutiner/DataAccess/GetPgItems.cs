@@ -26,8 +26,8 @@ public static partial class DataAccessConnectionExtensions
 
         return connection
             .WithParameters(
-                (schema, DbType.AnsiString), 
-                (name, DbType.AnsiString))
+                (schema == "*" ? null : schema, DbType.AnsiString), 
+                (name == "*" ? null : name, DbType.AnsiString))
             .Read<(string Schema, string Name, string Type)>(@$"
 
             -- tables
@@ -39,7 +39,8 @@ public static partial class DataAccessConnectionExtensions
                 information_schema.tables t
             where
                 (   $1 is null or t.table_schema = $1   ) and
-                (   t.table_name = $2   ) and
+                (   $2 is null or t.table_name = $2   ) and
+                (   {GetSchemaExpression("t.table_schema")}  ) and
                 not exists (
 
                     select
@@ -66,7 +67,8 @@ public static partial class DataAccessConnectionExtensions
                 information_schema.routines r
             where
                 (   $1 is null or r.routine_schema = $1   ) and
-                (   r.routine_name = $2   )
+                (   $2 is null or r.routine_name = $2   ) and
+                (   {GetSchemaExpression("r.routine_schema")}  )
 
             union all
 
@@ -80,7 +82,8 @@ public static partial class DataAccessConnectionExtensions
                 information_schema.domains d
             where
                 (   $1 is null or d.domain_schema = $1   ) and
-                (   d.domain_name = $2   )
+                (   $2 is null or d.domain_name = $2   ) and
+                (   {GetSchemaExpression("d.domain_schema")}  )
 
             union all
 
@@ -95,7 +98,8 @@ public static partial class DataAccessConnectionExtensions
             ) sub
             where
                 (   $1 is null or sub.schema = $1   ) and
-                (   sub.name = $2   )
+                (   $2 is null or sub.name = $2   ) and
+                (   {GetSchemaExpression("sub.schema")}  )
 
             union all
 
@@ -106,7 +110,7 @@ public static partial class DataAccessConnectionExtensions
             from
                 information_schema.schemata sc
             where
-                (   sc.schema_name = $1  or sc.schema_name = $2 )
+                (  ($1 is null and $2 is null) or sc.schema_name = $1 or sc.schema_name = $2 )
 
             union all
 
@@ -116,7 +120,7 @@ public static partial class DataAccessConnectionExtensions
                 'EXTENSION' as type
             from pg_extension e
             where
-                (   e.extname = $1 or e.extname = $2 )
+                (   ($1 is null and $2 is null) or e.extname = $1 or e.extname = $2 )
             ")
             .Select(t => new PgItem
             {

@@ -22,6 +22,7 @@ public partial class ConnectionManager
     private string GetUser(bool skipPrompt = false)
     {
         var env = EnvPgUser;
+        
         if (!string.IsNullOrEmpty(env) && skipPrompt)
         {
             return $"User Id={env};";

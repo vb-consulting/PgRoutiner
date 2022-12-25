@@ -30,6 +30,7 @@ public static partial class DataAccessConnectionExtensions
                 string Language,
                 string RoutineType,
                 string TypeUdtName,
+                bool IsSet,
                 string DataType,
                 string Parameters)>(@$"
 
@@ -43,7 +44,8 @@ public static partial class DataAccessConnectionExtensions
                     lower(r.routine_type) as routine_type,
 
                     regexp_replace(r.type_udt_name, '^[_]', '') as type_udt_name,
-    
+                    proc.proretset,
+
                     case 
                         when array_length((array_agg(p.ordinal_position) filter (where p.ordinal_position is not null and p.parameter_mode = 'OUT')), 1) > 0
                         then 'record'
@@ -133,6 +135,7 @@ public static partial class DataAccessConnectionExtensions
                 Language = t.Language,
                 RoutineType = t.RoutineType,
                 TypeUdtName = t.TypeUdtName,
+                IsSet = t.IsSet,
                 DataType = t.DataType,
                 Parameters = JsonConvert.DeserializeObject<List<PgParameter>>(t.Parameters)
             })

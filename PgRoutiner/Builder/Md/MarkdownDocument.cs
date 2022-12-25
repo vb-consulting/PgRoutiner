@@ -497,7 +497,7 @@ public class MarkdownDocument
                     {
                         content.AppendLine();
                         content.AppendLine("*Partitions*:");
-                        var partitions = connection.GetPartitionTables(new PgItem { Name = result.Table, Schema = schema });
+                        var partitions = connection.GetPartitionTables(new PgItem { Name = result.Table, Schema = schema }).ToList();
                         content.AppendLine(string.Join(", ", partitions.Select(p => $"`{p.Schema}.{p.Table} {p.Expression}`")));
                     }
                     if (settings.MdIncludeTableCountEstimates)

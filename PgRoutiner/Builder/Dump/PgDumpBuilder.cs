@@ -2,6 +2,7 @@
 using PgRoutiner.Builder.DiffBuilder;
 using PgRoutiner.DataAccess.Models;
 using PgRoutiner.DumpTransformers;
+using static System.Net.Mime.MediaTypeNames;
 using static PgRoutiner.Builder.Dump.DumpBuilder;
 
 namespace PgRoutiner.Builder.Dump;
@@ -333,30 +334,49 @@ public class PgDumpBuilder
     {
         List<PgItem> types;
         GetDumpItemLines(string.Concat(baseArg, " --schema-only"), null, out types);
+        
+        void Dump(string text)
+        {
+            if (text != "" && Current.Value.List == "" || text.Contains(Current.Value.List, StringComparison.OrdinalIgnoreCase))
+            {
+                if (Current.Value.List == "")
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine(text);
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Program.Highlight(text, Current.Value.List);
+                    Console.WriteLine();
+                }
+            }
+        }
+        
         Console.ForegroundColor = ConsoleColor.Cyan;
         foreach (var item in connection.GetSchemas(Current.Value))
         {
-            Console.WriteLine($"SCHEMA {item}");
+            Dump($"SCHEMA {item}");
         }
         foreach (var item in connection.GetExtensions())
         {
-            Console.WriteLine($"{item.TypeName} {item.Name}");
+            Dump($"{item.TypeName} {item.Name}");
         }
         foreach (var item in Connection.FilterTypes(types, settings))
         {
-            Console.WriteLine($"{item.TypeName} {item.Name}");
+            Dump($"{item.TypeName} {item.Name}");
         }
         foreach (var item in connection.GetDomains(Current.Value))
         {
-            Console.WriteLine($"{item.TypeName} {item.Schema}.{item.Name}");
+            Dump($"{item.TypeName} {item.Schema}.{item.Name}");
         }
         foreach (var item in connection.GetTables(Current.Value))
         {
-            Console.WriteLine($"{item.TypeName.Replace("BASE ", "")} {item.Schema}.{item.Name}");
+            Dump($"{item.TypeName.Replace("BASE ", "")} {item.Schema}.{item.Name}");
         }
         foreach (var item in connection.GetSequences(Current.Value))
         {
-            Console.WriteLine($"{item.TypeName} {item.Schema}.{item.Name}");
+            Dump($"{item.TypeName} {item.Schema}.{item.Name}");
         }
         foreach (var group in connection.GetRoutineGroups(Current.Value))
         {
@@ -364,19 +384,39 @@ public class PgDumpBuilder
             var schema = group.Key.Schema;
             foreach(var item in group)
             {
-                
-                Console.WriteLine($"{item.RoutineType.ToUpper()} {schema}.{name}({string.Join(", ", item.Parameters.Select(p => p.DataTypeFormatted))})");
+
+                Dump($"{item.RoutineType.ToUpper()} {schema}.{name}({string.Join(", ", item.Parameters.Select(p => p.DataTypeFormatted))})");
             }
-            
         }
-        Console.ResetColor();
     }
 
-    public void DumpObjectDefintion()
+    public void DumpObjectDefintions()
+    {
+        foreach(var content in GetObjectDefintions(settings.Definition))
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(content);
+            Console.ResetColor();
+        }
+    }
+
+    public void SearchObjectDefintions()
+    {
+        foreach (var content in GetObjectDefintions("*"))
+        {
+            if (content.Contains(Current.Value.Search, StringComparison.OrdinalIgnoreCase))
+            {
+                Program.Highlight(content, Current.Value.Search);
+                Console.WriteLine();
+            }
+        }
+    }
+
+    private IEnumerable<string> GetObjectDefintions(string definitions)
     {
         var args = string.Concat(baseArg, " --schema-only");
 
-        foreach(var def in settings.Definition.Split(';'))
+        foreach (var def in definitions.Split(';'))
         {
             List<string> lines = null;
             List<PgItem> types = new();
@@ -418,14 +458,35 @@ public class PgDumpBuilder
                     _ => throw null,
                 };
 
-                if (!string.IsNullOrEmpty(content))
+                if (!string.IsNullOrEmpty(content?.Trim()))
                 {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.WriteLine("--");
-                    Console.WriteLine($"-- {item.Type}: {def}");
-                    Console.WriteLine("--");
-                    Console.WriteLine(content);
-                    Console.ResetColor();
+                    //Console.ForegroundColor = ConsoleColor.Cyan;
+                    string title;
+                    if (string.IsNullOrEmpty(item.Schema) && string.IsNullOrEmpty(item.Name))
+                    {
+                        title = $"-- {item.Type}";
+                    }
+                    else
+                    {
+                        if (string.IsNullOrEmpty(item.Schema) && !string.IsNullOrEmpty(item.Name))
+                        {
+                            title = $"-- {item.Type}: {item.Name}";
+                        }
+                        else if (!string.IsNullOrEmpty(item.Schema) && string.IsNullOrEmpty(item.Name))
+                        {
+                            title = $"-- {item.Type}: {item.Schema}";
+                        }
+                        else
+                        {
+                            title = $"-- {item.Type}: {item.Schema}.{item.Name}";
+                        }
+                    }
+                    StringBuilder sb = new();
+                    sb.AppendLine("--");
+                    sb.AppendLine(title);
+                    sb.AppendLine("--");
+                    sb.AppendLine(content);
+                    yield return sb.ToString();
                 }
             }
         }

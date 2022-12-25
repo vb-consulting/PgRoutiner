@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.Configuration;
 
 namespace PgRoutiner.SettingsManagement
@@ -130,12 +131,12 @@ namespace PgRoutiner.SettingsManagement
 
             //ProgramInfo.ShowStartupInfo();
 
-            if (Value.Verbose && files.Count > 0)
+            if ((Value.Verbose || Value.Info || Program.ConsoleSettings.Info) && files.Count > 0)
             {
                 Program.WriteLine("", "Using configuration files: ");
                 Program.WriteLine(ConsoleColor.Cyan, files.ToArray());
             }
-
+            var hashes = args.ToHashSet();
             foreach (var prop in typeof(Current).GetProperties())
             {
                 if (prop.PropertyType != typeof(string))
@@ -145,7 +146,49 @@ namespace PgRoutiner.SettingsManagement
                 var value = prop.GetValue(Value) as string;
                 if (value == "")
                 {
-                    prop.SetValue(Value, null);
+                    if (prop.GetCustomAttribute<EmptyAttribute>() != null)
+                    {
+                        var name = prop.Name;
+                        var key = $"--{name.ToKebabCase()}";
+                        if (hashes.Contains(key))
+                        {
+                            prop.SetValue(Value, "");
+                            continue;
+                        }
+                        var arg = Program.ArgsDict.FirstOrDefault(a => a.Value.Original == name).Value;
+                        if (arg != null)
+                        {
+                            if (hashes.Contains(arg.Alias))
+                            {
+                                prop.SetValue(Value, "");
+                                continue;
+                            }
+                        }
+                        bool set = false;
+                        foreach(var repl in Arg.ArgReplacements)
+                        {
+                            if (repl.Value == key)
+                            {
+                                if (hashes.Contains(repl.Key))
+                                {
+                                    prop.SetValue(Value, "");
+                                    set = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (set)
+                        {
+                            continue;
+                        }
+                        
+                        prop.SetValue(Value, null);
+                    } 
+                    else
+                    {
+                        prop.SetValue(Value, null);
+                    }
+                    
                 }
             }
             if (Value.Mapping != null && Value.Mapping.Values.Count > 0)
@@ -163,6 +206,7 @@ namespace PgRoutiner.SettingsManagement
 #if DEBUG
             Program.ParseProjectSetting(Value);
 #endif
+            /*
             if (Value.Execute != null || 
                 Value.Psql || 
                 Value.CommitMd || Value.List || 
@@ -179,6 +223,7 @@ namespace PgRoutiner.SettingsManagement
                 Value.UnitTests = false;
                 Value.Markdown = false;
             }
+            */
 
             //if (!new string[] { "Single", "SingleOrDefault", "First", "FirstOrDefault" }.Contains(Value.ReturnMethod))
             //{
