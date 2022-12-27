@@ -33,6 +33,8 @@ static partial class Program
         //rawArgs = new string[] { "--list", "int" };
         //rawArgs = new string[] { "--ddl", "*" };
         //rawArgs = new string[] { "--s", "comp" };
+        //rawArgs = new string[] { "--settings", "--list", "--definition" };
+        
         var args = ParseArgs(rawArgs);
 
         if (args == null)
@@ -132,6 +134,12 @@ static partial class Program
             return;
         }
 
+        if (Current.Value.Settings || ConsoleSettings.Settings)
+        {
+            Current.ShowSettings();
+            return;
+        }
+        
         if (connection == null)
         {
             return;

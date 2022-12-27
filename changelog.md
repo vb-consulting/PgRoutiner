@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 5.0.2
+
+* Fix: Fixed bug with console parameters when working without configuration.
+
+* Fix: returned missing settings command to show all current settings.
+
 ## 5.0.1
 
 *Fix: Fix issue with proc.proretset

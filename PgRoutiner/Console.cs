@@ -205,6 +205,11 @@ static partial class Program
                     if (!isBool)
                     {
                         result.Add(name);
+                        var next = index + 1 < args.Length ? args[index + 1] : "-";
+                        if (next.StartsWith("-"))
+                        {
+                            result.Add("");
+                        }
                     }
                     else
                     {
