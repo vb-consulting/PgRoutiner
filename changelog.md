@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 5.0.1
+
+*Fix: Fix issue with proc.proretset
+
 ## 5.0.0
 
 * New: Having a `cspoj` project file is no longer necessary when generating a C# code. Default name-space will be assumed from current directory name.

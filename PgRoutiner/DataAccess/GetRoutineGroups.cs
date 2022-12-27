@@ -120,6 +120,7 @@ public static partial class DataAccessConnectionExtensions
                     r.external_language,
                     r.routine_type,
                     r.type_udt_name,
+                    proc.proretset,
                     r.data_type
                 order by 
                     r.specific_schema,
