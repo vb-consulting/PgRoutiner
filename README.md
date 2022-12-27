@@ -36,9 +36,9 @@ To add a local tool to your project only you need to create a manifest file and 
 
 TLDR:
 
-- Add this `.config` dir to your project or solution dir.
+- Add `.config` dir to your project or solution dir.
 
-- Add this `dotnet-tools.json` file to this dir with this content:
+- Add this `dotnet-tools.json` file to this dir with the following content:
 
 ```json
 {
@@ -124,7 +124,7 @@ appsettings.json
 ```json
 {
   "ConnectionStrings": {
-    "TestConnection": "Server=localhost;Db=test;Port=5432;User Id=postgres;Password=postgres;"
+    "DvdRental": "Server=localhost;Db=dvdrental;Port=5432;User Id=postgres;Password=postgres;"
   }
 }
 ```
@@ -134,49 +134,71 @@ appsettings.json
 - Running simple info command to test the connection:
 ```
 ~$ pgroutiner --info
-PgRoutiner: 3.16.2.0
-Type pgroutiner -h or pgroutiner --help to see help on available commands and settings.
-Type pgroutiner -s or pgroutiner --settings to see the currently selected settings.
-Issues   https://github.com/vb-consulting/PgRoutiner/issues
-Donate   bitcoincash:qp93skpzyxtvw3l3lqqy7egwv8zrszn3wcfygeg0mv   https://www.paypal.com/paypalme/vbsoftware/
-Copyright (c) VB Consulting and VB Software 2022.
-This program and source code is licensed under the MIT license.
-https://github.com/vb-consulting/PgRoutiner/blob/master/LICENSE
+
+Version:
+ 5.0.0.0
+
+Executable dir:
+ /home/vbilopav/.dotnet/tools
+
+OS:
+ Unix 5.10.102.1
+
+Using configuration files:
+ appsettings.Development.json
+ appsettings.json
+
+Using dir:
+ /home/vbilopav/dev/dvdrental
+
+Using settings:
+ --info
+
+Using connection DvdRental:
+ Host=localhost;Database=dvdrental;Port=5432;Username=postgres  (PostgreSQL 13.8)
+
+Using project file:
+ dvdrental.csproj
+
+pg_dump:
+ pg_dump
+
+pg_restore:
+ pg_restore
+```
+
+- If the connection isn't available anywhere in configuration files, user is prompted to enter connection parameters:
+
+```
+~$ pgroutiner --info
+
+Version:
+ 5.0.0.0
+
+Executable dir:
+ /home/vbilopav/.dotnet/tools
+
+OS:
+ Unix 5.10.102.1
 
 Using dir:
  /home/vbilopav
 
-Using configuration files:
- appsettings.json
+Using settings:
+ --info
 
-Using connection TestConnection:
- Host=localhost;Database=pdd;Port=5433;Username=postgres
-```
-
-- Or silently test the connection:
-
-```
-~$ pgroutiner --info --silent
+Connection server [localhost]:
 ```
 
 - To specify the connection name, use `-c` or `--connection` parameter:
 
 
 ```
-~$ pgroutiner -c testconnection --info
-
-...
-
-Using connection testconnection:
- Host=localhost;Database=pdd;Port=5433;Username=postgres
+~$ pgroutiner -c ConnectionString2 --info
 ```
 
 ```
-~$ pgroutiner --connection testconnection --info
-...
-
-Using connection testconnection:
- Host=localhost;Database=pdd;Port=5433;Username=postgres
+~$ pgroutiner --connection ConnectionString2 --info
 ```
 
 - If the connection name is not found, or the connection is not defined - the user will be prompted to enter valid connection parameters:
@@ -195,10 +217,6 @@ Connection password:
 
 ```
 ~$ pgroutiner --connection "Server=localhost;Db=test;Port=5432;User Id=postgres;Password=postgres;" --info
-...
-
-Using connection Server=localhost;Db=pdd;Port=5433;User Id=postgres;Password=postgres;:
- Host=localhost;Database=pdd;Port=5433;Username=postgres
 ```
 
 - Both, command-line and configuration files can take advantage of the PostgreSQL URL format `postgresql://{user}:{password}@{server}:{port}/{database}` - instead of [Npgsql connection string](https://www.npgsql.org/doc/connection-string-parameters.html):
@@ -211,12 +229,11 @@ Using connection Server=localhost;Db=pdd;Port=5433;User Id=postgres;Password=pos
   }
 }
 ```
+
+- Or, from the command line:
+
 ```
 ~$ pgroutiner --connection "postgresql://postgres:postgres@localhost:5432/test" --info
-...
-
-Using connection postgresql://postgres:postgres@localhost:5432/test:
- Host=localhost;Database=pdd;Port=5433;Username=postgres
 ```
 
 - Every part of the connection (server, port, database, user, and password) can be omitted from the connection string or connection URL and it will be replaced with the following environment variables:
