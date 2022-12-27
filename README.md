@@ -9,8 +9,8 @@
 
 ### Requirements
 
-- To use as a .NET tool, .NET 7 SDK is required.
-- To use as a Docker tool, Docker is required.
+- To use as a .NET tool, .NET 7 SDK is required. See [Global tool .NET tool](#global-tool-net-tool) for installation details.
+- To use as a Docker tool, Docker is required. See [Docker image](#docker-image) for installation details.
 
 ### Global tool .NET tool
 
@@ -18,14 +18,14 @@ To install a global tool (recommended):
 
 ```
 $ dotnet tool install --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' (version '5.0.0') was successfully installed.
+Tool 'dotnet-pgroutiner' (version '5.0.1') was successfully installed.
 ```
 
 To update a global tool:
 
 ```
 $ dotnet tool update --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' was successfully updated from version '4.3.1' to version '5.0.0'.
+Tool 'dotnet-pgroutiner' was successfully updated from version '5.0.0' to version '5.0.1'.
 ```
 
 This will enable a global command line tool `pgroutiner`. Try typing `pgroutiner --help`.
@@ -46,7 +46,7 @@ TLDR:
   "isRoot": true,
   "tools": {
     "dotnet-pgroutiner": {
-      "version": "5.0.0",
+      "version": "5.0.1",
       "commands": [
         "pgroutiner"
       ]
@@ -106,8 +106,7 @@ See also
   - [Dump schema](#dump-schema)
   - [Backup and restore](#backup-and-restore)
   - [Create object tree files](#create-object-tree-files)
-  - [Build markdown database dictionary](#build-markdown-database-dictionary)
-  - [Database difference script](#database-difference-script)
+  - [Build a markdown database dictionary](#build-a-markdown-database-dictionary)
   - [Code generation](#code-generation)
     - [Routines data-access code generation](#routines-data-access-code-generation)
     - [Unit Test Project template generation](#unit-test-project-template-generation)
@@ -816,7 +815,7 @@ Creating dump file Database/TestConnection/Schemas/reporting.sql ...
 
 - Use `-dbd` or ` --db-objects-dir` to set the target root directory name. Use `{0}` format placeholder to put the connection name.
 
-## Build markdown database dictionary
+## Build a markdown database dictionary
 
 - To create a database dictionary "readme" markdown file use `-md` or `--markdown` command:
 
@@ -849,9 +848,9 @@ Business areas that companies may be invloved.
 
 - Use `--md-include-table-stats` to include statistics for every table.
 
-## Database difference script
 
-- `pgroutiner` can generate a schema difference script between two connections to automatically generate schema migrations.
+
+
 
 ## Code generation
 
