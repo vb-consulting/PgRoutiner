@@ -34,7 +34,8 @@ static partial class Program
         //rawArgs = new string[] { "--ddl", "*" };
         //rawArgs = new string[] { "--s", "comp" };
         //rawArgs = new string[] { "--settings", "--list", "--definition" };
-        
+        //rawArgs = new string[] { "--search", "film" };
+
         var args = ParseArgs(rawArgs);
 
         if (args == null)

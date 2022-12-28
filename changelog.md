@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 5.0.3
+
+* Fix: Fix search bug when searching trough functions.
+
 ## 5.0.2
 
 * Fix: Fixed bug with console parameters when working without configuration.

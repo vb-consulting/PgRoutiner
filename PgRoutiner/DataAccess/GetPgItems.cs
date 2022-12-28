@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Norm;
+using NpgsqlTypes;
 using PgRoutiner.DataAccess.Models;
 
 namespace PgRoutiner.DataAccess;
@@ -9,7 +10,8 @@ public static partial class DataAccessConnectionExtensions
     public static IEnumerable<PgItem> GetPgItems(
         this NpgsqlConnection connection, 
         string exp,
-        List<PgItem> types)
+        List<PgItem> types,
+        Current settings)
     {
         var split = exp.Split('.');
         string schema = null;
@@ -27,7 +29,8 @@ public static partial class DataAccessConnectionExtensions
         return connection
             .WithParameters(
                 (schema == "*" ? null : schema, DbType.AnsiString), 
-                (name == "*" ? null : name, DbType.AnsiString))
+                (name == "*" ? null : name, DbType.AnsiString),
+                (settings.RoutinesLanguages, NpgsqlDbType.Array | NpgsqlDbType.Text))
             .Read<(string Schema, string Name, string Type)>(@$"
 
             -- tables
@@ -66,6 +69,7 @@ public static partial class DataAccessConnectionExtensions
             from
                 information_schema.routines r
             where
+                lower(r.external_language) = any($3) and
                 (   $1 is null or r.routine_schema = $1   ) and
                 (   $2 is null or r.routine_name = $2   ) and
                 (   {GetSchemaExpression("r.routine_schema")}  )

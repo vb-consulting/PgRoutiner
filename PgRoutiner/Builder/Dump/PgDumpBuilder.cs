@@ -429,7 +429,7 @@ public class PgDumpBuilder
                 Program.WriteLine(ConsoleColor.Red, $"Could not create pg_dump for functions and procedures", $"ERROR: {e.Message}");
             }
 
-            foreach (var item in Connection.GetPgItems(def, types))
+            foreach (var item in Connection.GetPgItems(def, types, Current.Value))
             {
                 string content = item.Type switch
                 {
