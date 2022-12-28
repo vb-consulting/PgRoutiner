@@ -51,6 +51,7 @@ static partial class Program
         if (ConsoleSettings.Version)
         {
             ProgramInfo.ShowVersion();
+            WriteLine("");
             return;
         }
         if (ConsoleSettings.Info)

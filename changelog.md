@@ -1,5 +1,6 @@
 ﻿# VERSION HISTORY
 
+## 5.0.5
 ## 5.0.4
 
 * Fix: Fix update returning shortcut

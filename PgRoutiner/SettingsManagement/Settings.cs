@@ -110,7 +110,7 @@ namespace PgRoutiner.SettingsManagement
             { "-read-by", "--crud-read-by" },
             { "-read-all", "--crud-read-all" },
             { "-read-page", "--crud-read-page" },
-            { "-crud-update-returning", "--crud-update-returning" },
+            { "-update-returning", "--crud-update-returning" },
             { "-delete-by", "--crud-delete-by" },
             { "-delete-by-returning", "--crud-delete-by-returning" },
         };
