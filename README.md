@@ -3,6 +3,10 @@
 **`PgRoutiner`** is a set of .NET tools for PostgreSQL database and PostgreSQL .NET projects.
 
   - [Installation](#installation)
+    - [Requirements](#requirements)
+    - [Global tool .NET tool](#global-tool-net-tool)
+    - [Local tool](#local-tool)
+    - [Docker image](#docker-image)
   - [Quick Start](#quick-start)
   
 ## Installation
@@ -10,7 +14,7 @@
 ### Requirements
 
 - To use as a .NET tool, .NET 7 SDK is required. See [Global tool .NET tool](#global-tool-net-tool) for installation details.
-- To use as a Docker tool, Docker is required. See [Docker image](#docker-image) for installation details.
+- To use as a Docker tool, Docker is required. See the [Docker image](#docker-image) for installation details.
 
 ### Global tool .NET tool
 
@@ -67,7 +71,9 @@ There is a [Dockerfile](https://github.com/vb-consulting/PgRoutiner/blob/master/
 
 - Run `docker build -t pgroutiner .` to build the image.
 
-- To run pgroutiner type `docker run -it --rm pgroutiner --help` for help (link to this file) or `docker run -it --rm pgroutiner --version` to display the current version.
+- To run pgroutiner type `docker run -it --rm pgroutiner --help` for help (link to this file) or `docker run -it --rm pgroutiner --info` to display current info or `docker run -it --rm pgroutiner --list` to list database objects.
+
+- Tip: if you're on linux, create alias for this command.
 
 - To mount a current directory when running (where presumably your configuration may be located) use the following switches:
     - `docker run --rm -it -v $(pwd):/home/ pgroutiner` on Linux
@@ -82,9 +88,12 @@ There is a [Dockerfile](https://github.com/vb-consulting/PgRoutiner/blob/master/
 
 1) Install `pgroutiner` (see instructions above)
 2) Open the terminal in your .NET project configured to use the PostgreSQL database.
-3) Type `pgroutiner --list`
-
-If your connection string is configured for the user with the **admin privileges** - you will see the **list of all database objects.**
+3) Type `pgroutiner --help` to see available commands and switches (the list is long).
+4) Type `pgroutiner` to define a new connection if you don't have one - and to create the default configuration file for this dir. See more on [Connection management](#connection-management)
+5) Type `pgroutiner --info` to see if can you connect to the database and to see other environment info.
+6) Type `pgroutiner --list` to see list of all objects.
+7) Type `pgroutiner --ddl [object_name]` to see the data definition language for the object from the second parameter.
+8) Type `pgroutiner --search [search expression]` to search data definitions with search expresssion.
 
 See also
 
