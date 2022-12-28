@@ -198,7 +198,7 @@ namespace PgRoutiner.SettingsManagement
         public static readonly Arg CrudReadAllArgs = new("-read_all", nameof(CrudReadAll));
         public static readonly Arg CrudReadPageArgs = new("-read_page", nameof(CrudReadPage));
         public static readonly Arg CrudUpdateArgs = new("-update", nameof(CrudUpdate));
-        public static readonly Arg CrudUpdateReturningArgs = new("-crud_update_returning", nameof(CrudUpdateReturning));
+        public static readonly Arg CrudUpdateReturningArgs = new("-update_returning", nameof(CrudUpdateReturning));
         public static readonly Arg CrudDeleteByArgs = new("-delete_by", nameof(CrudDeleteBy));
         public static readonly Arg CrudDeleteByReturningArgs = new("-delete_by_returning", nameof(CrudDeleteByReturning));
 

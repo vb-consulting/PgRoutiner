@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 5.0.4
+
+* Fix: Fix update returning shortcut
+
 ## 5.0.3
 
 * Fix: Fix search bug when searching trough functions.

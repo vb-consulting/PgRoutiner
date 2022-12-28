@@ -80,7 +80,7 @@ There is a [Dockerfile](https://github.com/vb-consulting/PgRoutiner/blob/master/
     - `docker run --rm -it -v ${PWD}:/home/ pgroutiner` on PowerShell
     - `docker run --rm -it -v $%cd%:/home/ pgroutiner` on Win Command-Line
 
-- Note: to be able to access your local database, use `host.docker.internal` as your hostname instead of `localhost, for example: `docker run` --rm -it -v ${PWD}:/home/ pgroutiner -c "Server=host.docker.internal;Db=database;Port=5432;User Id=user;Password=password;"`
+- Note: to be able to access your local database, use `host.docker.internal` as your hostname instead of `localhost, for example `docker run` --rm -it -v ${PWD}:/home/ pgroutiner -c "Server=host.docker.internal;Db=database;Port=5432;User Id=user;Password=password;"`
 
 - Note: This Dockerfile supports PostgreSQL clients 9.6, 10, 11, 12, 13, 14 and 15. You can narrow it to your own version by editing line 45 and make the image smaller by omitting unnecessary client versions.
 
@@ -93,7 +93,7 @@ There is a [Dockerfile](https://github.com/vb-consulting/PgRoutiner/blob/master/
 5) Type `pgroutiner --info` to see if can you connect to the database and to see other environment info.
 6) Type `pgroutiner --list` to see list of all objects.
 7) Type `pgroutiner --ddl [object_name]` to see the data definition language for the object from the second parameter.
-8) Type `pgroutiner --search [search expression]` to search data definitions with search expresssion.
+8) Type `pgroutiner --search [search expression]` to search data definitions with search expression.
 
 See also
 
@@ -125,9 +125,9 @@ See also
 
 ## Connection management
 
-- `pgroutiner` is designed to run from the .NET project root, and it will read any available connections from standard configuration files (`appsettings.Development.json`, `appsettings.json`, in that order, or the custom configuration file `appsettings.PgRoutiner.json`).
-
-- It will use the first available connection string from the `ConnectionStrings` section:
+- `pgroutiner` is designed to run from **the .NET project root** - and it will read any available connections from standard configuration JSON files (like `appsettings.Development.json` and `appsettings.json`, in that order).
+  
+- It will use the **first available connection string** from the `ConnectionStrings` section:
 
 appsettings.json
 ```json
@@ -138,14 +138,15 @@ appsettings.json
 }
 ```
 
-- Note: this is the [Npgsql connection string format](https://www.npgsql.org/doc/connection-string-parameters.html).
+- Note: this is the [Npgsql connection string format](https://www.npgsql.org/doc/connection-string-parameters.html), but, it can also use standard PostgreSQL URL connection format `postgresql://{user}:{password}@{server}:{port}/{database}`.
 
-- Running simple info command to test the connection:
+- Running simple info command to test the connection to see the environment:
+  
 ```
 ~$ pgroutiner --info
 
 Version:
- 5.0.0.0
+ 5.0.3.0
 
 Executable dir:
  /home/vbilopav/.dotnet/tools
@@ -176,30 +177,19 @@ pg_restore:
  pg_restore
 ```
 
-- If the connection isn't available anywhere in configuration files, user is prompted to enter connection parameters:
+- If the connection isn't available anywhere in the configuration files - the user is prompted to enter the connection parameters:
 
 ```
-~$ pgroutiner --info
-
-Version:
- 5.0.0.0
-
-Executable dir:
- /home/vbilopav/.dotnet/tools
-
-OS:
- Unix 5.10.102.1
-
-Using dir:
- /home/vbilopav
-
-Using settings:
- --info
+~$ pgroutiner
 
 Connection server [localhost]:
+Connection port [5432]: 
+Connection database [postgres]: 
+Connection user [postgres]:
+Connection password [environment var.]:
 ```
 
-- To specify the connection name, use `-c` or `--connection` parameter:
+- To specify the specific connection name, use `-c` or `--connection` parameter:
 
 
 ```
