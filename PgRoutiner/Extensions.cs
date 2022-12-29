@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Markdig.Helpers;
@@ -156,6 +157,20 @@ public static class Extensions
             return value.Substring(index1).Trim();
         }
         return value.Substring(index1, index2 - index1).Trim();
+    }
+
+    public static string SelectList(this string value, NpgsqlConnection connection)
+    {
+        var result = new List<string>();
+        using var command = connection.CreateCommand();
+        command.CommandText = value;
+        using var reader = command.ExecuteReader(CommandBehavior.SingleRow);
+        reader.Read();
+        for (int i = 0; i < reader.FieldCount; i++)
+        {
+            result.Add(reader.GetName(i));
+        }
+        return string.Join(", ", result);
     }
 
     public static string Between(this string value, char start, char end, bool useLastIndex = false)

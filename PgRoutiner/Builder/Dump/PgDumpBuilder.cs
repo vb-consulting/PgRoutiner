@@ -536,9 +536,10 @@ public class PgDumpBuilder
                 {
                     var from = item.GetFrom();
                     var temp = $"{from}_tmp_{Guid.NewGuid().ToString().Substring(0, 8)}";
-                    var selectList = item.SelectList();
+                    
                     try
                     {
+                        var selectList = item.SelectList(Connection);
                         Connection.Execute(@$"create table {temp} as {item}");
                         temporary.Add(temp, from);
                         tables.Add(temp);

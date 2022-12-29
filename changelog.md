@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 5.0.7
+
+* Fix: When creating inserts list from a query, parse column names properly first.
+
 ## 5.0.6
 
 * Fix: Settings `SchemaDumpNoTransaction` and `DataDumpNoTransaction` set to default true.

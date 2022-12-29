@@ -35,6 +35,7 @@ static partial class Program
         //rawArgs = new string[] { "--s", "comp" };
         //rawArgs = new string[] { "--settings", "--list", "--definition" };
         //rawArgs = new string[] { "--search", "film" };
+        //rawArgs = new string[] { "--inserts", "select b.first_name || ' ' || b.last_name as actor, array_agg(c.title) as titles from film_actor a inner join actor b on a.actor_id = b.actor_id inner join film c on a.film_id = c.film_id group by b.first_name || ' ' || b.last_name" };
 
         var args = ParseArgs(rawArgs);
 
