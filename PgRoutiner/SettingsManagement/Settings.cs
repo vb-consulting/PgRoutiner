@@ -320,7 +320,7 @@ namespace PgRoutiner.SettingsManagement
         public bool UnitTestsAskRecreate { get; set; } = false;
         public bool UnitTestsSkipSyncMethods { get; set; } = false;
         public bool UnitTestsSkipAsyncMethods { get; set; } = false;
-
+        
         /*schema dump*/
         public bool SchemaDump { get; set; } = false;
         public string SchemaDumpFile { get; set; } = null;//"./Database/{0}/Schema.sql";
@@ -330,7 +330,7 @@ namespace PgRoutiner.SettingsManagement
         public bool SchemaDumpPrivileges { get; set; } = false;
         public bool SchemaDumpNoDropIfExists { get; set; } = false;
         public string SchemaDumpOptions { get; set; } = null;
-        public bool SchemaDumpNoTransaction { get; set; } = false;
+        public bool SchemaDumpNoTransaction { get; set; } = true;
 
         /*data dump*/
         public bool DataDump { get; set; } = false;
@@ -340,7 +340,7 @@ namespace PgRoutiner.SettingsManagement
         public string DataDumpList { get; set; } = null;
         public IList<string> DataDumpTables { get; set; } = new List<string>();
         public string DataDumpOptions { get; set; } = null;
-        public bool DataDumpNoTransaction { get; set; } = false;
+        public bool DataDumpNoTransaction { get; set; } = true;
         public bool DataDumpRaw { get; set; } = false;
 
         /*object tree*/

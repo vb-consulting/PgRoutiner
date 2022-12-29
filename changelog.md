@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 5.0.6
+
+* Fix: Settings `SchemaDumpNoTransaction` and `DataDumpNoTransaction` set to default true.
+
 ## 5.0.5
 ## 5.0.4
 
