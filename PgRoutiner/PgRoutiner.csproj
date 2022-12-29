@@ -54,10 +54,4 @@
     <PackageReference Include="Npgsql" Version="7.0.1" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Update="appsettings.PgRoutiner.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 </Project>
