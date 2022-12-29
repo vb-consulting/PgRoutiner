@@ -1,107 +1,26 @@
 ﻿# PgRoutiner - Database-First For .NET and PostgreSQL
 
-**`PgRoutiner`** is a set of .NET tools for PostgreSQL database and PostgreSQL .NET projects.
+**`PgRoutiner`** is a set of command-line tools for PostgreSQL databases and PostgreSQL .NET projects.
 
-  - [Installation](#installation)
-    - [Requirements](#requirements)
-    - [Global tool .NET tool](#global-tool-net-tool)
-    - [Local tool](#local-tool)
-    - [Docker image](#docker-image)
-  - [Quick Start](#quick-start)
-  
-## Installation
+Using your .NET configuration project connection string (or custom-defined connection) - you can:
 
-### Requirements
+- Navigate and search the database with ease.
+- Generate C# and TS models and code.
+- Generate database scripts and run tools.
+- Generate markdown documentation.
+- Generate CRUD command functions.
 
-- To use as a .NET tool, .NET 7 SDK is required. See [Global tool .NET tool](#global-tool-net-tool) for installation details.
-- To use as a Docker tool, Docker is required. See the [Docker image](#docker-image) for installation details.
+- **See the [presentations slides](https://docs.google.com/presentation/d/1ZXGAqIyyjDc1O2YqzV94uoJ_7stg3IxpOdeCLnr6XIo/edit?usp=sharing)**
 
-### Global tool .NET tool
+- Used by [opennovations.eu](https://opennovations.eu/) in a highly dockerized enviorment.
 
-To install a global tool (recommended):
-
-```
-$ dotnet tool install --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' (version '5.0.5') was successfully installed.
-```
-
-To update a global tool:
-
-```
-$ dotnet tool update --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' was successfully updated from version '5.0.2' to version '5.0.5'.
-```
-
-This will enable a global command line tool `pgroutiner`. Try typing `pgroutiner --help`.
-
-### Local tool
-
-To add a local tool to your project only you need to create a manifest file and add a tool without `--global` switch as described in this [tutorial](https://learn.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use).
-
-TLDR:
-
-- Add `.config` dir to your project or solution dir.
-
-- Add this `dotnet-tools.json` file to this dir with the following content:
-
-```json
-{
-  "version": 1,
-  "isRoot": true,
-  "tools": {
-    "dotnet-pgroutiner": {
-      "version": "5.0.5",
-      "commands": [
-        "pgroutiner"
-      ]
-    }
-  }
-}
-```
-
-- From your command line type `dotnet tool restore`
-
-- Run the tool with `dotnet tool run pgroutiner`
-
-### Docker image
-
-There is a [Dockerfile](https://github.com/vb-consulting/PgRoutiner/blob/master/Dockerfile) that you can use.
-
-- Download or copy this file: `wget https://raw.githubusercontent.com/vb-consulting/PgRoutiner/master/Dockerfile`
-
-- Run `docker build -t pgroutiner .` to build the image.
-
-- To run pgroutiner type `docker run -it --rm pgroutiner --help` for help (link to this file) or `docker run -it --rm pgroutiner --info` to display current info or `docker run -it --rm pgroutiner --list` to list database objects.
-
-- Tip: if you're on linux, create alias for this command.
-
-- To mount a current directory when running (where presumably your configuration may be located) use the following switches:
-    - `docker run --rm -it -v $(pwd):/home/ pgroutiner` on Linux
-    - `docker run --rm -it -v ${PWD}:/home/ pgroutiner` on PowerShell
-    - `docker run --rm -it -v $%cd%:/home/ pgroutiner` on Win Command-Line
-
-- Note: to be able to access your local database, use `host.docker.internal` as your hostname instead of `localhost, for example `docker run` --rm -it -v ${PWD}:/home/ pgroutiner -c "Server=host.docker.internal;Db=database;Port=5432;User Id=user;Password=password;"`
-
-- Note: This Dockerfile supports PostgreSQL clients 9.6, 10, 11, 12, 13, 14 and 15. You can narrow it to your own version by editing line 45 and make the image smaller by omitting unnecessary client versions.
-
-## Quick Start
-
-1) Install `pgroutiner` (see instructions above)
-2) Open the terminal in your .NET project configured to use the PostgreSQL database.
-3) Type `pgroutiner --help` to see available commands and switches (the list is long).
-4) Type `pgroutiner` to define a new connection if you don't have one - and to create the default configuration file for this dir. See more on [Connection management](#connection-management)
-5) Type `pgroutiner --info` to see if can you connect to the database and to see other environment info.
-6) Type `pgroutiner --list` to see list of all objects.
-7) Type `pgroutiner --ddl [object_name]` to see the data definition language for the object from the second parameter.
-8) Type `pgroutiner --search [search expression]` to search data definitions with search expression.
-
-See also
+TOC:
 
 - [PgRoutiner - Database-First For .NET and PostgreSQL](#pgroutiner---database-first-for-net-and-postgresql)
   - [Installation](#installation)
     - [Requirements](#requirements)
-    - [Global tool .NET tool](#global-tool-net-tool)
-    - [Local tool](#local-tool)
+    - [Global .NET tool](#global-net-tool)
+    - [Local .NET tool](#local-net-tool)
     - [Docker image](#docker-image)
   - [Quick Start](#quick-start)
   - [Connection management](#connection-management)
@@ -122,6 +41,93 @@ See also
   - [Troubleshooting](#troubleshooting)
   - [Support](#support)
   - [License](#license)
+  
+## Installation
+
+### Requirements
+
+- To use as a .NET tool, .NET 7 SDK is required. See the [global .NET tool](#global-net-tool) or the [local .NET tool](#local-net-tool) for installation details.
+- To use as a Docker tool, Docker is required. See the [Docker image](#docker-image) for installation details.
+
+### Global .NET tool
+
+To install a global tool (recommended):
+
+```
+$ dotnet tool install --global dotnet-pgroutiner
+Tool 'dotnet-pgroutiner' (version '5.0.6') was successfully installed.
+```
+
+To update a global tool:
+
+```
+$ dotnet tool update --global dotnet-pgroutiner
+Tool 'dotnet-pgroutiner' was successfully updated from version '5.0.5' to version '5.0.6'.
+```
+
+This will enable a global command line tool `pgroutiner`. Try typing `pgroutiner --help`.
+
+### Local .NET tool
+
+To add a local tool to your project only you need to create a manifest file and add a tool without `--global` switch as described in this [tutorial](https://learn.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use).
+
+TLDR:
+
+1) Add **`.config`** directory to your project or solution.
+
+2) Add **`dotnet-tools.json`** file to this directory with the following content:
+
+```json
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "dotnet-pgroutiner": {
+      "version": "5.0.6",
+      "commands": [
+        "pgroutiner"
+      ]
+    }
+  }
+}
+```
+
+- From your command line type **`dotnet tool restore`**
+
+- Run the tool with **`dotnet tool run pgroutiner [arguments]`**, for example **`dotnet tool run pgroutiner --help`**
+
+### Docker image
+
+There is a [Dockerfile](https://github.com/vb-consulting/PgRoutiner/blob/master/Dockerfile) that you can use.
+
+- Download or copy this file: **`wget https://raw.githubusercontent.com/vb-consulting/PgRoutiner/master/Dockerfile`**
+
+- Run **`docker build -t pgroutiner .`** to build the image.
+
+- To run pgroutiner type **`docker run -it --rm pgroutiner --help`** for help or **`docker run -it --rm pgroutiner --info`** to display current info or **`docker run -it --rm pgroutiner --list`** to list database objects.
+
+- Tip: if you are using Linux, you can create an **alias** for this command.
+
+- To mount a current directory when running (where presumably your configuration may be located) use the following switches:
+    - `docker run --rm -it -v $(pwd):/home/ pgroutiner` on Linux
+    - `docker run --rm -it -v ${PWD}:/home/ pgroutiner` on PowerShell
+    - `docker run --rm -it -v $%cd%:/home/ pgroutiner` on Win Command-Line
+
+- Note: to be able to access your local database, use **`host.docker.internal`** as your hostname instead of `localhost for example **`docker run` --rm -it -v ${PWD}:/home/ pgroutiner -c "Server=host.docker.internal;Db=database;Port=5432;User Id=user;Password=password;"`** - or set the network parameter to connect to netwrok. See the Docker manual for more details.
+
+- Note2: This Dockerfile supports PostgreSQL clients 9.6, 10, 11, 12, 13, 14 and 15. 
+- You can narrow it down to your version by editing line 45 and make the image smaller by omitting unnecessary client versions.
+
+## Quick Start
+
+1) Install `pgroutiner` (see the instructions above)
+2) Open the terminal in your .NET project configured to use the PostgreSQL database.
+3) Type `pgroutiner --help` to see available commands and switches (the list is long).
+4) Type `pgroutiner` to define a new connection if you don't have one - and to create the default configuration file for this dir. See more on [Connection management](#connection-management)
+5) Type `pgroutiner --info` to see if can you connect to the database and to see other environment info.
+6) Type `pgroutiner --list` to see list of all objects.
+7) Type `pgroutiner --ddl [object_name]` to see the data definition language for the object from the second parameter.
+8) Type `pgroutiner --search [search expression]` to search data definitions with search expression.
 
 ## Connection management
 
