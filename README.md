@@ -580,8 +580,6 @@ CREATE TABLE public.address (
 
 ### Execute PSQL commands and scripts
 
-
-
 ## Generating Scripts
 
 ## Generating Documentation
