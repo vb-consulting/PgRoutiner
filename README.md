@@ -31,6 +31,10 @@ Table of Contents:
     - [List database objects](#list-database-objects)
     - [View object definitions](#view-object-definitions)
     - [Search definitions by search expression](#search-definitions-by-search-expression)
+    - [Dump data from tables or queries as inserts](#dump-data-from-tables-or-queries-as-inserts)
+    - [Backup and restore](#backup-and-restore)
+    - [Open PSQL tool](#open-psql-tool)
+    - [Execute PSQL commands and scripts](#execute-psql-commands-and-scripts)
   - [Generating Scripts](#generating-scripts)
   - [Generating Documentation](#generating-documentation)
   - [Generating Code](#generating-code)
@@ -453,7 +457,128 @@ ALTER FUNCTION public.film_in_stock(p_film_id integer, p_store_id integer, OUT p
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$
 ```
 
+- Note: to dump multiple definitions use semicolon-separated values:
+
+```
+vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner --ddl "actor;film_in_stock"
+--
+-- Table: public.actor
+--
+CREATE TABLE public.actor (
+    actor_id integer DEFAULT nextval('public.actor_actor_id_seq'::regclass) NOT NULL PRIMARY KEY,
+    first_name character varying(45) NOT NULL,
+    last_name character varying(45) NOT NULL,
+    last_update timestamp without time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE public.actor OWNER TO postgres;
+CREATE INDEX idx_actor_last_name ON public.actor USING btree (last_name);
+CREATE TRIGGER last_updated BEFORE UPDATE ON public.actor FOR EACH ROW EXECUTE FUNCTION public.last_updated();
+
+
+--
+-- Function: public.film_in_stock
+--
+CREATE FUNCTION public.film_in_stock(
+    p_film_id integer,
+    p_store_id integer,
+    OUT p_film_count integer
+)
+RETURNS SETOF integer
+LANGUAGE sql
+AS $_$
+     SELECT inventory_id
+     FROM inventory
+     WHERE film_id = $1
+     AND store_id = $2
+     AND inventory_in_stock(inventory_id);
+$_$;
+
+ALTER FUNCTION public.film_in_stock(p_film_id integer, p_store_id integer, OUT p_film_count integer) OWNER TO postgres;
+
+
+vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$
+```
+
 ### Search definitions by search expression
+
+- Description: `s --s --search to search object schema definitions and dump highlighted results to the console.`
+
+- Searches entire definitions and dumps to console entire definitions containing the expression.
+
+- Note: search expression match is highlighted.
+
+```
+vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner --search "select public.group_concat"
+--
+-- View: public.actor_info
+--
+CREATE VIEW public.actor_info AS
+ SELECT a.actor_id,
+    a.first_name,
+    a.last_name,
+    public.group_concat(DISTINCT (((c.name)::text || ': '::text) || ( SELECT public.group_concat((f.title)::text) AS group_concat
+           FROM ((public.film f
+             JOIN public.film_category fc_1 ON ((f.film_id = fc_1.film_id)))
+             JOIN public.film_actor fa_1 ON ((f.film_id = fa_1.film_id)))
+          WHERE ((fc_1.category_id = c.category_id) AND (fa_1.actor_id = a.actor_id))
+          GROUP BY fa_1.actor_id))) AS film_info
+   FROM (((public.actor a
+     LEFT JOIN public.film_actor fa ON ((a.actor_id = fa.actor_id)))
+     LEFT JOIN public.film_category fc ON ((fa.film_id = fc.film_id)))
+     LEFT JOIN public.category c ON ((fc.category_id = c.category_id)))
+  GROUP BY a.actor_id, a.first_name, a.last_name;
+
+ALTER TABLE public.actor_info OWNER TO postgres;
+
+
+vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$
+```
+
+```
+vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner --search smallint
+--
+-- Table: public.store
+--
+CREATE TABLE public.store (
+    store_id integer DEFAULT nextval('public.store_store_id_seq'::regclass) NOT NULL PRIMARY KEY,
+    manager_staff_id smallint NOT NULL,
+    address_id smallint NOT NULL,
+    last_update timestamp without time zone DEFAULT now() NOT NULL,
+    FOREIGN KEY (address_id) REFERENCES public.address(address_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (manager_staff_id) REFERENCES public.staff(staff_id) ON UPDATE CASCADE ON DELETE RESTRICT
+);
+
+ALTER TABLE public.store OWNER TO postgres;
+CREATE UNIQUE INDEX idx_unq_manager_staff_id ON public.store USING btree (manager_staff_id);
+CREATE TRIGGER last_updated BEFORE UPDATE ON public.store FOR EACH ROW EXECUTE FUNCTION public.last_updated();
+
+
+--
+-- Table: public.address
+--
+CREATE TABLE public.address (
+    address_id integer DEFAULT nextval('public.address_address_id_seq'::regclass) NOT NULL PRIMARY KEY,
+    address character varying(50) NOT NULL,
+    address2 character varying(50),
+    district character varying(20) NOT NULL,
+    city_id smallint NOT NULL,
+    postal_code character varying(10),
+    phone character varying(20) NOT NULL,
+    last_update timestamp without time zone DEFAULT now() NOT NULL,
+    CONSTRAINT fk_address_city FOREIGN KEY (city_id) REFERENCES public.city(city_id)
+);
+
+...
+```
+
+### Dump data from tables or queries as inserts
+
+### Backup and restore
+
+### Open PSQL tool
+
+### Execute PSQL commands and scripts
 
 
 
