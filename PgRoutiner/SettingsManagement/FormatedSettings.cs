@@ -91,7 +91,7 @@ public class FormatedSettings
     public static (string header, List<(string cmds, string help)>) ModelSettingHelp() => (
         "Model output from a query, table, or enum settings:",
         GetHelpTexts(
-            (Current.ModelOutputArgs, "to set file name with expressions from which to build models. If file doesn't exists, expressions are literal. It can be one or more queries or table/view names separated by semicolon."),
+            (Current.ModelOutputArgs, "to set file name with expressions from which to build models. If file doesn't exists, expressions are literal. It can be one or more queries or table/view/enum names separated by semicolon."),
             (Current.ModelOutputFileArgs, "to set a single file name for models output. If this file extensions is \"ts\" it will generate TypeScript code, otherwise it will generate CSharp code. To generate TypeScript code to console set this value to \".ts\"."),
             (Current.ModelSaveToModelDirArgs, "(switch) to enable saving each generated model file to model dir.")
         ));

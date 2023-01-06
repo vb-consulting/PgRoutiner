@@ -1,5 +1,10 @@
 ﻿# VERSION HISTORY
 
+## 5.0.8
+
+- Fix: better error messages for custom mappings errors with suggestion to add mapping in configuration.
+- Fix: enum types models generation
+
 ## 5.0.7
 
 * Fix: When creating inserts list from a query, parse column names properly first.

@@ -156,7 +156,7 @@ public class ModelOutput : Code
 
         foreach (var enumInfo in enums.Values)
         {
-            if (singleWordHashes.Contains(enumInfo.name) || singleWordHashes.Contains($"{enumInfo.name}.{enumInfo.schema}"))
+            if (singleWordHashes.Contains(enumInfo.name) || singleWordHashes.Contains($"{enumInfo.schema}.{enumInfo.name}"))
             {
                 yield return (BuildEnumModelContent(enumInfo, ts), enumInfo.name, enumInfo.schema);
             }

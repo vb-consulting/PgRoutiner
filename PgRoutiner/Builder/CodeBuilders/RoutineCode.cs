@@ -522,7 +522,7 @@ public class RoutineCode : Code
                 }
                 return result;
             }
-            throw new ArgumentException($"Could not find mapping \"{returnModel.DataType}\" for result type of routine  \"{this.Name}\"");
+            throw new ArgumentException($"Could not find mapping \"{returnModel.DataType}\" type \"{returnModel.Type}\" for result type of routine \"{this.Name}\". Consider adding a new mapping for type \"{returnModel.Type}\"");
         }
         var model = new StringBuilder();
         var modelContent = new StringBuilder();
