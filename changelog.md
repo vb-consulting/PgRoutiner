@@ -2,6 +2,8 @@
 
 ## 5.0.11
 
+- Fix: fix problem with nullable models
+
 ## 5.0.10
 
 - Fix: fix method generation when returning a single record.
