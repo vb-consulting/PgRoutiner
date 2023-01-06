@@ -264,8 +264,9 @@ namespace PgRoutiner.SettingsManagement
         //public string MinNormVersion { get; set; } = "5.2.3";
         public HashSet<string> SourceHeaderLines { get; set; } = new()
         {
+            "// pgroutiner auto-generated code",
             "#pragma warning disable CS8632",
-            $"// pgroutiner auto-generated code",
+            "#pragma warning disable CS8618"
         };
         public int Ident { get; set; } = 4;
         //public string ReturnMethod { get; set; } = "SingleOrDefault";

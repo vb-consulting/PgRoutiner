@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 5.0.9
+
+- Fix: include `"#pragma warning disable CS8618"` suppression in generated code, default `SourceHeaderLines` option. Necessary for generation NON NULLABLE model fields.
+- Fix: when returning USER-DEFINED type (a table), include all fields from that table in a routine query.
+- Fix: when returning USER-DEFINED type (a table), set custom model as nullable type to avoid warnings.
+
 ## 5.0.8
 
 - Fix: better error messages for custom mappings errors with suggestion to add mapping in configuration.

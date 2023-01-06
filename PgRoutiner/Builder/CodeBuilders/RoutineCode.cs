@@ -168,22 +168,6 @@ public class RoutineCode : Code
         });
     }
 
-    //private void MapSingle(PgRoutineGroup routine, Return @return)
-    //{
-    //    Class.AppendLine($"{I3}{{");
-    //    Class.AppendLine($"{I4}var value = reader.GetProviderSpecificValue(0);");
-    //    if (@return.Name.Contains('?'))
-    //    {
-    //        Class.AppendLine($"{I4}return value == DBNull.Value ? null : ({@return.Name.Replace("?", "")})value;");
-    //    }
-    //    else
-    //    {
-    //        Class.AppendLine($"{I4}return ({@return.Name})value;");
-    //    }
-    //    Class.AppendLine($"{I3}}}");
-    //    Class.AppendLine($"{I3}return default;");
-    //}
-
     private void MapReturn(PgRoutineGroup routine, Return @return)
     {
         var returnExp = @return.IsEnumerable ? "yield return" : "return";
@@ -238,11 +222,6 @@ public class RoutineCode : Code
         Class.AppendLine($"{I3}}}");
     }
 
-
-
-    
-
-    
     private void BuildExtensionsStart(Return @return, List<Param> @params, string name, string actualReturns, bool isAsync)
     {
         Class.Append($"{I2}public static {actualReturns} {name}(this NpgsqlConnection connection");
@@ -310,11 +289,12 @@ public class RoutineCode : Code
             {
                 return "select ";
             }
-            if (!@return.IsEnumerable)
+            var any = @return.Record.Any();
+            if (!@return.IsEnumerable && !any)
             {
                 return "select ";
             }
-            if (@return.Record.Any())
+            if (any)
             {
                 return $"select {string.Join(", ", @return.Record.OrderBy(r => r.Ordinal).Select(r => r.Name))} from ";
             }
@@ -466,7 +446,7 @@ public class RoutineCode : Code
         }
         BuildModel(routine, name, items);
         UserDefinedModels.Add(name);
-        return name;
+        return routine.IsSet ? name : $"{name}?";
     }
 
     private string BuildRecordModel(PgRoutineGroup routine, List<PgReturns> items)
