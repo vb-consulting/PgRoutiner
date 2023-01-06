@@ -415,7 +415,7 @@ public class RoutineCode : Code
             }
             if (routine.DataType == "record")
             {
-                return new Return { PgName = routine.TypeUdtName, Name = BuildRecordModel(routine, record), IsVoid = false, IsEnumerable = true };
+                return new Return { PgName = routine.TypeUdtName, Name = BuildRecordModel(routine, record), IsVoid = false, IsEnumerable = routine.IsSet };
             }
             throw new ArgumentException($"Could not find mapping \"{routine.DataType}\" for return type of routine \"{routine.RoutineName}\"");
         }
@@ -542,7 +542,7 @@ public class RoutineCode : Code
         }
         Models.Add(name, model);
         ModelContent.Add(name, modelContent);
-        return name;
+        return routine.IsSet ? name : $"{name}?";
     }
 
     private bool TryGetRoutineMapping(PgRoutineGroup r, out string value)

@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 5.0.10
+
+- Fix: fix method generation when returning a single record.
+
 ## 5.0.9
 
 - Fix: include `"#pragma warning disable CS8618"` suppression in generated code, default `SourceHeaderLines` option. Necessary for generation NON NULLABLE model fields.
