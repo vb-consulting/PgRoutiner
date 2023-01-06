@@ -1,5 +1,7 @@
 ﻿# VERSION HISTORY
 
+## 5.0.11
+
 ## 5.0.10
 
 - Fix: fix method generation when returning a single record.

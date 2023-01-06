@@ -73,7 +73,9 @@ public class RoutineCode : Code
         var returnMethod = GetReturnMethod(routine, name);
         Class.AppendLine();
         BuildCommentHeader(routine, @return, @params, true, returnMethod);
-        var actualReturns = @return.IsEnumerable ? $"IEnumerable<{@return.Name}>" : (returnMethod == null ? $"IEnumerable<{@return.Name}>" : @return.Name);
+
+        var returnName = !@return.Name.Contains("?") && !routine.IsSet && @return.Record.Any() ? $"{@return.Name}?" : @return.Name;
+        var actualReturns = @return.IsEnumerable ? $"IEnumerable<{returnName}>" : (returnMethod == null ? $"IEnumerable<{returnName}>" : returnName);
 
         BuildExtensionsStart(@return, @params, name, actualReturns, false);
 
@@ -123,7 +125,9 @@ public class RoutineCode : Code
         var returnMethod = GetReturnMethod(routine, name);
         Class.AppendLine();
         BuildCommentHeader(routine, @return, @params, false, returnMethod);
-        var actualReturns = @return.IsEnumerable ? $"async IAsyncEnumerable<{@return.Name}>" : (@return.IsVoid ? "async Task" : (returnMethod == null ? $"async IAsyncEnumerable<{@return.Name}>" : $"async Task<{@return.Name}>"));
+
+        var returnName = !@return.Name.Contains("?") && !routine.IsSet && @return.Record.Any() ? $"{@return.Name}?" : @return.Name;
+        var actualReturns = @return.IsEnumerable ? $"async IAsyncEnumerable<{returnName}>" : (@return.IsVoid ? "async Task" : (returnMethod == null ? $"async IAsyncEnumerable<{returnName}>" : $"async Task<{returnName}>"));
 
         BuildExtensionsStart(@return, @params, name, actualReturns, true);
 
@@ -446,7 +450,8 @@ public class RoutineCode : Code
         }
         BuildModel(routine, name, items);
         UserDefinedModels.Add(name);
-        return routine.IsSet ? name : $"{name}?";
+        //return routine.IsSet ? name : $"{name}?";
+        return name;
     }
 
     private string BuildRecordModel(PgRoutineGroup routine, List<PgReturns> items)
@@ -542,7 +547,8 @@ public class RoutineCode : Code
         }
         Models.Add(name, model);
         ModelContent.Add(name, modelContent);
-        return routine.IsSet ? name : $"{name}?";
+        //return routine.IsSet ? name : $"{name}?";
+        return name;
     }
 
     private bool TryGetRoutineMapping(PgRoutineGroup r, out string value)
