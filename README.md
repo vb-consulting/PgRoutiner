@@ -55,14 +55,14 @@ To install a global tool (recommended):
 
 ```
 $ dotnet tool install --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' (version '5.0.7') was successfully installed.
+Tool 'dotnet-pgroutiner' (version '5.0.8') was successfully installed.
 ```
 
 To update a global tool:
 
 ```
 $ dotnet tool update --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' was successfully updated from version '5.0.6' to version '5.0.7'.
+Tool 'dotnet-pgroutiner' was successfully updated from version '5.0.7' to version '5.0.8'.
 ```
 
 This will enable a global command line tool `pgroutiner`. Try typing `pgroutiner --help`.
