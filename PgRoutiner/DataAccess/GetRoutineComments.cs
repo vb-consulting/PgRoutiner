@@ -45,7 +45,8 @@ public static partial class DataAccessConnectionExtensions
                     
                     lower(r.external_language) as language,
                     
-                    pgdesc.description
+                    pgdesc.description,
+                    proc.proretset as is_set
 
                 from 
                     information_schema.routines r
@@ -64,7 +65,7 @@ public static partial class DataAccessConnectionExtensions
                 group by
                     r.specific_name, r.routine_type, r.external_language, r.routine_name, 
                     r.data_type, r.type_udt_catalog, r.type_udt_schema, r.type_udt_name,
-                    pgdesc.description
+                    pgdesc.description, proc.proretset
             ")
             .Select(t => new RoutineComment
             {

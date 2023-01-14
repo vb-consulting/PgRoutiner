@@ -2,7 +2,7 @@
 
 public class RoutineModule : Module
 {
-    public RoutineModule(Current settings, CodeSettings codeSettings, string schema) : base(settings)
+    public RoutineModule(Current settings, CodeSettings codeSettings, string schema, string extraNamespace = null) : base(settings)
     {
         if (!settings.SkipAsyncMethods)
         {
@@ -21,7 +21,14 @@ public class RoutineModule : Module
         if (!string.IsNullOrEmpty(codeSettings.OutputDir))
         {
             var dir = string.Format(codeSettings.OutputDir, schema == "public" ? "" : schema.ToUpperCamelCase());
-            AddNamespace(dir.PathToNamespace().Replace("..", "."));
+            if (extraNamespace != null)
+            {
+                AddNamespace(dir.PathToNamespace().Replace("..", "."), extraNamespace);
+            }
+            else
+            {
+                AddNamespace(dir.PathToNamespace().Replace("..", "."));
+            }
         }
     }
 }

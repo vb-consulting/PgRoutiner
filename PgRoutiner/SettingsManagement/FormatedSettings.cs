@@ -282,6 +282,7 @@ public class FormatedSettings
         AddEntry(nameof(Current.RoutinesLanguages), Current.Value.RoutinesLanguages);
         AddEntry(nameof(Current.RoutinesCustomCodeLines), Current.Value.RoutinesCustomCodeLines);
         AddEntry(nameof(Current.RoutinesCancellationToken), Current.Value.RoutinesCancellationToken);
+        AddEntry(nameof(Current.RoutinesCustomDirs), Current.Value.RoutinesCustomDirs);
 
         sb.AppendLine();
         AddComment(UnitTestsSettingHelp());

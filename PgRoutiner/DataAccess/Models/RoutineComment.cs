@@ -9,4 +9,5 @@ public class RoutineComment
     public string Returns { get; set; }
     public string Language { get; set; }
     public string Comment { get; set; }
+    public bool IsSet { get; set; }
 }

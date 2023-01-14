@@ -47,34 +47,46 @@ public static partial class DataAccessConnectionExtensions
                             end
                     ) as description_markup
                 from (
-                    select 
-                        tc.table_name, 
-                        coalesce(kcu.column_name, ccu.column_name) as column_name,
-                        tc.constraint_type = 'PRIMARY KEY' as is_pk,
-                        case    when tc.constraint_type = 'PRIMARY KEY' 
-                                then '**PK**'
-                                when tc.constraint_type = 'FOREIGN KEY' 
-                                then '**FK [➝](#' || lower(ccu.table_schema || '-' || ccu.table_name || '-' || ccu.column_name) || ') `' ||
-                                    case    when tc.constraint_schema = ccu.table_schema 
-                                            then ''
-                                            else ccu.table_schema || '.'
-                                    end 
-                                    || case when ccu.table_schema = 'public' then '' else  ccu.table_schema || '.' end || ccu.table_name || '.' || ccu.column_name || '`**'
-                                when tc.constraint_type = 'CHECK' then (select '`' || pg_get_constraintdef((select oid from pg_constraint where conname = tc.constraint_name), true) || '`')
-                                else tc.constraint_type
-                        end as description_markup
 
-                    from
-                        information_schema.table_constraints tc
-                        inner join information_schema.constraint_column_usage ccu 
-                        on tc.constraint_schema = ccu.constraint_schema and tc.constraint_name = ccu.constraint_name
-                        left outer join information_schema.key_column_usage kcu 
-                        on tc.constraint_type = 'FOREIGN KEY' and tc.constraint_schema = kcu.constraint_schema and ccu.constraint_name = kcu.constraint_name
-                    where
-                        tc.constraint_schema = $1
+                    select
+                        csub.table_name,
+                        csub.column_name,
+                        max(csub.is_pk::int)::bool as is_pk,
+                        string_agg(csub.description_markup, ', ' order by csub.is_pk desc) as description_markup
+                    from (
+                        select 
+                            tc.table_name, 
+                            coalesce(kcu.column_name, ccu.column_name) as column_name,
+                            tc.constraint_type = 'PRIMARY KEY' as is_pk,
+                            case    when tc.constraint_type = 'PRIMARY KEY' 
+                                    then '**PK**'
+                                    when tc.constraint_type = 'FOREIGN KEY' 
+                                    then '**FK [➝](#' || lower(ccu.table_schema || '-' || ccu.table_name || '-' || ccu.column_name) || ') `' ||
+                                        case    when tc.constraint_schema = ccu.table_schema 
+                                                then ''
+                                                else ccu.table_schema || '.'
+                                        end 
+                                        || case when ccu.table_schema = 'public' then '' else  ccu.table_schema || '.' end || ccu.table_name || '.' || ccu.column_name || '`**'
+                                    when tc.constraint_type = 'CHECK' then (select '`' || pg_get_constraintdef((select oid from pg_constraint where conname = tc.constraint_name), true) || '`')
+                                    else tc.constraint_type
+                            end as description_markup
+
+                        from
+                            information_schema.table_constraints tc
+                            inner join information_schema.constraint_column_usage ccu 
+                            on tc.constraint_schema = ccu.constraint_schema and tc.constraint_name = ccu.constraint_name
+                            left outer join information_schema.key_column_usage kcu 
+                            on tc.constraint_type = 'FOREIGN KEY' and tc.constraint_schema = kcu.constraint_schema and ccu.constraint_name = kcu.constraint_name
+                        where
+                            tc.constraint_schema = $1
+                            and tc.table_name = 'table_configs'
+                        group by
+                            tc.table_name, kcu.column_name, ccu.column_name, tc.constraint_name,
+                            tc.constraint_type, ccu.table_schema, ccu.table_name, tc.constraint_schema
+                    ) csub
                     group by
-                        tc.table_name, kcu.column_name, ccu.column_name, tc.constraint_name,
-                        tc.constraint_type, ccu.table_schema, ccu.table_name, tc.constraint_schema
+                        csub.table_name,
+                        csub.column_name
 
                     union all 
                         

@@ -1,4 +1,5 @@
-﻿using PgRoutiner.Builder.CodeBuilders.Models;
+﻿using Norm;
+using PgRoutiner.Builder.CodeBuilders.Models;
 
 namespace PgRoutiner.Builder.CodeBuilders;
 
@@ -196,6 +197,11 @@ public abstract class CodeBuilder
             .Replace("//", "/")
             .Replace("\\\\", "\\");
 
+        if (CodeRoutinesBuilder.RoutinesCustomDirs.TryGetValue(name, out var customDir))
+        {
+            dir = Path.Combine(dir, customDir);
+        }
+        
         if (empty)
         {
             EmptyDir(dir);

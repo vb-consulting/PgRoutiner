@@ -230,7 +230,7 @@ public class MarkdownDocument
                     if (records.Any())
                     {
                         content.AppendLine($"```");
-                        content.AppendLine($"TABLE (");
+                        content.AppendLine(result.IsSet ? $"TABLE (" : $"RECORD (");
                         content.AppendLine(string.Join($",{NL}", records.Select(r => $"  {r.Name} {r.DataTypeFormatted}")));
                         content.AppendLine($")");
                         content.AppendLine($"```");
@@ -430,7 +430,8 @@ public class MarkdownDocument
             }
             string additionalTableComment = null;
             Dictionary<string, string> additionalColumnComments = new();
-            foreach (var result in connection.GetTableComments(settings, schema).ToList())
+            var tableComments = connection.GetTableComments(settings, schema).ToList();
+            foreach (var result in tableComments)
             {
                 if (!tablesHeader)
                 {

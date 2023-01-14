@@ -1,5 +1,32 @@
 ﻿# VERSION HISTORY
 
+## 5.1.0
+
+- Fix: fix repeated column names (PK and FK) in markdown document.
+- Fix: in markdown document, when showing table output from function, write "RECORD" when function output is a single record.
+
+### New Feature - new `RoutinesCustomDirs` setting
+
+This is dictionary settings where key is "similar to" expression that matches routine names and value is directory name. 
+When routine name matches key, then directory name is used as directory for routine output. 
+This is useful when you have many routines and you want to split them into multiple directories.
+
+For example, if we have these settings:
+
+```
+    "OutputDir": "./Test/Extensions/{0}/",
+    "RoutinesCustomDirs": {
+      "%upload%": "Upload/Dir1"
+    },
+```
+
+Routine with following names will be created in following directories with following names:
+
+- `public.test1` -> `./Test/Extensions/Test1.cs` (namespace `Test.Extensions`)
+- `my_schema.test2` -> `./Test/Extensions/MySchema/Test1.cs` (namespace `Test.Extensions.MySchema`)
+- `public.test_upload` -> `./Test/Extensions/Upload/Dir1/TestUpload.cs` (namespace `Test.Extensions.Upload.Dir1`) - matches `"%upload%": "Upload/Dir1"`
+- `my_schema.test_upload` -> `./Test/Extensions/MySchema/Upload/Dir1/TestUpload.cs` (namespace `Test.Extensions.MySchema.Upload.Dir1`) - matches `"%upload%": "Upload/Dir1"`
+
 ## 5.0.11
 
 - Fix: fix problem with nullable models

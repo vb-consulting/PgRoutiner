@@ -1,10 +1,12 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Norm;
 using PgRoutiner.DataAccess.Models;
 
 namespace PgRoutiner.Builder.CodeBuilders;
 
 public class CodeRoutinesBuilder : CodeBuilder
 {
+    public static Dictionary<string, string> RoutinesCustomDirs = new();
+    
     public CodeRoutinesBuilder(NpgsqlConnection connection, Current settings, CodeSettings codeSettings) :
         base(connection, settings, codeSettings)
     {
@@ -18,7 +20,22 @@ public class CodeRoutinesBuilder : CodeBuilder
         {
             var name = group.Key.Name;
             var schema = group.Key.Schema;
-            var module = new RoutineModule(settings, codeSettings, group.Key.Schema);
+
+            string extraNamespace = null;
+            if (settings.RoutinesCustomDirs != null)
+            {
+                foreach (var ns in settings.RoutinesCustomDirs)
+                {
+                    if (this.connection.WithParameters(name, ns.Key).Read<bool>("select $1 similar to $2").Single())
+                    {
+                        extraNamespace = ns.Value.PathToNamespace().Replace("..", ".");
+                        RoutinesCustomDirs.Add(name, ns.Value);
+                        break;
+                    }
+                }
+            }
+
+            var module = new RoutineModule(settings, codeSettings, group.Key.Schema, extraNamespace);
             Code code;
             try
             {
