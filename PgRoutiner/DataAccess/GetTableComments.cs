@@ -79,7 +79,6 @@ public static partial class DataAccessConnectionExtensions
                             on tc.constraint_type = 'FOREIGN KEY' and tc.constraint_schema = kcu.constraint_schema and ccu.constraint_name = kcu.constraint_name
                         where
                             tc.constraint_schema = $1
-                            and tc.table_name = 'table_configs'
                         group by
                             tc.table_name, kcu.column_name, ccu.column_name, tc.constraint_name,
                             tc.constraint_type, ccu.table_schema, ccu.table_name, tc.constraint_schema

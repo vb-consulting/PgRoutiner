@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 5.1.1
+
+- Fix: fix a bug caused by the last fix (primary keys in markdown document).
+
 ## 5.1.0
 
 - Fix: fix repeated column names (PK and FK) in markdown document.
