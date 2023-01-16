@@ -2,6 +2,8 @@
 
 ## 5.1.2
 
+- Fix: fix extension link when using RoutinesCustomDirs in markdown output.
+
 ## 5.1.1
 
 - Fix: fix a bug caused by the last fix (primary keys in markdown document).
