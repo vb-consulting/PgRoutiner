@@ -1,8 +1,7 @@
 ﻿using System.Data;
-using System.Net.WebSockets;
+using System.Xml.Linq;
 using Norm;
 using PgRoutiner.DataAccess.Models;
-using PgRoutiner.SettingsManagement;
 using static PgRoutiner.Builder.Dump.DumpBuilder;
 
 namespace PgRoutiner.Builder.Md;
@@ -35,7 +34,7 @@ public class MarkdownDocument
         if (settings.MdIncludeSourceLinks)
         {
             connectionName = (settings.Connection ?? $"{connection.Host}_{connection.Port}_{connection.Database}").SanitazePath();
-            baseUrl = PathoToUrl(string.Format(settings.DbObjectsDir, connectionName));
+            baseUrl = PathToUrl(string.Format(settings.DbObjectsDir, connectionName));
         }
         if (settings.MdAdditionalCommentsSql != null)
         {
@@ -242,13 +241,32 @@ public class MarkdownDocument
                 content.AppendLine();
                 if (settings.MdIncludeSourceLinks)
                 {
-                    var url = GetUrl(string.Equals(result.Type.ToLowerInvariant(), "function", StringComparison.InvariantCulture) ? DumpType.Functions : DumpType.Procedures, schema, result.Name);
+                    var url = GetUrl(
+                        string.Equals(result.Type.ToLowerInvariant(), "function", StringComparison.InvariantCulture) ? 
+                        DumpType.Functions : DumpType.Procedures, 
+                        schema, result.Name);
+
                     content.AppendLine($"- Source: [{url}]({url})");
                     content.AppendLine();
                 }
                 if (settings.MdIncludeExtensionLinks && settings.OutputDir != null)
                 {
-                    var dir = schema == null ? settings.OutputDir : string.Format(settings.OutputDir, schema == "public" ? "" : schema.ToUpperCamelCase());
+                    string customDir = null;
+                    if (settings.RoutinesCustomDirs != null)
+                    {
+                        foreach (var ns in settings.RoutinesCustomDirs)
+                        {
+                            if (this.connection.WithParameters(result.Name, ns.Key).Read<bool>("select $1 similar to $2").Single())
+                            {
+                                customDir = ns.Value;
+                                break;
+                            }
+                        }
+                    }
+
+                    var dir = customDir == null ?
+                        schema == null ? settings.OutputDir : string.Format(settings.OutputDir, schema == "public" ? "" : schema.ToUpperCamelCase()) :
+                        Path.Combine(schema == null ? settings.OutputDir : string.Format(settings.OutputDir, schema == "public" ? "" : schema.ToUpperCamelCase()), customDir);
                     var url = Path.Combine(settings.MdSourceLinkRoot ?? "", dir, $"{result.Name.ToUpperCamelCase()}.cs")
                         .Replace("..", "")
                         .Replace("\\", "/")
@@ -665,13 +683,13 @@ public class MarkdownDocument
             {
                 if (settings.SchemaDumpFile != null)
                 {
-                    var file = PathoToUrl(string.Format(settings.SchemaDumpFile, connectionName));
+                    var file = PathToUrl(string.Format(settings.SchemaDumpFile, connectionName));
                     header.AppendLine($"- Schema file: [{file}]({file})");
                 }
 
                 if (Current.Value.DataDumpFile != null)
                 {
-                    var file = PathoToUrl(string.Format(settings.DataDumpFile, connectionName));
+                    var file = PathToUrl(string.Format(settings.DataDumpFile, connectionName));
                     var line = $"- Data file: [{file}]({file})";
                     if (settings.DataDumpTables != null && settings.DataDumpTables.Count > 0)
                     {
@@ -700,7 +718,7 @@ public class MarkdownDocument
         }
     }
 
-    private string PathoToUrl(string path)
+    private string PathToUrl(string path)
     {
         if (settings.MdSourceLinkRoot == null)
         {
@@ -724,7 +742,7 @@ public class MarkdownDocument
                 return null;
             }
             
-            return PathoToUrl(Path.Combine(baseUrl, string.Format(dir, schema == "public" ? "" : schema)));
+            return PathToUrl(Path.Combine(baseUrl, string.Format(dir, schema == "public" ? "" : schema)));
         }
 
         var dir = GetDir();
@@ -733,6 +751,6 @@ public class MarkdownDocument
             return null;
         }
 
-        return PathoToUrl(Path.Combine(dir, PgItemExt.GetFileName(new PgItem { Name = name, Schema = schema })));
+        return PathToUrl(Path.Combine(dir, PgItemExt.GetFileName(new PgItem { Name = name, Schema = schema })));
     }
 }

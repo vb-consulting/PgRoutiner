@@ -1,5 +1,7 @@
 ﻿# VERSION HISTORY
 
+## 5.1.2
+
 ## 5.1.1
 
 - Fix: fix a bug caused by the last fix (primary keys in markdown document).
