@@ -1,4 +1,5 @@
-﻿using PgRoutiner.Builder.CodeBuilders.Models;
+﻿using System.Diagnostics;
+using PgRoutiner.Builder.CodeBuilders.Models;
 using PgRoutiner.DataAccess.Models;
 
 namespace PgRoutiner.Builder.CodeBuilders;
@@ -339,6 +340,17 @@ public class RoutineCode : Code
             Class.Append(I2);
             Class.AppendLine(string.Join($"{Environment.NewLine}{I2}",
                 description.Split("\n").Select(d => $"/// {d}")));
+        }
+        if (settings.RoutinesIncludeDefintionInComment)
+        {
+            Class.AppendLine($"{I2}///");
+            Class.AppendLine($"{I2}/// <code>");
+            Class.AppendLine($"{I2}///");
+            foreach (var line in routine.Definition.Split('\n'))
+            {
+                Class.AppendLine($"{I2}/// {line.Replace("\r", "")}");
+            }
+            Class.AppendLine($"{I2}/// </code>");
         }
         Class.AppendLine($"{I2}/// </summary>");
         foreach (var p in @params)

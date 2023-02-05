@@ -81,7 +81,7 @@ public class PgDumpBuilder
         process.Close();
     }
 
-    public IEnumerable<(string name, string content, PgType type, string schema)> GetDatabaseObjects()
+    public IEnumerable<(string name, string objectName, string content, PgType type, string schema)> GetDatabaseObjects()
     {
         var args = string.Concat(
             baseArg,
@@ -129,7 +129,7 @@ public class PgDumpBuilder
                     continue;
                 }
 
-                yield return (name, content, table.Type, table.Schema);
+                yield return (name, table.Name, content, table.Type, table.Schema);
             }
         }
 
@@ -155,7 +155,7 @@ public class PgDumpBuilder
                     Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
                     continue;
                 }
-                yield return (name, content, seq.Type, seq.Schema);
+                yield return (name, seq.Name, content, seq.Type, seq.Schema);
             }
         }
 
@@ -198,7 +198,7 @@ public class PgDumpBuilder
                             Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
                             continue;
                         }
-                        yield return (name, content, routine.Type, routine.Schema);
+                        yield return (name, routine.Name, content, routine.Type, routine.Schema);
                     }
                 }
 
@@ -226,7 +226,7 @@ public class PgDumpBuilder
                             Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
                             continue;
                         }
-                        yield return (name, content, domain.Type, domain.Schema);
+                        yield return (name, domain.Name, content, domain.Type, domain.Schema);
                     }
                 }
 
@@ -254,7 +254,7 @@ public class PgDumpBuilder
                             Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
                             continue;
                         }
-                        yield return (name, content, type.Type, type.Schema);
+                        yield return (name, type.Name, content, type.Type, type.Schema);
                     }
                 }
 
@@ -288,7 +288,7 @@ public class PgDumpBuilder
                             Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
                             continue;
                         }
-                        yield return (name, content, PgType.Schema, null);
+                        yield return (name, schema, content, PgType.Schema, null);
                     }
                 }
 
@@ -306,7 +306,7 @@ public class PgDumpBuilder
                         var name = ext.GetFileName();
                         if (string.Equals(ext.Name, "plpgsql"))
                         {
-                            yield return (name, "CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;", ext.Type, ext.Schema);
+                            yield return (name, ext.Name, "CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;", ext.Type, ext.Schema);
                         }
                         else
                         {
@@ -322,7 +322,7 @@ public class PgDumpBuilder
                                 Program.WriteLine(ConsoleColor.Red, $"Could not write dump file {name}", $"ERROR: {e.Message}");
                                 continue;
                             }
-                            yield return (name, content, ext.Type, ext.Schema);
+                            yield return (name, ext.Name, content, ext.Type, ext.Schema);
                         }
                     }
                 }

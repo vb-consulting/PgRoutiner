@@ -1,11 +1,13 @@
-﻿using PgRoutiner.DataAccess;
+﻿using System.Xml.Linq;
+using Norm;
 using PgRoutiner.DataAccess.Models;
-using PgRoutiner.SettingsManagement;
 
 namespace PgRoutiner.Builder.Dump;
 
 public class DumpBuilder
 {
+    public static Dictionary<string, string> DbObjectsCustomDirs = new();
+    
     public enum DumpType { Tables, Views, Functions, Procedures, Domains, Types, Schemas, Sequences, Extensions }
 
     public static void BuildDump(string dumpFile, string file, bool overwrite, bool askOverwrite, Func<string> contentFunc)
@@ -112,7 +114,7 @@ public class DumpBuilder
 
         HashSet<string> dirs = new();
 
-        foreach (var (shortFilename, content, type, schema) in builder.GetDatabaseObjects())
+        foreach (var (shortFilename, objectName, content, type, schema) in builder.GetDatabaseObjects().ToList())
         {
             if (content == null || content.Trim() == "")
             {
@@ -135,6 +137,27 @@ public class DumpBuilder
             if (dir == null)
             {
                 continue;
+            }
+
+            if (objectName != null)
+            {
+                string extraDir = null;
+                if (Current.Value.CustomDirs != null)
+                {
+                    foreach (var ns in Current.Value.CustomDirs)
+                    {
+                        if (builder.Connection.WithParameters(objectName, ns.Key).Read<bool>("select $1 similar to $2").Single())
+                        {
+                            extraDir = ns.Value;
+                            DbObjectsCustomDirs.Add(objectName, ns.Value);
+                            break;
+                        }
+                    }
+                }
+                if (extraDir != null)
+                {
+                    dir = Path.Combine(dir, extraDir);
+                }
             }
 
             var file = string.Format(Path.GetFullPath(Path.Combine(dir, shortFilename)), connectionName);

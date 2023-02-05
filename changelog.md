@@ -1,5 +1,13 @@
 ﻿# VERSION HISTORY
 
+## 5.2.0
+
+* New settings `RoutinesIncludeDefintionInComment` (default false) - this setting, if set to true will include routine definition in summary comment in generated code surrounded by `<code>` tags.
+
+This creates a nice effect when using Visual Studio intellisense autocomplete where we can see the entire routine in the tooltip nicely formatted.
+
+* Settings `RoutinesCustomDirs` renamed to `CustomDirs` and now it applies also to DB objects (tables, views, enums, etc.) and not only to routines.
+
 ## 5.1.2
 
 - Fix: fix extension link when using RoutinesCustomDirs in markdown output.

@@ -1,4 +1,6 @@
 ﻿using System.Data;
+using System.Runtime;
+using System.Security.AccessControl;
 using System.Xml.Linq;
 using Norm;
 using PgRoutiner.DataAccess.Models;
@@ -252,9 +254,9 @@ public class MarkdownDocument
                 if (settings.MdIncludeExtensionLinks && settings.OutputDir != null)
                 {
                     string customDir = null;
-                    if (settings.RoutinesCustomDirs != null)
+                    if (settings.CustomDirs != null)
                     {
-                        foreach (var ns in settings.RoutinesCustomDirs)
+                        foreach (var ns in settings.CustomDirs)
                         {
                             if (this.connection.WithParameters(result.Name, ns.Key).Read<bool>("select $1 similar to $2").Single())
                             {
@@ -604,7 +606,7 @@ public class MarkdownDocument
                 break;
             }
             var enumHeader = false;
-            foreach (var result in connection.GetEnumComments(settings, schema))
+            foreach (var result in connection.GetEnumComments(settings, schema).ToList())
             {
                 anyEnums = true;
                 if (!enumHeader)
@@ -741,7 +743,27 @@ public class MarkdownDocument
             {
                 return null;
             }
-            
+
+            string extraDir = null;
+            if (name != null)
+            {
+                if (settings.CustomDirs != null)
+                {
+                    foreach (var ns in settings.CustomDirs)
+                    {
+                        if (this.connection.WithParameters(name, ns.Key).Read<bool>("select $1 similar to $2").Single())
+                        {
+                            extraDir = ns.Value;
+                            break;
+                        }
+                    }
+                }
+                if (extraDir != null)
+                {
+                    return PathToUrl(Path.Combine(Path.Combine(baseUrl, string.Format(dir, schema == "public" ? "" : schema)), extraDir));
+                }
+            }
+
             return PathToUrl(Path.Combine(baseUrl, string.Format(dir, schema == "public" ? "" : schema)));
         }
 

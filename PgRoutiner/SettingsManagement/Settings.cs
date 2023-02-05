@@ -285,6 +285,7 @@ namespace PgRoutiner.SettingsManagement
             { "namespace", "@namespace" },
             { "using", "@using" },
         };
+        public IDictionary<string, string> CustomDirs { get; set; } = new Dictionary<string, string>();
 
         /*routines data-access extensions*/
         public bool Routines { get; set; } = false;
@@ -312,7 +313,6 @@ namespace PgRoutiner.SettingsManagement
         };
         public bool RoutinesCancellationToken { get; set; } = false;
         public bool RoutinesIncludeDefintionInComment { get; set; } = false;
-
 
         /*unit tests*/
         public bool UnitTests { get; set; } = false;
@@ -361,6 +361,7 @@ namespace PgRoutiner.SettingsManagement
             { "Extensions", "Extensions/{0}" },
         };
         public bool DbObjectsSkipDeleteDir { get; set; } = false;
+
         //public bool DbObjectsRemoveExistingDirs { get; set; } = true;
         //public bool DbObjectsOverwrite { get; set; } = false;
         //public bool DbObjectsAskOverwrite { get; set; } = false;

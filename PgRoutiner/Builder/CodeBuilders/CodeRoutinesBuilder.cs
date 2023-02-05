@@ -22,9 +22,9 @@ public class CodeRoutinesBuilder : CodeBuilder
             var schema = group.Key.Schema;
 
             string extraNamespace = null;
-            if (settings.RoutinesCustomDirs != null)
+            if (settings.CustomDirs != null)
             {
-                foreach (var ns in settings.RoutinesCustomDirs)
+                foreach (var ns in settings.CustomDirs)
                 {
                     if (this.connection.WithParameters(name, ns.Key).Read<bool>("select $1 similar to $2").Single())
                     {

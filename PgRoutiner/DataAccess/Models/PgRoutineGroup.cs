@@ -7,6 +7,7 @@ public record PgRoutineGroup
     public string SpecificName { get; set; }
     public string RoutineName { get; set; }
     public string Description { get; set; }
+    public string Definition { get; set; }
     public string Language { get; set; }
     public string RoutineType { get; set; }
     public string TypeUdtName { get; set; }
