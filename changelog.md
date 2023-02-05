@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 5.2.1
+
+* Fix: when generating code summary comments, replace all `<` with `&lt;` and `>` with `&gt;` to avoid problems with XML comments.
+
 ## 5.2.0
 
 * New settings `RoutinesIncludeDefintionInComment` (default false) - this setting, if set to true will include routine definition in summary comment in generated code surrounded by `<code>` tags.

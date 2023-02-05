@@ -348,7 +348,7 @@ public class RoutineCode : Code
             Class.AppendLine($"{I2}///");
             foreach (var line in routine.Definition.Split('\n'))
             {
-                Class.AppendLine($"{I2}/// {line.Replace("\r", "")}");
+                Class.AppendLine($"{I2}/// {line.Replace("\r", "").Replace(">", "&gt;").Replace(">", "&lt;")}");
             }
             Class.AppendLine($"{I2}/// </code>");
         }
