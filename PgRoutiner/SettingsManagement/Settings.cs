@@ -311,7 +311,7 @@ namespace PgRoutiner.SettingsManagement
         {
         };
         public bool RoutinesCancellationToken { get; set; } = false;
-        public IDictionary<string, string> RoutinesCustomDirs { get; set; } = new Dictionary<string, string>();
+        public bool RoutinesIncludeDefintionInComment { get; set; } = false;
 
 
         /*unit tests*/
