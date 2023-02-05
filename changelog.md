@@ -1,5 +1,6 @@
 ﻿# VERSION HISTORY
 
+## 5.2.2
 ## 5.2.1
 
 * Fix: when generating code summary comments, replace all `<` with `&lt;` and `>` with `&gt;` to avoid problems with XML comments.
