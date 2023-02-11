@@ -284,6 +284,7 @@ public class FormatedSettings
         AddEntry(nameof(Current.RoutinesCancellationToken), Current.Value.RoutinesCancellationToken);
         AddEntry(nameof(Current.CustomDirs), Current.Value.CustomDirs);
         AddEntry(nameof(Current.RoutinesIncludeDefintionInComment), Current.Value.RoutinesIncludeDefintionInComment);
+        AddEntry(nameof(Current.RoutinesOpenConnectionIfClosed), Current.Value.RoutinesOpenConnectionIfClosed);
 
         sb.AppendLine();
         AddComment(UnitTestsSettingHelp());

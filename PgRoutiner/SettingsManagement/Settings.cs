@@ -313,6 +313,7 @@ namespace PgRoutiner.SettingsManagement
         };
         public bool RoutinesCancellationToken { get; set; } = false;
         public bool RoutinesIncludeDefintionInComment { get; set; } = false;
+        public bool RoutinesOpenConnectionIfClosed { get; set; } = true;
 
         /*unit tests*/
         public bool UnitTests { get; set; } = false;

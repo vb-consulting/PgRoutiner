@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 5.3.0
+
+* Fix: trim routine definition comments and remove all empty lines
+* Fix: include routine definition comments for routines not created with string constants. (e.g. "create function test() returns text return 'hello world'"), including "BEGIN ATOMIC" style of routine.
+* New: Setting `RoutinesOpenConnectionIfClosed` (default is true). Set to false to skip opening the connection (if closed) in every routine. 
+
 ## 5.2.2
 ## 5.2.1
 

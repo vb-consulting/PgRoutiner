@@ -27,6 +27,7 @@ public static partial class DataAccessConnectionExtensions
                 string SpecificName,
                 string RoutineName,
                 string RoutineDefinition,
+                string FullRoutineDefinition,
                 string Description,
                 string Language,
                 string RoutineType,
@@ -40,7 +41,10 @@ public static partial class DataAccessConnectionExtensions
                     r.specific_schema,
                     r.specific_name,
                     r.routine_name,
+                    
                     r.routine_definition,
+                    pg_get_functiondef(proc.oid) as full_routine_definition,
+                    
                     pgdesc.description,
                     lower(r.external_language) as language,
                     lower(r.routine_type) as routine_type,
@@ -136,6 +140,7 @@ public static partial class DataAccessConnectionExtensions
                 SpecificName = t.SpecificName,
                 RoutineName = t.RoutineName,
                 Definition = t.RoutineDefinition,
+                FullDefinition = t.FullRoutineDefinition,
                 Description = t.Description,
                 Language = t.Language,
                 RoutineType = t.RoutineType,

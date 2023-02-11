@@ -80,11 +80,14 @@ public class RoutineCode : Code
 
         BuildExtensionsStart(@return, @params, name, actualReturns, false);
 
-        Class.AppendLine($"{I3}if (connection.State != System.Data.ConnectionState.Open)");
-        Class.AppendLine($"{I3}{{");
-        Class.AppendLine($"{I4}connection.Open();");
-        Class.AppendLine($"{I3}}}");
-
+        if (settings.RoutinesOpenConnectionIfClosed)
+        {
+            Class.AppendLine($"{I3}if (connection.State != System.Data.ConnectionState.Open)");
+            Class.AppendLine($"{I3}{{");
+            Class.AppendLine($"{I4}connection.Open();");
+            Class.AppendLine($"{I3}}}");
+        }
+        
         if (@return.IsVoid)
         {
             Class.AppendLine($"{I3}command.ExecuteNonQuery();");
@@ -132,11 +135,14 @@ public class RoutineCode : Code
 
         BuildExtensionsStart(@return, @params, name, actualReturns, true);
 
-        Class.AppendLine($"{I3}if (connection.State != System.Data.ConnectionState.Open)");
-        Class.AppendLine($"{I3}{{");
-        Class.AppendLine($"{I4}await connection.OpenAsync({(settings.RoutinesCancellationToken ? "cancellationToken" : "")});");
-        Class.AppendLine($"{I3}}}");
-
+        if (settings.RoutinesOpenConnectionIfClosed)
+        {
+            Class.AppendLine($"{I3}if (connection.State != System.Data.ConnectionState.Open)");
+            Class.AppendLine($"{I3}{{");
+            Class.AppendLine($"{I4}await connection.OpenAsync({(settings.RoutinesCancellationToken ? "cancellationToken" : "")});");
+            Class.AppendLine($"{I3}}}");
+        }
+        
         if (@return.IsVoid)
         {
             Class.AppendLine($"{I3}await command.ExecuteNonQueryAsync({(settings.RoutinesCancellationToken ? "cancellationToken" : "")});");
@@ -341,12 +347,14 @@ public class RoutineCode : Code
             Class.AppendLine(string.Join($"{Environment.NewLine}{I2}",
                 description.Split("\n").Select(d => $"/// {d}")));
         }
-        if (settings.RoutinesIncludeDefintionInComment)
+
+        var def = GetRoutineDef(routine);
+        if (settings.RoutinesIncludeDefintionInComment && !string.IsNullOrEmpty(def))
         {
-            Class.AppendLine($"{I2}///");
+            //Class.AppendLine($"{I2}///");
             Class.AppendLine($"{I2}/// <code>");
-            Class.AppendLine($"{I2}///");
-            foreach (var line in routine.Definition.Split('\n'))
+            //Class.AppendLine($"{I2}///");
+            foreach (var line in def.Split('\n'))
             {
                 Class.AppendLine($"{I2}/// {line.Replace("\r", "").Replace(">", "&gt;").Replace("<", "&lt;")}");
             }
@@ -379,6 +387,38 @@ public class RoutineCode : Code
                 Class.AppendLine($"{I2}/// <returns>Task whose Result property is {@return.Name}</returns>");
             }
         }
+    }
+
+    private string GetRoutineDef(PgRoutineGroup routine)
+    {
+        var def = routine.Definition.Trim();
+        if (string.IsNullOrEmpty(def))
+        {
+            def = routine.FullDefinition.Trim();
+            var idx = def.IndexOf("RETURN ", StringComparison.OrdinalIgnoreCase);
+            if (idx > 0)
+            {
+                def = def.Substring(idx).Trim();
+            }
+            else
+            {
+                const string start = "BEGIN ATOMIC";
+                idx = def.IndexOf(start, StringComparison.OrdinalIgnoreCase);
+                if (idx > 0)
+                {
+                    var endIdx = def.LastIndexOf("END", StringComparison.OrdinalIgnoreCase);
+                    if (endIdx > idx)
+                    {
+                        def = def.Substring(idx + start.Length, endIdx - idx - start.Length).Trim();
+                    } else
+                    {
+                        def = def.Substring(idx).Trim();
+                    }
+                }
+            }
+        }
+
+        return def;
     }
 
     private List<Param> GetParamsInfo(PgRoutineGroup routine)
