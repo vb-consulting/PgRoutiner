@@ -296,6 +296,10 @@ public class RoutineCode : Code
     {
         string Select()
         {
+            if (string.Equals(routine.RoutineType, "procedure", StringComparison.OrdinalIgnoreCase))
+            {
+                return "call ";
+            } 
             if (@return.IsVoid)
             {
                 return "select ";
@@ -356,7 +360,7 @@ public class RoutineCode : Code
             //Class.AppendLine($"{I2}///");
             foreach (var line in def.Split('\n'))
             {
-                Class.AppendLine($"{I2}/// {line.Replace("\r", "").Replace(">", "&gt;").Replace("<", "&lt;")}");
+                Class.AppendLine($"{I2}/// {line.Replace("\r", "").Replace(">", "&gt;").Replace("<", "&lt;").Replace("&", "&amp;")}");
             }
             Class.AppendLine($"{I2}/// </code>");
         }

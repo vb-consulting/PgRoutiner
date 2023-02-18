@@ -1,5 +1,10 @@
 ﻿# VERSION HISTORY
 
+## 5.3.1
+
+* Fix: when generating code summary comments, replace all `%` with `&amp;` to avoid problems with XML comments.
+* Fix: fix code generation for procedures.
+
 ## 5.3.0
 
 * Fix: trim routine definition comments and remove all empty lines

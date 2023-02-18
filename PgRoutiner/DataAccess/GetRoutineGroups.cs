@@ -115,7 +115,13 @@ public static partial class DataAccessConnectionExtensions
 
                     and ($3 is null or r.routine_name not similar to $3)
                     and ($4 is null or r.routine_name similar to $4)
-                    and ($5 is true or (r.type_udt_name <> 'trigger' and r.type_udt_name <> 'refcursor'))
+                    
+                    and (
+                        ($5 is true)
+                        or (r.type_udt_name is null and r.routine_type = 'PROCEDURE') 
+                        or (r.type_udt_name is not null and r.type_udt_name <> 'trigger' and r.type_udt_name <> 'refcursor')
+                    )
+                    
                     and (   $6 is null or (r.routine_name not similar to $6)   )
                 group by
                     proc.oid,
