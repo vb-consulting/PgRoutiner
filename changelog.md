@@ -1,5 +1,6 @@
 ﻿# VERSION HISTORY
 
+## 5.3.2
 ## 5.3.1
 
 * Fix: when generating code summary comments, replace all `%` with `&amp;` to avoid problems with XML comments.
