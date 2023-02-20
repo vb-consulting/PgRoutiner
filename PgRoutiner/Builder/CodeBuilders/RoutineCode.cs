@@ -360,11 +360,7 @@ public class RoutineCode : Code
             //Class.AppendLine($"{I2}///");
             foreach (var line in def.Split('\n'))
             {
-                Class.AppendLine($"{I2}/// {line
-                    .Replace("\r", "")
-                    .Replace("&", "&amp;")
-                    .Replace(">", "&gt;")
-                    .Replace("<", "&lt;")}");
+                Class.AppendLine($"{I2}/// {line.Replace("\r", "").Replace("&", "&amp;").Replace(">", "&gt;").Replace("<", "&lt;")}");
             }
             Class.AppendLine($"{I2}/// </code>");
         }
