@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 5.3.3
+
+* Fix issue with exporting documentation file to HTML.
+
 ## 5.3.2
 ## 5.3.1
 

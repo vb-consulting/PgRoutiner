@@ -48,7 +48,10 @@ public class MarkdownBuilder
         {
             EportToHtml(file, markdown);
         }
-        Writer.WriteFile(file, markdown);
+        else
+        {
+            Writer.WriteFile(file, markdown);
+        }
     }
 
     public static bool BuildMdDiff(NpgsqlConnection connection)
