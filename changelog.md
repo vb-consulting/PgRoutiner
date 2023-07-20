@@ -2,7 +2,7 @@
 
 ## 5.3.4
 
-* Upgrade Nugets 
+* Upgrade Nuggets 
 ```
 <PackageReference Include="Markdig" Version="0.31.0" />
 <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -10,6 +10,7 @@
 <PackageReference Include="Npgsql" Version="7.0.4" />
 ```
 
+* Sanitize anonymous script name for markdown update script
 
 ## 5.3.3
 
