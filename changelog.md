@@ -1,5 +1,16 @@
 ﻿# VERSION HISTORY
 
+## 5.3.4
+
+* Upgrade Nugets 
+```
+<PackageReference Include="Markdig" Version="0.31.0" />
+<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+<PackageReference Include="Norm.net" Version="5.3.7" />
+<PackageReference Include="Npgsql" Version="7.0.4" />
+```
+
+
 ## 5.3.3
 
 * Fix issue with exporting documentation file to HTML.

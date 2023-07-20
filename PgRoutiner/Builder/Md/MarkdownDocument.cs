@@ -118,7 +118,7 @@ public class MarkdownDocument
             dict.ToList().ForEach(x => comments.Add(x.Key, x.Value));
         }
 
-        var scriptName = $"${settings.Connection}_comments_update$";
+        var scriptName = $"${connection.Database.SanitazeName()}_comments_update$";
         result.AppendLine($"do {scriptName}");
         result.AppendLine("begin");
         result.AppendLine("");
