@@ -27,7 +27,8 @@ public class MarkdownDocument
     private static string CommentIs => $" is {Param};";
     private static string StartTag(string on, string name) => $"{Open}{CommentStatement}{on} {name}{CommentIs}{Close}";
     private static string EndTag => $"{Open}end{Close}";
-    private static string Hashtag(string name) => $"<a id=\"user-content-{name}\" href=\"#{name}\">#</a>";
+    //private static string Hashtag(string name) => $"<a id=\"user-content-{name}\" href=\"#{name}\">#</a>";
+    private static string Hashtag(string name) => $"<a id=\"user-content-{name}\" href=\"#user-content-{name}\">#</a>";
 
     public MarkdownDocument(Current settings, NpgsqlConnection connection)
     {
@@ -115,6 +116,7 @@ public class MarkdownDocument
                 .ToDictionary(
                     t => $"\"{schema}\".{t.Signature.Replace(t.Name, $"\"{t.Name}\"")}",
                     t => t.Comment);
+
             dict.ToList().ForEach(x => comments.Add(x.Key, x.Value));
         }
 
@@ -192,31 +194,50 @@ public class MarkdownDocument
             {
                 break;
             }
-            var routinesHeader = false;
+
             var routineComments = connection.GetRoutineComments(settings, schema).ToList();
+
+            var count = routineComments.Count();
+            if (count > 0)
+            {
+                header.AppendLine();
+                header.AppendLine($"### {count} Routine{(count == 1 ? "" : "s")} in Schema \"{schema}\"");
+                header.AppendLine();
+            }
+
             foreach (var result in routineComments)
             {
-                if (!routinesHeader)
+                content.AppendLine();
+                content.AppendLine(
+                    $"## {result.Type.First().ToString().ToUpper()}{result.Type[1..]} \"{schema}\".\"{result.Name}\"");
+
+                content.AppendLine();
+                content.AppendLine(StartTag(result.Type, $"\"{schema}\".{result.Signature.Replace(result.Name, $"\"{result.Name}\"")}"));
+                if (result.Comment != null)
                 {
-                    content.AppendLine();
-                    content.AppendLine("## Routines");
-                    routinesHeader = true;
+                    content.AppendLine(string.Join($"{NL}{NL}", result.Comment?.Trim() ?? ""));
+                }
+                content.AppendLine(EndTag);
+                
+
+                if (!settings.MdSkipToc)
+                {
+                    header.AppendLine($"- {result.Type.First().ToString().ToUpper()}{result.Type[1..]} [`{schema}.{result.Name}`](#{result.Type.ToLower()}-{schema.ToLower()}{result.Name})");
                 }
 
                 content.AppendLine();
-                content.AppendLine(
-                    $"### {result.Type.First().ToString().ToUpper()}{result.Type[1..]} `{schema}.{result.Signature}`");
-                var routineAnchor = result.Signature.ToLower()
-                    .Replace("(", "")
-                    .Replace(")", "")
-                    .Replace(",", "")
-                    .Replace("[", "")
-                    .Replace("]", "")
-                    .Replace(" ", "-");
-                if (!settings.MdSkipToc)
+                content.AppendLine($"- Signature `{schema}.{result.Signature}`");
+
+                if (result.Parameters.Length > 0)
                 {
-                    header.AppendLine($"- {result.Type.First().ToString().ToUpper()}{result.Type[1..]} [`{schema}.{result.Signature}`](#{result.Type.ToLower()}-{schema.ToLower()}{routineAnchor})");
+                    content.AppendLine();
+                    content.AppendLine($"- Parameters:");
+                    foreach(var p in result.Parameters)
+                    {
+                        content.AppendLine($"    - `{p}`");
+                    }
                 }
+                
                 content.AppendLine();
                 content.AppendLine($"- Returns `{result.Returns}`");
                 content.AppendLine();
@@ -238,14 +259,14 @@ public class MarkdownDocument
                         content.AppendLine();
                     }
                 }
-                
+
                 content.AppendLine($"- Language is `{result.Language}`");
                 content.AppendLine();
                 if (settings.MdIncludeSourceLinks)
                 {
                     var url = GetUrl(
-                        string.Equals(result.Type.ToLowerInvariant(), "function", StringComparison.InvariantCulture) ? 
-                        DumpType.Functions : DumpType.Procedures, 
+                        string.Equals(result.Type.ToLowerInvariant(), "function", StringComparison.InvariantCulture) ?
+                        DumpType.Functions : DumpType.Procedures,
                         schema, result.Name);
 
                     content.AppendLine($"- Source: [{url}]({url})");
@@ -291,15 +312,15 @@ public class MarkdownDocument
                     content.AppendLine();
                 }
 
-                content.AppendLine(StartTag(result.Type, $"\"{schema}\".{result.Signature.Replace(result.Name, $"\"{result.Name}\"")}"));
-                if (result.Comment != null)
+                if (settings.MdIncludeRoutineDefinitions)
                 {
-                    content.AppendLine(string.Join($"{NL}{NL}", result.Comment));
+                    content.AppendLine($"- Definition:");
+                    content.AppendLine();
+                    content.AppendLine("```sql");
+                    content.AppendLine(result.Definition);
+                    content.AppendLine("```");
                 }
 
-                content.AppendLine(EndTag);
-
-                content.AppendLine();
                 content.AppendLine("<a href=\"#table-of-contents\" title=\"Table of Contents\">&#8673;</a>");
             }
         }
@@ -315,16 +336,24 @@ public class MarkdownDocument
             {
                 break;
             }
-            var viewsHeader = false;
+            //var viewsHeader = false;
             var viewComments = connection.GetViewComments(settings, schema).ToList();
+            var count = viewComments.Count();
+            if (count > 0)
+            {
+                header.AppendLine();
+                header.AppendLine($"### {count} View{(count == 1 ? "" : "s")} in Schema \"{schema}\"");
+                header.AppendLine();
+            }
+
             foreach (var result in viewComments)
             {
-                if (!viewsHeader)
-                {
-                    content.AppendLine();
-                    content.AppendLine("## Views");
-                    viewsHeader = true;
-                }
+                //if (!viewsHeader)
+                //{
+                //    content.AppendLine();
+                //    content.AppendLine("## Views");
+                //    viewsHeader = true;
+                //}
 
                 string comment = null;
                 if (result.Column == null)
@@ -345,7 +374,7 @@ public class MarkdownDocument
                         content.AppendLine();
                     }
 
-                    content.AppendLine($"### View `{schema}.{result.Table}`");
+                    content.AppendLine($"## View \"{schema}\".\"{result.Table}\"");
                     if (!settings.MdSkipToc)
                     {
                         header.AppendLine($"- View [`{schema}.{result.Table}`](#view-{schema.ToLower()}{result.Table.ToLower()})");
@@ -354,7 +383,7 @@ public class MarkdownDocument
                     content.AppendLine(StartTag("view", $"\"{schema}\".\"{result.Table}\""));
                     if (comment != null)
                     {
-                        content.AppendLine(comment);
+                        content.AppendLine(comment?.Trim() ?? "");
                     }
 
                     content.AppendLine(EndTag);
@@ -397,7 +426,7 @@ public class MarkdownDocument
                     content.AppendLine(
                         $"| {(result.IsPk == true ? "**" : "")}`{result.Column}`{(result.IsPk == true ? "**" : "")} " +
                         $"| `{result.ColumnType}`{typeMarkup}" +
-                        $"| {StartTag("column", $"\"{schema}\".\"{result.Table}\".\"{result.Column}\"")}{comment}{EndTag} |");
+                        $"| {StartTag("column", $"\"{schema}\".\"{result.Table}\".\"{result.Column}\"")}{comment?.Trim() ?? ""}{EndTag} |");
                 }
             }
         }
@@ -412,7 +441,6 @@ public class MarkdownDocument
     private void BuildTables(StringBuilder content, StringBuilder header, List<string> schemas)
     {
         var any = false;
-        var tablesHeader = false;
         string prevTable = null;
         string lastSchema = null;
 
@@ -451,14 +479,17 @@ public class MarkdownDocument
             string additionalTableComment = null;
             Dictionary<string, string> additionalColumnComments = new();
             var tableComments = connection.GetTableComments(settings, schema).ToList();
+
+            var count = tableComments.Count();
+            if (count > 0)
+            {
+                header.AppendLine();
+                header.AppendLine($"### {count} Table{(count == 1 ? "" : "s")} in Schema \"{schema}\"");
+                header.AppendLine();
+            }
+
             foreach (var result in tableComments)
             {
-                if (!tablesHeader)
-                {
-                    content.AppendLine("## Tables");
-                    tablesHeader = true;
-                }
-                
                 if (result.Column == null && additionalCommentsSql != null)
                 {
                     additionalTableComment = null;
@@ -478,7 +509,7 @@ public class MarkdownDocument
                 {
                     if (result.Comment != null || additionalCommentsSql != null)
                     {
-                        comment = string.Concat($"{NL}", $"{result.Comment}{NL}{additionalTableComment}".Trim());
+                        comment = string.Concat($"{NL}", $"{result.Comment?.Trim() ?? ""}{NL}{additionalTableComment}".Trim());
                     }
 
                     if (prevTable != null)
@@ -500,7 +531,7 @@ public class MarkdownDocument
                         content.AppendLine();
                     }
 
-                    content.AppendLine($"### Table `{schema}.{result.Table}`");
+                    content.AppendLine($"## Table \"{schema}\".\"{result.Table}\"");
                     if (!settings.MdSkipToc)
                     {
                         header.AppendLine($"- Table [`{schema}.{result.Table}`](#table-{schema.ToLower()}{result.Table.ToLower()})");
@@ -510,7 +541,7 @@ public class MarkdownDocument
 
                     if (comment != null)
                     {
-                        content.AppendLine(comment);
+                        content.AppendLine(comment?.Trim() ?? "");
                     }
                     content.AppendLine(EndTag);
 
@@ -578,7 +609,7 @@ public class MarkdownDocument
                         $"| `{result.ColumnType}`{typeMarkup}" +
                         $"| {result.Nullable} " +
                         $"| {result.DefaultMarkup} " +
-                        $"| {StartTag("column", $"\"{schema}\".\"{result.Table}\".\"{result.Column}\"")}{comment}{EndTag} |");
+                        $"| {StartTag("column", $"\"{schema}\".\"{result.Table}\".\"{result.Column}\"")}{comment?.Trim() ?? ""}{EndTag} |");
                 }
 
             }
@@ -605,14 +636,23 @@ public class MarkdownDocument
             {
                 break;
             }
+            var enumComments = connection.GetEnumComments(settings, schema).ToList();
+            var count = enumComments.Count();
+            if (count > 0)
+            {
+                header.AppendLine();
+                header.AppendLine($"### {count} Enum{(count == 1 ? "" : "s")} in Schema \"{schema}\"");
+                header.AppendLine();
+            }
+
             var enumHeader = false;
-            foreach (var result in connection.GetEnumComments(settings, schema).ToList())
+            foreach (var result in enumComments)
             {
                 anyEnums = true;
                 if (!enumHeader)
                 {
                     content.AppendLine();
-                    content.AppendLine("## Enums");
+                    content.AppendLine($"## Enums in Schema \"{schema}\"");
                     content.AppendLine();
                     
                     if (settings.MdIncludeSourceLinks)
@@ -640,7 +680,7 @@ public class MarkdownDocument
                     content.AppendLine(
                         $"| {Hashtag(name)}`{schema}.{result.Name}` " +
                         $"| `{result.Values}` " +
-                        $"| {StartTag("type", $"\"{schema}\".\"{result.Name}\"")}{result.Comment}{EndTag} " +
+                        $"| {StartTag("type", $"\"{schema}\".\"{result.Name}\"")}{result.Comment?.Trim() ?? ""}{EndTag} " +
                         $"| [{url}]({url}) |");
                 }
                 else
@@ -648,7 +688,7 @@ public class MarkdownDocument
                     content.AppendLine(
                         $"| {Hashtag(name)}`{schema}.{result.Name}` " +
                         $"| `{result.Values}` " +
-                        $"| {StartTag("type", $"\"{schema}\".\"{result.Name}\"")}{result.Comment}{EndTag} |");
+                        $"| {StartTag("type", $"\"{schema}\".\"{result.Name}\"")}{result.Comment?.Trim() ?? ""}{EndTag} |");
                 }
 
             }
@@ -716,7 +756,7 @@ public class MarkdownDocument
         if (!settings.MdSkipToc)
         {
             header.AppendLine("## Table of Contents");
-            header.AppendLine();
+            //header.AppendLine();
         }
     }
 

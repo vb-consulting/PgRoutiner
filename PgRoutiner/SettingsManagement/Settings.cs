@@ -394,6 +394,7 @@ namespace PgRoutiner.SettingsManagement
         public bool MdIncludeTableCountEstimates { get; set; } = false;
         public bool MdIncludeTableStats { get; set; } = false;
         public bool MdRoutinesFirst { get; set; } = false;
+        public bool MdIncludeRoutineDefinitions { get; set; } = false;
         public string MdAdditionalCommentsSql { get; set; } = null;
         public bool MdExportToHtml { get; set; } = false;
         public bool CommitMd { get; set; } = false;

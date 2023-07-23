@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 5.3.5
+
+- Massive improvements to markdown documentation generation.
+
+- New settings `MdIncludeRoutineDefinitions` - should it include routine definitions in markdown documentation. Default is false.
+
 ## 5.3.4
 
 * Upgrade Nuggets 

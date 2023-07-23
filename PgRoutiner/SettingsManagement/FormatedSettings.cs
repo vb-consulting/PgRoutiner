@@ -358,6 +358,7 @@ public class FormatedSettings
         AddEntry(nameof(Current.MdIncludeTableCountEstimates), Current.Value.MdIncludeTableCountEstimates);
         AddEntry(nameof(Current.MdIncludeTableStats), Current.Value.MdIncludeTableStats);
         AddEntry(nameof(Current.MdRoutinesFirst), Current.Value.MdRoutinesFirst);
+        AddEntry(nameof(Current.MdIncludeRoutineDefinitions), Current.Value.MdIncludeRoutineDefinitions);
         AddEntry(nameof(Current.MdAdditionalCommentsSql), Current.Value.MdAdditionalCommentsSql);
         AddEntry(nameof(Current.MdExportToHtml), Current.Value.MdExportToHtml);
         AddEntry(nameof(Current.CommitMd), Current.Value.CommitMd);
