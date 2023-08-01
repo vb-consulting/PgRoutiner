@@ -338,7 +338,7 @@ public class MarkdownDocument
             }
             //var viewsHeader = false;
             var viewComments = connection.GetViewComments(settings, schema).ToList();
-            var count = viewComments.Count();
+            var count = viewComments.GroupBy(t => t.Table).Count();
             if (count > 0)
             {
                 header.AppendLine();
@@ -480,7 +480,7 @@ public class MarkdownDocument
             Dictionary<string, string> additionalColumnComments = new();
             var tableComments = connection.GetTableComments(settings, schema).ToList();
 
-            var count = tableComments.Count();
+            var count = tableComments.GroupBy(t => t.Table).Count();
             if (count > 0)
             {
                 header.AppendLine();

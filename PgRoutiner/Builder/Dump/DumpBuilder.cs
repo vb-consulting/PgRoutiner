@@ -102,6 +102,17 @@ public class DumpBuilder
         var baseSequencesDir = GetDir(DumpType.Sequences);
         var baseExtensionsDir = GetDir(DumpType.Extensions);
 
+        int tableCount = 0;
+        int viewsCount = 0;
+        int functionsCount = 0;
+        int proceduresCount = 0;
+        int domainsCount = 0;
+        int typesCount = 0;
+        int schemasCount = 0;
+        int sequencesCount = 0;
+        int extensionsCount = 0;
+
+        /*
         static string ParseSchema(string dir, string schema)
         {
             if (dir == null)
@@ -110,7 +121,7 @@ public class DumpBuilder
             }
             return string.Format(dir, schema == null || schema == "public" ? "" : schema).Replace("//", "/").Replace("\\\\", "\\");
         }
-
+        */
 
         HashSet<string> dirs = new();
 
@@ -120,17 +131,33 @@ public class DumpBuilder
             {
                 continue;
             }
+            var schemaDir = string.Concat(schema == null || schema == "public" ? "" : schema, "/");
+
             var dir = type switch
             {
-                PgType.Table => ParseSchema(baseTablesDir, schema),
-                PgType.View => ParseSchema(baseViewsDir, schema),
-                PgType.Function => ParseSchema(baseFunctionsDir, schema),
-                PgType.Procedure => ParseSchema(baseProceduresDir, schema),
-                PgType.Domain => ParseSchema(baseDomainsDir, schema),
-                PgType.Type => ParseSchema(baseTypesDir, schema),
-                PgType.Schema => ParseSchema(baseSchemasDir, schema),
-                PgType.Sequence => ParseSchema(baseSequencesDir, schema),
-                PgType.Extension => ParseSchema(baseExtensionsDir, schema),
+                PgType.Table => baseTablesDir, //ParseSchema(baseTablesDir, schema),
+                PgType.View => baseViewsDir, //ParseSchema(baseViewsDir, schema),
+                PgType.Function => baseFunctionsDir, //ParseSchema(baseFunctionsDir, schema),
+                PgType.Procedure => baseProceduresDir, //ParseSchema(baseProceduresDir, schema),
+                PgType.Domain => baseDomainsDir, //ParseSchema(baseDomainsDir, schema),
+                PgType.Type => baseTypesDir, //ParseSchema(baseTypesDir, schema),
+                PgType.Schema => baseSchemasDir, //ParseSchema(baseSchemasDir, schema),
+                PgType.Sequence => baseSequencesDir, //ParseSchema(baseSequencesDir, schema),
+                PgType.Extension => baseExtensionsDir, //ParseSchema(baseExtensionsDir, schema),
+                _ => null
+            };
+
+            int? count = type switch
+            {
+                PgType.Table => ++tableCount,
+                PgType.View => ++viewsCount,
+                PgType.Function => ++functionsCount,
+                PgType.Procedure => ++proceduresCount,
+                PgType.Domain => ++domainsCount,
+                PgType.Type => ++typesCount,
+                PgType.Schema => ++schemasCount,
+                PgType.Sequence => ++sequencesCount,
+                PgType.Extension => ++extensionsCount,
                 _ => null
             };
 
@@ -160,7 +187,25 @@ public class DumpBuilder
                 }
             }
 
-            var file = string.Format(Path.GetFullPath(Path.Combine(dir, shortFilename)), connectionName);
+            var shortName = $"{schemaDir}{shortFilename}";
+            var file = Path.GetFullPath(dir.FormatByName(
+                ("0", shortName),
+                ("file", shortName),
+                ("fileName", shortName),
+                ("1", schema),
+                ("schema", schema),
+                ("2", objectName),
+                ("name", objectName),
+                ("3", connectionName),
+                ("connection", connectionName),
+                ("4", count),
+                ("count", count),
+                ("number", count)))
+                .Replace("//", "/")
+                .Replace("\\\\", "\\")
+                .SanitazePath();
+            
+            dir = Path.GetDirectoryName(file);
             var relative = file.GetRelativePath();
 
             if (!dirs.Contains(dir.TrimEnd('/').TrimEnd('\\')))
@@ -234,6 +279,7 @@ public class DumpBuilder
         }
     }
 
+    /*
     private static void RemoveDir(string dir)
     {
         if (!Current.Value.DumpConsole)
@@ -253,4 +299,5 @@ public class DumpBuilder
             Directory.Delete(dir, true);
         }
     }
+    */
 }

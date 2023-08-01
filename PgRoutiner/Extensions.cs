@@ -113,7 +113,7 @@ public static class Extensions
         }
         index1 = index1 + seq.Length;
         var index2 = 0;
-        for(var i = index1; i < value.Length; i++)
+        for (var i = index1; i < value.Length; i++)
         {
             var ch = value[i];
             if (ch.IsSqlChar())
@@ -381,5 +381,10 @@ public static class Extensions
             }
         }
         return ns;
+    }
+
+    public static string FormatByName(this string input, params (string key, object value)[] parameters)
+    {
+        return parameters.Aggregate(input, (current, parameter) => current.Replace(string.Concat("{", parameter.key, "}"), parameter.value?.ToString() ?? ""));
     }
 }

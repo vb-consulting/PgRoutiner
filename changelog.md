@@ -1,5 +1,43 @@
 ﻿# VERSION HISTORY
 
+## 5.3.6
+
+### Fix wrong counts in TOC of markdown document.
+
+### Improve `DbObjects` section name handling.
+
+Now, dir names can accept named formats (instead of just numbers). This applies to `DbObjectsDir`˙and all `DbObjectsDirNames` (`Tables`, `Views`, `Enums`, `Sequences`, `Functions`, `Procedures`, `Extensions`).
+
+Available named formats are:
+
+- "0" - constructed file name: `subdir/schema_name_object_name.sql` where sibdir is schema name if not public, otherwise it's empty (base dir). This is for compatibility with previous versions.
+- "file" - same.
+- "fileName" - same.
+- "1" - schema name.
+- "schema" - same.
+- "2" - object name.
+- "name" - same.
+- "3" - connection name
+- "connection" - same.
+- "4" - object count number (for this type).
+- "count" - same.
+- "number" - same.
+
+This feature is added to support flyway migrations name format for repeatable migrations. 
+
+For example, if we have `DbObjectsDirNames` set to `{"Functions": "R__F_{count}_{schema}.{name}.sql"}` then we will have following directory files:
+
+- `/R__F_1_public.func1.sql`
+- `/R__F_1_public.func2.sql`
+
+This repeatable flyway migration format.
+
+Default name settings are the same as before. 
+
+```
+
+```json
+
 ## 5.3.5
 
 - Massive improvements to markdown documentation generation.
