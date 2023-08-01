@@ -1,5 +1,11 @@
 ﻿# VERSION HISTORY
 
+## 5.3.7
+
+### Unit test section
+
+Generated unit tests project will now use [XUnit.Npgsql](https://github.com/vb-consulting/XUnit.Npgsql) library.
+
 ## 5.3.6
 
 ### Fix wrong counts in TOC of markdown document.

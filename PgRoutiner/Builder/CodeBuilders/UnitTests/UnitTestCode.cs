@@ -35,9 +35,9 @@ public class UnitTestCode : Code
             Class.AppendLine($"{I1}///</summary>");
         }
 
-        Class.AppendLine($"{I1}public class {Name} : PostgreSqlConfigurationFixture");
+        Class.AppendLine($"{I1}public class {Name} : PostgreSqlUnitTest");
         Class.AppendLine($"{I1}{{");
-        Class.AppendLine($"{I2}public {Name}(PostgreSqlUnitTests tests) : base(tests) {{ }}");
+        Class.AppendLine($"{I2}public {Name}(PostgreSqlUnitTestFixture tests) : base(tests) {{ }}");
         if (ext == null || ext.Methods == null || !ext.Methods.Any())
         {
             BuildEmptyTest();

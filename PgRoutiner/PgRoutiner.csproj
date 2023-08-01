@@ -14,10 +14,10 @@
     <PackageProjectUrl Condition="'$(Configuration)'!='SelfContained'">https://github.com/vb-consulting/PgRoutiner</PackageProjectUrl>
     <PackageTags Condition="'$(Configuration)'!='SelfContained'">PostgreSQL</PackageTags>
     <GeneratePackageOnBuild Condition="'$(Configuration)'!='SelfContained'">true</GeneratePackageOnBuild>
-    <Version>5.3.6.0</Version>
+    <Version>5.3.7.0</Version>
     <PackageId Condition="'$(Configuration)'!='SelfContained'">dotnet-pgroutiner</PackageId>
-    <AssemblyVersion>5.3.6.0</AssemblyVersion>
-    <FileVersion>5.3.6.0</FileVersion>
+    <AssemblyVersion>5.3.7.0</AssemblyVersion>
+    <FileVersion>5.3.7.0</FileVersion>
     <Configurations>Debug;Release;SelfContained</Configurations>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
@@ -27,11 +27,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Test\**" />
     <Compile Remove="_exe\**" />
-    <EmbeddedResource Remove="Test\**" />
     <EmbeddedResource Remove="_exe\**" />
-    <None Remove="Test\**" />
     <None Remove="_exe\**" />
   </ItemGroup>
 

@@ -54,19 +54,19 @@ public class UnitTestBuilder
                 return;
             }
             Process.Run("dotnet", "add package Microsoft.NET.Test.Sdk", dir);
-            Process.Run("dotnet", "add package Microsoft.Extensions.Configuration", dir);
-            Process.Run("dotnet", "add package Microsoft.Extensions.Configuration.Json", dir);
-            Process.Run("dotnet", "add package Microsoft.Extensions.Configuration.Binder", dir);
+            Process.Run("dotnet", "add package xunit", dir);
+            Process.Run("dotnet", "add package xunit.runner.visualstudio", dir);
+            Process.Run("dotnet", "add package coverlet.collector", dir);
+
             Process.Run("dotnet", "add package Norm.net", dir);
+            Process.Run("dotnet", "add package Npgsql", dir);
+            Process.Run("dotnet", "add package FluentAssertions", dir);
+            Process.Run("dotnet", "add package XUnit.Npgsql", dir);
+
             if (extensions.Any(e => e.Methods.Any(m => m.Sync == false)))
             {
                 Process.Run("dotnet", "add package System.Linq.Async", dir);
             }
-            Process.Run("dotnet", "add package Npgsql", dir);
-            Process.Run("dotnet", "add package xunit", dir);
-            Process.Run("dotnet", "add package xunit.runner.visualstudio", dir);
-            Process.Run("dotnet", "add package coverlet.collector", dir);
-            Process.Run("dotnet", "add package FluentAssertions", dir);
         }
         else
         {
