@@ -27,8 +27,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Test\**" />
     <Compile Remove="_exe\**" />
+    <EmbeddedResource Remove="Test\**" />
     <EmbeddedResource Remove="_exe\**" />
+    <None Remove="Test\**" />
     <None Remove="_exe\**" />
   </ItemGroup>
 
