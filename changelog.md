@@ -10,7 +10,7 @@ Now, dir names can accept named formats (instead of just numbers). This applies 
 
 Available named formats are:
 
-- "0" - constructed file name: `subdir/schema_name_object_name.sql` where sibdir is schema name if not public, otherwise it's empty (base dir). This is for compatibility with previous versions.
+- "0" - constructed file name: `subdir/schema_name_object_name.sql` where subdir is schema name if not public, otherwise it's empty (base dir). This is for compatibility with previous versions.
 - "file" - same.
 - "fileName" - same.
 - "1" - schema name.
