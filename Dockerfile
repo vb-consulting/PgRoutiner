@@ -7,7 +7,7 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 as builder
 # Install pgroutiner global tool with latest version:
 # Note, to use a different version add --version <number> command line parameter to this line
 #
-RUN dotnet tool install --global dotnet-pgroutiner --version 5.3.3
+RUN dotnet tool install --global dotnet-pgroutiner --version 5.3.7
 
 #
 # Now, Install .NET7 runtime, which is a significantly smaller image:
