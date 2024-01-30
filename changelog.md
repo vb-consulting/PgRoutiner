@@ -1,5 +1,9 @@
 ﻿# VERSION HISTORY
 
+## 5.3.8
+
+- Upgrade to .net 8
+
 ## 5.3.7
 
 ### Unit test section

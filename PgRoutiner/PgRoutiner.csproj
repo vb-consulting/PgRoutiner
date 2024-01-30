@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <IsPackable Condition="'$(Configuration)'!='SelfContained'">true</IsPackable>
     <PackAsTool Condition="'$(Configuration)'!='SelfContained'">true</PackAsTool>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>pgroutiner</AssemblyName>
     <Authors>Vedran Bilopavlović</Authors>
     <Company>VB-Software</Company>
