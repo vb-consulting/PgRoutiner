@@ -1,4 +1,4 @@
-﻿using Norm;
+﻿using System.Data;
 using PgRoutiner.DataAccess.Models;
 
 namespace PgRoutiner.Builder.CodeBuilders;
@@ -26,7 +26,8 @@ public class CodeRoutinesBuilder : CodeBuilder
             {
                 foreach (var ns in settings.CustomDirs)
                 {
-                    if (this.connection.WithParameters(name, ns.Key).Read<bool>("select $1 similar to $2").Single())
+                    //if (this.connection.WithParameters(name, ns.Key).Read<bool>("select $1 similar to $2").Single())
+                    if (this.connection.Read<bool>([(name, DbType.AnsiString, null), (ns.Key, DbType.AnsiString, null)],"select $1 similar to $2", r => r.Val<bool>(0)).Single())
                     {
                         extraNamespace = ns.Value.PathToNamespace().Replace("..", ".");
                         RoutinesCustomDirs.Add(name, ns.Value);

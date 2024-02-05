@@ -1,5 +1,5 @@
-﻿using System.Xml.Linq;
-using Norm;
+﻿using System.Data;
+using System.Xml.Linq;
 using PgRoutiner.DataAccess.Models;
 
 namespace PgRoutiner.Builder.Dump;
@@ -173,7 +173,8 @@ public class DumpBuilder
                 {
                     foreach (var ns in Current.Value.CustomDirs)
                     {
-                        if (builder.Connection.WithParameters(objectName, ns.Key).Read<bool>("select $1 similar to $2").Single())
+                        //if (builder.Connection.WithParameters(objectName, ns.Key).Read<bool>("select $1 similar to $2").Single())
+                        if (builder.Connection.Read<bool>([(objectName, DbType.AnsiString, null), (ns.Key, DbType.AnsiString, null)], "select $1 similar to $2", r => r.Val<bool>(0)).Single())
                         {
                             extraDir = ns.Value;
                             DbObjectsCustomDirs.Add(objectName, ns.Value);

@@ -68,7 +68,11 @@ public static class Extensions
         }
         if (value.Length == 0)
         {
-            return string.Empty;
+            return null;
+        }
+        if (value.Contains('\''))
+        {
+            return null;
         }
         var index = value.IndexOf(word);
         if (index == -1)

@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace PgRoutiner.SettingsManagement
 {

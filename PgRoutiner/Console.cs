@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics.Metrics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Configuration;
 
 namespace PgRoutiner;
@@ -99,14 +101,17 @@ static partial class Program
             if (hashes.Contains(arg.Alias))
             {
                 var prop = settings.GetType().GetProperty(arg.Original);
-                if (prop.GetType() == typeof(bool))
+                if (prop.PropertyType == typeof(bool))
                 {
-                    settings.GetType().GetProperty(arg.Original).SetValue(settings, true);
+                    prop.SetValue(settings, true);
                 }
             }
         }
         return settings;
     }
+
+    //[UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_count")]
+    //private static extern ref int GetCountField(Current settings);
 
     public static string[] ParseArgs(string[] rawArgs)
     {

@@ -9,6 +9,7 @@ global using PgRoutiner.SettingsManagement;
 
 using System.Diagnostics;
 using System.Reflection;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using PgRoutiner.Builder;
 using PgRoutiner.Connection;
@@ -36,6 +37,9 @@ static partial class Program
         //rawArgs = new string[] { "--settings", "--list", "--definition" };
         //rawArgs = new string[] { "--search", "film" };
         //rawArgs = new string[] { "--inserts", "select b.first_name || ' ' || b.last_name as actor, array_agg(c.title) as titles from film_actor a inner join actor b on a.actor_id = b.actor_id inner join film c on a.film_id = c.film_id group by b.first_name || ' ' || b.last_name" };
+        //rawArgs = new string[] { "-l" };
+        //rawArgs = new string[] { "-l", "film_in" };
+        //rawArgs = new string[] { "-r", "-d" };
 
         var args = ParseArgs(rawArgs);
 
@@ -148,9 +152,9 @@ static partial class Program
             return;
         }
 
-        //WriteLine("");
+        WriteLine("");
         Runner.Run(connection);
-        //WriteLine("");
+        WriteLine("");
     }
 
     public static string Version
@@ -193,7 +197,7 @@ static partial class Program
         }
     }
 
-    private class DirSettings
+    public class DirSettings
     {
         public string Dir { get; set; } = null;
     }
@@ -204,9 +208,9 @@ static partial class Program
             new Dictionary<string, string> {
                     { Current.DirArgs.Alias, Current.DirArgs.Name.Replace("--", "") }
             });
-        var config = configBuilder.Build();
+
         var ds = new DirSettings();
-        config.Bind(ds);
+        configBuilder.Build().Bind(ds);
         if (!string.IsNullOrEmpty(ds.Dir))
         {
             CurrentDir = Path.Join(CurrentDir, ds.Dir);

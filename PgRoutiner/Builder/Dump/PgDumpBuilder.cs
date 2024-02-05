@@ -1,8 +1,5 @@
-﻿using Norm;
-using PgRoutiner.Builder.DiffBuilder;
-using PgRoutiner.DataAccess.Models;
+﻿using PgRoutiner.DataAccess.Models;
 using PgRoutiner.DumpTransformers;
-using static System.Net.Mime.MediaTypeNames;
 using static PgRoutiner.Builder.Dump.DumpBuilder;
 
 namespace PgRoutiner.Builder.Dump;
@@ -693,7 +690,7 @@ public class PgDumpBuilder
         var result = GetDumpItemLines(args, item, lineAction: line =>
         {
             var entry = line.FirstWordAfter("CREATE TYPE");
-            if (entry != null)
+            if (entry != null && !line.Contains('\''))
             {
                 var type = new PgItem { Type = PgType.Type };
                 var parts = entry.Split('.');

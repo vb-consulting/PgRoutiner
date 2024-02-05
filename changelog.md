@@ -1,9 +1,9 @@
 ﻿# VERSION HISTORY
 
-## 5.3.8
-## 5.3.8
+## 5.4.0
 
-- Upgrade to .net 8
+- Upgrade to .NET8
+- Make project AOT ready and prepare and test AOT builds.
 
 ## 5.3.7
 

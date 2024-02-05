@@ -1,4 +1,6 @@
-﻿namespace PgRoutiner.DataAccess.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace PgRoutiner.DataAccess.Models;
 
 public class PgParameter
 {

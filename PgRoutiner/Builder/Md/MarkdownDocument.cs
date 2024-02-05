@@ -1,10 +1,7 @@
 ﻿using System.Data;
-using System.Runtime;
-using System.Security.AccessControl;
-using System.Xml.Linq;
-using Norm;
 using PgRoutiner.DataAccess.Models;
 using static PgRoutiner.Builder.Dump.DumpBuilder;
+using PgRoutiner.DataAccess;
 
 namespace PgRoutiner.Builder.Md;
 
@@ -279,7 +276,8 @@ public class MarkdownDocument
                     {
                         foreach (var ns in settings.CustomDirs)
                         {
-                            if (this.connection.WithParameters(result.Name, ns.Key).Read<bool>("select $1 similar to $2").Single())
+                            //if (this.connection.WithParameters(result.Name, ns.Key).Read<bool>("select $1 similar to $2").Single())
+                            if (this.connection.Read<bool>([(result.Name, DbType.AnsiString, null), (ns.Key, DbType.AnsiString, null)], "select $1 similar to $2", r => r.Val<bool>(0)).Single())
                             {
                                 customDir = ns.Value;
                                 break;
@@ -494,8 +492,11 @@ public class MarkdownDocument
                 {
                     additionalTableComment = null;
                     additionalColumnComments = connection
-                        .WithParameters((schema, DbType.AnsiString), (result.Table, DbType.AnsiString))
-                        .Read<string, string, string>(additionalCommentsSql)
+                        //.WithParameters((schema, DbType.AnsiString), (result.Table, DbType.AnsiString))
+                        .Read<(string, string, string)>(
+                        [(schema, DbType.AnsiString, null), (result.Table, DbType.AnsiString, null)], 
+                        additionalCommentsSql,
+                        r => (r.Val<string>(0), r.Val<string>(1), r.Val<string>(2)))
                         .Select(tuple =>
                         {
                             additionalTableComment ??= tuple.Item1;
@@ -791,7 +792,8 @@ public class MarkdownDocument
                 {
                     foreach (var ns in settings.CustomDirs)
                     {
-                        if (this.connection.WithParameters(name, ns.Key).Read<bool>("select $1 similar to $2").Single())
+                        //if (this.connection.WithParameters(name, ns.Key).Read<bool>("select $1 similar to $2").Single())
+                        if (this.connection.Read<bool>([(name, DbType.AnsiString, null), (ns.Key, DbType.AnsiString, null)], "select $1 similar to $2", r => r.Val<bool>(0)).Single())
                         {
                             extraDir = ns.Value;
                             break;
