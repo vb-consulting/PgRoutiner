@@ -302,7 +302,7 @@ Create "appsettings.PgRoutiner.json" in this dir [Y/N]?
 
 - You can also write current settings to a custom configuration by using any of these options `-wcf`, `--write-config-file`, for example, `pgroutiner --write-config-file ../../dir2/my-config.json`
 
-- [The full configuration file with all default values for this current version](/readme-default-config.md)
+- [The full configuration file with all default values for this current version](https://github.com/vb-consulting/PgRoutiner/blob/master/readme-default-config.md)
 
 ## Working With Database
 
