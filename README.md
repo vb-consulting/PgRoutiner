@@ -285,7 +285,7 @@ Connection password:
 
 - If there is no configuration section `PgRoutiner` is present anywhere, and if you run `pgroutiner` without any parameters, you will be offered to create the default configuration file `appsettings.PgRoutiner.json`:
 
-```
+```console
 You don't seem to be using any available command-line commands and PgRoutiner configuration seems to be missing.
 Would you like to create a custom settings file "appsettings.PgRoutiner.json" with your current values?
 This settings configuration file can be used to change settings for this directory without using a command-line.
