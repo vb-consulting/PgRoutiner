@@ -74,14 +74,14 @@ That is it.
 
 To install a global tool (recommended):
 
-```
+```console
 $ dotnet tool install --global dotnet-pgroutiner
 Tool 'dotnet-pgroutiner' (version '5.4.0') was successfully installed.
 ```
 
 To update a global tool:
 
-```
+```console
 $ dotnet tool update --global dotnet-pgroutiner
 Tool 'dotnet-pgroutiner' was successfully updated from version '5.0.7' to version '5.0.8'.
 ```
@@ -115,9 +115,7 @@ TL-DR:
 
 - From your command line type **`dotnet tool restore`**
 
-- Run the tool with **`dotnet tool run pgroutiner [arguments]`**, for example **`dotnet tool run pgroutiner --help`**
-
-
+- Run the tool with **`dotnet tool run pgroutiner [arguments]`**, for example, **`dotnet tool run pgroutiner --help`**
 
 ## Quick Start
 
@@ -132,7 +130,7 @@ TL-DR:
 
 ## Connection Management
 
-- `pgroutiner` is designed to run from **the .NET project root** - and it will read **any available connections** from standard configuration JSON files (like `appsettings.Development.json` and `appsettings.json`, in that order).
+- The `pgroutiner` is designed to run from **the .NET project root** - and it will read **any available connections** from standard configuration JSON files (like `appsettings.Development.json` and `appsettings.json`, in that order).
   
 - It will use the **first available connection string** from the `ConnectionStrings` section:
 
@@ -149,7 +147,7 @@ appsettings.json
 
 - Running simple info command to test the connection to see the environment:
   
-```
+```console
 ~$ pgroutiner --info
 
 Version:
@@ -181,12 +179,12 @@ pg_dump:
  pg_dump
 
 pg_restore:
- pg_restore
+ /usr/lib/postgresql/13/bin/pg_restore
 ```
 
 - If the connection isn't available anywhere in the configuration files - the user is prompted to enter the connection parameters:
 
-```
+```console
 ~$ pgroutiner
 
 Connection server [localhost]:
@@ -198,17 +196,17 @@ Connection password [environment var.]:
 
 - To specify the specific connection name, use `-c` or `--connection` parameter:
 
-```
+```console
 ~$ pgroutiner -c ConnectionString2 --info
 ```
 
-```
+```console
 ~$ pgroutiner --connection ConnectionString2 --info
 ```
 
 - If the connection name is not found, or the connection is not defined - the user will be prompted to enter valid connection parameters:
 
-```
+```console
 Connection server [localhost]:
 Connection port [5432]:
 Connection database [postgres]:
@@ -218,13 +216,13 @@ Connection password:
 
 - Connection server, port, database, and user have predefined default values (`localhost`, `5432`, `postgres`, `postgres`) - hit Enter to skip and use the default.
 
-- Command line can use the entire connection string with `-c` or `--connection` - instead of the connection name:
+- The Command line can use the entire connection string with `-c` or `--connection` - instead of the connection name:
 
-```
+```console
 ~$ pgroutiner --connection "Server=localhost;Db=test;Port=5432;User Id=postgres;Password=postgres;" --info
 ```
 
-- Both, command-line and configuration files can take advantage of the PostgreSQL URL format `postgresql://{user}:{password}@{server}:{port}/{database}` - instead of [Npgsql connection string](https://www.npgsql.org/doc/connection-string-parameters.html):
+- Both command-line and configuration files can take advantage of the PostgreSQL URL format `postgresql://{user}:{password}@{server}:{port}/{database}` - instead of [Npgsql connection string](https://www.npgsql.org/doc/connection-string-parameters.html):
 
 
 ```json
@@ -237,24 +235,24 @@ Connection password:
 
 - Or, from the command line:
 
-```
+```console
 ~$ pgroutiner --connection "postgresql://postgres:postgres@localhost:5432/test" --info
 ```
 
 - Every part of the connection (server, port, database, user, and password) can be omitted from the connection string or connection URL and it will be replaced with the following environment variables:
 
-  - `PGHOST` or `PGSERVER` to replace the missing server parameter.
-  - `PGPORT` to replace the missing port parameter.
-  - `PGDATABASE` or `PGDB` to replace the missing database parameter.
-  - `PGHOST` or `PGSERVER` to replace the missing server parameter.
-  - `PGUSER` to replace the missing user parameter.
-  - `PGPASSWORD` or `PGPASS` to replace the missing password parameter.
+- `PGHOST` or `PGSERVER` to replace the missing server parameter.
+- `PGPORT` to replace the missing port parameter.
+- `PGDATABASE` or `PGDB` to replace the missing database parameter.
+- `PGHOST` or `PGSERVER` to replace the missing server parameter.
+- `PGUSER` to replace the missing user parameter.
+- `PGPASSWORD` or `PGPASS` to replace the missing password parameter.
 
 ## Configuration Management
 
 - Every possible command-line option and switch can be configured in the configuration file.
 
-- Use `PgRoutiner` configuration section in the JSON configuration (`appsettings.json` or `appsettings.Development.json`), example:
+- Use the `PgRoutiner` configuration section in the JSON configuration (`appsettings.json` or `appsettings.Development.json`), example:
 
 ```json
 {
@@ -269,7 +267,7 @@ Connection password:
 
 - `pgroutiner` will read and apply configuration settings as the default value if the configuration section `PgRoutiner` exists. 
 
-- Use the command-line to override any configuration settings.
+- Use the command line to override any configuration settings.
 
 - As a general rule, any configuration setting has its equivalent in the command line as the kebab-cased sitch starting with two dashes. Examples:
   - Setting: `SkipConnectionPrompt`, command line: `--skip-connection-prompt`
@@ -312,7 +310,7 @@ Create "appsettings.PgRoutiner.json" in this dir [Y/N]?
 
 - Examples:
 
-```
+```console
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner --list
 SCHEMA public
 EXTENSION plpgsql
@@ -324,7 +322,7 @@ VIEW public.customer_list
 ...
 ```
 
-```
+```console
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner -l
 SCHEMA public
 EXTENSION plpgsql
@@ -336,7 +334,7 @@ VIEW public.customer_list
 ...
 ```
 
-```
+```console
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner -ls
 SCHEMA public
 EXTENSION plpgsql
@@ -348,9 +346,9 @@ VIEW public.customer_list
 ...
 ```
 
-- Note: when searching trough object list, match is highlighted.
+- Note: when searching through the object list, the match is highlighted.
 
-```
+```console
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner --list film
 VIEW public.film_list
 VIEW public.nicer_but_slower_film_list
@@ -364,7 +362,7 @@ FUNCTION public.film_not_in_stock(integer, integer)
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$
 ```
 
-```
+```console
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner --list actor
 TABLE public.actor
 VIEW public.actor_info
@@ -379,7 +377,7 @@ vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$
 
 - Examples:
 
-```
+```console
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner -ddl actor
 --
 -- Table: public.actor
@@ -399,7 +397,7 @@ CREATE TRIGGER last_updated BEFORE UPDATE ON public.actor FOR EACH ROW EXECUTE F
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$
 ```
 
-```
+```console
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner -ddl film
 --
 -- Table: public.film
@@ -432,7 +430,7 @@ CREATE TRIGGER last_updated BEFORE UPDATE ON public.film FOR EACH ROW EXECUTE FU
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$
 ```
 
-```
+```console
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner --ddl film_in_stock
 --
 -- Function: public.film_in_stock
@@ -460,7 +458,7 @@ vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$
 
 - Note: to dump multiple definitions use semicolon-separated values:
 
-```
+```console
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner --ddl "actor;film_in_stock"
 --
 -- Table: public.actor
@@ -509,7 +507,7 @@ vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$
 
 - Note: search expression match is highlighted.
 
-```
+```console
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner --search "select public.group_concat"
 --
 -- View: public.actor_info
@@ -536,7 +534,7 @@ ALTER TABLE public.actor_info OWNER TO postgres;
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$
 ```
 
-```
+```console
 vbilopav@DESKTOP-O3A6QK2:~/dev/dvdrental$ pgroutiner --search smallint
 --
 -- Table: public.store
