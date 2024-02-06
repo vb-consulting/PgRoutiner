@@ -1,8 +1,8 @@
 ﻿```jsonc
-/* PgRoutiner (5.0.7.0) settings */
+/* PgRoutiner (5.4.0.0) settings */
 {
   "ConnectionStrings": {
-    "PostgresConnection": "postgresql://postgres:postgres@localhost:5432/postgres"
+    "PostgresConnection": "postgresql://postgres:postgres@127.0.0.1:5432/postgres"
     //"Connection1": "Server={server};Db={database};Port={port};User Id={user};Password={password};"
     //"Connection2": "postgresql://{user}:{password}@{server}:{port}/{database}"
   },
@@ -110,8 +110,9 @@
     "SkipSyncMethods": false,
     "SkipAsyncMethods": false,
     "SourceHeaderLines": [
+      "// pgroutiner auto-generated code",
       "#pragma warning disable CS8632",
-      "// pgroutiner auto-generated code"
+      "#pragma warning disable CS8618"
     ],
     "Ident": 4,
     "MethodParameterNames": {
@@ -158,6 +159,9 @@
     ],
     "RoutinesCustomCodeLines": [ ],
     "RoutinesCancellationToken": false,
+    "CustomDirs": { },
+    "RoutinesIncludeDefintionInComment": false,
+    "RoutinesOpenConnectionIfClosed": true,
 
     /*
       Unit tests code-generation settings:
@@ -249,6 +253,7 @@
     "MdIncludeTableCountEstimates": false,
     "MdIncludeTableStats": false,
     "MdRoutinesFirst": false,
+    "MdIncludeRoutineDefinitions": false,
     "MdAdditionalCommentsSql": null,
     "MdExportToHtml": false,
     "CommitMd": false,
@@ -265,7 +270,7 @@
 
     /*
       Model output from a query, table, or enum settings:
-      -mo --mo -model --model -model-output --model-output to set file name with expressions from which to build models. If file doesn't exists, expressions are literal. It can be one or more queries or table/view names separated by semicolon.
+      -mo --mo -model --model -model-output --model-output to set file name with expressions from which to build models. If file doesn't exists, expressions are literal. It can be one or more queries or table/view/enum names separated by semicolon.
       -mof --mof -model-file --model-file --model-output-file to set a single file name for models output. If this file extensions is "ts" it will generate TypeScript code, otherwise it will generate CSharp code. To generate TypeScript code to console set this value to ".ts".
       -mos --mos -model-save --model-save --model-save-to-model-dir (switch) to enable saving each generated model file to model dir.
     */
