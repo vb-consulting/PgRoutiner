@@ -12,21 +12,24 @@ Using your .NET configuration project connection string (or custom-defined conne
 
 - **See the [presentation slides](https://docs.google.com/presentation/d/1ZXGAqIyyjDc1O2YqzV94uoJ_7stg3IxpOdeCLnr6XIo/edit?usp=sharing)**
 
-- Note: all examples in this readme, as well as in the presentation above are using [PostgreSQL Sample Database](https://www.postgresqltutorial.com/postgresql-getting-started/postgresql-sample-database/) from [PostgreSQL Tutorial]
+- Note: all examples in this readme, as well as in the presentation above use [PostgreSQL Sample Database](https://www.postgresqltutorial.com/postgresql-getting-started/postgresql-sample-database/) from [PostgreSQL Tutorial]
 
 - Quick start: 
 
 > 1. Download native executable files (not dependent on any framework) for the latest version from the [releases page](https://github.com/vb-consulting/PgRoutiner/releases/).
 > 2. Set the appropriate path to the downloaded executable file.
 > 3. Type `pgroutiner --info`
+> 4. Note: working with native executables is many times faster, they very short startup time and they offer many times better user experience.
 
 Table of Contents:
 
 - [PgRoutiner - Database-First For .NET and PostgreSQL](#pgroutiner---database-first-for-net-and-postgresql)
   - [Installation](#installation)
-    - [Requirements](#requirements)
-    - [Global .NET tool](#global-net-tool)
-    - [Local .NET tool](#local-net-tool)
+    - [Download Binaries](#download-binaries)
+    - [Install .NET Tool](#install-net-tool)
+      - [Requirements](#requirements)
+      - [Global .NET tool](#global-net-tool)
+      - [Local .NET tool](#local-net-tool)
     - [Docker image](#docker-image)
   - [Quick Start](#quick-start)
   - [Connection Management](#connection-management)
@@ -48,18 +51,34 @@ Table of Contents:
   
 ## Installation
 
-### Requirements
+### Download Binaries
 
-- To use as a .NET tool, .NET 7 SDK is required. See the [global .NET tool](#global-net-tool) or the [local .NET tool](#local-net-tool) for installation details.
+This is the fastest and easiest way to get started with the PgRoutiner tool. The [releases page](https://github.com/vb-consulting/PgRoutiner/releases/) contains downloadable executables that are not dependent on anything. No framework or docker is required, just plain old native executable. 
+
+This is actually, the preferable way of using the PgRoutiner tool. Native executables are very much optimized and have very short startup time and they offer many times better user experience.
+
+Here are the steps:
+
+1. Download native executable files (not dependent on any framework) for the latest version from the [releases page](https://github.com/vb-consulting/PgRoutiner/releases/).
+2. Set the appropriate path to the downloaded executable file.
+3. Type `pgroutiner --info` to see f it works.
+
+That is it.
+
+### Install .NET Tool
+
+#### Requirements
+
+- To use as a .NET tool, .NET 8 SDK is required. See the [global .NET tool](#global-net-tool) or the [local .NET tool](#local-net-tool) for installation details.
 - To use as a Docker tool, Docker is required. See the [Docker image](#docker-image) for installation details.
 
-### Global .NET tool
+#### Global .NET tool
 
 To install a global tool (recommended):
 
 ```
 $ dotnet tool install --global dotnet-pgroutiner
-Tool 'dotnet-pgroutiner' (version '5.0.8') was successfully installed.
+Tool 'dotnet-pgroutiner' (version '5.4.0') was successfully installed.
 ```
 
 To update a global tool:
@@ -71,7 +90,7 @@ Tool 'dotnet-pgroutiner' was successfully updated from version '5.0.7' to versio
 
 This will enable a global command line tool `pgroutiner`. Try typing `pgroutiner --help`.
 
-### Local .NET tool
+#### Local .NET tool
 
 To add a local tool to your project only you need to create a manifest file and add a tool without `--global` switch as described in this [tutorial](https://learn.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use).
 
