@@ -26,11 +26,10 @@ Table of Contents:
 - [PgRoutiner - Database-First For .NET and PostgreSQL](#pgroutiner---database-first-for-net-and-postgresql)
   - [Installation](#installation)
     - [Download Binaries](#download-binaries)
-    - [Install .NET Tool](#install-net-tool)
+    - [.NET Tool](#net-tool)
       - [Requirements](#requirements)
       - [Global .NET tool](#global-net-tool)
       - [Local .NET tool](#local-net-tool)
-    - [Docker image](#docker-image)
   - [Quick Start](#quick-start)
   - [Connection Management](#connection-management)
   - [Configuration Management](#configuration-management)
@@ -65,12 +64,11 @@ Here are the steps:
 
 That is it.
 
-### Install .NET Tool
+### .NET Tool
 
 #### Requirements
 
 - To use as a .NET tool, .NET 8 SDK is required. See the [global .NET tool](#global-net-tool) or the [local .NET tool](#local-net-tool) for installation details.
-- To use as a Docker tool, Docker is required. See the [Docker image](#docker-image) for installation details.
 
 #### Global .NET tool
 
@@ -119,27 +117,7 @@ TL-DR:
 
 - Run the tool with **`dotnet tool run pgroutiner [arguments]`**, for example **`dotnet tool run pgroutiner --help`**
 
-### Docker image
 
-There is a [Dockerfile](https://github.com/vb-consulting/PgRoutiner/blob/master/Dockerfile) that you can use.
-
-- Download or copy this file: `wget https://raw.githubusercontent.com/vb-consulting/PgRoutiner/master/Dockerfile`
-
-- Run **`docker build -t pgroutiner .`** to build the image.
-
-- To run pgroutiner type **`docker run -it --rm pgroutiner --help`** for help or **`docker run -it --rm pgroutiner --info`** to display current info or **`docker run -it --rm pgroutiner --list`** to list database objects.
-
-- Tip: if you are using Linux, you can create an **alias** for this command.
-
-- To mount a current directory when running (where presumably your configuration may be located) use the following switches:
-    - `docker run --rm -it -v $(pwd):/home/ pgroutiner` on Linux
-    - `docker run --rm -it -v ${PWD}:/home/ pgroutiner` on PowerShell
-    - `docker run --rm -it -v $%cd%:/home/ pgroutiner` on Win Command-Line
-
-- Note: to be able to access your local database, use **`host.docker.internal`** as your hostname instead of `localhost for example **`docker run` --rm -it -v ${PWD}:/home/ pgroutiner -c "Server=host.docker.internal;Db=database;Port=5432;User Id=user;Password=password;"`** - or set the network parameter to connect to netwrok. See the Docker manual for more details.
-
-- Note2: This Dockerfile supports PostgreSQL clients 9.6, 10, 11, 12, 13, 14 and 15. 
-- You can narrow it down to your version by editing line 45 and make the image smaller by omitting unnecessary client versions.
 
 ## Quick Start
 
