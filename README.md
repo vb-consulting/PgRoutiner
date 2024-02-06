@@ -10,11 +10,15 @@ Using your .NET configuration project connection string (or custom-defined conne
 - Generate markdown documentation.
 - Generate CRUD command functions.
 
-- **See the [presentations slides](https://docs.google.com/presentation/d/1ZXGAqIyyjDc1O2YqzV94uoJ_7stg3IxpOdeCLnr6XIo/edit?usp=sharing)**
+- **See the [presentation slides](https://docs.google.com/presentation/d/1ZXGAqIyyjDc1O2YqzV94uoJ_7stg3IxpOdeCLnr6XIo/edit?usp=sharing)**
 
-- **Successfully used by the [opennovations.eu](https://opennovations.eu/) in a highly dockerized environment.**
+- Note: all examples in this readme, as well as in the presentation above are using [PostgreSQL Sample Database](https://www.postgresqltutorial.com/postgresql-getting-started/postgresql-sample-database/) from [PostgreSQL Tutorial]
 
-- Note: all examples in this readme, as well as in the presentation above are using [PostgreSQL Sample Database](https://www.postgresqltutorial.com/postgresql-getting-started/postgresql-sample-database/) from [PostgreSQL Tutorial](https://www.postgresqltutorial.com/)
+- Quick start: 
+
+> 1. Download native executable files (not dependent on any framework) for the latest version from the [releases page](https://github.com/vb-consulting/PgRoutiner/releases/).
+> 2. Set the appropriate path to the downloaded executable file.
+> 3. Type `pgroutiner --info`
 
 Table of Contents:
 

@@ -9,7 +9,6 @@ global using PgRoutiner.SettingsManagement;
 
 using System.Diagnostics;
 using System.Reflection;
-using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using PgRoutiner.Builder;
 using PgRoutiner.Connection;
@@ -165,15 +164,7 @@ static partial class Program
             {
                 return version;
             }
-            string location;
-#if SELFCONTAINED
-                location = $"{System.AppContext.BaseDirectory}pgroutiner.exe";
-#else
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            location = assembly.Location;
-#endif
-            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(location);
-            version = fvi.FileVersion;
+            version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             return version;
         }
     }
