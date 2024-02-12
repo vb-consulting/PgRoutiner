@@ -11,6 +11,11 @@ Using your .NET configuration project connection string (or custom-defined conne
 - Generate CRUD command functions.
 
 - **See the [presentation slides](https://docs.google.com/presentation/d/1ZXGAqIyyjDc1O2YqzV94uoJ_7stg3IxpOdeCLnr6XIo/edit?usp=sharing)**
+- **See the [PgRoutiner Blog](https://vb-consulting.github.io/blog/pgroutiner/)**
+- **See the [PgRoutiner Concept  Blog](https://vb-consulting.github.io/blog/pgroutiner/concept/)**
+- **See the [PgRoutiner Database Management Blog](https://vb-consulting.github.io/blog/pgroutiner/database/)**
+- **See the [PgRoutiner Code-Gen Blog](https://vb-consulting.github.io/blog/pgroutiner/code-gen/)**
+- **See the [PgRoutiner Documentation Blog](https://vb-consulting.github.io/blog/pgroutiner/documentation/)**
 
 - Note: all examples in this readme, as well as in the presentation above use [PostgreSQL Sample Database](https://www.postgresqltutorial.com/postgresql-getting-started/postgresql-sample-database/) from [PostgreSQL Tutorial]
 
